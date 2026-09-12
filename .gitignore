@@ -1,0 +1,10 @@
+# Never commit ROMs, saves or emulator binaries
+*.gba
+*.bak
+*.sav
+*.ss*
+*.nro
+state___pycache__/
+*.png
+*_log.txt
+*_done.txt

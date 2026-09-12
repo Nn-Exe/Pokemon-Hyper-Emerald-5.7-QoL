@@ -1,0 +1,9 @@
+cheats = 2
+
+cheat0_desc = "OHKO (own Atk/SpAtk/Speed 9999)"
+cheat0_code = "82024086 270F+8202408A 270F+8202408C 270F"
+cheat0_enable = false
+
+cheat1_desc = "EXP x (from PC cheats file)"
+cheat1_code = "82000060 270F+82022D48 270F+82022F7C 270F+8202309C 270F+820241F0 270F"
+cheat1_enable = false
