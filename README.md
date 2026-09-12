@@ -14,6 +14,7 @@ of `Hyper EMR LA v5.7 bugfix 2.gba`.
 | Multi-register key items | Register up to **4** key items. In the field, **SELECT** opens a popup listing them on ↑ → ↓ ←; press the direction to use. One registered item is used directly, as in vanilla. Slots stored in unused save bytes. | `patches/keyreg/` |
 | Quick ball throw | In wild battles, **tap R** at the action menu to throw the first ball in your Poké Balls pocket without opening the bag. **Hold R** shows the ball and count; **LEFT/RIGHT** while holding changes the default. A ball icon with an "R" badge sits at the left of the screen while the menu is up. | `patches/quickball/` |
 | Auto-run toggle | **R** in the overworld toggles auto-run (persistent in the save). B then walks instead. Respects Running Shoes and map rules. | `patches/autorun/` |
+| L quick repel | **L** in the overworld asks "Use the Max Repel?" (falls back to Super Repel, then Repel) and uses it via the hack's own repel routine. Silent when a repel is active or you have none. | `patches/lrepel/` |
 | Bag stack cap 999 | Every pocket holds up to 999 per item (was 99, berries already 999). Bag list shows 3 digits. Shops still sell 99 per purchase. | `patches/bagcap/` |
 | OHKO cheat | Optional emulator cheat (no ROM change): pins your active Pokémon's Atk/Sp.Atk/Speed to 9999 in battle. Files for mGBA (`.cheats`) and RetroArch (`.cht`). | `cheats/` |
 
