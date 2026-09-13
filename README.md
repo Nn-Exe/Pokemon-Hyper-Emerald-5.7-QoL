@@ -105,6 +105,11 @@ CHANGELOG.md  what changed when
 The `test_*.lua` scripts contain absolute paths from the development machine; edit the `dir` line at the top before
 running them with `mGBA.exe --script test.lua rom.gba` (an mGBA build with scripting is required).
 
+## License
+
+The scripts, tools, docs and translation data are released under the [MIT License](LICENSE). The game and the
+hack are not covered and are not distributed here.
+
 ## Credits
 
 - Hyper Emerald: Lost Artifacts is the work of its original Chinese authors; this repository only distributes a patch.
