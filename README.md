@@ -15,6 +15,7 @@ of `Hyper EMR LA v5.7 bugfix 2.gba`.
 | Quick ball throw | In wild battles, **tap R** at the action menu to throw the first ball in your Poké Balls pocket without opening the bag. **Hold R** shows the ball and count; **LEFT/RIGHT** while holding changes the default. A ball icon with an "R" badge sits at the left of the screen while the menu is up. | `patches/quickball/` |
 | Auto-run toggle | **R** in the overworld toggles auto-run (persistent in the save). B then walks instead. Respects Running Shoes and map rules. | `patches/autorun/` |
 | L quick repel | **L** in the overworld asks "Use the Max Repel?" (falls back to Super Repel, then Repel) and uses it via the hack's own repel routine. Silent when a repel is active or you have none. | `patches/lrepel/` |
+| In-party move relearner | **Moves** option in the party menu's action list (below Item). Opens the game's own Move Relearner for that Pokémon, using the hack's expanded move lists, no Heart Scale needed. Returns to the overworld when done. | `patches/relearner/` |
 | Bag stack cap 999 | Every pocket holds up to 999 per item (was 99, berries already 999). Bag list shows 3 digits. Shops still sell 99 per purchase. | `patches/bagcap/` |
 | OHKO cheat | Optional emulator cheat (no ROM change): pins your active Pokémon's Atk/Sp.Atk/Speed to 9999 in battle. Files for mGBA (`.cheats`) and RetroArch (`.cht`). | `cheats/` |
 
@@ -46,6 +47,7 @@ python patches/autorun/autorun_patch.py       out3.gba out4.gba
 python patches/bagcap/bagcap_patch.py         out4.gba out5.gba
 python patches/lrepel/lrepel_patch.py         out5.gba out6.gba
 python translation/patch_remaining.py         out6.gba out7.gba   # second text pass (needs translation/plan_remaining.json)
+python patches/relearner/relearner_patch.py   out7.gba out8.gba
 ```
 
 ## How it was built (for other ROM hackers)
