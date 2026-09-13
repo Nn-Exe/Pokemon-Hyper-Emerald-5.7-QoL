@@ -9,7 +9,7 @@ of `Hyper EMR LA v5.7 bugfix 2.gba`.
 
 | Feature | What it does | Folder |
 |---|---|---|
-| English translation | ~6,500 leftover Chinese strings (post-game, Volo/Arceus sidequest, Sinnoh story, Pokédex, moves, items, Battle Frontier) translated and relocated into free space with a safe-space allocator. Game code left byte-identical, so saves stay compatible. | `translation/` |
+| English translation | ~6,500 leftover Chinese strings (post-game, Volo/Arceus sidequest, Sinnoh story, Pokédex, moves, items, Battle Frontier) translated and relocated into free space with a safe-space allocator. Game code left byte-identical, so saves stay compatible. A second pass (`translation/patch_remaining.py`) adds ~1,940 more strings: every remaining Pokédex description (Gen 4+), Battle Frontier/Tower apprentice dialogue, Sinnoh trainer speeches, item/ability/move descriptions. | `translation/` |
 | Bag sort | **START** in the bag sorts the current pocket. Repeated presses cycle **type → name → amount** (detected from the current order, no extra RAM). Message shown in the description box. Move item (SELECT) untouched. | `patches/bagsort/` |
 | Multi-register key items | Register up to **4** key items. In the field, **SELECT** opens a popup listing them on ↑ → ↓ ←; press the direction to use. One registered item is used directly, as in vanilla. Slots stored in unused save bytes. | `patches/keyreg/` |
 | Quick ball throw | In wild battles, **tap R** at the action menu to throw the first ball in your Poké Balls pocket without opening the bag. **Hold R** shows the ball and count; **LEFT/RIGHT** while holding changes the default. A ball icon with an "R" badge sits at the left of the screen while the menu is up. | `patches/quickball/` |
@@ -44,6 +44,8 @@ python patches/keyreg/keyreg_patch.py         out1.gba out2.gba
 python patches/quickball/quickball_patch.py   out2.gba out3.gba
 python patches/autorun/autorun_patch.py       out3.gba out4.gba
 python patches/bagcap/bagcap_patch.py         out4.gba out5.gba
+python patches/lrepel/lrepel_patch.py         out5.gba out6.gba
+python translation/patch_remaining.py         out6.gba out7.gba   # second text pass (needs translation/plan_remaining.json)
 ```
 
 ## How it was built (for other ROM hackers)

@@ -203,3 +203,21 @@ Earlier "story crashes" were all this harness artifact — the story build actua
 - Item names/descriptions (table 0x08FC2C7C): all English. Move names (0x09D30258, 936): all English.
 - Other Chinese still referenced via aligned table pointers: Battle Frontier / Battle Tower apprentice lines (0x08244520..), move tutor text 0x082C0E02, dive sign 0x08290BAA, mega stone / memory disc descriptions 0x09551E4D.., 0x09553334.., dex-style flavour texts 0x09600456.., 0x09604260...
 - The older "Story English (experimental)" build has 28 strings translated that the Full English base did not (mostly the 17 Silvally memory disc descriptions and 4 Battle Frontier lines).
+
+## Remaining-text pass (2026-09-13) — `translation/patch_remaining.py`
+Second translation pass on top of the feature build. Pipeline: `build_corpus.py` (every Chinese string reached by a
+structural pointer: aligned table word, loadpointer arg, trainerbattle arg; the ORIGINAL ROM is consulted for the
+"pointer into the middle = script header" test because earlier passes moved those loadpointers) -> `plan_remaining.py`
+(junk filter, format inference from the English neighbours of the same pointer table, existing translations by
+hanzi key, BUF-token check) -> `patch_remaining.py` (encode, safe-pool placement, repoint, confinement asserts).
+Result: 1,944 strings relocated (2,08x pointers), incl. all remaining Pokedex descriptions (dex table @0x09250000, +16;
+box = 4 lines x ~42 chars, verified in mGBA), Battle Frontier/Tower apprentice and partner lines, Sinnoh trainer
+speeches, memory disc / mega stone / ability / move descriptions, easy-chat and secret-base lines.
+Left alone on purpose: 42 link/trainer-card messages whose source ends in a page-break control (the earlier pass found
+such strings can hang the text engine), a handful of short name-table entries with no context, and strings reached only
+by unaligned (unverifiable) pointers.
+Lessons: (1) byte-granular pointer scans produce coincidences inside Chinese text — only aligned words, loadpointer
+and trainerbattle args count as references; (2) an aligned occurrence with no other ROM pointer within +-48 bytes is a
+coincidence in data (2 found) — never rewrite it; (3) box sizes must be inferred from the whole pointer table, not a
+few neighbours (ability descriptions looked like 19-char one-liners from 12 neighbours, 30x2 from the full table);
+(4) a script pointer whose script starts `0f 00 <ptr>` decodes as "Chinese" — reject by header pattern.
