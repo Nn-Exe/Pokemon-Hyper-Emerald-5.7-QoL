@@ -195,3 +195,11 @@ Earlier "story crashes" were all this harness artifact — the story build actua
 - Full continuation state + tools: `_translation_work/` (start with RESUME.md)
 - Save swap: use in-game Save (.sav transfers across builds by filename); NOT save-states (.ss0)
 - Emulator for testing: mGBA dev build in %TEMP%\mgba-dev
+
+## Translation audit (2026-09-13)
+`translation/audit_chinese.py <rom> --dump out.txt` lists every Chinese-encoded string that is still referenced by a pointer, grouped by how it is reached. Result for the current Modern build (`translation/remaining_chinese_audit.txt`, 882 readable strings):
+- Story/overworld dialogue: essentially done. 1 loadpointer string + 5 copies of one Sinnoh trainer taunt (0x09892851..) remain.
+- Pokedex descriptions: table @0x09250000 (stride 32, description ptr at +16), 960 entries -> 602 English, 358 Chinese (roughly dex #394 onward: Sinnoh/Unova/Kalos/Alola/Galar species).
+- Item names/descriptions (table 0x08FC2C7C): all English. Move names (0x09D30258, 936): all English.
+- Other Chinese still referenced via aligned table pointers: Battle Frontier / Battle Tower apprentice lines (0x08244520..), move tutor text 0x082C0E02, dive sign 0x08290BAA, mega stone / memory disc descriptions 0x09551E4D.., 0x09553334.., dex-style flavour texts 0x09600456.., 0x09604260...
+- The older "Story English (experimental)" build has 28 strings translated that the Full English base did not (mostly the 17 Silvally memory disc descriptions and 4 Battle Frontier lines).
