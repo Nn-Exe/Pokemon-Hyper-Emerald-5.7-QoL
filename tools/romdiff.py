@@ -27,7 +27,7 @@ def apply(orig_path, patch_path, out_path):
     assert p[:8] == MAGIC, "not an HPATCH1 file"
     size, = struct.unpack_from("<I", p, 8)
     assert len(a) == size, "original ROM size mismatch"
-    assert p[12:16] == hashlib.sha1(a).digest()[:4], "this is not the expected original ROM"
+    assert p[12:16] == hashlib.sha1(a).digest()[:4], "this is not the expected original ROM (need Hyper EMR LA v5.7 bugfix 2.gba, the Chinese hack, NOT vanilla Emerald; see README)"
     o = 16
     while o < len(p):
         off, ln = struct.unpack_from("<II", p, o); o += 8

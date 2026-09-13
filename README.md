@@ -3,7 +3,8 @@
 English translation and modern quality-of-life features for the Chinese Pokémon Emerald ROM hack
 **Hyper Emerald: Lost Artifacts v5.7** (32 MB, game code `BPEE`), done as binary patches with no source access.
 
-No ROMs or saves are included. You apply the patch to your own copy of `Hyper EMR LA v5.7 bugfix 2.gba`.
+No ROMs or saves are included. You apply the patch to your own copy of `Hyper EMR LA v5.7 bugfix 2.gba`
+(the Chinese hack, **not** vanilla Pokémon Emerald; see [Which ROM do I patch?](#which-rom-do-i-patch-read-this-first)).
 Existing saves keep working.
 
 <p align="center">
@@ -27,6 +28,23 @@ Existing saves keep working.
 | **OHKO / max-stat cheat** (optional, no ROM change) — pins your active Pokémon's Atk, Sp. Atk and Speed to 9999 in battle. | mGBA `.cheats`, RetroArch `.cht` | — |
 
 ## Install
+
+> ### Which ROM do I patch? (read this first)
+> **You must patch the Chinese hack, not vanilla Pokémon Emerald.** The patch only works on this exact file:
+>
+> | | |
+> |---|---|
+> | File | `Hyper EMR LA v5.7 bugfix 2.gba` (the "bugfix 2" build of Hyper Emerald: Lost Artifacts v5.7 from the hack's developer) |
+> | Size | 33,554,432 bytes (32 MB) |
+> | SHA-1 | `f785bed9d9e82e8da13ea4a5ad747e3ea4ec7ba9` |
+>
+> It will **not** work on:
+> - vanilla **Pokémon Emerald (USA)** or any other official ROM (16 MB, different game entirely)
+> - other Hyper Emerald releases (v5.6, v5.7 without bugfix, bugfix 1, etc.)
+> - the older community English translation of Hyper Emerald (this patch already contains the full translation, so start from the untouched Chinese ROM)
+>
+> If the apply step prints `this is not the expected original ROM`, your file is one of the above. Check its SHA-1
+> (`certutil -hashfile "your.gba" SHA1` on Windows, `sha1sum your.gba` on Linux/macOS) against the value in the table.
 
 1. Get the original ROM `Hyper EMR LA v5.7 bugfix 2.gba` (33,554,432 bytes, sha1 in [release/CHECKSUMS.txt](release/CHECKSUMS.txt)).
 2. Apply the patch (Python 3, no extra packages):
