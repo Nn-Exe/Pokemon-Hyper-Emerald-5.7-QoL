@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ &amp; known issues — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="Troubleshooting for Pokémon Hyper Emerald: Lost Artifacts v5.7: patch errors, saves, crashes, softlocks, remaining Chinese text, and answers to common questions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose">
+<p class="eyebrow">Help</p>
+<h1>FAQ &amp; known issues</h1>
+<p class="lede">Patch problems, save problems, and the hack's own quirks. Check here before assuming your ROM is broken.</p>
+
+<h2>Patching</h2>
+<h3>"this is not the expected original ROM"</h3>
+<p>Your file is not the "bugfix 2" build of v5.7. Check the SHA-1 against <code>f785bed9d9e82e8da13ea4a5ad747e3ea4ec7ba9</code> (see <a href="getting-started.html">Install &amp; play</a>). Vanilla Emerald is 16 MB; the hack is 32 MB. The older community English ROM will also be refused: the patch already contains the full translation, so it has to start from the untouched Chinese ROM.</p>
+<h3>Can I apply this on top of another patch or cheat-modified ROM?</h3>
+<p>No. The patcher compares every byte it changes with what it expects, so any other modification makes it stop. Apply to a clean ROM and add cheats as emulator codes instead.</p>
+<h3>Does it need the translation-only build first?</h3>
+<p>No. The release patch goes from the Chinese ROM straight to the final build in one step.</p>
+
+<h2>Saves</h2>
+<h3>My save is gone after switching to the new ROM</h3>
+<p>Emulators match the <code>.sav</code> by file name. Rename either the ROM or the save so the base names match. The save data itself is compatible in both directions.</p>
+<h3>Can I use save states from the old ROM?</h3>
+<p>No. Save states capture the whole ROM image and memory, so they only work with the exact ROM they were made on. Save in-game, switch ROMs, then load the battery save.</p>
+<h3>Will future patch versions break my save?</h3>
+<p>The QoL features keep their state in bytes the game never used and the save format is untouched, so updates are designed to be save-compatible. Keep a backup of the <code>.sav</code> anyway.</p>
+
+<h2>The hack's own known issues</h2>
+<p>These come from the hack, not from the patch, and were reported by players of v5.5–v5.7. Workarounds where known:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Problem</th><th>What to do</th></tr></thead>
+<tbody>
+<tr><td>Softlock or freeze with the sound mode set to <strong>Stereo</strong></td><td>Set sound to <strong>Mono</strong> in the in-game Options menu. Reported for several versions.</td></tr>
+<tr><td>No experience after the Elite Four in some saves</td><td>Linked to the trainer-level / obedience system; check that your trainer level is high enough for your Pokémon's level and keep progressing the post-game story. Save often.</td></tr>
+<tr><td>Crash when catching certain Pokémon with a Master Ball</td><td>Use another ball on legendaries where possible, or save before throwing.</td></tr>
+<tr><td>Crash in the post-game Xerneas encounter (older versions)</td><td>Fixed in the "bugfix" builds of v5.7. Make sure your base ROM is bugfix 2.</td></tr>
+<tr><td>Shop purchase soft-resets the game</td><td>Only happens for shops that the hack's custom mart code does not know; the retail shops are fine. This is why the patch does not add a Rare Candy shop.</td></tr>
+<tr><td>The bag freezes when the cursor lands on one item</td><td>Press SELECT to skip over that item, then B to leave the bag.</td></tr>
+<tr><td>Save disappears after the League (PC emulators)</td><td>Set the emulator's save type to <strong>Flash 128K</strong>; the hack needs the full 128 KB save.</td></tr>
+<tr><td>Evolution by stone does not teach the new form's move</td><td>Use the party menu's <em>Moves</em> option (the patch's relearner) to pick it up.</td></tr>
+<tr><td>Game freezes in the Volo / Arceus cutscene</td><td>This was a bug in the older community translation (text written into memory the game still used). The current patch fixes it.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>Text</h2>
+<h3>I still see a few Chinese lines</h3>
+<p>About 50 strings are intentionally left in Chinese: link-battle and Trainer Card messages that end in a page-break control (rewriting those can hang the text engine), a few short name-table entries without context, and text baked into images such as the title logo. If you see Chinese <em>dialogue</em> during normal play, report it with a screenshot on the <a href="https://github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL/issues">GitHub issues page</a>.</p>
+<h3>A stat-boost message from an X item is not coloured</h3>
+<p>The hack draws that message inside the bag window with its own routine that ignores colour codes. Stat changes from moves and abilities are coloured.</p>
+
+<h2>Features</h2>
+<h3>R does nothing in battle</h3>
+<p>Quick throw only works in wild <em>single</em> battles at the action menu, with at least one ball in the Poké Balls pocket and room in the party or PC. It is disabled in trainer, Safari, double, link and Battle Frontier battles.</p>
+<h3>R does not toggle running</h3>
+<p>You need the Running Shoes, and the map must allow running (as in vanilla, you cannot run inside most buildings).</p>
+<h3>L does nothing</h3>
+<p>Either a repel is already active or you carry none. The hack's own "use another?" prompt still appears when a repel wears off.</p>
+<h3>The relearner returns me to the overworld</h3>
+<p>That is expected; the game's relearner exits to the field. Open the party menu again to continue.</p>
+
+<h2>General</h2>
+<h3>Is the hack complete?</h3>
+<p>Yes. v5.7 is a finished release with Hoenn, Sinnoh and the post-game. The English patch has been played through the areas its tests cover, not all forty-plus hours, so odd text is still possible in deep post-game screens.</p>
+<h3>Where do I get the ROM?</h3>
+<p>The guide and the repository do not distribute ROMs. Get the hack from its original release thread and patch it yourself.</p>
+
+<nav class="pager">
+<a href="items.html"><span>Previous</span>Mega Stones &amp; key items</a>
+<a class="next" href="credits.html"><span>Next</span>Credits &amp; sources</a>
+</nav>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

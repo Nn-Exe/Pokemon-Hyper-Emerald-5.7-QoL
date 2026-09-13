@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credits &amp; sources — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="Who made Pokémon Hyper Emerald: Lost Artifacts, who made the English + QoL patch, and where the information in this guide comes from.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose">
+<p class="eyebrow">Help</p>
+<h1>Credits &amp; sources</h1>
+<p class="lede">This is a fan guide. The game belongs to its authors; the data here was read from the ROM and from the community.</p>
+
+<h2>The hack</h2>
+<p><strong>Pokémon Hyper Emerald: Lost Artifacts</strong> (口袋妖怪 究极绿宝石) is the work of its Chinese authors: Destvol, Satochu, Popy, Potato, Hurricane, Feiyixiang and their team. It is built on Pokémon Emerald and was originally released through Baidu. The earlier community English translation (up to Champion Island) was made by Luciano Fire, Gustavo Neves and Li Yun and served as the starting point for the text work in the patch.</p>
+
+<h2>The English + QoL patch</h2>
+<p>Binary patches on the "bugfix 2" build of v5.7, with no source access: full translation of the remaining text, bag sort, 999 stack cap, four registered key items, quick ball throw, auto-run, L quick repel, in-party move relearner, and coloured stat names. Tools: mGBA (with Lua scripting for automated tests), Capstone, Keystone, Python. Scripts, tools, docs and translation data are MIT-licensed; the game and the hack are not covered and are not distributed.</p>
+<p>Repository: <a href="https://github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL">github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL</a>. The engineering log with every address and hook is in <a href="https://github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL/blob/main/docs/NOTES.md">docs/NOTES.md</a>.</p>
+
+<h2>Where the guide's data comes from</h2>
+<ul>
+<li><strong>Wild encounters, trainer teams, map names, item and species lists</strong>: read directly from the patched ROM with the scripts in the repository. These are the same bytes the game uses, so they are exact for v5.7 bugfix 2.</li>
+<li><strong>Story, quest steps and NPC hints</strong>: reconstructed from the game's dialogue (the translated text) and checked against community playthroughs where possible.</li>
+<li><strong>Legendary and Mega Stone locations</strong>: community guides for v5.5–v5.6 (listed below), cross-checked with the dialogue and the ROM's script data. Anything that could not be confirmed for v5.7 is marked as unverified on its page.</li>
+</ul>
+
+<h2>Further reading</h2>
+<ul id="further">
+<li><a href="https://www.pokecommunity.com/threads/hyper-emerald-lost-artifacts.531499/">PokéCommunity discussion thread</a></li>
+<li><a href="https://www.scribd.com/document/939116945/Pokemon-Hyper-Emerald-v5-6-Lost-Artifacts-Guide">"Leon's" v5.6 location guide (Scribd)</a>: route encounters and static encounters for the older version</li>
+<li><a href="https://www.scribd.com/document/461872589/33422-docx">Mega Stone locations (Scribd)</a></li>
+<li><a href="https://www.youtube.com/watch?v=9p9cO5ZtH50">All Legendary Gen 1–8 locations, v5.6 (YouTube)</a></li>
+<li><a href="https://www.youtube.com/watch?v=IarP0RP5OFU">All Mega Stone locations, v5.6 (YouTube)</a></li>
+<li><a href="https://www.youtube.com/watch?v=J9iKR3n9fxk">All Z-Crystal locations, v5.6 (YouTube)</a></li>
+<li><a href="https://www.youtube.com/playlist?list=PL1ZWk9MwNoN08id0BSDite3fC_4voOJzP">Post-game walkthrough playlist, English translation (YouTube)</a></li>
+<li><a href="https://pt.scribd.com/document/753823416/Guia-Hyper-Emerald-5-5-Lost-Artifacts-Copia-7">Guia da Hyper Emerald 5.5 (Portuguese, Scribd)</a>: difficulty modes, starters, tutors</li>
+<li><a href="https://www.pokeharbor.com/2024/03/pokemon-hyper-emerald-v5-5-lost-artifacts/">pokeharbor page and comment thread</a>: bug workarounds, Rocket passwords, trade-evolution NPC</li>
+<li><a href="https://www.9game.cn/kdygjjlbs/8432931.html">9game v5.5 text walkthrough (Chinese)</a> and the <a href="https://www.bilibili.com/video/BV1Aa4y1k7RK/">49-part Bilibili video guide (Chinese)</a></li>
+<li><a href="https://www.wlgooo.com/14904.html">v5.5 release notes and known-bug list (Chinese mirror)</a></li>
+</ul>
+
+<h2>Reporting mistakes</h2>
+<p>If a level, location or step here is wrong, open an issue on the <a href="https://github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL/issues">repository</a> with a screenshot. The guide pages are plain HTML in the repository's <code>docs/</code> folder, so pull requests are welcome too.</p>
+
+<nav class="pager">
+<a href="faq.html"><span>Previous</span>FAQ &amp; known issues</a>
+<a class="next" href="index.html"><span>Back to</span>Overview</a>
+</nav>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QoL features &amp; controls — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="Every quality-of-life feature added by the English + QoL patch for Hyper Emerald v5.7: bag sort, 999 stack cap, four registered key items, quick ball throw, auto-run, L quick repel, in-party move relearner, coloured stat names.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose">
+<p class="eyebrow">Start here</p>
+<h1>QoL features &amp; controls</h1>
+<p class="lede">What the English + QoL patch adds on top of the hack, and which button does what. All of it works on existing saves.</p>
+
+<h2>Controls at a glance</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Where</th><th>Button</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td>Overworld</td><td><span class="key">R</span></td><td>Toggle auto-run on/off (sound cue plays)</td></tr>
+<tr><td>Overworld</td><td><span class="key">L</span></td><td>Offer to use a Repel (Max → Super → Repel)</td></tr>
+<tr><td>Overworld</td><td><span class="key">SELECT</span></td><td>Use the registered key item, or pick one of up to four</td></tr>
+<tr><td>Bag</td><td><span class="key">START</span></td><td>Sort the current pocket (type → name → amount)</td></tr>
+<tr><td>Bag</td><td><span class="key">SELECT</span></td><td>Move an item (unchanged from the hack)</td></tr>
+<tr><td>Bag</td><td><span class="key dpad">◀</span> <span class="key dpad">▶</span></td><td>Switch pockets (the hack uses the D-pad, not L/R)</td></tr>
+<tr><td>Wild battle, action menu</td><td><span class="key">R</span> tap</td><td>Throw the first ball in your Poké Balls pocket</td></tr>
+<tr><td>Wild battle, action menu</td><td><span class="key">R</span> hold + <span class="key dpad">◀</span><span class="key dpad">▶</span></td><td>See the ball and count, pick another ball</td></tr>
+<tr><td>Party menu</td><td><em>Moves</em> option</td><td>Open the Move Relearner for that Pokémon, no Heart Scale</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>Full English text</h2>
+<p>Roughly 6,000 strings that were still Chinese in the community translation are now English: the post-game and Lost Artifacts story (Volo and Arceus), the Sinnoh region, every Pokédex entry for all 960 species, item, ability and move descriptions, Battle Frontier text and trainer dialogue. About 50 strings stay Chinese on purpose (link-battle and Trainer Card messages whose control codes can hang the text engine, a few name-table entries with no context, and image-baked text such as the title art).</p>
+<div class="gallery">
+<figure><img src="showcase/pokedex.gif" alt="Pokédex entries in English" width="320"><figcaption>Pokédex entries, including Gen 4–8 species.</figcaption></figure>
+</div>
+
+<h2>Bag sort</h2>
+<p>Press <span class="key">START</span> in any bag pocket. Each press cycles the sort order: <strong>type</strong> (the game's internal item order) → <strong>name</strong> → <strong>amount</strong>. A message in the description box confirms the mode. The order is written to the bag itself, so it stays sorted after you close the menu.</p>
+<div class="gallery">
+<figure><img src="showcase/bag-sort.gif" alt="Bag sort cycling through modes" width="320"><figcaption>START cycles type, name and amount.</figcaption></figure>
+</div>
+
+<h2>Bag stack cap 999</h2>
+<p>Every pocket now holds up to 999 of an item (the hack allowed 99, except Berries). The quantity column shows three digits. The shop's buy picker still stops at 99 per purchase, so buy twice if you want more.</p>
+<div class="gallery">
+<figure><img src="showcase/bag-999.png" alt="Bag showing x999" width="320"><figcaption>Three-digit quantities.</figcaption></figure>
+</div>
+
+<h2>Register up to four key items</h2>
+<p>In the Key Items pocket, <em>Register</em> works on up to four items; every registered item shows the SEL marker. In the overworld, <span class="key">SELECT</span> behaves as in vanilla when only one item is registered. With two or more, a popup lists them on <span class="key dpad">▲</span> <span class="key dpad">▶</span> <span class="key dpad">▼</span> <span class="key dpad">◀</span>; press a direction to use that item, or B/SELECT to cancel. The hack's Mach Bike ↔ Acro Bike swap works on every slot.</p>
+<div class="gallery">
+<figure><img src="showcase/key-register.png" alt="Key item popup" width="320"><figcaption>The directional popup with three items registered.</figcaption></figure>
+</div>
+
+<h2>Quick ball throw</h2>
+<p>In a wild single battle, at the Fight/Bag/Pokémon/Run menu:</p>
+<ul>
+<li><strong>Tap <span class="key">R</span></strong> to throw the ball in slot 1 of your Poké Balls pocket without opening the bag.</li>
+<li><strong>Hold <span class="key">R</span></strong> to see the ball name and count. While holding, <span class="key dpad">◀</span> <span class="key dpad">▶</span> rotates the pocket so a different ball becomes the default (this reorders the pocket, so it persists in the save). A long hold or a cycle releases without throwing.</li>
+<li>A ball icon with a red "R" badge at the bottom-left of the screen marks that the feature is available.</li>
+</ul>
+<p>Disabled in trainer, Safari, double, link and Battle Frontier battles, when you have no balls, and when both party and PC are full.</p>
+<div class="gallery">
+<figure><img src="showcase/quick-ball.png" alt="Quick ball widget" width="320"><figcaption>The R badge shows during the action menu.</figcaption></figure>
+</div>
+
+<h2>Auto-run toggle</h2>
+<p>Press <span class="key">R</span> in the overworld to toggle. When on, walking becomes running without holding B, and holding B walks instead. The setting is saved with your game. It respects the Running Shoes and any map where running is not allowed (buildings, some caves), exactly like vanilla.</p>
+
+<h2>L quick repel</h2>
+<p>Press <span class="key">L</span> in the overworld. The game asks "Use the Max Repel?", falling back to Super Repel and then Repel depending on what you carry. It does nothing while a repel is already active or when you have none. When a repel wears off, the hack's own "use another?" prompt appears; that was already part of Hyper Emerald.</p>
+<div class="gallery">
+<figure><img src="showcase/l-repel.gif" alt="L repel prompt" width="320"><figcaption>One press, one confirmation.</figcaption></figure>
+<figure><img src="showcase/repel-prompt.png" alt="Repel wore off prompt" width="320"><figcaption>The hack's native "use another?" prompt.</figcaption></figure>
+</div>
+
+<h2>In-party move relearner</h2>
+<p>Open the party menu, pick a Pokémon, and choose <em>Moves</em>. The game's Move Relearner opens for that Pokémon with the hack's expanded move lists, and no Heart Scale is consumed. When you finish you return to the overworld rather than the party menu.</p>
+<div class="gallery">
+<figure><img src="showcase/relearner.gif" alt="Relearner from the party menu" width="320"><figcaption>Party menu → Moves.</figcaption></figure>
+</div>
+
+<h2>Coloured stat names</h2>
+<p>In every "rose" / "fell" battle message the stat name is coloured: Attack red, Defense orange, Speed light green, Sp. Atk pink, Sp. Def blue, Accuracy and Evasiveness yellow. The X-item message the hack shows inside the bag window is drawn by the hack's own routine and stays plain.</p>
+<div class="gallery">
+<figure><img src="showcase/stat-colors.gif" alt="Coloured stat names" width="320"><figcaption>Swords Dance and Tail Whip.</figcaption></figure>
+</div>
+
+<h2>Things that were investigated and left out</h2>
+<ul>
+<li><strong>Bigger Items pocket / PC storage</strong>: the hack stores its own flag tables in the old bag area of the save, so growing the pocket would corrupt saves.</li>
+<li><strong>Rare Candy shop</strong>: the hack's shop code only handles its own mart lists and soft-resets on any other purchase.</li>
+<li><strong>OHKO as an in-game item</strong>: delivered as an emulator cheat instead (see <a href="getting-started.html#optional-cheats">Install &amp; play</a>).</li>
+<li><strong>PC item sort</strong>: written but never verified in the emulator, so it is not in the release patch.</li>
+</ul>
+
+<nav class="pager">
+<a href="getting-started.html"><span>Previous</span>Install &amp; play</a>
+<a class="next" href="mechanics.html"><span>Next</span>Game mechanics</a>
+</nav>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

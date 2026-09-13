@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install &amp; play — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="How to patch Pokémon Hyper Emerald: Lost Artifacts v5.7 with the English + QoL patch, which ROM you need, emulator setup on PC, Android, Switch, and save compatibility.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose">
+<p class="eyebrow">Start here</p>
+<h1>Install &amp; play</h1>
+<p class="lede">Get the right ROM, apply the English + quality-of-life patch, and set up an emulator. Takes about five minutes.</p>
+
+<div class="callout warn">
+<span class="title">Read this first: which ROM to patch</span>
+<p>The patch only works on the <strong>Chinese hack itself</strong>, the "bugfix 2" build of Hyper Emerald: Lost Artifacts v5.7. It does <strong>not</strong> work on vanilla Pokémon Emerald (USA), on other Hyper Emerald versions (v5.5, v5.6, v5.7 without bugfix, bugfix 1), or on the older community English translation. Start from the untouched Chinese ROM.</p>
+</div>
+
+<h2>What you need</h2>
+<dl class="kv">
+<dt>Base ROM</dt><dd><code>Hyper EMR LA v5.7 bugfix 2.gba</code> (the hack's own release; game code <code>BPEE</code>)</dd>
+<dt>Size</dt><dd>33,554,432 bytes (32 MB, twice the size of vanilla Emerald)</dd>
+<dt>SHA-1</dt><dd><code>f785bed9d9e82e8da13ea4a5ad747e3ea4ec7ba9</code></dd>
+<dt>Patch</dt><dd><code>release/hyper-emerald-en-qol.hpatch</code> from the <a href="https://github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL">GitHub repository</a></dd>
+<dt>Tool</dt><dd>Python 3 (no extra packages) to run <code>tools/romdiff.py</code></dd>
+<dt>Result</dt><dd>SHA-1 <code>fa19d312ce155e30f31dc1461f21027c54d05405</code>; the tool verifies this for you</dd>
+</dl>
+<p>Check your file's hash before patching:</p>
+<pre><code># Windows
+certutil -hashfile "Hyper EMR LA v5.7 bugfix 2.gba" SHA1
+
+# Linux / macOS
+sha1sum "Hyper EMR LA v5.7 bugfix 2.gba"</code></pre>
+
+<h2>Apply the patch</h2>
+<ol class="steps">
+<li><strong>Download the repository</strong> Use "Code → Download ZIP" on GitHub, or clone it. You need <code>tools/romdiff.py</code> and <code>release/hyper-emerald-en-qol.hpatch</code>.</li>
+<li><strong>Run the patcher</strong>
+<pre><code>python tools/romdiff.py apply "Hyper EMR LA v5.7 bugfix 2.gba" release/hyper-emerald-en-qol.hpatch "Hyper Emerald v5.7 EN+QoL.gba"</code></pre>
+<p>The tool refuses to run on the wrong original ("this is not the expected original ROM") and checks the output's checksum when it finishes.</p></li>
+<li><strong>Play</strong> Load the new <code>.gba</code> in mGBA, RetroArch (mGBA core), or any GBA emulator. See the platform notes below.</li>
+</ol>
+
+<h2>Emulator setup</h2>
+<h3>PC (mGBA or RetroArch)</h3>
+<ul>
+<li><strong>mGBA</strong> is the reference emulator; everything in the patch was tested on it. Any recent build works.</li>
+<li><strong>RetroArch</strong>: use the mGBA core. Other GBA cores generally work too, but the optional cheat file is written for mGBA.</li>
+<li>The hack runs at normal GBA speed; fast-forward is safe and does not break scripted events.</li>
+</ul>
+<h3>Android handhelds</h3>
+<ul>
+<li>RetroArch with the mGBA core, or standalone mGBA, both run the hack well on low-end chips.</li>
+<li>Put the ROM and its <code>.sav</code> in the same folder with the same base name.</li>
+</ul>
+<h3>Nintendo Switch (homebrew mGBA)</h3>
+<ul>
+<li>mGBA 0.10.x for Switch runs the hack. Copy the ROM to your SD card and keep the file name stable so the save is picked up.</li>
+<li>Set <code>savegamePath</code> in <code>/mGBA/config.ini</code> if you want several ROM builds to share one save folder.</li>
+</ul>
+
+<h2>Saves and save states</h2>
+<div class="callout info">
+<span class="title">Your old save keeps working</span>
+<p>Battery saves (<code>.sav</code>) transfer between the original Chinese hack, the older translation-only builds and this build in either direction. The patch never touches code that reads or writes the save; the new features keep their state in bytes the game never used.</p>
+</div>
+<ul>
+<li>Emulators match saves by <strong>ROM file name</strong>. Either name the new ROM exactly like the old one, or rename the <code>.sav</code> to match the new ROM.</li>
+<li><strong>Save states</strong> (<code>.ss0</code>, <code>.state</code>) do <em>not</em> transfer between ROM builds. Do an in-game save before switching ROMs, then load the battery save.</li>
+<li>Keep a copy of your <code>.sav</code> before trying cheats or a new build. It is a 128 KB file; backups are cheap.</li>
+</ul>
+
+<h2>Optional cheats</h2>
+<p>The repository ships one cheat: it pins your active Pokémon's Attack, Sp. Atk and Speed to 9999 in battle (a one-hit-KO helper for grinding). It is a RAM code, so it changes nothing in the ROM or your save.</p>
+<ul>
+<li><strong>mGBA</strong>: copy <code>cheats/OHKO.cheats</code> next to the ROM and rename it to <code>&lt;rom name&gt;.cheats</code>. mGBA loads it automatically; toggle it in Tools → Cheats.</li>
+<li><strong>RetroArch</strong>: put <code>cheats/Hyper Emerald v5.7.cht</code> in the core's cheat folder and enable it from Quick Menu → Cheats.</li>
+</ul>
+<div class="callout warn">
+<span class="title">Do not use HP-lock or "infinite HP" codes</span>
+<p>Codes that pin the foe's HP make it impossible to faint them, because the game's faint check runs a few frames after HP reaches zero. The shipped cheat pins stats instead, which is safe.</p>
+</div>
+
+<h2>Rebuilding the patch yourself</h2>
+<p>Every feature is a standalone Python patcher that checks the exact bytes it expects before writing. The <a href="https://github.com/Nn-Exe/Pokemon-Hyper-Emerald-5.7-QoL#rebuild-from-source">repository README</a> lists the order; you need <code>keystone-engine</code>, <code>capstone</code> and <code>pillow</code>. Most players never need this.</p>
+
+<nav class="pager">
+<a href="index.html"><span>Previous</span>Overview</a>
+<a class="next" href="features.html"><span>Next</span>QoL features &amp; controls</a>
+</nav>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

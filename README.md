@@ -27,6 +27,14 @@ Existing saves keep working.
 | **Coloured stat names** — Attack red, Defense orange, Speed light green, Sp. Atk pink, Sp. Def blue, Accuracy/Evasiveness yellow in every "rose"/"fell" message. | — | ![](docs/showcase/stat-colors.png) |
 | **OHKO / max-stat cheat** (optional, no ROM change) — pins your active Pokémon's Atk, Sp. Atk and Speed to 9999 in battle. | mGBA `.cheats`, RetroArch `.cht` | — |
 
+## Guide website
+
+A full player's guide lives in [`docs/`](docs/) and is published with GitHub Pages:
+**https://nn-exe.github.io/Pokemon-Hyper-Emerald-5.7-QoL/** — install steps, every QoL feature, a walkthrough of Hoenn,
+the post-game, Sinnoh and the Lost Artifacts questline, plus wild-encounter tables, boss teams and legendary locations
+read straight from the ROM (`tools/romdata/`, `tools/build_site_data.py`; rebuild the search index with
+`tools/build_search_index.py`).
+
 ## Install
 
 > ### Which ROM do I patch? (read this first)

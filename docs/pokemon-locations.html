@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokémon locations — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="Wild encounter tables for every route, cave and sea area in Pokémon Hyper Emerald: Lost Artifacts v5.7, extracted from the ROM. Search by Pokémon or by location.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+.loc { margin-top: 28px; padding-top: 12px; border-top: 2px solid var(--line); }
+.loc h2 { margin: 0 0 4px; font-size: 22px; }
+.loc .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 8px; }
+.enc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 24px; }
+.enc h4 { margin: 8px 0 4px; }
+.enc table { font-size: 14px; }
+.enc td, .enc th { padding: 4px 8px; }
+.enc th { position: static; }
+.hit { background: var(--accent-soft); font-weight: 650; }
+.by-species .row { display: grid; grid-template-columns: 180px 1fr; gap: 8px 16px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.by-species .row .s { font-weight: 650; }
+.by-species .row .l { color: var(--ink-2); }
+.by-species .row .l span { white-space: nowrap; }
+@media (max-width: 600px) { .by-species .row { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose wide">
+<p class="eyebrow">Reference</p>
+<h1>Pokémon locations</h1>
+<p class="lede">Every wild encounter table in the ROM: grass, surfing, Rock Smash and fishing, with levels and slot odds. Type a Pokémon or a place.</p>
+
+<div class="callout plain">
+<span class="title">How to read the odds</span>
+<p>Percentages are the fixed slot odds of the Emerald engine (grass: 20, 20, 10, 10, 10, 10, 5, 5, 4, 4, 1, 1). Fishing rows are grouped by rod. "Rate" is the per-step encounter rate for that terrain. Static encounters, gifts, trades and legendaries are on the <a href="legendaries.html">Legendary Pokémon</a> page and in the walkthrough.</p>
+</div>
+
+<div class="filters">
+<input type="search" id="q" placeholder="Search a Pokémon (e.g. Ralts) or a place (e.g. Route 116)…" aria-label="Filter encounters">
+<select id="mode" aria-label="View mode">
+<option value="loc">By location</option>
+<option value="species">By Pokémon</option>
+</select>
+<span class="count" id="count"></span>
+</div>
+<div class="pill-row" id="pills"></div>
+
+<div id="out"><p class="src">loading encounter data…</p></div>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  var el = HE.el, esc = HE.escapeHtml;
+  var out = document.getElementById("out"), q = document.getElementById("q"), mode = document.getElementById("mode"), count = document.getElementById("count"), pills = document.getElementById("pills");
+  var DATA = null, region = "all";
+  var REGIONS = [["all", "All"], ["hoenn", "Hoenn"], ["sinnoh", "Sinnoh"], ["other", "Other areas"]];
+
+  HE.fetchJSON("data/wild.json").then(function (d) { DATA = d; buildPills(); render(); }).catch(function () {
+    out.innerHTML = "<p class='src'>could not load data/wild.json</p>";
+  });
+
+  function buildPills() {
+    var have = {};
+    DATA.forEach(function (m) { have[m.region || "other"] = true; });
+    REGIONS.forEach(function (r) {
+      if (r[0] !== "all" && !have[r[0]]) return;
+      var b = el("button", { "class": "pill" + (r[0] === region ? " on" : ""), text: r[1], type: "button" });
+      b.addEventListener("click", function () { region = r[0]; Array.prototype.forEach.call(pills.children, function (c) { c.classList.remove("on"); }); b.classList.add("on"); render(); });
+      pills.appendChild(b);
+    });
+  }
+
+  function slotTable(title, block, term) {
+    if (!block || !block.slots || !block.slots.length) return null;
+    var wrap = el("div", { "class": "enc" });
+    var h = el("h4", { text: title + (block.rate != null ? "  ·  rate " + block.rate : "") });
+    wrap.appendChild(h);
+    var t = el("table"); var tb = el("tbody");
+    t.appendChild(el("thead", { html: "<tr><th>Pokémon</th><th class='num'>Lv</th><th class='num'>%</th></tr>" }));
+    block.slots.forEach(function (s) {
+      var lv = s.min === s.max ? String(s.min) : s.min + "–" + s.max;
+      var tr = el("tr", { "class": term && s.species.toLowerCase().indexOf(term) >= 0 ? "hit" : "" });
+      tr.innerHTML = "<td>" + esc(s.species) + "</td><td class='num'>" + lv + "</td><td class='num'>" + s.pct + "</td>";
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); wrap.appendChild(t);
+    return wrap;
+  }
+
+  function matchesMap(m, term) {
+    if (region !== "all" && (m.region || "other") !== region) return false;
+    if (!term) return true;
+    if (m.map.toLowerCase().indexOf(term) >= 0) return true;
+    return allSlots(m).some(function (s) { return s.species.toLowerCase().indexOf(term) >= 0; });
+  }
+  function allSlots(m) {
+    var r = [];
+    ["land", "water", "rock"].forEach(function (k) { if (m[k]) r = r.concat(m[k].slots || []); });
+    if (m.fish) ["old", "good", "super"].forEach(function (k) { if (m.fish[k]) r = r.concat(m.fish[k].slots || []); });
+    return r;
+  }
+
+  function renderByLocation(term) {
+    var n = 0;
+    var frag = document.createDocumentFragment();
+    DATA.forEach(function (m) {
+      if (!matchesMap(m, term)) return;
+      n++;
+      var sec = el("section", { "class": "loc" });
+      sec.appendChild(el("h2", { text: m.map }));
+      if (m.note) sec.appendChild(el("div", { "class": "sub", text: m.note }));
+      var grid = el("div", { "class": "enc-grid" });
+      [["Grass / cave", m.land], ["Surfing", m.water], ["Rock Smash", m.rock]].forEach(function (p) {
+        var t = slotTable(p[0], p[1], term); if (t) grid.appendChild(t);
+      });
+      if (m.fish) [["Old Rod", m.fish.old], ["Good Rod", m.fish.good], ["Super Rod", m.fish["super"]]].forEach(function (p) {
+        var t = slotTable(p[0], p[1], term); if (t) grid.appendChild(t);
+      });
+      sec.appendChild(grid);
+      frag.appendChild(sec);
+    });
+    out.innerHTML = "";
+    out.appendChild(frag);
+    count.textContent = n + " location" + (n === 1 ? "" : "s");
+    if (!n) out.innerHTML = "<p class='src'>nothing matches</p>";
+  }
+
+  function renderBySpecies(term) {
+    var by = {};
+    DATA.forEach(function (m) {
+      if (region !== "all" && (m.region || "other") !== region) return;
+      var seen = {};
+      var add = function (s, how) {
+        var key = m.map + "|" + how;
+        if (seen[key]) return; seen[key] = true;
+        (by[s.species] = by[s.species] || []).push(m.map + " (" + how + ", Lv " + (s.min === s.max ? s.min : s.min + "–" + s.max) + ")");
+      };
+      if (m.land) m.land.slots.forEach(function (s) { add(s, "grass"); });
+      if (m.water) m.water.slots.forEach(function (s) { add(s, "surf"); });
+      if (m.rock) m.rock.slots.forEach(function (s) { add(s, "rock smash"); });
+      if (m.fish) ["old", "good", "super"].forEach(function (k) { if (m.fish[k]) m.fish[k].slots.forEach(function (s) { add(s, k + " rod"); }); });
+    });
+    var names = Object.keys(by).sort();
+    if (term) names = names.filter(function (nm) { return nm.toLowerCase().indexOf(term) >= 0; });
+    var box = el("div", { "class": "by-species" });
+    names.forEach(function (nm) {
+      var row = el("div", { "class": "row" });
+      row.appendChild(el("div", { "class": "s", text: nm }));
+      var l = el("div", { "class": "l" });
+      l.innerHTML = by[nm].map(function (x) { return "<span>" + esc(x) + "</span>"; }).join(" · ");
+      row.appendChild(l); box.appendChild(row);
+    });
+    out.innerHTML = ""; out.appendChild(box);
+    count.textContent = names.length + " species";
+    if (!names.length) out.innerHTML = "<p class='src'>nothing matches</p>";
+  }
+
+  function render() {
+    if (!DATA) return;
+    var term = q.value.trim().toLowerCase();
+    if (mode.value === "species") renderBySpecies(term); else renderByLocation(term);
+  }
+  var t; q.addEventListener("input", function () { clearTimeout(t); t = setTimeout(render, 120); });
+  mode.addEventListener("change", render);
+  if (location.hash.length > 1) { q.value = decodeURIComponent(location.hash.slice(1)).replace(/-/g, " "); }
+})();
+</script>
+</body>
+</html>

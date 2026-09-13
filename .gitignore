@@ -9,3 +9,7 @@ __pycache__/
 !docs/showcase/*.png
 *_log.txt
 *_done.txt
+
+# ROM-mining outputs (regenerate with tools/romdata/*.py)
+tools/romdata/out/
+tools/romdata/__pycache__/

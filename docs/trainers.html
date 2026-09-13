@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gym Leaders &amp; bosses — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="Teams, levels, held items and moves of every Gym Leader, Elite Four member, Champion, rival and boss trainer in Pokémon Hyper Emerald: Lost Artifacts v5.7, read straight from the ROM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+.boss { margin-top: 26px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.boss .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 4px; }
+.boss h3 { margin: 0; font-size: 18px; }
+.boss .cls { color: var(--muted); font-size: 13.5px; }
+.boss .where { color: var(--ink-2); font-size: 14px; margin-bottom: 6px; }
+.group-h { margin-top: 44px; }
+.all-list summary { font-size: 15px; }
+.all-list .t { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.all-list .t .n { font-weight: 600; }
+.all-list .t .p { color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose wide">
+<p class="eyebrow">Reference</p>
+<h1>Gym Leaders &amp; bosses</h1>
+<p class="lede">Teams read straight from the ROM's trainer table: species, level, held item and moves where the trainer has custom ones. Use it to plan a gym before you walk in.</p>
+
+<div class="callout plain">
+<span class="title">About levels</span>
+<p>The hack scales some boss fights with its difficulty setting and trainer-level system; the numbers here are what the ROM's trainer table stores for the normal encounter. Where a trainer has several entries (rematches, hard mode), every version is listed.</p>
+</div>
+
+<div class="filters">
+<input type="search" id="q" placeholder="Search a trainer or a Pokémon…" aria-label="Filter trainers">
+<span class="count" id="count"></span>
+</div>
+
+<div id="out"><p class="src">loading trainer data…</p></div>
+
+<h2 class="group-h">Every trainer in the ROM</h2>
+<p>The complete trainer table, for anyone checking a specific route battle. Collapsed by default.</p>
+<details class="all-list"><summary>Show all trainers</summary><div class="body" id="all"></div></details>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  var el = HE.el, esc = HE.escapeHtml;
+  var out = document.getElementById("out"), q = document.getElementById("q"), count = document.getElementById("count"), all = document.getElementById("all");
+  var DATA = null;
+  HE.fetchJSON("data/trainers.json").then(function (d) { DATA = d; render(); renderAll(); }).catch(function () {
+    out.innerHTML = "<p class='src'>could not load data/trainers.json</p>";
+  });
+
+  function partyHtml(party) {
+    var box = el("div", { "class": "party" });
+    party.forEach(function (p) {
+      var m = el("div", { "class": "mon" });
+      var h = "<div class='name'><span>" + esc(p.species) + "</span><span class='lv'>Lv " + p.level + "</span></div>";
+      if (p.item) h += "<div class='sub'>@ " + esc(p.item) + "</div>";
+      if (p.moves && p.moves.length) h += "<div class='moves'>" + p.moves.map(esc).join(" · ") + "</div>";
+      m.innerHTML = h; box.appendChild(m);
+    });
+    return box;
+  }
+
+  function trainerMatches(t, term) {
+    if (!term) return true;
+    if ((t.name + " " + t.cls + " " + (t.label || "") + " " + (t.where || "")).toLowerCase().indexOf(term) >= 0) return true;
+    return t.party.some(function (p) { return p.species.toLowerCase().indexOf(term) >= 0; });
+  }
+
+  function render() {
+    var term = q.value.trim().toLowerCase();
+    var frag = document.createDocumentFragment();
+    var n = 0;
+    DATA.groups.forEach(function (g) {
+      var members = g.trainers.filter(function (t) { return trainerMatches(t, term); });
+      if (!members.length) return;
+      frag.appendChild(el("h2", { "class": "group-h", text: g.title }));
+      if (g.intro) frag.appendChild(el("p", { text: g.intro }));
+      members.forEach(function (t) {
+        n++;
+        var b = el("section", { "class": "boss" });
+        var head = el("div", { "class": "head" });
+        head.appendChild(el("h3", { text: t.label || (t.cls ? t.cls + " " + t.name : t.name) }));
+        var meta = [];
+        if (t.variant) meta.push(t.variant);
+        if (t.double) meta.push("Double Battle");
+        meta.push(t.party.length + " Pokémon");
+        head.appendChild(el("span", { "class": "cls", text: meta.join(" · ") }));
+        b.appendChild(head);
+        if (t.where) b.appendChild(el("div", { "class": "where", text: t.where }));
+        b.appendChild(partyHtml(t.party));
+        if (t.tip) { var c = el("div", { "class": "callout plain" }); c.innerHTML = "<span class='title'>Tip</span><p>" + esc(t.tip) + "</p>"; b.appendChild(c); }
+        frag.appendChild(b);
+      });
+    });
+    out.innerHTML = ""; out.appendChild(frag);
+    count.textContent = n + " trainer" + (n === 1 ? "" : "s");
+    if (!n) out.innerHTML = "<p class='src'>nothing matches</p>";
+  }
+
+  function renderAll() {
+    var frag = document.createDocumentFragment();
+    DATA.all.forEach(function (t) {
+      var r = el("div", { "class": "t" });
+      r.innerHTML = "<div class='n'>" + esc((t.cls ? t.cls + " " : "") + t.name) + "</div><div class='p'>" +
+        t.party.map(function (p) { return esc(p.species) + " Lv" + p.level; }).join(", ") + "</div>";
+      frag.appendChild(r);
+    });
+    all.appendChild(frag);
+  }
+  var tm; q.addEventListener("input", function () { clearTimeout(tm); tm = setTimeout(render, 120); });
+})();
+</script>
+</body>
+</html>
