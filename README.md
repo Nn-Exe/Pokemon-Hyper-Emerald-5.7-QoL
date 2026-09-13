@@ -139,5 +139,5 @@ hack are not covered and are not distributed here.
 ## Credits
 
 - Hyper Emerald: Lost Artifacts is the work of its original Chinese authors; this repository only distributes a patch.
-- The community English translation up to Champion Island was the starting point for the text work.
+- **All the credits for the previous translation and for fixing the earlier bugs go to Luciano Fire, Helper, Gustavo Neves and Li Yun.** Their community English translation (up to Champion Island) was the starting point for this build; everything here is layered on top of their work.
 - Tools: mGBA, Capstone, Keystone, Python.
