@@ -16,6 +16,7 @@ of `Hyper EMR LA v5.7 bugfix 2.gba`.
 | Auto-run toggle | **R** in the overworld toggles auto-run (persistent in the save). B then walks instead. Respects Running Shoes and map rules. | `patches/autorun/` |
 | L quick repel | **L** in the overworld asks "Use the Max Repel?" (falls back to Super Repel, then Repel) and uses it via the hack's own repel routine. Silent when a repel is active or you have none. | `patches/lrepel/` |
 | In-party move relearner | **Moves** option in the party menu's action list (below Item). Opens the game's own Move Relearner for that Pokémon, using the hack's expanded move lists, no Heart Scale needed. Returns to the overworld when done. | `patches/relearner/` |
+| Coloured stat names | Battle messages colour the stat: **Attack** red, **Defense** orange, **Speed** light green, **Sp. Atk** pink, **Sp. Def** blue, **Accuracy/Evasiveness** yellow ("X's Attack sharply rose!"). Data-only: recoloured stat strings plus four unused entries of the battle text box palette. The hack's own in-bag X-item message ignores colour codes and stays plain. | `patches/statcolor/` |
 | Bag stack cap 999 | Every pocket holds up to 999 per item (was 99, berries already 999). Bag list shows 3 digits. Shops still sell 99 per purchase. | `patches/bagcap/` |
 | OHKO cheat | Optional emulator cheat (no ROM change): pins your active Pokémon's Atk/Sp.Atk/Speed to 9999 in battle. Files for mGBA (`.cheats`) and RetroArch (`.cht`). | `cheats/` |
 
@@ -48,6 +49,7 @@ python patches/bagcap/bagcap_patch.py         out4.gba out5.gba
 python patches/lrepel/lrepel_patch.py         out5.gba out6.gba
 python translation/patch_remaining.py         out6.gba out7.gba   # second text pass (needs translation/plan_remaining.json)
 python patches/relearner/relearner_patch.py   out7.gba out8.gba
+python patches/statcolor/statcolor_patch.py   out8.gba out9.gba
 ```
 
 ## How it was built (for other ROM hackers)
