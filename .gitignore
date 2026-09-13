@@ -4,7 +4,8 @@
 *.sav
 *.ss*
 *.nro
-state___pycache__/
+__pycache__/
 *.png
+!docs/showcase/*.png
 *_log.txt
 *_done.txt
