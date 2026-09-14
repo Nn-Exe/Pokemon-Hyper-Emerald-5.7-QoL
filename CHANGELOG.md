@@ -2,6 +2,16 @@
 
 All changes are binary patches on top of `Hyper EMR LA v5.7 bugfix 2.gba`. Dates are when the work was verified in mGBA.
 
+## 2026-09-14
+- **Fix: crash in the new-game intro** (Mountain Top cutscene, mGBA "Jumped to invalid address 101C0CB4") and in eight
+  other scenes (Slateport Contest Hall reception, Hearthome contest, Mossdeep meteor scene, Steven's Island, Oreburgh,
+  Hisui). The text passes had mistaken `applymovement 0x000F, ptr` (bytes `4F 0F 00 <ptr>`) for a `loadword` text load
+  and replaced nine movement-script pointers / three movement scripts with English text. `patches/movefix/` restores
+  them byte-for-byte from the original ROM and relocates two dialogue lines that had been truncated by the same mistake.
+  Audited against the original: all 4,234 `applymovement` references now match. Verified in mGBA (new game to Littleroot).
+- Translation pipeline (`translation/build_corpus.py`, `patch_conv.py`, `patch_story.py`) no longer treats `4F/50 0F 00`
+  as a text pointer.
+
 ## 2026-09-13
 - **Coloured stat names** in battle messages (Attack red, Defense orange, Speed light green, Sp. Atk pink, Sp. Def blue, Accuracy/Evasiveness yellow). `patches/statcolor/`
 - **In-party move relearner**: new *Moves* option in the party menu opens the game's Move Relearner for that Pokémon, no Heart Scale. `patches/relearner/`

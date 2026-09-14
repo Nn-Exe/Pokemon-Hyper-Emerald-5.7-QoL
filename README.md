@@ -81,6 +81,8 @@ and this build in either direction. Emulator save *states* (`.ss0`) do not trans
   page-break control (rewriting those can hang the text engine), a few short name-table entries with no context, and
   image-baked text such as the title art.
 - The game has been played through the areas the tests cover, not all 40+ hours; report anything odd with a screenshot.
+- Patches from before 2026-09-14 crash in the new-game mountain cutscene ("Jumped to invalid address"); re-apply the
+  current patch to a clean ROM. Saves are unaffected.
 
 ## Rebuild from source
 
@@ -98,7 +100,8 @@ python patches/lrepel/lrepel_patch.py         out5.gba out6.gba
 python translation/patch_remaining.py         out6.gba out7.gba   # second text pass (uses translation/plan_remaining.json)
 python patches/relearner/relearner_patch.py   out7.gba out8.gba
 python patches/statcolor/statcolor_patch.py   out8.gba out9.gba
-python tools/romdiff.py create original.gba out9.gba release/hyper-emerald-en-qol.hpatch
+python patches/movefix/movefix_patch.py       out9.gba out10.gba original.gba   # restores movement scripts the text passes overwrote
+python tools/romdiff.py create original.gba out10.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)

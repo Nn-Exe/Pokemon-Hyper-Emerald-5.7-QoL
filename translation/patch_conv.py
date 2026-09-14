@@ -54,6 +54,7 @@ i = 0
 while True:
     i = orig.find(b'\x0f\x00', i)
     if i == -1: break
+    if i >= 1 and orig[i - 1] in (0x4F, 0x50): i += 1; continue   # 4F 0F 00 <ptr> = applymovement 0x000F (movement data, not text)
     po = i + 2
     if po + 4 <= n:
         v = struct.unpack_from('<I', orig, po)[0]

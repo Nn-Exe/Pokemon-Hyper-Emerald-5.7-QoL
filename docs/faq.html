@@ -26,6 +26,8 @@
 <p>No. The patcher compares every byte it changes with what it expects, so any other modification makes it stop. Apply to a clean ROM and add cheats as emulator codes instead.</p>
 <h3>Does it need the translation-only build first?</h3>
 <p>No. The release patch goes from the Chinese ROM straight to the final build in one step.</p>
+<h3>The game crashes right after New Game, in the mountain cutscene ("Jumped to invalid address")</h3>
+<p>That was a bug in patches released before 2026-09-14: the translation had overwritten a few of the hack's movement scripts (the cutscene where the villains line up on the mountain, the Slateport Contest Hall reception and six later scenes) with English text. Re-apply the current <code>release/hyper-emerald-en-qol.hpatch</code> to a clean Chinese ROM; your <code>.sav</code> keeps working.</p>
 
 <h2>Saves</h2>
 <h3>My save is gone after switching to the new ROM</h3>

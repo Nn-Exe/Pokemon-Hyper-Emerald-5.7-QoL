@@ -50,6 +50,7 @@ i=0
 while True:
     i=orig.find(b'\x0f\x00',i)
     if i==-1: break
+    if i>=1 and orig[i-1] in (0x4F,0x50): i+=1; continue   # applymovement 0x000F, not a text load
     v=struct.unpack_from('<I',orig,i+2)[0]
     if 0x08000000<=v<0x0A000000:
         t=v-0x08000000

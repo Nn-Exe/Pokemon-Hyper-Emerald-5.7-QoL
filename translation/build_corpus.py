@@ -59,14 +59,14 @@ def meaningful(data, occ_list):
     ip = lambda o: 0 <= o < len(data) - 3 and data[o + 3] in (0x08, 0x09)
     for o in occ_list:
         if o % 4 == 0: return True
-        if o >= 2 and data[o - 2] == 0x0F and data[o - 1] == 0: return True
+        if o >= 2 and data[o - 2] == 0x0F and data[o - 1] == 0 and not (o >= 3 and data[o - 3] in (0x4F, 0x50)): return True  # not applymovement 0x000F
         if o >= 6 and data[o - 6] == 0x5C and data[o - 5] <= 9 and ip(o + 4): return True
         if o >= 10 and data[o - 10] == 0x5C and data[o - 9] <= 9 and ip(o - 4): return True
     return False
 
 def occ_kind(o):
     if o < 0x1DC000: return None
-    if rom[o - 2:o] == b'\x0f\x00': return 'loadpointer'
+    if rom[o - 2:o] == b'\x0f\x00' and rom[o - 3] not in (0x4F, 0x50): return 'loadpointer'   # 4F 0F 00 <ptr> = applymovement 0x000F, a movement script, not text
     if o >= 6 and rom[o - 6] == 0x5C and rom[o - 5] <= 9 and isptr(o + 4): return 'trainerbattle_intro'
     if o >= 10 and rom[o - 10] == 0x5C and rom[o - 9] <= 9 and isptr(o - 4): return 'trainerbattle_defeat'
     if o % 4 == 0: return 'aligned'
