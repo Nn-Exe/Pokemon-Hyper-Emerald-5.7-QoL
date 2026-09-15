@@ -19,6 +19,44 @@ MEGA = 0x1F82521
 FEAT = (0xFD8000, 0xFE0000)
 MARGIN, MAXREFS = 768, 6
 
+def lz_blob_ranges(orig):
+    """(start, end) of every LZ77 (type 0x10) blob the ROM references from an aligned pointer, sorted.
+    Cached next to this file because the scan is slow; delete translation/lz_blobs.json to rebuild it."""
+    cache = os.path.join(HERE, 'lz_blobs.json')
+    if os.path.exists(cache):
+        return [tuple(r) for r in json.load(open(cache))]
+    n = len(orig)
+
+    def clen(o):
+        if orig[o] != 0x10: return None
+        size = struct.unpack_from('<I', orig, o)[0] >> 8
+        if not (32 <= size <= 0x20000): return None
+        out = 0; i = o + 4
+        try:
+            while out < size:
+                flags = orig[i]; i += 1
+                for b in range(8):
+                    if out >= size: break
+                    if flags & (0x80 >> b):
+                        v = (orig[i] << 8) | orig[i + 1]; i += 2
+                        ln = (v >> 12) + 3; disp = (v & 0xFFF) + 1
+                        if disp > out: return None
+                        out += ln
+                    else: i += 1; out += 1
+        except IndexError: return None
+        return i - o
+    starts = set()
+    for o in range(0, n - 3, 4):
+        v = struct.unpack_from('<I', orig, o)[0]
+        if 0x08000000 < v < 0x08000000 + n and orig[v - 0x08000000] == 0x10: starts.add(v - 0x08000000)
+    ranges = []
+    for t in sorted(starts):
+        L = clen(t)
+        if L: ranges.append((t, t + L))
+    json.dump(ranges, open(cache, 'w'))
+    return ranges
+
+
 def load_json(p, default):
     p = os.path.join(HERE, p)
     return json.load(open(p, encoding='utf-8')) if os.path.exists(p) else default
@@ -92,9 +130,19 @@ def build(inp, outp):
         assert set(data[off:off + len(b)]) == {0xFF}; data[off:off + len(b)] = b
     # ---- repoint ----
     DEX_LO, DEX_HI = 0x1250000, 0x1250000 + 960 * 32
+    lz_ranges = lz_blob_ranges(orig)
+    lz_starts = [a for a, _ in lz_ranges]
+
+    def in_compressed(o):
+        """inside an LZ77 blob? its byte stream is arbitrary, so it can hold a pointer's 4 bytes by chance;
+        rewriting one corrupts every byte decoded after it (see patches/gfxfix)"""
+        i = bisect.bisect_right(lz_starts, o) - 1
+        return i >= 0 and lz_ranges[i][0] <= o < lz_ranges[i][1]
+
     def structural(o):
         """an aligned occurrence with no other ROM pointer within +-48 bytes is probably a coincidence in data,
         unless it sits in the Pokedex table or is a script argument"""
+        if in_compressed(o): return False
         if DEX_LO <= o < DEX_HI or orig[o - 2:o] == bytes((0x0F, 0)) or (o >= 10 and orig[o - 10] == 0x5C) or (o >= 6 and orig[o - 6] == 0x5C): return True
         return any(0x08000000 <= struct.unpack_from('<I', orig, o + 4 * k)[0] < 0x0A000000 for k in range(-12, 13) if k)
     for s, b in jobs:

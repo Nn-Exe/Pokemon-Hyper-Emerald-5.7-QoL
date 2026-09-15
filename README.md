@@ -101,7 +101,8 @@ python translation/patch_remaining.py         out6.gba out7.gba   # second text 
 python patches/relearner/relearner_patch.py   out7.gba out8.gba
 python patches/statcolor/statcolor_patch.py   out8.gba out9.gba
 python patches/movefix/movefix_patch.py       out9.gba out10.gba original.gba   # restores movement scripts the text passes overwrote
-python tools/romdiff.py create original.gba out10.gba release/hyper-emerald-en-qol.hpatch
+python patches/gfxfix/gfxfix_patch.py         out10.gba out11.gba original.gba  # restores compressed graphics the text passes overwrote
+python tools/romdiff.py create original.gba out11.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)
