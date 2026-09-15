@@ -287,3 +287,16 @@ leaves the multichoice result in the variable at `0x020375F0`, not at VAR_RESULT
 Testing trick: this hack pins the spawn point, so editing the save's map/coords does not move the player. To reach
 an arbitrary map, build a throwaway ROM with one warp of the spawn room repointed (map 13/17 warp 0 at (16,1)) -
 see `patches/mintskip/test_mintskip.lua`.
+
+## PC anywhere (2026-09-16) - `patches/pcanywhere/`
+Trigger: new field-input hook at the head of the chain (trampoline literal 0x0809C018 -> hook, which passes to the
+previous head, the L-repel hook 0x08FD9A41): newKeys SELECT (gMain+0x2E) while heldKeys B (gMain+0x2C) ->
+ScriptContext1_SetupScript(copy), return 1. Vanilla PC script 0x08271D92: lockall; setvar 0x8004,0; special 0xD9
+DoPCTurnOnEffect; msg; main 0x08271DAC (message "Which PC should be accessed?", special 0x109
+ScriptMenu_CreatePCMultichoice, waitstate) -> access 0x08271DBC (copyvar 0x8000,RESULT; switch 0 storage 0x08271E0E,
+1 player PC 0x08271DF9, 2 Hall of Fame 0x08271E54, 3/127 log off 0x08271E47). Log off runs special 0xDA
+DoPCTurnOffEffect, which redraws the FACING tile as a PC - remote use would stamp a solid PC tile into the map, so
+the patch copies main/access/player/storage/hof into free space with jumps relocated (the two Someone's/Lanette's
+PC message subroutines 0x08271E35/0x08271E3E are reused, they just return) and replaces entry/log-off with sounds +
+releaseall. Verified in mGBA from the middle of a room: menu, Lanette's PC -> Move Pokemon box screen and back,
+log off, tile in front unchanged, walking restored, SELECT alone still opens the key-item popup.
