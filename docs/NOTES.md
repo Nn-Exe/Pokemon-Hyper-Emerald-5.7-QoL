@@ -269,3 +269,21 @@ strings are unaffected because each keeps its genuine pointer site. Detection: `
 run it after any translation pass. Guard: `translation/patch_remaining.py` now skips occurrences inside LZ blobs
 (ranges cached in `translation/lz_blobs.json`). Note the earlier `structural()` heuristic ("an aligned occurrence with
 another ROM pointer within +-48 bytes") is useless inside compressed data, where 0x08/0x09 bytes are common.
+
+## Nature changing and the Mint quiz (2026-09-15) - `patches/mintskip/`
+The hack stores a nature OVERRIDE in the unused byte at `mon + 0x1F` (bits 0-6; bit 7 is something else). It sits
+in BoxPokemon's unused u16 at +30, outside the checksum, so nothing has to touch the personality value - shininess,
+ability and gender are unaffected. Apply routine `0x08FF0E00`: `mon = gPlayerParty[VAR_0x8004];
+mon[0x1F] = VAR_0x8005 | (mon[0x1F] & 0x80);` then `0x08068D0D` (recalculate stats).
+Giver: map 11/4 (Rustboro Trainer's School) object 7 at (6,3), script `0x0984AB8D`: lock; faceplayer;
+`compare VAR_4001, 15` + `goto_if EQ -> 0x0984A658` (the Mint offer); otherwise the true/false quiz at
+`0x09847302`, which raises VAR_4001. The Mint offer at `0x0984A658` is: yes/no -> `message 0x0984A90D` ->
+`multichoice 0x7C` (25 natures, 5x5 grid) -> `copyvar VAR_0x8005, VAR_RESULT` -> `call 0x0984AB75`
+(`special 0xA2` = ChoosePartyMon -> VAR_0x8004) -> `callnative 0x08FF0E01`. mintskip rewrites the first gate as an
+unconditional `goto`, so the offer is always available and repeatable.
+Engine notes learned here: script opcodes `0x67 message` (5 bytes), `0x66 waitmessage`, `0x71 multichoice` (5
+bytes: x, y, listId, ignoreBPress), `0x19 copyvar`, `0x05 goto`, `0x06 goto_if <cond>` (1 = equal). This engine
+leaves the multichoice result in the variable at `0x020375F0`, not at VAR_RESULT's usual `0x020375F2`.
+Testing trick: this hack pins the spawn point, so editing the save's map/coords does not move the player. To reach
+an arbitrary map, build a throwaway ROM with one warp of the spawn room repointed (map 13/17 warp 0 at (16,1)) -
+see `patches/mintskip/test_mintskip.lua`.

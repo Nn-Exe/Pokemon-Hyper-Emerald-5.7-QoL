@@ -24,6 +24,7 @@ Existing saves keep working.
 | **Auto-run toggle** — run without holding B. Persistent in the save, respects Running Shoes and map rules. | **R** in the overworld | — |
 | **L quick repel** — asks "Use the Max Repel?" and falls back to Super Repel, then Repel. Silent when a repel is active or you have none. The hack's own "use another?" prompt still appears when one wears off. | **L** in the overworld | ![](docs/showcase/l-repel.gif) |
 | **In-party move relearner** — a *Moves* option in the party menu opens the Move Relearner for that Pokémon, using the hack's expanded move lists. No Heart Scale needed. | Party menu → **Moves** | ![](docs/showcase/relearner-menu.png) |
+| **Nature changer, no quiz** — the Unova Gym Leader in the Rustboro Trainer's School hands out Galar Mints that change a Pokémon's nature, normally only after a run of random true/false questions. Talking to him now opens the Mint offer straight away, and it stays repeatable: pick a nature, pick a Pokémon, done. | Talk to him in Rustboro | ![](docs/showcase/mint-nature.png) |
 | **Coloured stat names** — Attack red, Defense orange, Speed light green, Sp. Atk pink, Sp. Def blue, Accuracy/Evasiveness yellow in every "rose"/"fell" message. | — | ![](docs/showcase/stat-colors.png) |
 | **OHKO / max-stat cheat** (optional, no ROM change) — pins your active Pokémon's Atk, Sp. Atk and Speed to 9999 in battle. | mGBA `.cheats`, RetroArch `.cht` | — |
 
@@ -102,7 +103,8 @@ python patches/relearner/relearner_patch.py   out7.gba out8.gba
 python patches/statcolor/statcolor_patch.py   out8.gba out9.gba
 python patches/movefix/movefix_patch.py       out9.gba out10.gba original.gba   # restores movement scripts the text passes overwrote
 python patches/gfxfix/gfxfix_patch.py         out10.gba out11.gba original.gba  # restores compressed graphics the text passes overwrote
-python tools/romdiff.py create original.gba out11.gba release/hyper-emerald-en-qol.hpatch
+python patches/mintskip/mintskip_patch.py     out11.gba out12.gba
+python tools/romdiff.py create original.gba out12.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)
