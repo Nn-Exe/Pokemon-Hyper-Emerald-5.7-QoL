@@ -31,3 +31,10 @@ result in the variable at `0x020375F0`, not at `VAR_RESULT`'s usual `0x020375F2`
 Next things to try: run the hack's own script fragment at `0x0984A66B` from the hook instead of a new script
 (it asks which Pokémon again, but it is proven to work), or set the nature from the party-menu handler in code
 and drop the script entirely, using a fixed nature list drawn by our own code.
+
+## Root cause found later (2026-09-15)
+
+The nature grid is `multichoicegrid` (opcode 0x71), which takes **6** bytes: x, y, list id, columns, ignoreBPress.
+The script here wrote only 5, so the engine read the following `callnative` opcode (0x23) as the ignoreBPress byte
+and skipped the call. The Mint NPC's script has the sixth byte (`71 00 00 7C 05 01`). Adding that byte should make
+this patch work; it has not been re-tested.

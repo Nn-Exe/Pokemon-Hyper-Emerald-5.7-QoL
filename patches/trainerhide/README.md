@@ -46,3 +46,18 @@ The game only creates objects near the camera, so it never appears, never spots 
 save data changes: its trainer flag stays unset, as if you never met it. Delete the entry and rebuild to bring it
 back. Verified in mGBA on Rainbow Castle 34/87: without the patch the Galactic Grunt at (23,7) spots you and starts
 a battle; with it hidden the room is empty there and the other trainers are unchanged.
+
+## Strict selection (what the release uses)
+
+`strict_select.py` decodes every script reachable from every map (following goto/call and post-battle scripts,
+169,000 commands) and keeps only grunts that no script checks, sets or clears the trainer flag of, battles again,
+or moves; whose own script does nothing after the battle; and that `trainers.py` gives no warning. Then it hides a
+share of those per floor:
+
+```
+python patches/trainerhide/strict_select.py "your rom.gba" --maps "Giant Chasm,Rainbow Castle,Allearth Forest" --share 0.7 --write
+```
+
+On those three maps only 4 of 34 grunts qualified, all on Allearth Forest 34/41; 70% of them (objects 0, 1 and 3)
+are hidden. Every Rainbow Castle grunt's trainer flag is used by a script (hiding one could leave an event waiting
+on a battle that can no longer happen), and the other Allearth Forest grunts are moved or re-added by cutscenes.

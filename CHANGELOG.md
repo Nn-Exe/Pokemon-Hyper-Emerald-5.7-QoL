@@ -3,6 +3,11 @@
 All changes are binary patches on top of `Hyper EMR LA v5.7 bugfix 2.gba`. Dates are when the work was verified in mGBA.
 
 ## 2026-09-15
+- **Trainer hiding tool** (`patches/trainerhide/`): `trainers.py` lists a map's trainers with SAFE / CHECK / RISKY
+  verdicts, `strict_select.py` finds grunts no script refers to, and `trainerhide_patch.py` hides the ones in
+  `hidden.json` by moving the object off the map (object numbering and saves unchanged, reversible). The release
+  hides 3 Team Flare grunts on Allearth Forest 34/41, 70% of the 4 grunts on Giant Chasm, Rainbow Castle and
+  Allearth Forest that passed the strict check. Verified in mGBA.
 - **Nature changer without the quiz**: the Unova Gym Leader in the Rustboro Trainer's School gives out Galar Mints
   that set a Pokémon's nature, but only after a run of random true/false questions. `patches/mintskip/` replaces
   the quiz gate in his script (11 bytes: a `compare VAR_4001, 15` + `goto_if` becomes an unconditional `goto`) so

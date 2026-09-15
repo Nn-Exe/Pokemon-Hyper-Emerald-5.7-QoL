@@ -70,7 +70,8 @@ read straight from the ROM (`tools/romdata/`, `tools/build_site_data.py`; rebuil
 ## Hide trainers you choose
 
 `patches/trainerhide/` lists every trainer on a map with a SAFE / CHECK / RISKY verdict and hides only the ones you
-put in `hidden.json`. See [its README](patches/trainerhide/README.md). The release patch hides none.
+put in `hidden.json`. See [its README](patches/trainerhide/README.md). The release currently hides three Team Flare
+grunts on Allearth Forest (map 34/41) that no script in the game refers to.
 
 ## Save compatibility
 

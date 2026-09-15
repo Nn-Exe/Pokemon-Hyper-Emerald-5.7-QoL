@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "map": "34/41",
+    "object": 0,
+    "trainer_id": 1055,
+    "name": "Team Flare Grunt",
+    "x": 17,
+    "y": 44
+  },
+  {
+    "map": "34/41",
+    "object": 1,
+    "trainer_id": 1056,
+    "name": "Team Flare Grunt",
+    "x": 22,
+    "y": 34
+  },
+  {
+    "map": "34/41",
+    "object": 3,
+    "trainer_id": 1059,
+    "name": "Team Flare Grunt",
+    "x": 12,
+    "y": 4
+  }
+]
