@@ -4,6 +4,7 @@ One line per change, newest first. The how and why of each change is in [docs/NO
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
 ## 2026-09-16
+- **Changed** Release v1.2 published (everything below since v1.1).
 - **Changed** PC button in the SELECT popup is now A; B or SELECT closes the popup.
 - **Changed** PC anywhere moved into the SELECT popup: SELECT, then B opens the PC; SELECT closes the popup, which now always opens.
 - **Added** PC anywhere: open the PC from anywhere (box storage, your PC, Hall of Fame). `patches/pcanywhere/`
