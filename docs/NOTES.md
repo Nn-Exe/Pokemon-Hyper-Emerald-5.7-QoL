@@ -300,3 +300,12 @@ the patch copies main/access/player/storage/hof into free space with jumps reloc
 PC message subroutines 0x08271E35/0x08271E3E are reused, they just return) and replaces entry/log-off with sounds +
 releaseall. Verified in mGBA from the middle of a room: menu, Lanette's PC -> Move Pokemon box screen and back,
 log off, tile in front unchanged, walking restored, SELECT alone still opens the key-item popup.
+
+### PC anywhere v2: trigger moved into the SELECT popup (2026-09-16)
+The hold-B+SELECT field hook is gone (field literal 0x0809C018 back to the L-repel hook). keyreg edits: usereg's
+`cmp r6,#0; bne have` @0x08FD8EBE and `cmp r6,#1; bne popup` @0x08FD8EE4 made unconditional (popup always opens,
+also with 0 or 1 registered items), `bl draw_popup` @0x08FD8EF6 -> new 5-line draw (window template 14x11 tiles,
+base block 0x80, "B PC" line), popup_task literal @0x08FD9134 -> new task: d-pad = item (same use_item), B = PC
+(close window, destroy task, ScriptContext1_SetupScript(PC copy); the copy's releaseall unfreezes/unlocks),
+SELECT = cancel. Verified in mGBA: popup shows 5 lines, B -> PC menu -> log off -> walk; SELECT cancels; RIGHT uses
+the registered Mach Bike.

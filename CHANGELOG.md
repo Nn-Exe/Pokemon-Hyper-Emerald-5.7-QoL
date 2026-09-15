@@ -4,7 +4,8 @@ One line per change, newest first. The how and why of each change is in [docs/NO
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
 ## 2026-09-16
-- **Added** PC anywhere: hold B and press SELECT in the overworld to open the PC (box storage, your PC, Hall of Fame). `patches/pcanywhere/`
+- **Changed** PC anywhere moved into the SELECT popup: SELECT, then B opens the PC; SELECT closes the popup, which now always opens.
+- **Added** PC anywhere: open the PC from anywhere (box storage, your PC, Hall of Fame). `patches/pcanywhere/`
 
 ## 2026-09-15
 - **Added** Trainer hiding: the release hides 3 Team Flare grunts on Allearth Forest that no script refers to. `patches/trainerhide/`
