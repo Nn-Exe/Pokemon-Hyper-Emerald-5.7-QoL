@@ -67,6 +67,11 @@ read straight from the ROM (`tools/romdata/`, `tools/build_site_data.py`; rebuil
 - mGBA: copy `cheats/OHKO.cheats` next to the ROM and rename it to `<rom name>.cheats`; it loads automatically.
 - RetroArch: put `cheats/Hyper Emerald v5.7.cht` in the core's cheat folder and load it from Quick Menu → Cheats.
 
+## Hide trainers you choose
+
+`patches/trainerhide/` lists every trainer on a map with a SAFE / CHECK / RISKY verdict and hides only the ones you
+put in `hidden.json`. See [its README](patches/trainerhide/README.md). The release patch hides none.
+
 ## Save compatibility
 
 Game code that touches the save format is untouched. The new features keep their state in bytes the game never used
@@ -104,7 +109,8 @@ python patches/statcolor/statcolor_patch.py   out8.gba out9.gba
 python patches/movefix/movefix_patch.py       out9.gba out10.gba original.gba   # restores movement scripts the text passes overwrote
 python patches/gfxfix/gfxfix_patch.py         out10.gba out11.gba original.gba  # restores compressed graphics the text passes overwrote
 python patches/mintskip/mintskip_patch.py     out11.gba out12.gba
-python tools/romdiff.py create original.gba out12.gba release/hyper-emerald-en-qol.hpatch
+python patches/trainerhide/trainerhide_patch.py out12.gba out13.gba   # optional: hides the trainers listed in patches/trainerhide/hidden.json
+python tools/romdiff.py create original.gba out13.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)
