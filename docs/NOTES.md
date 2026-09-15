@@ -309,3 +309,5 @@ base block 0x80, "B PC" line), popup_task literal @0x08FD9134 -> new task: d-pad
 (close window, destroy task, ScriptContext1_SetupScript(PC copy); the copy's releaseall unfreezes/unlocks),
 SELECT = cancel. Verified in mGBA: popup shows 5 lines, B -> PC menu -> log off -> walk; SELECT cancels; RIGHT uses
 the registered Mach Bike.
+
+- 2026-09-16 follow-up: PC key changed to A (newKeys bit 0x01); B or SELECT (0x06) cancels; popup line reads "A PC".

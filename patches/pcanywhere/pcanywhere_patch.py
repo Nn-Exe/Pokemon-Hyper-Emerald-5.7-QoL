@@ -1,10 +1,10 @@
 """PC in the SELECT popup (Hyper Emerald v5.7). Apply after the trainerhide build.
 usage: python pcanywhere_patch.py <in.gba> <out.gba>
 
-Press SELECT in the overworld, then B: the PC opens - Someone's / Lanette's PC (Pokemon storage), your own PC
+Press SELECT in the overworld, then A: the PC opens - Someone's / Lanette's PC (Pokemon storage), your own PC
 (item storage, mailbox), Hall of Fame, Log off - the game's own menus. No item is needed. In the popup the d-pad
-still uses your registered key items and SELECT closes it. The popup now always opens (also with zero or one
-registered item), and shows a "B PC" line under the four slots.
+still uses your registered key items, and B or SELECT closes it. The popup now always opens (also with zero or one
+registered item), and shows an "A PC" line under the four slots.
 
 Why a copy of the PC script: the game's PC script (0x08271D92) starts with special 0xD9 (DoPCTurnOnEffect) and its
 Log off branch runs special 0xDA (DoPCTurnOffEffect). Both redraw the map tile the player is facing as a switched
@@ -13,7 +13,7 @@ is copied into free space with every jump relocated, and the boot-up and log-off
 Real PCs are untouched.
 
 Changes to keyreg (the 4-slot popup): two branches made unconditional (always show the popup), the draw call
-retargeted to a 5-line draw, and the popup task literal retargeted to a task that adds B = PC. Everything else is
+retargeted to a 5-line draw, and the popup task literal retargeted to a task that adds A = PC. Everything else is
 new code and data in free space. No save data is used.
 """
 import struct, sys, os
@@ -112,7 +112,7 @@ def build(inp, outp):
     code = code_for(BASE, BASE, BASE)
     code_len = (len(code) + 3) & ~3
     template_addr = BASE + code_len
-    pcline = bytes((0xBC, 0x00, 0xCA, 0xBD, 0xFF))            # "B PC"
+    pcline = bytes((0xBB, 0x00, 0xCA, 0xBD, 0xFF))            # "A PC"
     pcline_addr = template_addr + len(TEMPLATE)
     script_addr = (pcline_addr + len(pcline) + 3) & ~3
     script = pc_script_copy(rom, script_addr)

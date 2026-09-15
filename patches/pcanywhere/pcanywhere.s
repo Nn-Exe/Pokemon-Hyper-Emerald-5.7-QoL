@@ -1,10 +1,10 @@
 @ PC in the SELECT key-item popup (Hyper Emerald v5.7).
-@ SELECT opens the popup (always, now); d-pad uses a registered item, B opens the PC, SELECT closes it.
+@ SELECT opens the popup (always, now); d-pad uses a registered item, A opens the PC, B or SELECT closes it.
 @ Replaces keyreg's draw_popup (called from usereg) and popup_task (via its literal); keyreg itself is untouched
 @ apart from that call, that literal and two branches.
 .thumb
 
-@ new_draw() -> r0 = window id. Four registered slots as before, plus a "B PC" line.
+@ new_draw() -> r0 = window id. Four registered slots as before, plus an "A PC" line.
 new_draw:
     push {r4, r5, r6, lr}
     sub sp, #0x14
@@ -59,7 +59,7 @@ nd_term:
     adds r0, r5, #0
     ldr r1, lit_pcline
     ldr r3, lit_stringcopy
-    bl call3                    @ "B PC" + terminator
+    bl call3                    @ "A PC" + terminator
     movs r0, #0
     str r0, [sp]
     str r0, [sp, #4]
@@ -79,7 +79,7 @@ nd_term:
     add sp, #0x14
     pop {r4, r5, r6, pc}
 
-@ new_task(r0 = taskId): d-pad -> item, B -> PC, SELECT -> cancel
+@ new_task(r0 = taskId): d-pad -> item, A -> PC, B/SELECT -> cancel
 new_task:
     push {r4, r5, r6, r7, lr}
     lsls r0, r0, #24
@@ -122,14 +122,14 @@ nt_k3:
     movs r6, #3
     b nt_act
 nt_k4:
-    movs r0, #2                 @ B -> PC
+    movs r0, #1                 @ A -> PC
     tst r0, r5
     beq nt_k5
     movs r7, #0
     mvns r7, r7                 @ r7 = -1 marks "PC"
     b nt_close
 nt_k5:
-    movs r0, #4                 @ SELECT -> cancel
+    movs r0, #6                 @ B or SELECT -> cancel
     tst r0, r5
     beq nt_ret
     movs r7, #0
