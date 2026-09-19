@@ -1,0 +1,744 @@
+{
+ "entries": [
+  {
+   "addr": 16807108,
+   "width": 12,
+   "expect": "0da409930c14ff0000000000",
+   "text": "Nameless",
+   "note": "gTrainers 581: 无名氏 (Psychic, Girafarig)"
+  },
+  {
+   "addr": 16809188,
+   "width": 12,
+   "expect": "0b7d088fff00000000000000",
+   "text": "Saburo",
+   "note": "gTrainers 633: 三良 (Hiker)"
+  },
+  {
+   "addr": 16809228,
+   "width": 12,
+   "expect": "01010bdbff00000000000000",
+   "text": "Sheng",
+   "note": "gTrainers 634: 阿升 (Hiker)"
+  },
+  {
+   "addr": 16817908,
+   "width": 12,
+   "expect": "0e2c1098ff00000000000000",
+   "text": "Ash",
+   "note": "gTrainers 851: 小智 (Charizard Lv100)"
+  },
+  {
+   "addr": 16817948,
+   "width": 12,
+   "expect": "0e2c082bff00000000000000",
+   "text": "Blue",
+   "note": "gTrainers 852: 小蓝 (Blastoise Lv100)"
+  },
+  {
+   "addr": 16817988,
+   "width": 12,
+   "expect": "0f810c3cff00000000000000",
+   "text": "Brendan",
+   "note": "gTrainers 853: 佑树 = Yuki, Brendan's Japanese name; uses Brendan's sprite"
+  },
+  {
+   "addr": 6133384,
+   "width": 8,
+   "expect": "8f0958ff00000000",
+   "text": "Alivia",
+   "note": "Battle Frontier trainer 294"
+  },
+  {
+   "addr": 6133436,
+   "width": 8,
+   "expect": "230f12ff00000000",
+   "text": "Paige",
+   "note": "Battle Frontier trainer 295"
+  },
+  {
+   "addr": 6150680,
+   "width": 8,
+   "expect": "010b08a8ff000000",
+   "text": "Jolie",
+   "note": "Slateport Tent trainer 0"
+  },
+  {
+   "addr": 6150732,
+   "width": 8,
+   "expect": "08041070ff000000",
+   "text": "Malachi",
+   "note": "Slateport Tent trainer 1"
+  },
+  {
+   "addr": 6150784,
+   "width": 8,
+   "expect": "0b4804c9ff000000",
+   "text": "Kelsie",
+   "note": "Slateport Tent trainer 2"
+  },
+  {
+   "addr": 6150836,
+   "width": 8,
+   "expect": "098f0bebff000000",
+   "text": "Davon",
+   "note": "Slateport Tent trainer 3"
+  },
+  {
+   "addr": 6150888,
+   "width": 8,
+   "expect": "07bb01b3ff000000",
+   "text": "Glenda",
+   "note": "Slateport Tent trainer 4"
+  },
+  {
+   "addr": 6150940,
+   "width": 8,
+   "expect": "098f0b5505e6ff00",
+   "text": "Helena",
+   "note": "Slateport Tent trainer 5"
+  },
+  {
+   "addr": 6150992,
+   "width": 8,
+   "expect": "0d500b4bff000000",
+   "text": "Rodolfo",
+   "note": "Slateport Tent trainer 6"
+  },
+  {
+   "addr": 6151044,
+   "width": 8,
+   "expect": "0742096fff000000",
+   "text": "Davion",
+   "note": "Slateport Tent trainer 7"
+  },
+  {
+   "addr": 6151096,
+   "width": 8,
+   "expect": "0ba402ae083eff00",
+   "text": "Kendall",
+   "note": "Slateport Tent trainer 8"
+  },
+  {
+   "addr": 6151148,
+   "width": 8,
+   "expect": "03610d50ff000000",
+   "text": "Colten",
+   "note": "Slateport Tent trainer 9"
+  },
+  {
+   "addr": 6151200,
+   "width": 8,
+   "expect": "10a30f0bff000000",
+   "text": "Irvin",
+   "note": "Slateport Tent trainer 10"
+  },
+  {
+   "addr": 6151252,
+   "width": 8,
+   "expect": "04ec05340936ff00",
+   "text": "Shaun",
+   "note": "Slateport Tent trainer 11"
+  },
+  {
+   "addr": 6151304,
+   "width": 8,
+   "expect": "12d10862ff000000",
+   "text": "Kyler",
+   "note": "Slateport Tent trainer 12"
+  },
+  {
+   "addr": 6151356,
+   "width": 8,
+   "expect": "0f7cff0000000000",
+   "text": "Maggie",
+   "note": "Slateport Tent trainer 13"
+  },
+  {
+   "addr": 6151408,
+   "width": 8,
+   "expect": "04b202ae083eff00",
+   "text": "Stephon",
+   "note": "Slateport Tent trainer 14"
+  },
+  {
+   "addr": 6151460,
+   "width": 8,
+   "expect": "0e4608e708e7ff00",
+   "text": "Rebecca",
+   "note": "Slateport Tent trainer 15"
+  },
+  {
+   "addr": 6151512,
+   "width": 8,
+   "expect": "012c091803f5ff00",
+   "text": "Reggie",
+   "note": "Slateport Tent trainer 16"
+  },
+  {
+   "addr": 6151564,
+   "width": 8,
+   "expect": "048d0f00ff000000",
+   "text": "Janae",
+   "note": "Slateport Tent trainer 17"
+  },
+  {
+   "addr": 6151616,
+   "width": 8,
+   "expect": "09930fceff000000",
+   "text": "Caiden",
+   "note": "Slateport Tent trainer 18"
+  },
+  {
+   "addr": 6151668,
+   "width": 8,
+   "expect": "01010719ff000000",
+   "text": "Kirsten",
+   "note": "Slateport Tent trainer 19"
+  },
+  {
+   "addr": 6151720,
+   "width": 8,
+   "expect": "01010f0bff000000",
+   "text": "Kurtis",
+   "note": "Slateport Tent trainer 20"
+  },
+  {
+   "addr": 6151772,
+   "width": 8,
+   "expect": "05350927ff000000",
+   "text": "Stefan",
+   "note": "Slateport Tent trainer 21"
+  },
+  {
+   "addr": 6151824,
+   "width": 8,
+   "expect": "034d029aff000000",
+   "text": "Avery",
+   "note": "Slateport Tent trainer 22"
+  },
+  {
+   "addr": 6151876,
+   "width": 8,
+   "expect": "07ef08cdff000000",
+   "text": "Dwane",
+   "note": "Slateport Tent trainer 23"
+  },
+  {
+   "addr": 6151928,
+   "width": 8,
+   "expect": "0ac002da109fff00",
+   "text": "Mckenna",
+   "note": "Slateport Tent trainer 24"
+  },
+  {
+   "addr": 6151980,
+   "width": 8,
+   "expect": "096f0eb0ff000000",
+   "text": "Camryn",
+   "note": "Slateport Tent trainer 25"
+  },
+  {
+   "addr": 6152032,
+   "width": 8,
+   "expect": "096f0744ff000000",
+   "text": "Natasha",
+   "note": "Slateport Tent trainer 26"
+  },
+  {
+   "addr": 6152084,
+   "width": 8,
+   "expect": "05cf112fff000000",
+   "text": "Austyn",
+   "note": "Slateport Tent trainer 27"
+  },
+  {
+   "addr": 6152136,
+   "width": 8,
+   "expect": "0e2c0e4dff000000",
+   "text": "Donovan",
+   "note": "Slateport Tent trainer 28"
+  },
+  {
+   "addr": 6152188,
+   "width": 8,
+   "expect": "01c308700a08ff00",
+   "text": "Tamia",
+   "note": "Slateport Tent trainer 29"
+  },
+  {
+   "addr": 6153748,
+   "width": 8,
+   "expect": "09580a05ff000000",
+   "text": "Brenna",
+   "note": "Verdanturf Tent trainer 0"
+  },
+  {
+   "addr": 6153800,
+   "width": 8,
+   "expect": "04490fb9ff000000",
+   "text": "Dilan",
+   "note": "Verdanturf Tent trainer 1"
+  },
+  {
+   "addr": 6153852,
+   "width": 8,
+   "expect": "096f096fff000000",
+   "text": "Eliana",
+   "note": "Verdanturf Tent trainer 2"
+  },
+  {
+   "addr": 6153904,
+   "width": 8,
+   "expect": "018507d9ff000000",
+   "text": "Markus",
+   "note": "Verdanturf Tent trainer 3"
+  },
+  {
+   "addr": 6153956,
+   "width": 8,
+   "expect": "015bff0000000000",
+   "text": "Caitlyn",
+   "note": "Verdanturf Tent trainer 4"
+  },
+  {
+   "addr": 6154008,
+   "width": 8,
+   "expect": "0595088fff000000",
+   "text": "Desiree",
+   "note": "Verdanturf Tent trainer 5"
+  },
+  {
+   "addr": 6154060,
+   "width": 8,
+   "expect": "04f303f5ff000000",
+   "text": "Ronald",
+   "note": "Verdanturf Tent trainer 6"
+  },
+  {
+   "addr": 6154112,
+   "width": 8,
+   "expect": "08790f02ff000000",
+   "text": "Ashten",
+   "note": "Verdanturf Tent trainer 7"
+  },
+  {
+   "addr": 6154164,
+   "width": 8,
+   "expect": "023f05a5ff000000",
+   "text": "Gerard",
+   "note": "Verdanturf Tent trainer 8"
+  },
+  {
+   "addr": 6154216,
+   "width": 8,
+   "expect": "0b5502780490ff00",
+   "text": "Bradly",
+   "note": "Verdanturf Tent trainer 9"
+  },
+  {
+   "addr": 6154268,
+   "width": 8,
+   "expect": "072e09d7ff000000",
+   "text": "Dennis",
+   "note": "Verdanturf Tent trainer 10"
+  },
+  {
+   "addr": 6154320,
+   "width": 8,
+   "expect": "030901850cd9ff00",
+   "text": "Prestin",
+   "note": "Verdanturf Tent trainer 11"
+  },
+  {
+   "addr": 6154372,
+   "width": 8,
+   "expect": "05340aa6ff000000",
+   "text": "Ernesto",
+   "note": "Verdanturf Tent trainer 12"
+  },
+  {
+   "addr": 6154424,
+   "width": 8,
+   "expect": "03bf0c3cff000000",
+   "text": "Nala",
+   "note": "Verdanturf Tent trainer 13"
+  },
+  {
+   "addr": 6154476,
+   "width": 8,
+   "expect": "0aa6091f03f5ff00",
+   "text": "Darnell",
+   "note": "Verdanturf Tent trainer 14"
+  },
+  {
+   "addr": 6154528,
+   "width": 8,
+   "expect": "12e60867ff000000",
+   "text": "Ashlyn",
+   "note": "Verdanturf Tent trainer 15"
+  },
+  {
+   "addr": 6154580,
+   "width": 8,
+   "expect": "07bf10cbff000000",
+   "text": "Addison",
+   "note": "Verdanturf Tent trainer 16"
+  },
+  {
+   "addr": 6154632,
+   "width": 8,
+   "expect": "01710c61ff000000",
+   "text": "Justine",
+   "note": "Verdanturf Tent trainer 17"
+  },
+  {
+   "addr": 6154684,
+   "width": 8,
+   "expect": "0cba0540ff000000",
+   "text": "Tyson",
+   "note": "Verdanturf Tent trainer 18"
+  },
+  {
+   "addr": 6154736,
+   "width": 8,
+   "expect": "108f0744ff000000",
+   "text": "Laila",
+   "note": "Verdanturf Tent trainer 19"
+  },
+  {
+   "addr": 6154788,
+   "width": 8,
+   "expect": "055109b4ff000000",
+   "text": "Waren",
+   "note": "Verdanturf Tent trainer 20"
+  },
+  {
+   "addr": 6154840,
+   "width": 8,
+   "expect": "04aa0b59ff000000",
+   "text": "Tobias",
+   "note": "Verdanturf Tent trainer 21"
+  },
+  {
+   "addr": 6154892,
+   "width": 8,
+   "expect": "017109bd08e4ff00",
+   "text": "Josiah",
+   "note": "Verdanturf Tent trainer 22"
+  },
+  {
+   "addr": 6154944,
+   "width": 8,
+   "expect": "042509580d6eff00",
+   "text": "Dion",
+   "note": "Verdanturf Tent trainer 23"
+  },
+  {
+   "addr": 6154996,
+   "width": 8,
+   "expect": "0f110a500a08ff00",
+   "text": "Kenzie",
+   "note": "Verdanturf Tent trainer 24"
+  },
+  {
+   "addr": 6155048,
+   "width": 8,
+   "expect": "079a02daff000000",
+   "text": "Lillian",
+   "note": "Verdanturf Tent trainer 25"
+  },
+  {
+   "addr": 6155100,
+   "width": 8,
+   "expect": "03850958ff000000",
+   "text": "Lesley",
+   "note": "Verdanturf Tent trainer 26"
+  },
+  {
+   "addr": 6155152,
+   "width": 8,
+   "expect": "04aa01c3ff000000",
+   "text": "Marquis",
+   "note": "Verdanturf Tent trainer 27"
+  },
+  {
+   "addr": 6155204,
+   "width": 8,
+   "expect": "0d500412ff000000",
+   "text": "Freddy",
+   "note": "Verdanturf Tent trainer 28"
+  },
+  {
+   "addr": 6155256,
+   "width": 8,
+   "expect": "0cd3110bff000000",
+   "text": "Cecilia",
+   "note": "Verdanturf Tent trainer 29"
+  },
+  {
+   "addr": 6156424,
+   "width": 8,
+   "expect": "07b603220a08ff00",
+   "text": "Amber",
+   "note": "Fallarbor Tent trainer 0"
+  },
+  {
+   "addr": 6156476,
+   "width": 8,
+   "expect": "022e0412ff000000",
+   "text": "Javier",
+   "note": "Fallarbor Tent trainer 1"
+  },
+  {
+   "addr": 6156528,
+   "width": 8,
+   "expect": "05770592ff000000",
+   "text": "Natalie",
+   "note": "Fallarbor Tent trainer 2"
+  },
+  {
+   "addr": 6156580,
+   "width": 8,
+   "expect": "0a7810cbff000000",
+   "text": "Treve",
+   "note": "Fallarbor Tent trainer 3"
+  },
+  {
+   "addr": 6156632,
+   "width": 8,
+   "expect": "0f110822100fff00",
+   "text": "Arianna",
+   "note": "Fallarbor Tent trainer 4"
+  },
+  {
+   "addr": 6156684,
+   "width": 8,
+   "expect": "0b910864ff000000",
+   "text": "Jadyn",
+   "note": "Fallarbor Tent trainer 5"
+  },
+  {
+   "addr": 6156736,
+   "width": 8,
+   "expect": "0ced024bff000000",
+   "text": "Gerardo",
+   "note": "Fallarbor Tent trainer 6"
+  },
+  {
+   "addr": 6156788,
+   "width": 8,
+   "expect": "08790f02ff000000",
+   "text": "Jonn",
+   "note": "Fallarbor Tent trainer 7"
+  },
+  {
+   "addr": 6156840,
+   "width": 8,
+   "expect": "0e4d0e10ff000000",
+   "text": "Esteban",
+   "note": "Fallarbor Tent trainer 8"
+  },
+  {
+   "addr": 6156892,
+   "width": 8,
+   "expect": "104f0385ff000000",
+   "text": "Jameson",
+   "note": "Fallarbor Tent trainer 9"
+  },
+  {
+   "addr": 6156944,
+   "width": 8,
+   "expect": "04120b07ff000000",
+   "text": "Alanzo",
+   "note": "Fallarbor Tent trainer 10"
+  },
+  {
+   "addr": 6156996,
+   "width": 8,
+   "expect": "092411930918ff00",
+   "text": "Howard",
+   "note": "Fallarbor Tent trainer 11"
+  },
+  {
+   "addr": 6157048,
+   "width": 8,
+   "expect": "072e07d9ff000000",
+   "text": "Conrad",
+   "note": "Fallarbor Tent trainer 12"
+  },
+  {
+   "addr": 6157100,
+   "width": 8,
+   "expect": "02a4096f084cff00",
+   "text": "Makenna",
+   "note": "Fallarbor Tent trainer 13"
+  },
+  {
+   "addr": 6157152,
+   "width": 8,
+   "expect": "01010936ff000000",
+   "text": "Brayan",
+   "note": "Fallarbor Tent trainer 14"
+  },
+  {
+   "addr": 6157204,
+   "width": 8,
+   "expect": "0cd9084c0dbdff00",
+   "text": "Mariana",
+   "note": "Fallarbor Tent trainer 15"
+  },
+  {
+   "addr": 6157256,
+   "width": 8,
+   "expect": "091f07d90918ff00",
+   "text": "Sheldon",
+   "note": "Fallarbor Tent trainer 16"
+  },
+  {
+   "addr": 6157308,
+   "width": 8,
+   "expect": "0ac002daff000000",
+   "text": "Gianna",
+   "note": "Fallarbor Tent trainer 17"
+  },
+  {
+   "addr": 6157360,
+   "width": 8,
+   "expect": "04aa0561ff000000",
+   "text": "Yahir",
+   "note": "Fallarbor Tent trainer 18"
+  },
+  {
+   "addr": 6157412,
+   "width": 8,
+   "expect": "02770e4fff000000",
+   "text": "Britney",
+   "note": "Fallarbor Tent trainer 19"
+  },
+  {
+   "addr": 6157464,
+   "width": 8,
+   "expect": "04f30452ff000000",
+   "text": "Hecter",
+   "note": "Fallarbor Tent trainer 20"
+  },
+  {
+   "addr": 6157516,
+   "width": 8,
+   "expect": "02260b11ff000000",
+   "text": "Tannor",
+   "note": "Fallarbor Tent trainer 21"
+  },
+  {
+   "addr": 6157568,
+   "width": 8,
+   "expect": "16240e76ff000000",
+   "text": "Benji",
+   "note": "Fallarbor Tent trainer 22"
+  },
+  {
+   "addr": 6157620,
+   "width": 8,
+   "expect": "077301850870ff00",
+   "text": "Rory",
+   "note": "Fallarbor Tent trainer 23"
+  },
+  {
+   "addr": 6157672,
+   "width": 8,
+   "expect": "08e80aa10a12ff00",
+   "text": "Eleanor",
+   "note": "Fallarbor Tent trainer 24"
+  },
+  {
+   "addr": 6157724,
+   "width": 8,
+   "expect": "0be7ff0000000000",
+   "text": "Evelyn",
+   "note": "Fallarbor Tent trainer 25"
+  },
+  {
+   "addr": 6157776,
+   "width": 8,
+   "expect": "04900c14ff000000",
+   "text": "Arielle",
+   "note": "Fallarbor Tent trainer 26"
+  },
+  {
+   "addr": 6157828,
+   "width": 8,
+   "expect": "08d20773ff000000",
+   "text": "Connar",
+   "note": "Fallarbor Tent trainer 27"
+  },
+  {
+   "addr": 6157880,
+   "width": 8,
+   "expect": "07f008e41008ff00",
+   "text": "Maurice",
+   "note": "Fallarbor Tent trainer 28"
+  },
+  {
+   "addr": 6157932,
+   "width": 8,
+   "expect": "05bc086b0eaeff00",
+   "text": "Kianna",
+   "note": "Fallarbor Tent trainer 29"
+  },
+  {
+   "addr": 3381160,
+   "width": 5,
+   "expect": "0dec0bd8ff",
+   "text": "Mr.",
+   "note": "partner-name word"
+  },
+  {
+   "addr": 3381167,
+   "width": 5,
+   "expect": "0bb709e0ff",
+   "text": "Boy",
+   "note": "partner-name word"
+  },
+  {
+   "addr": 3381174,
+   "width": 5,
+   "expect": "0bb70a0bff",
+   "text": "Girl",
+   "note": "partner-name word"
+  },
+  {
+   "addr": 3381179,
+   "width": 7,
+   "expect": "000010d705bdff",
+   "text": "Expert",
+   "note": "partner-name word"
+  },
+  {
+   "addr": 3381186,
+   "width": 7,
+   "expect": "00000473110bff",
+   "text": "Master",
+   "note": "partner-name word"
+  },
+  {
+   "addr": 3381193,
+   "width": 5,
+   "expect": "0e2c0735ff",
+   "text": "Miss",
+   "note": "partner-name word"
+  }
+ ],
+ "pointers": [
+  {
+   "addr": 3381212,
+   "expect": 137598909,
+   "new": 137598907
+  },
+  {
+   "addr": 3381216,
+   "expect": 137598916,
+   "new": 137598914
+  }
+ ]
+}
