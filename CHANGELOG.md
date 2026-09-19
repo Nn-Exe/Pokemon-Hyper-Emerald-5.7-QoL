@@ -3,6 +3,22 @@
 One line per change, newest first. The how and why of each change is in [docs/NOTES.md](docs/NOTES.md); each
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
+## 2026-09-20
+- **Changed** Release v1.3 published (everything below since v1.2).
+- **Changed** Type badges now use SoulGold's 8×12 badge art (smaller, no overlap in double battles). `patches/typeicons/`
+
+## 2026-09-19
+- **Added** Leftover Chinese NPC names in English: 90 Battle Tent trainers, 2 Battle Frontier trainers, 6 story trainers, 6 partner-name words, all rewritten in place. `patches/npcnames/`
+- **Changed** Type badges and the effectiveness multiplier now only show for Pokémon you've caught.
+- **Added** Both bikes held at once — no more swapping at Rydel's. `patches/bothbikes/`
+- **Added** Move effectiveness multiplier on the PP line of the battle move list. `patches/typeeff/`
+- **Added** Type badges beside the opponent's healthbox in battle. `patches/typeicons/`
+
+## 2026-09-18
+- **Added** DexNav screen: START menu → DexNav lists the map's wild Pokémon with icons, level ranges and colour-coded habitat; also on the Safari Zone menu. `patches/dexnav/`
+- **Added** Gold healthbox for a shiny opponent, matching the game's own shiny check. `patches/shinybox/`
+- **Fixed** Options screen and Hall of Fame banner said version 5.5; they now say 5.7. `patches/version/`
+
 ## 2026-09-16
 - **Changed** Release v1.2 published (everything below since v1.1).
 - **Changed** PC button in the SELECT popup is now A; B or SELECT closes the popup.

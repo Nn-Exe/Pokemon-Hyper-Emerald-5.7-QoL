@@ -26,6 +26,12 @@ Existing saves keep working.
 | **In-party move relearner** — a *Moves* option in the party menu opens the Move Relearner for that Pokémon, using the hack's expanded move lists. No Heart Scale needed. | Party menu → **Moves** | ![](docs/showcase/relearner-menu.png) |
 | **Nature changer, no quiz** — the Unova Gym Leader in the Rustboro Trainer's School hands out Galar Mints that change a Pokémon's nature, normally only after a run of random true/false questions. Talking to him now opens the Mint offer straight away, and it stays repeatable: pick a nature, pick a Pokémon, done. | Talk to him in Rustboro | ![](docs/showcase/mint-nature.png) |
 | **PC anywhere** — the SELECT key-item popup now has an "A PC" line: press A to open the PC from anywhere (box storage, your own PC, Hall of Fame). No item needed; the popup opens even with no registered items. Uses the game's own menus without the "turn on/off" animation, so nothing is drawn onto the map. | **SELECT**, then **A** | ![](docs/showcase/pc-anywhere.png) |
+| **Gold healthbox for shinies** — a shiny wild Pokemon (or a shiny opponent in a trainer battle) gets a gold name box, so you can tell at a glance before the sprite finishes appearing. Your own box and both HP bars are untouched. Uses the game's own shiny check, so it matches the sprite exactly. | — | ![](docs/showcase/shiny-box.png) ![](docs/showcase/shiny-box-zoom.png) |
+| **DexNav screen** — lists every wild Pokémon of the map you are standing on: Land, Water, Rock Smash and Fishing, one row per species with its icon, level range and habitat, seven per page. Read-only — the same data as the guide site, without leaving the game. Appears once you have the Pokédex, in the Safari Zone too. | START menu → **DexNav**; ←/→ or L/R to page; B to close | ![](docs/showcase/dexnav-menu.png) ![](docs/showcase/dexnav.png) ![](docs/showcase/dexnav-city.png) |
+| **Type badges in battle** — the opponent's healthbox gets small type badges at its right edge (one or two), in the SoulGold style. Only for Pokémon you've **caught**, so a new species keeps its secrets. Read live from the battle data, so Soak, Protean and Transform show the current types. | — | ![](docs/showcase/type-badges.png) ![](docs/showcase/type-badges-dexgate.png) |
+| **Move effectiveness** — the move list shows the highlighted move's damage multiplier, in front of the PP count, against the opposing Pokémon colour coded: ×4 red, ×2 orange, ×1 green, ×.5/×.25 yellow, ×0 black. Updated as you move the cursor, and in double battles it follows the target you're choosing. Reads the game's own type chart, so it matches the damage you'll deal; status moves show nothing. Type-based only — abilities like Levitate aren't counted. | — | ![](docs/showcase/move-effectiveness.png) ![](docs/showcase/move-effectiveness-target.png) |
+| **English NPC names** — the last Chinese names in fixed-width tables are now English: all 90 Battle Tent trainers (their official names, slot for slot), two Battle Frontier trainers, six post-game story trainers (Ash, Blue, Brendan…) and the partner-name words. | — | |
+| **Both bikes at once** — once you own either bike, the other one is added to your Key Items, so you never go back to Rydel to swap. Use or register either to switch bikes on the spot. | Bag or **SELECT** popup | ![](docs/showcase/both-bikes.png) |
 | **Coloured stat names** — Attack red, Defense orange, Speed light green, Sp. Atk pink, Sp. Def blue, Accuracy/Evasiveness yellow in every "rose"/"fell" message. | — | ![](docs/showcase/stat-colors.png) |
 | **OHKO / max-stat cheat** (optional, no ROM change) — pins your active Pokémon's Atk, Sp. Atk and Speed to 9999 in battle. | mGBA `.cheats`, RetroArch `.cht` | — |
 
@@ -113,7 +119,14 @@ python patches/gfxfix/gfxfix_patch.py         out10.gba out11.gba original.gba  
 python patches/mintskip/mintskip_patch.py     out11.gba out12.gba
 python patches/trainerhide/trainerhide_patch.py out12.gba out13.gba   # hides the trainers listed in patches/trainerhide/hidden.json
 python patches/pcanywhere/pcanywhere_patch.py   out13.gba out14.gba
-python tools/romdiff.py create original.gba out14.gba release/hyper-emerald-en-qol.hpatch
+python patches/version/version_patch.py       out14.gba out15.gba   # menu/Hall of Fame version 5.5 -> 5.7
+python patches/shinybox/shinybox_patch.py     out15.gba out16.gba   # gold healthbox for shiny opponents
+python patches/dexnav/dexnav_patch.py         out16.gba out17.gba   # START menu DexNav screen
+python patches/typeicons/typeicons_patch.py   out17.gba out18.gba   # type badges beside the opponent's box (needs shinybox)
+python patches/typeeff/typeeff_patch.py       out18.gba out19.gba   # move effectiveness on the PP line
+python patches/bothbikes/bothbikes_patch.py   out19.gba out20.gba   # both bikes at once
+python patches/npcnames/npcnames_patch.py     out20.gba out21.gba   # leftover Chinese NPC names
+python tools/romdiff.py create original.gba out21.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)
@@ -155,4 +168,5 @@ hack are not covered and are not distributed here.
 
 - Hyper Emerald: Lost Artifacts is the work of its original Chinese authors; this repository only distributes a patch.
 - **All the credits for the previous translation and for fixing the earlier bugs go to Luciano Fire, Helper, Gustavo Neves and Li Yun.** Their community English translation (up to Champion Island) was the starting point for this build; everything here is layered on top of their work.
+- The in-battle type badge art is from the ROM hack **SoulGold** (s0ulg0ld v1.1.1); credit to its authors.
 - Tools: mGBA, Capstone, Keystone, Python.
