@@ -547,3 +547,10 @@ the registered Mach Bike.
   Safari Zone, Shoal Cave, Seafloor Cavern, Ocean Current, Desert Ruins, Ancient Tomb). Most fit their own
   bytes + the unused filler before them; Shoal Cave, Seafloor Cavern and Ocean Current would need free space.
   Dead copies (no pointer to them): old nature names at 0x0861CAAC, old gTrainers area at 0x08310030.
+- 2026-09-20, GATE REMOVED (v1.3.1): the caught-only rule hid badges/multiplier on trainers' Pokemon the player
+  had only seen, which read as "sometimes missing". Reproduced with forced trainer battles (set gBattleTypeFlags
+  bit 3 and gTrainerBattleOpponent_A 0x02038BCA every frame while CB2 != overworld; Grunt 7 / Floatzel and Aaron
+  397 / Gabite): 0 badges until the caught bit was set, then 1 and 2 badges. Per the user, badges now show for
+  every opponent. The dex helpers stay documented above in case a gate comes back. Trainer battles otherwise
+  behave like wild ones: opponent healthbox body in palette 4 (once seen in 15 after a shinybox repaint, which the
+  >= 10 rule accepts). Probe: _testrun/trtest.lua (TRAINER_ID env var).

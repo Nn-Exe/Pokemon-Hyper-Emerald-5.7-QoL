@@ -142,12 +142,6 @@ p2_slot:
     adds r1, r1, r2             @ * 0x58
     ldr r2, lit_battlemons
     adds r1, r1, r2
-    ldrh r0, [r1]               @ species
-    push {r1}
-    bl caught
-    pop {r1}
-    cmp r0, #0
-    beq p2_hide                 @ not caught yet: keep its types hidden
     adds r1, #0x21
     ldrb r2, [r1]               @ type1
     ldrb r3, [r1, #1]           @ type2
@@ -238,20 +232,6 @@ b_ret:
     add sp, #0x20
     pop {r4, r5, r6, r7, pc}
 
-@ caught: r0 = species -> r0 = 1 when its Pokedex entry is caught, else 0
-caught:
-    push {r4, r5, r6, r7, lr}
-    ldr r3, lit_tonatdex
-    bl callr3
-    lsls r0, r0, #16
-    lsrs r0, r0, #16
-    movs r1, #1                 @ FLAG_GET_CAUGHT
-    ldr r3, lit_dexflag
-    bl callr3
-    lsls r0, r0, #24
-    lsrs r0, r0, #24
-    pop {r4, r5, r6, r7, pc}
-
 callr3:
     bx r3
 callr4:
@@ -262,8 +242,6 @@ lit_shinyboxes:     .word 0x08FDA0C3
 lit_tags:           .word 0x03000CF0
 lit_sprites:        .word 0x02020630
 lit_battlemons:     .word 0x02024084
-lit_tonatdex:       .word 0x0806D4A5    @ SpeciesToNationalPokedexNum
-lit_dexflag:        .word 0x080C0665    @ GetSetPokedexFlag(dexNum, case)
 lit_dummycb:        .word 0x08007429
 lit_barcb:          .word 0x080728B5
 lit_loadspritepal:  .word 0x08008745

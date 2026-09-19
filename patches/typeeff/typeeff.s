@@ -143,17 +143,6 @@ atk_ok:
     adds r1, r1, r2             @ battler * 0x58
     ldr r5, lit_battlemons
     adds r5, r5, r1
-    ldrh r0, [r5]               @ species
-    ldr r3, lit_tonatdex
-    bl call3
-    lsls r0, r0, #16
-    lsrs r0, r0, #16
-    movs r1, #1                 @ FLAG_GET_CAUGHT
-    ldr r3, lit_dexflag
-    bl call3
-    lsls r0, r0, #24
-    cmp r0, #0
-    beq no_show                 @ not caught yet: no multiplier either
     adds r5, #0x21              @ -> type1
     ldrb r6, [r5]
     adds r0, r6, #0
@@ -232,8 +221,6 @@ lit_cursor:        .word 0x020244B0    @ gMoveSelectionCursor
 lit_moveinfo:      .word 0x02023068    @ &gBattleBufferA[0][4]: the chosen Pokemon's move list
 lit_movepower:     .word 0x09D8641A    @ gBattleMoves + 1 (power; type at +1 from here)
 lit_battlemons:    .word 0x02024084
-lit_tonatdex:      .word 0x0806D4A5    @ SpeciesToNationalPokedexNum
-lit_dexflag:       .word 0x080C0665    @ GetSetPokedexFlag(dexNum, case)
 lit_structptr:     .word 0x02024218
 lit_chart:         .word 0x09D76E88    @ 19 x 19, values 0 / 5 / 10 / 20
 lit_multicursor:   .word 0x03005D74    @ gMultiUsePlayerCursor
