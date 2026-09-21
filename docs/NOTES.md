@@ -806,18 +806,30 @@ array into free space with a 5th entry (a clone of object 1, localId 5, at (8,5)
 repoints the object pointer.
 Why not a shop: the hack's `BuyMenuTryMakePurchase` (0x080E0EDC) jumps to `0x096FFF00`, which only
 understands the hack's own list pointers and soft-resets otherwise (see the 2026-09-12 note).
-The script is plain script bytecode, no Thumb: lock(6A), faceplayer(5A), checkflag(2B) `0x4F1F` ->
+The script is plain script bytecode, no Thumb: lock(6A), faceplayer(5A), checkflag(2B) `0x4013` ->
 "already given", loadword(0F 00)+callstd 05 (yes/no), compare(21) VAR_RESULT 0 -> "no", giveitem(44) 68,
-999, setflag(29), message, release(6C), end(02). Opcodes were read off real scripts rather than assumed:
-the Mart clerk's own script starts `6A 5A`, the lrepel patch's yes/no is `0F 00 <text> / 09 05 / 21 0D 80 00
-00 / 06 01`, and `0x29/0x2A/0x2B` were confirmed by disassembling their handlers (0x08099C14 / 0x08099C28 /
-0x08099C3C, which call 0x0809D740 / 0x0809D768 / 0x0809D790 = SetFlag/ClearFlag/FlagGet).
-The flag `0x4F1F` is free by the only test available: no script in the ROM references it via
-setflag/clearflag/checkflag. All 0x4000-0x4FFF values appear somewhere in the ROM as raw u16 pairs, so a
-plain byte search cannot answer this - the opcode-anchored scan can, though it only sees script references.
-NOT VERIFIED IN GAME: the NPC has never been talked to. Getting into the Mart needs a save made inside it
-(the hack pins the spawn map on Continue), and the map's tile data is not a plain u16 grid this hack can be
-read statically, so the tile at (8,5) has not been confirmed walkable either.
+four times (see below), setflag(29), message, release(6C), end(02). Opcodes were read off real scripts
+rather than assumed: the Mart clerk's own script starts `6A 5A`, the lrepel patch's yes/no is `0F 00 <text>
+/ 09 05 / 21 0D 80 00 00 / 06 01`, and `0x29/0x2A/0x2B` were confirmed by disassembling their handlers
+(0x08099C14 / 0x08099C28 / 0x08099C3C, which call 0x0809D740 / 0x0809D768 / 0x0809D790 = SetFlag/ClearFlag/
+FlagGet).
+
+### Two bugs the first in-game test found (2026-09-21)
+Reported: the NPC had not moved, gave "about 200" instead of 999, and could be asked again. Only the first
+of those was not a real bug.
+- **`giveitem` masks its amount to a byte.** The handler (0x080999A0) reads the amount as a halfword but
+  then does `lsls r1,#0x18 / lsrs r1,#0x18` (0x080999C8) before `AddBagItem`, so 999 arrived as 0xE7 = 231.
+  "999" is now four calls - 255, 255, 255, 234. The handler is also SILENT (it only adds the item and
+  stores the result in the var at 0x020375F0), so the script supplies its own message; that was luck rather
+  than knowledge the first time round.
+- **The flag was outside the range the hack supports.** `GetFlagAddr` (0x09F00CEC) accepts `<= 0x3FFF` or
+  `0x4000..0x467F` and jumps to 0x09F00D5E otherwise. `0x4F1F` is past the end, so `setflag` did nothing and
+  `checkflag` always read clear - the NPC gave out candies forever. Now `0x4013`, in range and not
+  referenced by any script in the ROM.
+- The **object position was already correct** in the ROM that was tested (x=8, y=5); the report was most
+  likely a stale save state or an old ROM. Worth re-checking on a fresh battery-save load.
+- Lesson: the flag space has a hard upper bound, and script opcodes do not necessarily use their arguments
+  at full width. Both were invisible in the source and obvious on the first real run.
 
 ## HARNESS / ROM NOTES — 2026-09-21
 - **Free-space notes in this file are stale for the shipped build.** `0x08FE5284` and `0x08FF2454` are NOT

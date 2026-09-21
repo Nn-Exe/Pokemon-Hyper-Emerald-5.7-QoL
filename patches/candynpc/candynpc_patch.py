@@ -15,9 +15,19 @@ Nothing here is Thumb: the NPC's whole behaviour is one vanilla script, written 
     checkflag GIVEN        -> if set, "already given" and stop
     loadword 0, TEXT_Q ; callstd 5 (yes/no)
     compare VAR_RESULT, 0  -> on No, stop
-    giveitem 68, 999       (68 = Rare Candy; 999 is the bag cap this build ships)
+    giveitem 68, 255 x3, then 68, 234        (68 = Rare Candy; see below)
     setflag GIVEN
     "enjoy" message, release, end
+
+`giveitem` cannot hand over 999 in one call: its handler masks the amount to a byte
+(080999C8 lsls r1,#0x18 / 080999CA lsrs r1,#0x18) before AddBagItem, so 999 arrives as
+0xE7 = 231. Four calls summing to 999 is the fix. It is also silent - it only adds the
+item and stores the result, so the caller supplies the message (ours does).
+
+The flag must be inside the range the hack's GetFlagAddr (0x09F00CEC) accepts: `<= 0x3FFF`,
+or `0x4000..0x467F`. 0x4F1F is past the end and silently does nothing, which is what made
+the NPC give out candies forever. GIVEN is 0x4013, which is in range and is not referenced
+by any script in the ROM via setflag/clearflag/checkflag.
 
 Script opcodes used, each confirmed against a real script in the ROM:
     lock 0x6A (the Mart clerk's own script starts 6A 5A), faceplayer 0x5A,
@@ -25,9 +35,6 @@ Script opcodes used, each confirmed against a real script in the ROM:
     loadword 0x0F 00 <ptr4>, callstd 0x09 <type> (5 = yes/no, 4 = plain),
     compare 0x21 <var u16> <value u16>, goto_if 0x06 <cond> <ptr4>,
     giveitem 0x44 <item u16> <amount u16>, release 0x6C, end 0x02.
-
-The flag: 0x4F1F. It is not one of the 2159 flags any script in the ROM references via setflag/clearflag/
-checkflag, which is the best available evidence that it is free.
 
 usage: python candynpc_patch.py <in.gba> <out.gba>
 """
@@ -39,8 +46,9 @@ OBJS = 0x052F294                         # the 4-object array itself
 COUNT = 4
 OBJ_SIZE = 24
 RARE_CANDY = 68
-CANDY_COUNT = 999                       # 0x03E7, the bag cap this build ships
-GIVEN_FLAG = 0x4F1F
+CANDY_COUNT = 999                       # the total to hand over; each giveitem call caps at 255
+CANDY_CALLS = (255, 255, 255, CANDY_COUNT - 255 * 3)   # = 255,255,255,234
+GIVEN_FLAG = 0x4013                     # must be <= 0x3FFF or 0x4000..0x467F for the hack's GetFlagAddr
 TILE = (8, 5)                            # one tile right of where it was first placed
 LOCAL_ID = 5                             # the map's objects use 1-4
 OBJ1 = bytes.fromhex("0213000009000400030a000000000000e87d200800000000")
@@ -69,7 +77,8 @@ def build_script(script_addr, text_addrs):
     s += bytes((0x21, 0x0D, 0x80, 0x00, 0x00))                # compare VAR_RESULT, 0
     s += bytes((0x06, 0x01)) + b"\0\0\0\0"                    # goto_if eq -> deny
     at["deny"] = len(s) - 4
-    s += bytes((0x44,)) + struct.pack("<HH", RARE_CANDY, CANDY_COUNT)   # giveitem
+    for amount in CANDY_CALLS:                                # giveitem's amount is masked to a byte
+        s += bytes((0x44,)) + struct.pack("<HH", RARE_CANDY, amount)
     s += bytes((0x29,)) + struct.pack("<H", GIVEN_FLAG)       # setflag
     s += bytes((0x0F, 0x00)) + b"\0\0\0\0"                    # loadword 0, "enjoy"
     at["done"] = len(s) - 4
