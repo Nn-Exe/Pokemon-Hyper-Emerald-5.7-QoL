@@ -708,3 +708,58 @@ the registered Mach Bike.
   `test_chain_break.lua` (running away ends it), `test_stars.lua` (forces the rating and counts 31s),
   `test_pokenav_call.lua` (a call with the bar up), `test_park.lua`, `test_screen.lua` (cursor, paging,
   clamping, the bar at chain 200 with the rerolls at full stretch) and `test_scratch_ram.lua`.
+
+## DEXNAV: UNBOUND RULES, SEARCH LEVEL IN FLASH, CATCH FIX (2026-09-21)
+Full write-up in docs/DEXNAV-PROGRESS.md; addresses here.
+- Catch bug: on a catch the enemy party is zeroed before CB2_Overworld returns (seen: species 0 at +0x20
+  with gBattleOutcome 7). Scoring now uses gBattleResults (0x03005D10): +0x20 lastOpponentSpecies
+  (0x03005D30), +0x28 caughtMonSpecies, +0x2A caught nickname. Offsets differ by 2 from what pokeemerald's
+  struct suggests; they were read off a live catch.
+- Save: the hack's save sectors all carry checksum 0x0001 (checks disabled) and data up to 0xFEE, so no
+  slack in the main save. Sector 30 (Trainer Hill e-Reader) was blank on a late-game save.
+  TryReadSpecialSaveSector 0x081535DC, TryWriteSpecialSaveSector 0x08153634 (sectors 30/31 only),
+  ReadFlash 0x082E1AD4, ProgramFlashSectorAndVerify 0x082E1CD0, gSaveDataBuffer 0x0203ABBC (4 KB).
+  Trainer Hill read 0x081D3AD8 -> validator 0x081D396C (count byte must be 1..8); its writer 0x081D3AB0 is
+  called only from 0x081D53C8 (e-Reader).
+- Base stats held items: +12 common, +14 rare (Chansey 222 Lucky Punch / 197 Lucky Egg). Boxed mon held
+  item is +0x22. The game's own wild held-item roll still runs after ours.
+- State block additions: +24 u8 search level, +26 u16 rolled held item. Bar window top row 15 (was 1),
+  icon y 136 (was 24); tiles unchanged at 0x240.
+- Test runs on this Mac: mGBA dev build with -C mute=1 -C fpsTarget=2000 -C audioSync=0 -C videoSync=0.
+- Bar frame: the menus' standard frame via its window function WindowFunc_DrawStdFrame 0x08197F19 through
+  CallWindowFunction 0x08004059. In this hack the Draw*Frame wrappers (DrawDialogueFrame 0x08197B1C,
+  DrawStdWindowFrame 0x08197E80) take (windowId, copy, tile, palette) and store tile/palette at 0x0203CD9C
+  (u16) / 0x0203CD9E (u8) before calling the window function; calling it without them drew tile 1, palette 0.
+  Std frame = tile 0x214, palette 14 (white/grey). The dialogue frame (0x200, palette 15) is the hack's
+  translucent blue message box and turns teal under the field palette. Removal: ClearStdWindowAndFrame.
+- ORAS rules: chain_break() (chain 0, tracking off, bar down, lastfoe zeroed) on run/lose/flee, map change
+  (was: parked), and any battle not seeded by us (lastfoe non-zero on the field with flags bit1 clear).
+  Search level is u16 at state +24 and in the flash entries, capped at 999.
+- Shaking patch (see DEXNAV-PROGRESS "The shaking patch"): step hook word 0x0809CBEC (was 0x09F06531, the hack's
+  CheckStandardWildEncounter, which does its own bookkeeping and jumps back to vanilla 0x0809CBF4).
+  sWildEncounterImmunitySteps 0x020375D4, sPrevMetatileBehavior 0x020375D6. gPlayerAvatar 0x02037590
+  (+5 objectEventId), gObjectEvents 0x02037350 (0x24 each: +8 localId, +9 mapNum, +10 mapGroup, +11 elevation,
+  +0x10/+0x12 currentCoords). FieldEffectStart 0x080B5B18, active list 0x03000F58 (32 ids),
+  gFieldEffectArguments 0x02038C08, MapGridGetMetatileBehaviorAt 0x080882BC, IsTallGrass 0x08089448,
+  IsLongGrass 0x0808945C, IsSandOrDeepSand 0x08088E80, IsLandWildEncounter 0x0808952C, IsWaterWildEncounter
+  0x08089558. pret's pokeemerald.sym (symbols branch) matches this ROM below ~0x0819xxxx; the menu code from
+  about 0x08197000 on is shifted (+0xC04 at ClearStdWindowAndFrame), so verify before trusting a symbol there.
+  Effects 19-22 (shaking grass, long grass, sand hole, water surfacing) exist but loop forever and 21/22 draw
+  a blue box in this hack: not usable.
+
+## R OPENS THE DEXNAV, AUTO RUN IN THE OPTION MENU (2026-09-21)
+patches/rbutton/. The field-input chain is ProcessPlayerFieldInput's trampoline (0x0809C014, word 0x0809C018)
+-> L quick repel's stub (0x08FD9A41) -> its "next hook" literal (0x08FD9AC8, was auto-run's R toggle 0x08FD9963)
+-> r_hook, which re-executes the replaced prologue and resumes at 0x0809C01D like the toggle did. R (newKeys
+0x100) with tileTransitionState != 1 and FLAG_SYS_POKEDEX_GET opens the DexNav: bit 7 of the hunt's flags,
+FreezeObjectEvents, BeginNormalPaletteFade to black, and a task that calls the DexNav's own start-menu
+callback (dexnav blob funcs[0]) until it switches CB2; returning TRUE makes the caller lock the controls.
+Auto Run: optionsButtonMode (SaveBlock2+0x13) holds 0 off / 4 on. All 22 readers in the ROM were checked: they
+compare with 1 (LR, GetLRKeysPressed and friends) or 2 (L=A, ReadKeys), or copy the byte into a link/record
+struct (0x0801EF3A.., 0x080ECFA0); 0x0819C860 is a false hit (Battle Factory swap struct). Auto-run's run
+decision now reads it (ldr r1,[r1,#4]; ldrb r1,[r1,#0x13]; lsrs r1,#2 at 0x08FD996C - gSaveBlock2Ptr is
+gSaveBlock1Ptr+4). ButtonMode_ProcessInput 0x080BAFCC and ButtonMode_DrawChoices 0x080BB028 (callers: the option
+menu only) are trampolines to a two-state version that uses the game's On/Off strings (0x085EE5F4/FD) and
+DrawOptionMenuChoice 0x080BAB68 at y 64; sArrowPressed 0x02039B48. Label rewritten in place at 0x085EE5C8.
+The old auto-run byte at SaveBlock1+0x31 is no longer read.
+Unregister (dexnavchain): A on the tracked species runs chain_break and leaves like a registration.

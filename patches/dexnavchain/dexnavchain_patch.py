@@ -1,9 +1,11 @@
 """DexNav search and chain (Hyper Emerald v5.7). Apply after the sinnohmap build.
 
-On the DexNav screen the cursor picks a species and A starts tracking it; a bar at the top of the field
-says what you are hunting, and the next wild Pokemon of that map is that species. Catching or defeating it
-raises the chain, which improves the next one's odds (shiny rerolls, perfect IVs shown as stars, and an egg
-move). Running, losing or leaving the map ends the chain.
+On the DexNav screen the cursor picks a species and A starts tracking it; a bar at the bottom of the field
+says what you are hunting, and the next wild Pokemon of that map is that species. The odds follow Pokemon
+Unbound's DexNav: each encounter raises the species' Search Level, which sets the chance of an egg move, a
+held item and 0-3 perfect IVs (the stars) and adds shiny rolls; catching or defeating it raises the chain,
++1 level per five links and a shiny burst on the 50th and 100th. As in ORAS, running, losing, it fleeing,
+leaving the map or any other battle ends the chain; the Search Level (0-999) never resets.
 
 ROM changes, all of them pointers - no game routine is rewritten:
   * the word the hack's CreateWildMon trampoline jumps through (0x080B4E6C) now points at our stub, which
@@ -11,7 +13,8 @@ ROM changes, all of them pointers - no game routine is rewritten:
   * the overworld hook the earlier patches installed is chained through ours;
   * the DexNav screen's task pointer, inside our own dexnav blob, points at a task that calls the original
     and adds the cursor and A.
-Everything else is new code and data in free space. Nothing is written to the save.
+Everything else is new code and data in free space. Search levels go to flash sector 30, the Trainer Hill's
+e-Reader sector, through the game's own special-sector routines; the main save sectors are never written.
 
 The DexNav blob is re-assembled here from patches/dexnav and checked byte for byte against the ROM, which
 is what makes its internal addresses (task, draw_page, find) safe to call.
@@ -33,6 +36,8 @@ SCRATCH = STATE + 32                    # the game: see docs/NOTES.md (pattern t
 
 WILD_TRAMPOLINE = 0x0B4E68              # CreateWildMon: ldr r2,[pc,#0]; bx r2; .word <hack's own>
 WILD_TARGET = 0x0B4E6C
+STEP_TRAMPOLINE = 0x09CBE8             # CheckStandardWildEncounter: ldr r2,[pc,#0]; bx r2; .word <hack's own>
+STEP_TARGET = 0x09CBEC
 OW_HOOK = 0x085E5C                      # CB2_Overworld's first instruction, already a trampoline
 OW_TARGET = 0x085E60
 
@@ -48,7 +53,21 @@ STAR_ART = ("...#....",          # drawn into the bar's second tile row, level w
             "........")
 
 
+# Pokemon Unbound's DexNav odds by Search Level (pokemonunbound.miraheze.org/wiki/DexNav). A row is picked by
+# the first break the level is below: 0-4, 5-9, 10-24, 25-49, 50-99, 100+. Each row: egg move %, held item %,
+# then the chance of exactly 3, 2 and 1 perfect IVs (the rest is none). Hidden abilities have no row: this
+# hack's base stats only carry two ability slots.
+SL_BREAKS = (5, 10, 25, 50, 100)
+SL_ODDS = ((0, 0, 0, 0, 0),
+           (21, 0, 0, 1, 13),
+           (46, 1, 1, 9, 16),
+           (58, 7, 7, 16, 16),
+           (63, 6, 6, 17, 14),
+           (83, 12, 12, 24, 7))
+
 BAR_BLACK = 10                          # the palette slot we keep black; see black_slot() in the source
+BAR_RED = 11                            # and the next one red, for the earned stars
+BAR_GOLD = 12                           # and the last gold, for the one-in-500 all-perfect three
 
 
 def star_tile(ink):
@@ -65,7 +84,7 @@ def star_tile(ink):
 CHARS = {c: 0xBB + i for i, c in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZ")}
 CHARS.update({c: 0xD5 + i for i, c in enumerate("abcdefghijklmnopqrstuvwxyz")})
 CHARS.update({str(i): 0xA1 + i for i in range(10)})
-CHARS.update({" ": 0x00, ".": 0xAD, "-": 0xAE, "/": 0xBA, "!": 0xAB, "'": 0xB4})
+CHARS.update({" ": 0x00, ".": 0xAD, "-": 0xAE, "/": 0xBA, "!": 0xAB, "'": 0xB4, ":": 0xF0})
 
 
 def text(s, raw=b""):
@@ -110,6 +129,12 @@ def build(inp, outp):
     assert createwild & 1 and 0x08000000 <= createwild < 0x0A000000, "CreateWildMon target looks wrong"
     assert createwild != BASE | 1, "already applied"
 
+    # the per-step encounter check, also a trampoline into the hack's own code: the shaking patch goes first
+    assert bytes(rom[STEP_TRAMPOLINE:STEP_TRAMPOLINE + 4]) == bytes.fromhex("004a1047"), \
+        "the step encounter check is not the trampoline this patch expects"
+    prevstep = struct.unpack_from("<I", rom, STEP_TARGET)[0]
+    assert prevstep & 1 and 0x08000000 <= prevstep < 0x0A000000, "step encounter target looks wrong"
+
     # and chain onto the overworld hook the earlier patches left
     assert bytes(rom[OW_HOOK:OW_HOOK + 4]) == bytes.fromhex("004b1847"), "overworld hook is not ours"
     prevhook = struct.unpack_from("<I", rom, OW_TARGET)[0]
@@ -133,17 +158,24 @@ def build(inp, outp):
         # from there up scribbles over the map itself.  Below that, the field keeps its message window at
         # 0x194..0x200, the location popup at 0x107..0x125 and the standard frame at 0x214, so 0x240 is
         # clear of all of them with room to spare.
-        put("WINTEMPLATE", bytes((0, 1, 1, 28, 4, 15)) + struct.pack("<H", 0x240), 4)
+        # left 1, top 15, 28x4: the bottom of the screen, with the 1-tile menu frame filling columns 0-29 and
+        # rows 14-19. 112 tiles, 0x240..0x2B0.
+        put("WINTEMPLATE", bytes((0, 1, 15, 28, 4, 15)) + struct.pack("<H", 0x240), 4)
         put("COLORS_HUD", bytes((10, 1, 2)), 4)         # our black slot, white text, grey shadow
-        put("COLORS_CUR", bytes((1, 4, 3)), 4)          # on the list window: its white bg, header colour
-        put("STR_CURSOR", bytes((0x7C, 0xFF)), 4)       # the right arrow the key item popup uses
-        put("STARTILES", star_tile(1) + star_tile(2), 4)   # white when earned, grey when not
-        put("BLACK", struct.pack("<H", 0x0000), 4)
+        put("COLORS_HINT", bytes((4, 1, 4)), 4)         # the header's own: band, white, band
+        put("STR_HINT", text("A: Register"), 4)
+        put("STR_UNREG", text("A: Unregister"), 4)
+        put("COLORS_LIST", bytes((1, 9, 1)), 4)         # the list's white, red text (the frame's red, entry 9)
+        put("RED", struct.pack("<H", 0x0C3D), 4)         # the row border, into the list palette's spare entry 9
+        put("STARTILES", star_tile(BAR_RED) + star_tile(2) + star_tile(BAR_GOLD), 4)   # red, grey, gold
+        put("BLACK", struct.pack("<HHH", 0x0000, 0x0C3D, 0x02FF), 4)   # entries 10-12: black, red, gold
+        put("SLBREAKS", bytes(SL_BREAKS), 4)
+        put("SLODDS", b"".join(bytes(r) + bytes(3) for r in SL_ODDS), 4)
         return bytes(d), addrs
 
     src = open(os.path.join(HERE, "dexnavchain.s"), encoding="ascii").read()
     fixed = {
-        "PREVHOOK": prevhook, "CREATEWILD": createwild, "STATE": STATE, "SCRATCH": SCRATCH,
+        "PREVHOOK": prevhook, "PREVSTEP": prevstep, "CREATEWILD": createwild, "STATE": STATE, "SCRATCH": SCRATCH,
         "DN_TASK": dn["task"] | 1, "DN_DRAWPAGE": dn["draw_page"] | 1, "DN_FIND": dn["find"] | 1,
     }
 
@@ -154,21 +186,27 @@ def build(inp, outp):
         return thumb(s, BASE)
 
     _, dummy = data_blob(BASE)
+    dummy["CB2_RETURN"] = BASE | 1              # a code address the code uses: settled on the last pass
     code, dis = assemble(dummy)
     code_len = (len(code) + 3) & ~3
     data, daddrs = data_blob(BASE + code_len)
+    daddrs["CB2_RETURN"] = BASE | 1
     code, dis = assemble(daddrs)
     assert (len(code) + 3) & ~3 == code_len
 
     funcs = [i.address for i in dis if i.mnemonic == "push"]
-    order = ("ow_stub", "ow_tick", "after_battle", "dn_task", "cur_index", "row_count", "draw_cursor",
+    order = ("ow_stub", "ow_tick", "after_battle", "chain_break", "dn_task", "cur_index", "row_count", "border", "draw_hint", "cb2_return",
              "arm_search", "reroll", "basestats", "eggpick", "rndmod", "wild_hook", "is_shiny",
              "apply_extras", "hud_draw", "hud_text", "stars", "black_slot", "prnt", "scopy", "dec3",
-             "hud_live", "hud_remove", "icon_gone", "hud_refresh")
+             "hud_live", "hud_remove", "icon_gone", "hud_arrow", "hud_refresh", "hud_frame", "sl_open", "sl_slot", "sl_get", "sl_set",
+             "chain_reset", "player_xy", "on_patch", "step_hook", "force_battle", "patch_tick", "fx_args", "tile_ok", "draw_levels")
     assert len(funcs) == len(order), "unexpected function layout: %d pushes, expected %d" % (
         len(funcs), len(order))
     sym = dict(zip(order, funcs))
     assert sym["ow_stub"] == BASE, "ow_stub must be first"
+    daddrs["CB2_RETURN"] = sym["cb2_return"] | 1
+    code, dis = assemble(daddrs)
+    assert (len(code) + 3) & ~3 == code_len
 
     blob = bytearray(code) + bytes(code_len - len(code)) + data
     while len(blob) % 4: blob.append(0)
@@ -177,6 +215,7 @@ def build(inp, outp):
     rom[FREE:end] = blob
 
     struct.pack_into("<I", rom, WILD_TARGET, sym["wild_hook"] | 1)
+    struct.pack_into("<I", rom, STEP_TARGET, sym["step_hook"] | 1)
     struct.pack_into("<I", rom, OW_TARGET, sym["ow_stub"] | 1)
     struct.pack_into("<I", rom, task_literal, sym["dn_task"] | 1)
     open(outp, "wb").write(rom)

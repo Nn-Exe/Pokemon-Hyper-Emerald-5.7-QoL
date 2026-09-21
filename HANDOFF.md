@@ -59,20 +59,42 @@ These are not style preferences; each one is a bug that already happened.
 
 ## Current state
 
-Applied to the working ROM and verified in mGBA:
+Applied to the working ROM and verified in mGBA (on a real late-game save, Sinnoh post-game):
 
 - everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-21**;
-- the newest two features — **fly from the Sinnoh map** (`patches/sinnohmap/`) and **DexNav search & chain**
-  (`patches/dexnavchain/`) — are applied and tested but **not yet cut as a release**. The last published
-  release is v1.3.1; the next one should bundle Sinnoh map, News Tracker fix, NPC names, the Sinnoh fly and
-  the DexNav chain.
+- **not yet cut as a release** (the last published release is v1.3.1): Sinnoh map + fly, News Tracker fix, NPC
+  names, and the whole DexNav rework of 2026-09-21 — Unbound/ORAS rules with a per-species Search Level kept in
+  flash sector 30, the shaking patch (grass rustle, water ripple, cave dust) you step on, the bar at the bottom
+  with red/gold stars and a direction arrow, register/unregister, R opening the DexNav, and Auto Run moved into
+  the Option menu (`patches/rbutton/`). Details: [docs/DEXNAV-PROGRESS.md](docs/DEXNAV-PROGRESS.md), newest
+  sections of [docs/NOTES.md](docs/NOTES.md).
+
+The chain is now: ... `sinnohmap` → `dexnavchain` → `rbutton` (see *Rebuild from source* in the README). While
+iterating on the DexNav, build from a ROM that has everything up to `sinnohmap` (the working ROM before
+`dexnavchain`), then apply `dexnavchain` and `rbutton` on top.
 
 Release mechanics (patch file, checksums, GitHub release) are described in the README; the release patch is
 generated against the translated ROM, never against a ROM you cannot reproduce.
 
+## Working on macOS
+
+- Python: a venv with `keystone-engine`, `capstone`, `pillow`. On Apple silicon the keystone wheel ships no
+  library: `brew install keystone` and copy `libkeystone.dylib` into the venv's `site-packages/keystone/`;
+  Python 3.12+ also needs `pip install setuptools` (keystone imports `distutils`).
+- mGBA: the release app has no `--script`; use the dev build (`mGBA-build-latest-macos.dmg` from
+  `https://s3.amazonaws.com/mgba/`). Run tests muted and fast:
+  `mGBA.app/Contents/MacOS/mGBA -C mute=1 -C fpsTarget=2000 -C audioSync=0 -C videoSync=0 --script test.lua game.gba`
+  on copies of the ROM and `.sav` in a scratch folder. `patches/dexnavchain/test_boot.lua` is the shared boot
+  harness the newer tests use (set `DIR`).
+- pret's `pokeemerald.sym` (the `symbols` branch) matches this ROM for most vanilla code; the menu code from about
+  `0x08197000` is shifted (+0xC04 at `ClearStdWindowAndFrame`), so disassemble before trusting a symbol there.
+
 ## Where the unfinished edges are
 
-- **DexNav chain** — see [docs/DEXNAV-PROGRESS.md](docs/DEXNAV-PROGRESS.md) for the specific list.
+- **DexNav** — never played through: a water hunt while surfing, a Rock Smash hunt, a real trainer battle breaking
+  the chain, Repel with the patch, Safari Zone catches. The arrow points sideways first and can point into a
+  boulder; the patch is always a free tile at the player's height, but a maze-like cave can still wall it off.
+  More in [docs/DEXNAV-PROGRESS.md](docs/DEXNAV-PROGRESS.md).
 - **Shelved, root cause known**: in-party nature changer (`patches/naturemenu/`), PC item sort
   (`patches/pcsort/`). Both are written, neither is verified in game.
 - **Translation**: roughly 365 strings could not be placed in safe space and are still Chinese. Reclaiming
