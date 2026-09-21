@@ -49,7 +49,8 @@ RARE_CANDY = 68
 CANDY_COUNT = 999                       # the total to hand over; each giveitem call caps at 255
 CANDY_CALLS = (255, 255, 255, CANDY_COUNT - 255 * 3)   # = 255,255,255,234
 GIVEN_FLAG = 0x4013                     # must be <= 0x3FFF or 0x4000..0x467F for the hack's GetFlagAddr
-TILE = (8, 5)                            # one tile right of where it was first placed
+TILE = (5, 6)                            # beside the door: map 8/6's warps (3,7)/(4,7) are the doorway,
+                                         # so (5,6) is the first floor tile in and to the right of it
 LOCAL_ID = 5                             # the map's objects use 1-4
 OBJ1 = bytes.fromhex("0213000009000400030a000000000000e87d200800000000")
 

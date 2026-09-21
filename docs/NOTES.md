@@ -826,8 +826,11 @@ of those was not a real bug.
   `0x4000..0x467F` and jumps to 0x09F00D5E otherwise. `0x4F1F` is past the end, so `setflag` did nothing and
   `checkflag` always read clear - the NPC gave out candies forever. Now `0x4013`, in range and not
   referenced by any script in the ROM.
-- The **object position was already correct** in the ROM that was tested (x=8, y=5); the report was most
-  likely a stale save state or an old ROM. Worth re-checking on a fresh battery-save load.
+- The **object position**: the first placement at (7,5) read as an odd spot in game, and (8,5) more so. He
+  now stands at **(5,6)** - the first tile inside and to the right of the doorway. The door is identifiable
+  without seeing the room because map 8/6's two warp events are at (3,7) and (4,7) and both lead back to
+  Petalburg City (0/0). Whether (5,6) itself is walkable is still unverified: this hack's map data is not a
+  plain u16 grid, so its collision cannot be read statically.
 - Lesson: the flag space has a hard upper bound, and script opcodes do not necessarily use their arguments
   at full width. Both were invisible in the source and obvious on the first real run.
 
