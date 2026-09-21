@@ -834,6 +834,29 @@ of those was not a real bug.
 - Lesson: the flag space has a hard upper bound, and script opcodes do not necessarily use their arguments
   at full width. Both were invisible in the source and obvious on the first real run.
 
+### Why the NPC would not move (found 2026-09-21, from the user's save)
+The position in the ROM is not what the game uses once a save has been made on that map. **The hack
+persists the object events in SaveBlock1.** In the user's save the live record for our object sits at
+absolute file offset `0x3AEC`: `05 06 08 30  0E 00 0C 00  0E 00 0C 00  0E 00 0C 00 ...` - localId 5,
+map 6/8, three coordinate pairs `(14,12)`. The game's runtime coordinates run 7 ahead of the map's own
+(`x+7`, `y+7` - the player at save pos (3,7) is live (10,14), and all four stock objects match), so
+(14,12) is tile **(7,5)**, the very first position this patch used.
+Proof it is the save and not the ROM: rewriting just those six bytes to `(12,13)` moved the NPC to tile
+(5,6) on the next load, with the ROM untouched. Editing the ROM's object template does nothing for a save
+that already carries the record - not even the graphicsId changes.
+Consequence: a save made inside the Mart freezes the NPC's position for that save. Fresh saves, and saves
+made anywhere else, get the ROM's position. Anyone re-testing this should save outside the Mart (or start
+from a save made before the NPC existed) rather than assume the ROM change failed. For the same reason the
+`(NPC moved).sav` handed back with this work only differs from the user's save in those six bytes.
+
+### Door-side tiles, measured in game (not guessed)
+Walked the player around the Mart and read the position back each step:
+**floor**: (2,6) (3,6) (4,6) (5,6) (3,5) (3,4) (3,3) (4,3) (5,3) (5,2) (4,2) (3,2).
+**walls**: (2,7) and (5,7) - the whole row the door sits on is solid apart from the door itself - and (6,3)
+(the stock NPC) and (5,5) (another stock NPC).
+So "beside the door" can only mean the row just inside it. (5,6) is the tile used: one in and one right of
+the door, walkable, and it leaves the doorway clear (the player walked onto it to prove it).
+
 ## HARNESS / ROM NOTES — 2026-09-21
 - **Free-space notes in this file are stale for the shipped build.** `0x08FE5284` and `0x08FF2454` are NOT
   free any more: both carry real Thumb function pointers (checked with an aligned pointer scan). The
