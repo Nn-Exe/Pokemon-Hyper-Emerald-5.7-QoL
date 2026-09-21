@@ -132,7 +132,7 @@ python patches/newsfix/newsfix_patch.py       out21.gba out22.gba   # News Track
 python patches/sinnohmap/sinnohmap_patch.py   out22.gba out23.gba   # Sinnoh map screen
 python patches/dexnavchain/dexnavchain_patch.py out23.gba out24.gba  # DexNav search, chain and field bar
 python patches/rbutton/rbutton_patch.py       out24.gba out25.gba   # R opens the DexNav, Auto Run moves to Options
-python tools/romdiff.py create original.gba out23.gba release/hyper-emerald-en-qol.hpatch
+python tools/romdiff.py create original.gba out25.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)

@@ -4,6 +4,7 @@ One line per change, newest first. The how and why of each change is in [docs/NO
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
 ## 2026-09-21
+- **Changed** Release v1.4 (everything below since v1.3.1): DexNav hunting, the Sinnoh Map with fly, R opening the DexNav with Auto Run moved into the Option menu, and the News Tracker fix. Rebuilt patch and checksums in `release/`.
 - **Added** DexNav: each species' Search Level shows in the list in red ("SL n", blank at 0), and a new shaking spot announces itself with the hunted Pokémon's cry. The header hint is right-aligned so long place names no longer run into it. `patches/dexnavchain/`
 - **Added** DexNav jackpot: one hunted encounter in 500 (0.2%), at any Search Level or chain, has all six IVs perfect — shown as three gold stars on the bar. `patches/dexnavchain/`
 - **Added** DexNav bar shows an arrow toward the shaking patch — left/right until you are lined up with it, then up/down — so you can find it when it is hard to see or behind the bar. `patches/dexnavchain/`
