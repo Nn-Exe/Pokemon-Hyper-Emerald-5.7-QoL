@@ -61,13 +61,19 @@ These are not style preferences; each one is a bug that already happened.
 
 Applied to the working ROM and verified in mGBA (on a real late-game save, Sinnoh post-game):
 
-- everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-21**;
-- **not yet cut as a release** (the last published release is v1.3.1): Sinnoh map + fly, News Tracker fix, NPC
-  names, and the whole DexNav rework of 2026-09-21 — Unbound/ORAS rules with a per-species Search Level kept in
-  flash sector 30, the shaking patch (grass rustle, water ripple, cave dust) you step on, the bar at the bottom
-  with red/gold stars and a direction arrow, register/unregister, R opening the DexNav, and Auto Run moved into
-  the Option menu (`patches/rbutton/`). Details: [docs/DEXNAV-PROGRESS.md](docs/DEXNAV-PROGRESS.md), newest
-  sections of [docs/NOTES.md](docs/NOTES.md).
+- everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-22**;
+- the last published release is **v1.4** (DexNav, Sinnoh map + fly, R button, News Tracker fix). **Not yet
+  released**, all applied and tested:
+  * gold healthbox on your own shinies too (`patches/shinybox/`);
+  * the **Journal** key item: next story objective from Prof. Birch to Volo, 74 steps traced in the game's
+    scripts (`patches/journal/`: `steps.py` is the table; `make_tests.py` + `test_journal.lua` +
+    `check_journal.py` check all 84 scenarios byte for byte). Rules and every flag gotcha: NOTES, JOURNAL;
+  * berry numbers in the Bag: "No?2" -> No44-71 (`patches/berrynum/`, four sites - the hack has two copies of
+    its item-name routine);
+- the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
+  (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
+
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum`.
 
 The chain is now: ... `sinnohmap` → `dexnavchain` → `rbutton` (see *Rebuild from source* in the README). While
 iterating on the DexNav, build from a ROM that has everything up to `sinnohmap` (the working ROM before
@@ -90,6 +96,11 @@ generated against the translated ROM, never against a ROM you cannot reproduce.
   `0x08197000` is shifted (+0xC04 at `ClearStdWindowAndFrame`), so disassemble before trusting a symbol there.
 
 ## Where the unfinished edges are
+
+- **Open crash report (a player's, no save)**: Berries pocket, cursor from Occa onto Jaboca -> "Jumped to invalid
+  address: E3A02004" (a function pointer read from address ~0). Not reproduced on any build with that exact
+  pocket, boy or girl, or with every berry walked over. `patches/berrynum/test_berrynum_report.lua` rebuilds the
+  reported pocket and dumps registers and the stack if it crashes - run it on the player's save if one turns up.
 
 - **DexNav** — never played through: a water hunt while surfing, a Rock Smash hunt, a real trainer battle breaking
   the chain, Repel with the patch, Safari Zone catches. The arrow points sideways first and can point into a

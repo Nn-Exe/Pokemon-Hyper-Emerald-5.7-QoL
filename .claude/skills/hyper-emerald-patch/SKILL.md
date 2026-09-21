@@ -33,22 +33,26 @@ Two checks in that template matter more than they look:
 ## Rules that are not negotiable
 
 1. Free space is a run of `0xFF` **with no pointers into it**. Current blobs run from `0x08FD8C00` to
-   `0x08FDED20`; bigger unreferenced runs sit at `0x08FE5284` and `0x08FF2454`. Check inbound pointers
+   `0x08FDED20`, plus the Journal at `0x08FE5400..0x08FE83D4` and berrynum at `0x08FE8400..0x08FE8474`; free unreferenced
+   runs remain from `0x08FE8474`
+   to `0x08FF0000` and from `0x08FF2454`. Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
    the hack's own code (`ldr rX,[pc,#0]; bx rX; .word target`) — repointing that word is the cheapest hook
    there is, and it is how `CreateWildMon` was taken over.
 3. If a site is already hooked, **chain**: read the current target, write yours, jump to the old one when
-   done. The overworld hook at `0x08085E5C` already has three patches chained through it.
+   done. The overworld hook at `0x08085E5C` already has four patches chained through it (the Journal's stub is first).
 4. Trampolines: 8 bytes (`ldr r3,[pc,#0]; bx r3; .word`) only at a 4-aligned site; 10 bytes
-   (`ldr r3,[pc,#4]; bx r3; nop; .word`) otherwise. At an unaligned site the pc rounds down and the ldr
+   (`ldr r3,[pc,#4]; bx r3; mov r8,r8; .word`, bytes `014b1847c046` + word) otherwise. At an unaligned site the pc rounds down and the ldr
    reads its own trampoline — an instant crash.
 5. **A hook on a function's first instruction still has a live `lr`.** The prologue that saves it has not
    run, so any `bl` in your stub destroys the caller's return address. Keep `lr` in a register across the
    stub. Hooks at a function's tail do not have this problem.
 6. Thumb-1 only: `ldr rX,[pc,…]` reaches 1020 bytes, so split literal pools every ~900 bytes of code;
    `ldrb/strb` immediates ≤ 31, `ldrh/strh` even and ≤ 62; conditional branches ±256 bytes.
-7. Never write to the save. Scratch belongs in EWRAM you have **measured** as unused (see below).
+7. **Never write `nop`.** Keystone assembles it as `00 BF`, a Thumb-2 hint that is undefined on the GBA and
+   slips past the 4-byte check. Use `mov r8, r8` (`C0 46`).
+8. Never write to the save. Scratch belongs in EWRAM you have **measured** as unused (see below).
 
 ## Finding EWRAM scratch
 

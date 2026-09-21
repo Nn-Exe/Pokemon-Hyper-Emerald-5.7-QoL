@@ -1,12 +1,12 @@
-"""Gold healthbox for shiny opponents (Hyper Emerald v5.7). Apply after the pcanywhere build.
+"""Gold healthbox for shiny Pokemon on either side (Hyper Emerald v5.7). Apply after the pcanywhere build.
 usage: python shinybox_patch.py <in.gba> <out.gba>
 
-A shiny wild Pokemon (or a shiny opponent in a trainer battle) gets a gold healthbox, like the SoulSilver
-style hacks. Your own box is untouched.
+A shiny Pokemon gets a gold healthbox, like the SoulSilver style hacks: a wild one, a trainer's, and your
+own (added 2026-09-21; until then the player's side was skipped).
 
 How: the two halves of a healthbox are ordinary sprites that all share OBJ palette 4, so the colour cannot
 be changed per box by editing that palette. Instead a copy of the healthbox palette, with the fill colours
-turned gold, is written into a spare OBJ palette slot and the opponent's two box sprites are pointed at it.
+turned gold, is written into a spare OBJ palette slot and a shiny battler's two box sprites are pointed at it.
 The work is done once per battle frame from a hook in BattleMainCB2, so it survives the box being rebuilt
 and undoes itself the moment the boxes are gone.
 

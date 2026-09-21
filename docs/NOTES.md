@@ -763,3 +763,105 @@ menu only) are trampolines to a two-state version that uses the game's On/Off st
 DrawOptionMenuChoice 0x080BAB68 at y 64; sArrowPressed 0x02039B48. Label rewritten in place at 0x085EE5C8.
 The old auto-run byte at SaveBlock1+0x31 is no longer read.
 Unregister (dexnavchain): A on the tracked species runs chain_break and leaves like a registration.
+
+## GOLD HEALTHBOX ON YOUR SIDE TOO — 2026-09-21
+- `patches/shinybox/`: the per-frame pass already handled every healthbox and computed each battler's shininess;
+  one test skipped the player's side (`movs r0,#1; tst r0,r6; beq sb_next`, even battler = player). The `beq` is
+  now a no-op, so a shiny battler 0 or 2 gets the gold box as well. Same size on purpose: typeicons writes a `bl`
+  into this blob at `0x08FDA0BA`, so nothing after it may move. In the current ROM that is two bytes,
+  `0x08FDA136`: `14 D0` -> `C0 46`.
+- Only palette index 2, the box fill, is gold, and the player's box keeps its HP numbers, HP bar and EXP bar in
+  other indices: checked on screen in singles (Swampert, 322/322) and doubles (the second battler's small box).
+  `test_shiny_yours.lua` and `test_shiny_yours_double.lua` force shininess through `gBattleMons[n].otId =
+  personality`, which is what the pass reads, so no party data is touched.
+- GOTCHA, caught by the assembled-bytes check before it shipped: keystone assembles `nop` as `00 BF`, the
+  Thumb-2 hint. The GBA's ARM7TDMI is Thumb-1 only, where that encoding is undefined - the first battle frame
+  would have hit it. The Thumb-1 no-op is `mov r8, r8` (`C0 46`), which is what the 10-byte trampolines here
+  already use. The patchers' Thumb-2 check only rejects 4-byte instructions, so it cannot see this one.
+
+## JOURNAL KEY ITEM — 2026-09-21
+- `patches/journal/`: the Fame Checker (item 363, a FireRed leftover: no script gives, checks or removes it, no
+  mart sells it, no patch uses it) becomes the **Journal**. Use it from the Bag, or register it and pick it in the
+  SELECT popup, and it prints `<part> - Next objective:` and the step. Groups add a page: `<label> k/N` and the
+  missing members, all of them (badges, Tapus, clan leaders) or only the first one missing (Plates, in Waji's
+  hint order, each with its hiding place).
+- ROM: code + data at `0x08FE5400..0x08FE83D4` (inside the unreferenced run from 0x08FE5284); the overworld hook
+  word `0x08085E60` -> our stub, which gives the item once and chains to what was there (`0x08FDE4A1`, the
+  dexnavchain stub); item 363's name, description pointer and field-use pointer (`0x08FC6AE0..0x08FC6AFF`). No RAM
+  of its own: the message is built straight into gStringVar4 and shown with the game's key-item message routines
+  (Bag `0x081ABB4C` + `0x081ABBBC`, field `0x081978EC` + `0x080FD1F8`), exactly the Sinnoh Map's no-map path.
+- Selection rule (`build`): find the last ANCHOR step that is done, then show the first step after it that is not.
+  Anchors are steps that can only happen in order; anything that can be done early or skipped is not one, so an
+  early flag never makes the Journal jump ahead, and a skipped optional step behind a later anchor is never asked
+  for. A step is ANY(flags), ALL(flags) or a GROUP (done when every member is set, or when one of its "done_any"
+  flags is - a later event that proves it).
+- The table is `steps.py`: 74 steps (Hoenn 24, post-game 37, Sinnoh 3, Lost Artifacts 10) plus the closing
+  message. Each flag was found with `tools/romdata/scripts.py` + `prereq.py` (who sets it, under which branch
+  conditions) and checked against every save on hand. Flags that looked right and were not:
+  * `0x40C3` (Interpol at Littleroot) is set from the start of the game - it is the Interpol agent's hide flag -
+    and the Hall of Fame clears it. On its own it reads as done before you have a Pokémon: the step is
+    ALL(0x864, 0x40C3).
+  * `0x08E0` (Champion Island, Waji's ticket) is also set by beating Lyra (Route 102 / Bell Tower script
+    `0x09800FBC`). Not an anchor.
+  * `0x4081` is Giratina's object flag, set when you battle it. The Hoenn post-game Distortion World mission
+    (0x42BC) leaves Giratina standing there, so many players have it long before Sinnoh (one of the test saves
+    does). Not an anchor; the rift and Celestic steps count as done once it is set, because they only exist to
+    lead you to Giratina.
+  * `0x42D8` (the Spear Pillar's new passage) is also set by picking Dialga or Palkia at the Unown Ruins in Hoenn.
+  * `0x75` (Space Center) is cleared again by C code; the step uses `0xCD` (Steven at the Space Center).
+  * `0x42B6` (Team Plasma in Shoal Cave, which unblocks Mossdeep's Gym) can happen before Mt. Pyre. Not an anchor.
+- Lost Artifacts, as the scripts have it (the old guide page had several of these wrong, see below):
+  Waji at the Spear Pillar (`0x410D`, `0x098723FC`) lists every missing Plate in a fixed order; each Plate is an
+  item ball whose hide flag is the Plate flag (Iron and Dread share `0x4109`). With all 16 flags the altar
+  (trigger 10,12, `0x098C2488`) warps to the Space-Time Rift: a native at `0x08FE3F48` builds a double wild
+  battle against Dialga and Palkia (Lv 50), then Brendan or May from another world (trainers 926/927) -> `0x40F0`.
+  Waji then sends you to Celestic Town; its ruins trigger (`0x0988F23D`) sets `0x40B1` and, only if the Pokedex
+  has both Dialga and Palkia as caught (GetSetPokedexFlag via native `0x08FF0610`, national 483/484), `0x42D8`,
+  which unseals the Distortion World doors at the Spear Pillar (10,9) and Sendoff Spring (21,14) (their map
+  scripts setmetatile them shut while it is clear). Giratina (`0x4081`) is inside. Arceus is NOT on Mt. Coronet:
+  the trigger is on the Mountain Top above Team Rainbow Rocket's castle (34/94, 11..13,11, `0x0987EEA0`) and needs
+  `0x4081`, all 16 Plate flags and all 17 Plate items in the Bag; stairs appear to the Hall (36/96), Arceus Lv 80
+  joins whether you catch it or win (`givemon` on a win) -> `0x42FB`, then "Go to Jiayuan City" = Hearthome
+  City (家缘市). Cogita there (37/73, west side) needs 0x42FB, 0x4081 and the Plates -> `0x4313` and the rift to
+  Hisui: Rei's battle at Prelude Beach (`0x4316`), Cogita on Firespit Island (`0x4318`), Adaman and Irida at the
+  Snowview Hot Spring (`0x431A`, `0x431B`), Volo in the Primeval Cave (`0x4315`, trainers 1303 then 1339; the
+  Blank Plate and Arceus's blessing).
+- Two traps the Journal's Giratina steps route around. (1) The Celestic ruins' trigger is the first tile inside
+  the door (8,18; door at 8,19), and it removes the Dialga and Palkia placed there and sets `0x40B1`, which also
+  hides the pair in the Unown Ruins - so after any visit to those ruins (Cynthia's tablet during the Sinnoh story
+  is one) the Dialga-or-Palkia choice is gone for good, and `0x42D8` then needs both in the Pokedex. (2) The
+  Distortion World has an ungated door: Route 129's islet (warp at 64,6 -> 34/13 -> 37/96); a collision-only path
+  search from it reaches the tiles next to Giratina (37/96, 24,11). Both Giratina steps mention Route 129.
+- The hidden ruins (34/45, doors on Route 210, in the Solaceon Ruins and on Route 111) have a tablet wall
+  (`0x098100D7`) that checks all 17 Plate items and opens the Unown Ruins: the God-King Cyrus side story
+  (trainer 894), which sets `0x42D8` too when you win the Dialga/Palkia choice, then sends you to Twinleaf Town.
+- Tests: `make_tests.py` writes 84 scenarios - one "cut" per step (every earlier step done, every later one
+  undone; the answer must be that step) plus the out-of-order cases above - and the exact bytes a Python model
+  of `build` predicts. `test_journal.lua` writes each scenario's flags into the save blocks in RAM, uses the
+  Journal from the SELECT popup and logs gStringVar4; `check_journal.py` compares: 84 of 84 byte for byte.
+  `test_journal_pages.lua` screenshots every page of five messages (the widest 34-character lines fit with room
+  to spare); `test_journal_bag.lua` uses it from the Bag (name, description, icon, message over the Bag, closes
+  back to the Bag). On a save that never had it, the item was in Key Items as soon as the field came up.
+- GOTCHA: in this build SELECT always opens the keyreg popup (PC anywhere made it unconditional), even with one
+  registered item. Tests must press SELECT, then UP for the first slot.
+
+## BERRY NUMBERS IN THE BAG — 2026-09-22
+- Reported with a crash screenshot: the hack's newer berries show as "No?2" in the Berries pocket. The number
+  is item id - 132 in two digits (right for Cheri 133 ... Enigma 175 = No01-43); the hack's berries are items
+  704-727 and 762-765, i.e. 572-633, and ConvertIntToDecimalStringN prints "?" for a digit above 9. The
+  original Chinese ROM has the same bug.
+- `patches/berrynum/`: Occa No44 ... Maranga No67, then 762-765 No68-71. Four places compute the number and all
+  are hooked (trampolines to one stub at `0x08FE8400`, 116 bytes):
+  * `0x08FD5E32` and `0x08FD7D4E`: the hack's own item-name routine, in TWO identical copies (0x08FD5E20 and
+    0x08FD7D3C; the original ROM has both). The Bag's list rows come from the second one. Patching only the
+    vanilla sites or only the first copy changed nothing on screen - check every copy.
+  * `0x081C5422` (vanilla list routine) and `0x081AB420` (the Bag's vanilla item-name routine, berry case).
+  The hack-routine sites sit at 2 mod 4, so they use the 10-byte trampoline, which clobbers the `movs r3,#2` /
+  `ldr r6,=...` they cover; the stub replays them and jumps home through r12.
+- GOTCHA: keystone pads `.align` with `00 BF` (a Thumb-2 nop) when the code before a literal pool is 2 mod 4.
+  The patcher tries again with a hand `mov r8, r8` when that happens.
+- The crash in the same report did not reproduce: that exact pocket (Pecha x2, Leppa, Oran x3, Mago, Occa, Jaboca,
+  Rowap, Kee), as a girl, cursor from Occa onto Jaboca, on every archived build from 2026-09-13 to now, and every
+  berry in the game walked over one by one. "Jumped to invalid address: E3A02004" is the BIOS open-bus value
+  after an SWI, i.e. a function pointer read from address ~0: session state, not the berry. Heap in the Bag had
+  86 KB free. `test_berrynum_report.lua` rebuilds the reported pocket and dumps registers/stack on a crash.

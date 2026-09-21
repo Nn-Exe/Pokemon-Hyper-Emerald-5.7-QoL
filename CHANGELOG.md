@@ -3,7 +3,12 @@
 One line per change, newest first. The how and why of each change is in [docs/NOTES.md](docs/NOTES.md); each
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
+## 2026-09-22
+- **Fixed** Berries pocket numbers: the hack's newer berries (Occa ... Maranga) showed as "No?2" because the number is item id - 132 printed in two digits. They now continue after Enigma (No43): Occa No44 ... Maranga No67. The bug is in the original hack too. `patches/berrynum/`
+
 ## 2026-09-21
+- **Added** Journal key item: shows your next story objective across Hoenn, the post-game, Sinnoh and Lost Artifacts, with progress for the Sinnoh gyms, the Tapu trials and the Plates (the next Plate's hiding place, in Waji's order). Replaces the unused Fame Checker and is handed to you automatically. `patches/journal/`
+- **Changed** Gold healthbox now also marks **your own** shiny Pokémon (both boxes in double battles), not only wild and trainers' ones. `patches/shinybox/`
 - **Changed** Release v1.4 (everything below since v1.3.1): DexNav hunting, the Sinnoh Map with fly, R opening the DexNav with Auto Run moved into the Option menu, and the News Tracker fix. Rebuilt patch and checksums in `release/`.
 - **Added** DexNav: each species' Search Level shows in the list in red ("SL n", blank at 0), and a new shaking spot announces itself with the hunted Pokémon's cry. The header hint is right-aligned so long place names no longer run into it. `patches/dexnavchain/`
 - **Added** DexNav jackpot: one hunted encounter in 500 (0.2%), at any Search Level or chain, has all six IVs perfect — shown as three gold stars on the bar. `patches/dexnavchain/`

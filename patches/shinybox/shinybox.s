@@ -1,4 +1,4 @@
-@ Gold healthbox for a shiny opponent (Hyper Emerald v5.7).
+@ Gold healthbox for a shiny Pokemon, yours or the opponent's (Hyper Emerald v5.7).
 @ Hooked into BattleMainCB2 (0x08038420), so it runs once per battle frame and re-applies itself.
 @ Only OBJ palette RAM / the palette buffers and one OAM field per box sprite are written.
 @
@@ -79,9 +79,11 @@ sb_body:
 sb_have_battler:
     cmp r6, #4
     bhs sb_next
-    movs r0, #1
-    tst r0, r6
-    beq sb_next                 @ even battler ids are the player's side
+    movs r0, #1                 @ this used to skip the player's side (even battler ids); both sides get
+    tst r0, r6                  @ the gold box now. A no-op rather than deleting the test keeps every later
+    mov r8, r8                  @ address where it was: typeicons writes a bl into this blob at +0x0A.
+                                @ (mov r8,r8 is Thumb-1's no-op; keystone's "nop" is the Thumb-2 hint 0xBF00,
+                                @ which the GBA's ARM7TDMI does not have.)
     lsls r0, r6, #6
     lsls r1, r6, #4
     adds r0, r0, r1
