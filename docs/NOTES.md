@@ -802,10 +802,22 @@ Verified (`test_naturefix.lua`): editor sets nature 13 (Jolly) on a mon whose pe
 Petalburg City's Poké Mart is map **8/6** (its script `0x08207D68` holds the two `pokemart` lists
 `0x08207D8C`/`0x08207DB8`; item 68 is Rare Candy). Its event block `0x0852F304` has the 4-object array
 (`0x0852F294`) flush against the warp array (`0x0852F2F4`), so there is no spare slot: the patch copies the
-array into free space with a 5th entry (a clone of object 1, localId 5, at (7,5), script -> the 9-byte
-`lock/faceplayer/giveitem 68,1/release/end` next to it), bumps nobj to 5 and repoints the object pointer.
+array into free space with a 5th entry (a clone of object 1, localId 5, at (8,5)), bumps nobj to 5 and
+repoints the object pointer.
 Why not a shop: the hack's `BuyMenuTryMakePurchase` (0x080E0EDC) jumps to `0x096FFF00`, which only
 understands the hack's own list pointers and soft-resets otherwise (see the 2026-09-12 note).
+The script is plain script bytecode, no Thumb: lock(6A), faceplayer(5A), checkflag(2B) `0x4F1F` ->
+"already given", loadword(0F 00)+callstd 05 (yes/no), compare(21) VAR_RESULT 0 -> "no", giveitem(44) 68,
+999, setflag(29), message, release(6C), end(02). Opcodes were read off real scripts rather than assumed:
+the Mart clerk's own script starts `6A 5A`, the lrepel patch's yes/no is `0F 00 <text> / 09 05 / 21 0D 80 00
+00 / 06 01`, and `0x29/0x2A/0x2B` were confirmed by disassembling their handlers (0x08099C14 / 0x08099C28 /
+0x08099C3C, which call 0x0809D740 / 0x0809D768 / 0x0809D790 = SetFlag/ClearFlag/FlagGet).
+The flag `0x4F1F` is free by the only test available: no script in the ROM references it via
+setflag/clearflag/checkflag. All 0x4000-0x4FFF values appear somewhere in the ROM as raw u16 pairs, so a
+plain byte search cannot answer this - the opcode-anchored scan can, though it only sees script references.
+NOT VERIFIED IN GAME: the NPC has never been talked to. Getting into the Mart needs a save made inside it
+(the hack pins the spawn map on Continue), and the map's tile data is not a plain u16 grid this hack can be
+read statically, so the tile at (8,5) has not been confirmed walkable either.
 
 ## HARNESS / ROM NOTES — 2026-09-21
 - **Free-space notes in this file are stale for the shipped build.** `0x08FE5284` and `0x08FF2454` are NOT
