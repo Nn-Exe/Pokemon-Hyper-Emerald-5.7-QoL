@@ -709,6 +709,122 @@ the registered Mach Bike.
   `test_pokenav_call.lua` (a call with the bar up), `test_park.lua`, `test_screen.lua` (cursor, paging,
   clamping, the bar at chain 200 with the rerolls at full stretch) and `test_scratch_ram.lua`.
 
+## PARTY EDITOR (nature / IVs / EVs) — 2026-09-21 — `patches/partyedit/`
+An **Edit** action in the party menu opens a screen that edits the selected Pokemon. Written from scratch
+in the shape of `patches/dexnav/` (own BG0 + window + palette + VBlank, text via
+AddTextPrinterParameterized4, B returns to the field). One window (26x16, base block 1, palette 15).
+Page 0 = Nature + six IVs, page 1 = six EVs + `EV total n/510`; up/down row, left/right ±1, L/R ±5,
+START page, B done. Every change writes to the mon and calls `CalculateMonStats` (0x08068D0D).
+
+Entry. The party action table was already relocated once by the relearner to `0x08FD9B8C` (34 entries,
+entry 33 = "Moves"), with its three readers at `0x1B32F8/0x1B37C8/0x1B37F8` and the builder trampoline at
+`0x081B3518` -> `0x08FD9B00`. partyedit relocates the table AGAIN with a 35th entry (34 = "Edit") and
+repoints that trampoline at its own `builder_hook`, which appends EDIT when `numActions < 6` and then jumps
+to the relearner's hook (which appends MOVES when `numActions < 7`, then CANCEL, then resumes `0x081B3529`).
+Chaining, not replacing - verified in game: a fresh mon gives `actions={0,3,34,33,2}` (Summary, Item, Edit,
+Moves, Cancel), and the unpatched control gives `{0,3,33,2}`.
+
+Data (this hack stores party mons unencrypted and unshuffled; `gPlayerParty` = 0x020244EC, 100-byte entries):
+nature override at `mon+0x1F` bits 0-6 (bit 7 preserved); IVs are 5-bit fields of the word at `mon+0x48`,
+display order HP,Atk,Def,SpA,SpD,Spe -> shifts 0,5,10,20,25,15 (bits 30/31 = isEgg/ability slot preserved);
+EVs are six bytes at `mon+0x38` in the order HP,Atk,Def,Spe,SpA,SpD -> offsets 0,1,2,4,5,3.
+
+Gotchas that cost time, in order:
+- **A scratch buffer in the blob is ROM.** `u8dec` wrote the digits to a buffer that happened to be inside
+  the free-space blob, so every write was dropped and the unterminated string ran straight into the next
+  data string ("Edit"). It now lives in EWRAM at 0x02039E40. Anything the code writes must be RAM.
+- **GBA key bits are not the test-script indices.** The masks are A1 B2 SELECT4 START8 RIGHT16 LEFT32 UP64
+  DOWN128; the first cut had UP/DOWN swapped and R/L/START shifted by one bit, so DOWN moved nothing,
+  START added +5 (it was being read as R) and the nature changed while testing the IVs.
+- **Thumb-1 `ldr rX,[pc,#imm]` cannot reach backwards**, only ~1020 bytes forward. Pools must come AFTER
+  every function that reads them; a pool placed between two halves of the screen assembled as `ldr.w`
+  (Thumb-2, which the GBA cannot run) and the `thumb()` twin check caught it.
+- **Capstone needs the even address.** Disassembling a `...|1` function pointer with CS_MODE_THUMB reads
+  one byte off and prints garbage; use the even address.
+- The party action list holds 8 and `Edit` shares the pool with `Moves`: a mon with four field moves gives
+  `numActions=8`, `actions={0,19,24,23,22,3,33,2}` and hides BOTH, which is the desired degradation.
+
+Verified in mGBA (dev 0.11-9139, `--script`): the screen renders the mon's real values (Chimchar: nature 0,
+IVs 28/12/3/1/11/19 read straight out of `0x96198D9C`); three RIGHTs on HP IV take the word to
+`0x96198D9F` (28->31, bits 30/31 untouched); two RIGHTs on the EV page take HP EV 0->2 and the total to
+`13/510`; B returns to `CB2_Overworld` (0x08085E5D) with the new bytes intact. Tests:
+`test_entry.lua`, `test_screen.lua`, `test_edit.lua`, `test_fields.lua`.
+
+### Two things a user report turned up (2026-09-21)
+- **The summary's Nature line does not read the hack's override.** `test_display.lua` writes
+  `mon+0x1F = 5` (Bold) with the README's editor out of the picture entirely and opens the party summary:
+  the byte is still 5 at that moment, `personality % 25` is 8, and page 1 prints **Impish**. So the nature
+  shown on the summary comes from the personality value, and a nature edit changes the STATS (which go
+  through `CalculateMonStats`, and do read the override) but not that label. The hack's own Mint writes the
+  same byte and has the same behaviour - this is inherited, not introduced here.
+- **The summary shows computed stats, never raw IVs or EVs.** `test_display.lua` pokes the stat fields
+  directly (`+0x58`/`+0x5A`/`+0x5E`) and page 2 follows exactly (max HP 35->77, Attack 20->99, Speed
+  22->88), so the page reads the party mon live and anything `CalculateMonStats` writes does show. What it
+  will not show is the IV/EV numbers themselves, and at low level the stat formula hides small edits: at
+  Lv 12, +3 HP IV is `floor(3*12/100) = 0`, and even +19 Attack IV is +2. `test_stats.lua` shows a real
+  edit landing: Atk IV 12->31 moves the mon's Attack 20->22.
+- **Exit fix.** `0x08086195` is `CB2_ReturnToFieldWithOpenMenu`, not plain `CB2_ReturnToField`: the first
+  cut dropped the player back into the START menu with the cursor on Pokedex, which is a trap when you exit
+  the editor to go and look at a summary. Now exits via `0x080860C9`, landing on the field with no menu,
+  like the relearner.
+- **The Nature row shows the name, not the number.** Nature names come from the 25-pointer table at
+  `0x0861CB50` - standard order Hardy..Quirky, matching the override byte, and it is the LIVE table
+  (referenced by code at `0x8073188`, `0x8167C7C`, `0x81C31E8`; the near-copy at `0x0861CAAC` that the
+  older notes call dead really is dead). The strings carry trailing `FC` control codes and the arrow
+  glyphs (the font's arrows live at `0x79-0x7C`), so `nat_name` copies up to the first `FC`, which keeps
+  the arrows and drops the colour codes: the row reads e.g. "Jolly ^Spe vSp.A". The value column moved from
+  x=120 to x=88 so the longest label ("Naughty ^Atk vSp.A") fits inside the 26-tile window.
+  `test_nature.lua` steps the row and checks the byte (0 -> 8 -> 13) with screenshots.
+- **The editor shows the EFFECTIVE nature.** Override 0 means "no override" (that is what the Mint's
+  "None" cell writes), so reading `mon+0x1F` raw would label every untouched Pokemon "Hardy" while the
+  summary said something else. `value_of` therefore falls back to `personality % 25` (`__umodsi3` by 25)
+  when the override is zero, and `ApplyDelta` writes a real value as soon as the row is touched.
+
+## NATURE DISPLAY FIX — 2026-09-21 — `patches/naturefix/`
+Symptom (user report): change the nature, open the summary, and it still shows the old one.
+Cause: the hack stores its nature OVERRIDE in the unused byte at `mon+0x1F` and `CalculateMonStats` does
+call `GetNature`, but `GetNature` (`0x0806D070`) computes the vanilla `personality % 25` and never looks at
+`+0x1F`. Proved it by writing `mon+0x1F = 5` (Bold) from Lua with the editor out of the picture: the byte
+stayed 5 through the summary opening, `personality % 25` was 8, and the summary printed **Impish**. So the
+hack's own Mint has the same bug - the stats move, the label does not.
+Fix: replace the whole 24-byte `GetNature` with a stub that returns the non-zero override (`& 0x7F`) and
+otherwise replays the original three calls (`GetMonData(mon, 0, 0)` -> `__umodsi3` by 25). Zero stays "no
+override", which is what the Mint's first grid cell ("None") writes, so Pokémon that were never given a
+nature keep showing exactly what they showed before. Byte-for-byte the original is
+`00b500210022fdf74ffa19217af2b0fd0006000e02bc0847`; the patcher asserts it.
+Where the summary gets it: `0x081C31C0` reads a cached index from `[0x0203CF1C]+0xA3` and indexes the name
+table `0x0861CB50` - that cache is what `GetNature` fills. All 18 `GetNature` call sites pass a mon
+pointer in r0, and `+0x1F` is inside the BoxPokemon part, so the stub is valid for party and boxed mons.
+Verified (`test_naturefix.lua`): editor sets nature 13 (Jolly) on a mon whose personality nature is 8
+(Impish); after exiting, summary page 1 reads "Nature: Jolly ↑Spe ↓Sp.A".
+
+## RARE CANDY NPC — 2026-09-21 — `patches/candynpc/`
+Petalburg City's Poké Mart is map **8/6** (its script `0x08207D68` holds the two `pokemart` lists
+`0x08207D8C`/`0x08207DB8`; item 68 is Rare Candy). Its event block `0x0852F304` has the 4-object array
+(`0x0852F294`) flush against the warp array (`0x0852F2F4`), so there is no spare slot: the patch copies the
+array into free space with a 5th entry (a clone of object 1, localId 5, at (7,5), script -> the 9-byte
+`lock/faceplayer/giveitem 68,1/release/end` next to it), bumps nobj to 5 and repoints the object pointer.
+Why not a shop: the hack's `BuyMenuTryMakePurchase` (0x080E0EDC) jumps to `0x096FFF00`, which only
+understands the hack's own list pointers and soft-resets otherwise (see the 2026-09-12 note).
+
+## HARNESS / ROM NOTES — 2026-09-21
+- **Free-space notes in this file are stale for the shipped build.** `0x08FE5284` and `0x08FF2454` are NOT
+  free any more: both carry real Thumb function pointers (checked with an aligned pointer scan). The
+  verified region used here is **0x08F53700..0x08F54AA0** (5024 bytes, all-FF in both the original and the
+  build, zero inbound pointers, and clean under `translation/safespace.py` with margin 260). candynpc takes
+  0x08F53700..0x08F53851 and partyedit 0x08F53900..0x08F54120.
+- **The hack pins the spawn MAP on Continue.** Editing `SaveBlock1.location` in the `.sav` moves the player
+  (the position IS honoured - a save can be relocated by writing SaveBlock1+0/+2 and +4..+11) but the map
+  that actually loads does not follow: a save edited to map 8/6 still renders Route 102. Repointing the map
+  header's layout pointer did not change it either, so the hack must resolve the map another way. Expect to
+  reach arbitrary maps by playing, or ask for a save made where the test needs to be.
+- **Emulator save names.** mGBA matches a save by ROM filename, so a test ROM named `throwaway.gba` silently
+  starts a NEW GAME instead of loading `game.sav`. Name the copy under test `game.gba`.
+- **`console:log` does not reach stdout** in this dev build: write state to a file from the Lua and read the
+  file. The boot (custom intro) needs ~15000 frames before the field.
+- Toolchain on this machine: `.venv` (keystone 0.9.2 with the Homebrew `libkeystone.dylib` copied in,
+  capstone, pillow) and `tools/mgba-dev/mGBA.app` (dev 0.11-9139, `--script` works, quarantine cleared).
+
 ## DEXNAV: UNBOUND RULES, SEARCH LEVEL IN FLASH, CATCH FIX (2026-09-21)
 Full write-up in docs/DEXNAV-PROGRESS.md; addresses here.
 - Catch bug: on a catch the enemy party is zeroed before CB2_Overworld returns (seen: species 0 at +0x20

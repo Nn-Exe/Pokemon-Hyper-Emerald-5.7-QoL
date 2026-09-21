@@ -14,3 +14,14 @@ __pycache__/
 tools/romdata/out/
 tools/romdata/__pycache__/
 lz_blobs.json
+
+# Local toolchain and scratch (not part of the repo)
+.venv/
+tools/mgba-dev/
+build/
+
+# macOS
+.DS_Store
+
+# Command Code session state
+.commandcode/
