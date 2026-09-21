@@ -554,3 +554,157 @@ the registered Mach Bike.
   every opponent. The dex helpers stay documented above in case a gate comes back. Trainer battles otherwise
   behave like wild ones: opponent healthbox body in palette 4 (once seen in 15 after a shinybox repaint, which the
   >= 10 rule accepts). Probe: _testrun/trtest.lua (TRAINER_ID env var).
+
+## NEWS TRACKER FREEZE — 2026-09-20
+- Symptom: using the News Tracker key item drew the first line of the roaming Latios/Latias message and then
+  the game sat there, music still playing. Reported by the user; reproduced in the harness.
+- Cause: one stray byte at the end of the message string (0x09F0AB84). It ends `FC 09 09 FF`, but
+  EXT_CTRL_CODE_PAUSE_UNTIL_PRESS (FC 09) takes NO argument, so the 0x09 is read as text - and 0x09 is a lead
+  byte of the hack's two-byte Chinese encoding, so the engine ate `09 FF` as one character and swallowed the
+  terminator. The string never ended, the message box never reported itself done, and the task polling it
+  (0x08121F3C, reading the box state at 0x0203A140) spun forever. Audio is interrupt-driven, hence "frozen but
+  still humming". Fix: that byte -> 0xFF, leaving `FC 09 FF`, exactly how the item's own "No news received"
+  string (0x09F0ABBC) already ends. The whole block is byte-identical to the original Chinese ROM, so this is
+  the hack's bug, not the translation's, and a ROM-wide scan found this is the ONLY string with the shape
+  `FC 09 <lead byte> FF`.
+- Also translated the two region names the same routine picks between, in place: 0x09F0AB74 Hoenn and
+  0x09F0AB7C Sinnoh (was showing "in {Chinese} on Route 132"). Nothing points at them directly or at the
+  padding around them - the routine reaches them as base 0x09F0AB48 + 0x2C / + 0x34.
+- Item plumbing, for reference: News Tracker is item 695, Key Items, fieldUse 0x08C60538, which is a
+  `ldr r1,[pc,#0]; bx r1` trampoline to the real routine at 0x09F063F0. That routine reads the roamer struct
+  at gSaveBlock1 + 0x31DC (active flag +0x13, species +8) and the roamer's map from 0x0203BC86/87, builds
+  gStringVar1 = species, gStringVar2 = region, gStringVar3 = GetMapName(mapsec) via 0x0812456C, expands into
+  gStringVar4 and displays it. Debug probe: patches/newsfix/test_newsfix.lua (drops the item into the first
+  Key Items slot, uses it, then logs callbacks, live tasks and the string buffers each step).
+
+## SINNOH MAP SCREEN — 2026-09-20
+- `patches/sinnohmap/`: a screen of our own. Sinnoh is drawn on BG1 from LZ77 data in free space, a marker
+  blinks on the area you are standing in, its name goes in a box, B returns to the field. Nothing the Hoenn
+  region map or Fly touch is modified: gRegionMapEntries, the region map graphics and its code are untouched.
+- Artwork: `tools/make_region_map.py` turns a picture into GBA background data (fit to 240x160 by dropping the
+  flattest rows rather than cropping or resampling, quantize, pack 16-colour palettes, dedup tiles with flips,
+  LZ77). Source `sinnoh-map/`, 24 colours -> 10 palettes, 408 tiles, ~7.6 KB compressed. Also does 8bpp
+  (`--bpp 8 --base 112`) which the game's own region map uses.
+- The hack's Hoenn map is an AFFINE background (that is how it zooms): 8bpp, one byte per map entry and a hard
+  cap of 256 tiles, character base 0x06008000, screen base 0x06003000, palette 48 colours at index 112. Ours
+  needs 409 tiles, which is why it could not borrow that screen and has its own (a normal text background has
+  no such cap).
+- Locations: `locations.json`, 46 mapsecs fitted from the stitched world render (tools/render_world.py,
+  tools/compose_sinnoh.py) onto the map grid by least squares on 15 city/town anchors read off the picture -
+  mean error 0.53 tiles. Plus 15 indoor areas placed by hand next to where they belong.
+- Entry is the Town Map key item (361), which the hack has but never gave out or made do anything. Its
+  field-use pointer goes to our routine and the overworld hook hands you the item once. The start menu was the
+  first attempt and CANNOT take another entry: sCurrentStartMenuActions is exactly 9 bytes at 0x02037610 and
+  AppendToList (0x080A0944) has no bounds check, so a tenth entry overwrites 0x02037619, which 7 places use.
+  The menu built but hung.
+- GOTCHA, cost an hour: chaining onto the overworld hook soft-reset the game. That hook is at a function's
+  FIRST instruction, so lr still holds the live return address and the prologue that saves it has not run. Our
+  bl calls destroyed it and CB2_Overworld later returned into nowhere. Keep lr in r4 across the stub and put it
+  back before chaining. The DexNav menu hooks never had this problem because they sit at a function's tail,
+  where the return address is already on the stack.
+- Item-use context: gTasks[taskId].data[3] is 1 when used from the field and 0 from the bag (the Pokeblock
+  Case, 0x080FDB6C, is the model). Bag path: gBagMenu (0x0203CE54) -> newScreenCallback, then
+  Task_FadeAndCloseBagMenu 0x081AB8F8. Field path: gFieldCallback 0x03005DAC = 0x080AF6D5, FadeScreen
+  0x080ABCD0, then a task that waits for the fade, calls CleanupOverworldWindowsAndTilemaps and sets our CB2.
+  Messages: on the field 0x081978EC, over the bag 0x081ABB4C. Exit via 0x080860C8.
+- Two name boxes, top and bottom; the screen shows whichever is not on top of the marker. The scroll registers
+  are zeroed on entry because whatever screen you came from leaves its own.
+- 2026-09-20 follow-up: item 361 is renamed "Town Map" -> "Sinnoh Map" inside its own 14-byte name field
+  (10 characters + terminator of 14, remainder zeroed), so nothing is repointed and no other item moves.
+  The off-map message now goes through StringExpandPlaceholders into gStringVar4 (0x08008EE0) before being
+  handed to the message routine, which is what the game's own key items do - the Coin Case (0x080FDC34) is
+  the model. Passing a ROM pointer straight to 0x081ABB4C printed the text but it closed itself after a
+  moment; via gStringVar4 it waits for A or B like every other message. Verified by holding all input for
+  280 frames: the message task stayed put, and only A returned to the bag.
+- 2026-09-20, TWO GRAPHICS BUGS the user spotted as "blue speckles all over the roads and cities", both in
+  tools/make_region_map.py and both invisible in the converter's own round-trip check:
+  (1) Colour 0 is TRANSPARENT on a GBA background. The palette packer was using all 16 entries, so every
+      pixel that landed on index 0 showed the backdrop through it. Colours now live at 1..15 (COLORS_PER_PAL),
+      index 0 is left alone and the palettes' entry 0 is set to the picture's commonest colour. Cost: one
+      extra palette (10 -> 11), still well inside the 16 the hardware has.
+  (2) The LZ77 compressor emitted back-references of distance 1 for runs of one repeated byte. The BIOS
+      LZ77UnCompVram can only write video memory a halfword at a time, so the byte it just produced is still
+      in its buffer and reads back as ZERO - flat areas come out riddled with holes. Minimum distance is now
+      2 (MIN_DISP). Costs 12 bytes of compression. Unpacking to normal memory has no such problem, which is
+      why nothing caught it before hardware.
+  Verified properly this time: dumped 0x06004000 from the running game and compared byte for byte with the
+  source file (0 differences; the tilemap differs by exactly 2 bytes, which is the blinking marker), and the
+  screen now matches the expected render to 99.8% of pixels.
+- 2026-09-20: the marker moves. The D-pad HOPS it to the nearest place in that direction rather than
+  sliding a tile at a time, because we hold one point per area, not the per-tile section map the Hoenn map
+  uses - free movement would spend most of its time over squares with no name. `snap()` scores every entry
+  in the table by distance along the press plus how far off the line it sits, and takes the smallest; the
+  name box is redrawn from the entry under the marker, and SE_SELECT plays on each hop. A third literal
+  pool was needed (pools A, C and the main one) as the code grew past a Thumb load's 1020-byte reach.
+- 2026-09-20: fly from the map, the low-risk way. We never warp on our own. Each Sinnoh town has a courier
+  NPC whose destination script is shared (0x0987CD9D: a multichoice grid, then compare/goto_if per town) and
+  each town's block begins `checkflag <visited>` (0x4194-0x419B and 0x42E3-0x42EA, the hack's custom-region
+  flags, which its GetFlagAddr 0x09F00CEC keeps in SaveBlock1 +0x988 / +0x3B24) then warps into map group 36.
+  `COURIER` in sinnohmap_patch.py holds {mapsec, flag, block} for the 16 towns and asserts each block still
+  starts with that checkflag and warps into group 36, so a re-run against a changed ROM fails loudly.
+  Pressing A: fly_target() looks the marked mapsec up in COURIER and calls FlagGet (0x0809D790) on its flag;
+  0 means the press is ignored. Otherwise the screen fades out with state=2, tk_leave sets gFieldCallback to
+  fly_cb, and once the field is back a task waits for the fade and hands the courier's block to
+  ScriptContext1_SetupScript (0x08098EF8), which locks the player and runs it exactly as if the courier had.
+  draw_name prints towns whose flag is clear in grey (lit_colors_dim) so you can see where A will work.
+  Verified from the Hearthome save (test_fly.lua): Hearthome -> Route 208 -> 207 -> Oreburgh, A, landed at
+  map 36/3 (49,15), the Oreburgh Pokemon Center. Refusal (test_fly_refused.lua): Solaceon is unvisited on
+  that save, its name printed grey, A left the map open (CB2 stayed ours), B closed it, player still in
+  Hearthome. Mt. Coronet (127) and the Sinnoh League (97) are in the table too, as the couriers offer them.
+
+## DEXNAV SEARCH AND CHAIN — 2026-09-21
+- `patches/dexnavchain/`: the DexNav screen gains a cursor; A starts tracking that species; the next wild
+  Pokemon of that map is it; catching or beating it raises a chain that improves the next one. Three pointer
+  words change in the ROM and nothing else: the word the hack's CreateWildMon trampoline jumps through
+  (0x080B4E6C), the overworld hook the earlier patches installed (chained through ours), and the DexNav
+  task pointer inside our own dexnav blob. Everything else is new code in free space at 0x08FDE4A0.
+- The hack's CreateWildMon (0x09F05F18, behind the trampoline at 0x080B4E68) already has the machinery a
+  chain wants: it calls CheckBagHasItem for a Shiny Charm (item 119) and passes a REROLL COUNT - 5 with the
+  charm, 1 without - to a generator at 0x09F0071C that keeps making personalities until one is shiny or the
+  rolls run out. Our stub does not reimplement any of it: it substitutes species and level, then calls that
+  same routine again (up to 1 + chain/4, capped at 12 attempts) until IsShinyOtIdPersonality (0x0806EBD1)
+  says yes. Everything else is written into the mon afterwards.
+- Mon data in this hack is UNENCRYPTED and UNSHUFFLED, which the probe in `patches/dexnavchain/` confirmed
+  (checksum 0, substructs in the plain order): species +0x20, moves +0x2C, PP +0x34, the IV word +0x48
+  (5 bits per stat, bit 30 isEgg, bit 31 the second ability), level +0x54. So the stars, the ability slot
+  and the egg move are written straight in, then CalculateMonStats (0x08068D0D) makes the stats match.
+- Stars: rolled when the next target is chosen, so the bar is honest about what you will meet. Three stars
+  means at least four 31s, two means three, one means two, none means whatever the game rolled. The chance
+  of three is 1 + chain/2 per cent (capped at 15), of two three times that, of one six times that.
+- Egg moves come from the table at 0x09D78128 (vanilla format, species + 20000 markers, terminator at
+  0x09D7973C); the move's PP comes from gBattleMoves at 0x09D86419 (12-byte stride, PP at +4). There is no
+  hidden ability to grant: base stats are the vanilla 28-byte struct with two ability slots.
+- gBattleOutcome is 0x0202433A, confirmed by watching it: 1 won, 4 ran, 6 the wild one fled, 7 caught, and
+  0 while a battle is being set up.
+- THREE BUGS WORTH REMEMBERING, all found by testing rather than reading:
+  (1) The chain counted a battle twice. Our stub marks an encounter as ours, but the overworld callback goes
+      on running during the battle's transition, so it read the PREVIOUS battle's outcome - still standing in
+      gBattleOutcome - and scored it against the new encounter. The stub now zeroes that byte when it seeds
+      an encounter, and the tick ignores an outcome of 0.
+  (2) A Pokenav call or a rematch trainer battle counted toward the chain. Scoring now also checks that the
+      Pokemon still in the enemy party is the species being hunted: anything else neither counts nor breaks.
+  (3) THE BAR ATE THE MAP. On the field BG0's tiles start at VRAM 0x06008000 but the map's own tilemaps sit
+      at 0x0600E000, which is tile index 0x300 - a window with a baseBlock at or above that writes over the
+      map itself, and the whole screen turns to garbage a moment later. The field's own windows sit at
+      0x107 (location popup) and 0x194 (message box), with the standard frame at 0x214, so the bar took
+      0x240..0x2B0. `test_scratch_ram.lua` and the window dump in the notes below are how this was found.
+- The bar is a plain window (28x4 at 1,1, palette 15) filled with palette entry 10, which the text palette
+  leaves as one of three identical spare whites; black_slot() writes black into it on every draw, because a
+  new map reloads the palettes. Text is white on it, the icon is a real mon icon sprite (LoadMonIconPalette
+  0x080D2F29, CreateMonIcon 0x080D2CC5, priority forced to 0 so it draws over the bar, taken down with
+  DestroySprite 0x080070E9 and FreeMonIconPalette 0x080D2F69). The star tiles are ours, 8x8, blitted into
+  the window's own buffer - the font has no star glyph, only arrows at 0x79-0x7C.
+- The bar comes down whenever LockPlayerFieldControls' byte at 0x03000F2C is set - a menu, a message, a
+  script, a Pokenav call - and goes back up when the player is free again, so it never fights anything else
+  for the screen or holds its window and memory while another screen wants them.
+- State lives in 32 bytes at 0x0203A660 with 96 more for text, chosen by filling candidate regions with a
+  pattern and playing through battles, menus, the bag, a save and a Pokenav call to see what survived
+  (`test_scratch_ram.lua`). 0x0203B700 looked ideal and turned out to be a save staging buffer. Nothing is
+  written to the save: the chain is RAM only and starts again after a reload, which is also why the region
+  chosen sits well clear of the save blocks and the PC boxes.
+- The hunt is per map but leaving only parks it: walk into a Pokemon Centre and back and the chain is still
+  there. Encounters are only substituted on the map the hunt was started on.
+- Tests, all in the patch folder: `test_chain.lua` (chain arithmetic and what actually appears),
+  `test_chain_break.lua` (running away ends it), `test_stars.lua` (forces the rating and counts 31s),
+  `test_pokenav_call.lua` (a call with the bar up), `test_park.lua`, `test_screen.lua` (cursor, paging,
+  clamping, the bar at chain 200 with the rerolls at full stretch) and `test_scratch_ram.lua`.

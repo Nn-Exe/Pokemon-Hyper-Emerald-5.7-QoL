@@ -3,7 +3,13 @@
 One line per change, newest first. The how and why of each change is in [docs/NOTES.md](docs/NOTES.md); each
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
+## 2026-09-21
+- **Added** DexNav search and chain: pick a species on the DexNav screen and **A** tracks it, a bar on the field shows the icon, star rating, level, ability and how many you have taken in a row, and each link improves the next one's shiny odds, IVs and egg-move chance. `patches/dexnavchain/`
+- **Added** Fly from the Sinnoh map: **A** on a town you have already reached takes you there, by running that town's own courier script. `patches/sinnohmap/`
+
 ## 2026-09-20
+- **Added** Sinnoh map on the **Sinnoh Map** key item (the hack's unused Town Map, renamed in place): its own screen, marker on your current area, name box, D-pad hops between places, A flies to any town whose courier you've used (it runs the courier's own script, same visited-flag rule; unvisited towns are greyed); the Hoenn map and Fly untouched. `patches/sinnohmap/`
+- **Fixed** News Tracker key item froze the game (a stray byte swallowed the message's terminator); its region name is English now too. `patches/newsfix/`
 - **Changed** Release v1.3.1: type badges and the effectiveness multiplier show for every opponent again. The caught-only rule from v1.3 hid them on trainers' Pokémon you had only seen, and a "seen" rule is no rule at all (the game marks a Pokémon seen the moment it appears).
 - **Changed** Release v1.3 published (everything below since v1.2).
 - **Changed** Type badges now use SoulGold's 8×12 badge art (smaller, no overlap in double battles). `patches/typeicons/`

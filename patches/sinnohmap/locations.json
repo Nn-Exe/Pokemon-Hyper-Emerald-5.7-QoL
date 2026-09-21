@@ -1,0 +1,232 @@
+{
+ "51": {
+  "name": "Route 209",
+  "x": 16,
+  "y": 13
+ },
+ "52": {
+  "name": "Route 210",
+  "x": 15,
+  "y": 8
+ },
+ "53": {
+  "name": "Solaceon Town",
+  "x": 17,
+  "y": 12
+ },
+ "91": {
+  "name": "Jubilife City",
+  "x": 6,
+  "y": 15
+ },
+ "92": {
+  "name": "Oreburgh City",
+  "x": 9,
+  "y": 15
+ },
+ "93": {
+  "name": "Floaroma Town",
+  "x": 6,
+  "y": 11
+ },
+ "94": {
+  "name": "Pastoria City",
+  "x": 18,
+  "y": 16
+ },
+ "95": {
+  "name": "Eterna City",
+  "x": 10,
+  "y": 8
+ },
+ "96": {
+  "name": "Hearthome City",
+  "x": 14,
+  "y": 13
+ },
+ "97": {
+  "name": "Sinnoh League",
+  "x": 24,
+  "y": 9
+ },
+ "98": {
+  "name": "Veilstone City",
+  "x": 20,
+  "y": 10
+ },
+ "109": {
+  "name": "Valor Lakefront",
+  "x": 21,
+  "y": 15
+ },
+ "111": {
+  "name": "Twinleaf Town",
+  "x": 4,
+  "y": 18
+ },
+ "112": {
+  "name": "Sandgem Town",
+  "x": 6,
+  "y": 17
+ },
+ "125": {
+  "name": "Route 201",
+  "x": 5,
+  "y": 17
+ },
+ "132": {
+  "name": "Verity Lakefront",
+  "x": 4,
+  "y": 17
+ },
+ "135": {
+  "name": "Acuity Lakefront",
+  "x": 12,
+  "y": 2
+ },
+ "136": {
+  "name": "Route 202",
+  "x": 6,
+  "y": 16
+ },
+ "137": {
+  "name": "Route 203",
+  "x": 7,
+  "y": 14
+ },
+ "138": {
+  "name": "Pal Park",
+  "x": 11,
+  "y": 19
+ },
+ "139": {
+  "name": "Route 204",
+  "x": 6,
+  "y": 13
+ },
+ "140": {
+  "name": "Route 205",
+  "x": 7,
+  "y": 10
+ },
+ "142": {
+  "name": "Valley Windworks",
+  "x": 7,
+  "y": 11
+ },
+ "143": {
+  "name": "Celestic Town",
+  "x": 14,
+  "y": 8
+ },
+ "144": {
+  "name": "Canalave City",
+  "x": 3,
+  "y": 14
+ },
+ "145": {
+  "name": "Snowpoint City",
+  "x": 11,
+  "y": 1
+ },
+ "146": {
+  "name": "Sunyshore City",
+  "x": 25,
+  "y": 15
+ },
+ "151": {
+  "name": "Route 206",
+  "x": 9,
+  "y": 11
+ },
+ "152": {
+  "name": "Route 207",
+  "x": 10,
+  "y": 13
+ },
+ "153": {
+  "name": "Route 208",
+  "x": 12,
+  "y": 14
+ },
+ "154": {
+  "name": "Route 211",
+  "x": 11,
+  "y": 8
+ },
+ "155": {
+  "name": "Route 212",
+  "x": 15,
+  "y": 17
+ },
+ "156": {
+  "name": "Route 213",
+  "x": 21,
+  "y": 16
+ },
+ "157": {
+  "name": "Route 214",
+  "x": 21,
+  "y": 12
+ },
+ "159": {
+  "name": "Fuego Ironworks",
+  "x": 5,
+  "y": 10
+ },
+ "164": {
+  "name": "Route 215",
+  "x": 17,
+  "y": 9
+ },
+ "165": {
+  "name": "Route 216",
+  "x": 13,
+  "y": 6
+ },
+ "168": {
+  "name": "Route 217",
+  "x": 12,
+  "y": 4
+ },
+ "170": {
+  "name": "Amity Square",
+  "x": 14,
+  "y": 11
+ },
+ "172": {
+  "name": "Route 218",
+  "x": 4,
+  "y": 14
+ },
+ "173": {
+  "name": "Route 219",
+  "x": 7,
+  "y": 18
+ },
+ "175": {
+  "name": "Route 220",
+  "x": 8,
+  "y": 19
+ },
+ "176": {
+  "name": "Route 221",
+  "x": 9,
+  "y": 19
+ },
+ "177": {
+  "name": "Spring Path",
+  "x": 22,
+  "y": 13
+ },
+ "180": {
+  "name": "Route 222",
+  "x": 23,
+  "y": 15
+ },
+ "184": {
+  "name": "Route 223",
+  "x": 24,
+  "y": 12
+ }
+}

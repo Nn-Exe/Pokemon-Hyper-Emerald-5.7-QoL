@@ -68,17 +68,10 @@ def label_addr(code, base, push_ops):
             if i.mnemonic == "push" and i.op_str == push_ops]
 
 
-def build(inp, outp):
-    rom = bytearray(open(inp, "rb").read())
-    assert rom[0xAC:0xB0] == b"BPEE" and len(rom) == 0x2000000
-    for site in MENU_HOOKS:
-        assert is_menu_tail(rom, site), "start menu builder tail at %X differs" % site
-    for r in MENU_TABLE_REFS:
-        assert struct.unpack_from("<I", rom, r)[0] == 0x08000000 + MENU_TABLE, "menu table literal moved"
-    menu = bytes(rom[MENU_TABLE:MENU_TABLE + 13 * 8])
-    for i in range(13):
-        t, f = struct.unpack_from("<II", menu, i * 8)
-        assert 0x08000000 <= t < 0x0A000000 and f & 1, "start menu table is not the expected shape"
+def assemble_blob():
+    """Assemble the screen exactly as it is written into the ROM. Returns the code and data bytes with
+    the addresses of everything another patch might want to call. Deterministic: the same source and the
+    same BASE always give the same bytes, which is what lets patches/dexnavchain verify it against the ROM."""
 
     # ---- data blob (addresses fixed once the code length is known) ----
     def data_blob(base):
@@ -141,7 +134,22 @@ def build(inp, outp):
     code, _ = assemble(caddrs, daddrs)
     assert (len(code) + 3) & ~3 == code_len
     assert code[1] == 0x48, "menu_stub (ldr r0, [pc, ...]) is not first"   # the trampoline lands on it
+    return code, code_len, data, data_base, daddrs, funcs, menu_callback, caddrs
 
+
+def build(inp, outp):
+    rom = bytearray(open(inp, "rb").read())
+    assert rom[0xAC:0xB0] == b"BPEE" and len(rom) == 0x2000000
+    for site in MENU_HOOKS:
+        assert is_menu_tail(rom, site), "start menu builder tail at %X differs" % site
+    for r in MENU_TABLE_REFS:
+        assert struct.unpack_from("<I", rom, r)[0] == 0x08000000 + MENU_TABLE, "menu table literal moved"
+    menu = bytes(rom[MENU_TABLE:MENU_TABLE + 13 * 8])
+    for i in range(13):
+        t, f = struct.unpack_from("<II", menu, i * 8)
+        assert 0x08000000 <= t < 0x0A000000 and f & 1, "start menu table is not the expected shape"
+
+    code, code_len, data, data_base, daddrs, funcs, menu_callback, caddrs = assemble_blob()
     blob = bytearray(code) + bytes(code_len - len(code)) + data
     while len(blob) % 4: blob.append(0)
     table_addr = BASE + len(blob)
