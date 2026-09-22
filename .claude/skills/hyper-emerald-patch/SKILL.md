@@ -33,9 +33,10 @@ Two checks in that template matter more than they look:
 ## Rules that are not negotiable
 
 1. Free space is a run of `0xFF` **with no pointers into it**. Current blobs run from `0x08FD8C00` to
-   `0x08FDED20`, plus the Journal at `0x08FE5400..0x08FE83D4` and berrynum at `0x08FE8400..0x08FE8474`; free unreferenced
-   runs remain from `0x08FE8474`
-   to `0x08FF0000` and from `0x08FF2454`. Check inbound pointers
+   `0x08FDED20`, plus the Journal at `0x08FE5400..0x08FE8AF8` (it grows with its text), berrynum at
+   `0x08FE9000..0x08FE9074`, the Quest Log at `0x08FEA000..0x08FEC154`, leaguefly at `0x08FEFF00..0x08FEFF0E` and
+   leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FEC154` to `0x08FEFF00`
+   and from `0x08FF24C0` to `0x08FFD5A0`. Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
    the hack's own code (`ldr rX,[pc,#0]; bx rX; .word target`) — repointing that word is the cheapest hook

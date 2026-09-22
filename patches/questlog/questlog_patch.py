@@ -22,7 +22,7 @@ import journal_patch as J
 import steps as S
 from legends import LEGENDS
 from keyitems import KEYITEMS
-from sidecontent import SIDE
+from sidecontent import SIDE, SHINY
 
 FREE = 0x00FEA000                       # in the unreferenced 0xFF run 0x08FE9074..0x08FF0000
 BASE = 0x08000000 + FREE
@@ -37,6 +37,15 @@ LEG_FREE = 0x01F90000                   # the Legends chapter's names and texts:
                                         # end (0x09F82519..), well clear of 0x09FE0000, which code points at
 
 NPAGES = 7                              # the four Journal chapters, Legends, Key Items, Side Content
+
+# the Legends chapter's first row: "???" and a dim Master Ball until every legend is caught, then ticked, in
+# purple, with the Master Ball in colour. A reads the hint before, the "where" text after. Not counted.
+ALL_CAUGHT = ("Gotta catch 'em all!",
+              "The Legends' final goal. Catch every legendary and mythical Pokémon below, all %d of them, "
+              "to complete it.",
+              "You caught every legendary and mythical Pokémon in the game, all %d of them! Gotta catch 'em all - "
+              "and you did. A true Pokémon Master.")
+LEGROWS = len(LEGENDS) + 1              # the Legends' table rows: "Gotta catch 'em all!", then every legend
 PAGES = [(S.HOENN, "Hoenn"), (S.POST, "Post-game"), (S.SINNOH, "Sinnoh"), (S.LOST, "Lost Artifacts")]
 
 
@@ -64,7 +73,8 @@ PAL[15] = rgb(144, 96, 200)             # purple: Lost Artifacts
 
 # {bg, fg, shadow, 0}: normal, normal selected, current, current selected, ahead, ahead selected, bars,
 # complete (the grid's green count)
-COLORS = [(1, 2, 3), (4, 2, 3), (1, 7, 3), (4, 7, 3), (1, 5, 12), (4, 5, 12), (8, 9, 10), (1, 6, 12)]
+COLORS = [(1, 2, 3), (4, 2, 3), (1, 7, 3), (4, 7, 3), (1, 5, 12), (4, 5, 12), (8, 9, 10), (1, 6, 12),
+          (1, 15, 3), (4, 15, 3)]
 
 CHARS = {".": 0, "B": 11, "G": 6, "R": 7, "D": 5, "W": 9, "K": 2, "S": 8, "P": 15, "Y": 14, "N": 11,
          "V": 10, "L": 12}
@@ -264,6 +274,80 @@ ICON_BOX = """
 ................
 ................
 """
+# the Legends chapter's first row, "Gotta catch 'em all!": the game's own Master Ball icon (the Bag's) where the
+# silhouettes go, in its own colours as BG palette 14 (the list's tiles under it switch to it once unlocked)
+ITEM_ICONS = 0x00FCBFF4                 # GetItemIconPicOrPalette's table: item -> {LZ77 4bpp 24x24, LZ77 palette}
+ITEM_ICONS_REF = 0x001B0034             # ... its literal in that routine
+MB_SLOTS = (2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)   # palette 14 entries free for the icon's colours:
+                                                          # 0/1 stay the paper, 4 the selection bar
+
+
+def lz77(rom, off):
+    assert rom[off] == 0x10, "no LZ77 data at %08X" % (0x08000000 + off)
+    size = struct.unpack_from("<I", rom, off)[0] >> 8
+    out, i = bytearray(), off + 4
+    while len(out) < size:
+        flags = rom[i]
+        i += 1
+        for bit in range(8):
+            if len(out) >= size:
+                break
+            if flags & (0x80 >> bit):
+                n, disp = (rom[i] >> 4) + 3, ((rom[i] & 15) << 8 | rom[i + 1]) + 1
+                i += 2
+                for _ in range(n):
+                    out.append(out[-disp])
+            else:
+                out.append(rom[i])
+                i += 1
+    return bytes(out)
+
+
+def master_ball(rom):
+    """(16x16 grid in palette 14's slots, palette 14 as 16 colours, the dim 16x16 grid in palette 15).
+    The icon's ball fills 18x18 of its 24x24 (x and y 3..20); the two rows and columns just inside the outline
+    (2 and 15 of that crop) are dropped, which keeps the outline, the M and the pink bumps."""
+    assert struct.unpack_from("<I", rom, ITEM_ICONS_REF)[0] == 0x08000000 + ITEM_ICONS, "item icon table moved"
+    pic, pal = struct.unpack_from("<II", rom, ITEM_ICONS + 8 * 1)          # item 1, the Master Ball
+    px, cols = lz77(rom, pic - 0x08000000), struct.unpack("<16H", lz77(rom, pal - 0x08000000))
+    full = [[0] * 24 for _ in range(24)]
+    for t in range(9):
+        for y in range(8):
+            for x in range(8):
+                b = px[t * 32 + y * 4 + x // 2]
+                full[(t // 3) * 8 + y][(t % 3) * 8 + x] = (b >> 4) if x & 1 else (b & 15)
+    assert not any(full[y][x] for y in range(24) for x in range(24) if not (3 <= x < 21 and 3 <= y < 21)), \
+        "the Master Ball icon is not the 18x18 ball it was"
+    ball = [[v for x, v in enumerate(r[3:21]) if x not in (2, 15)] for y, r in enumerate(full[3:21]) if y not in (2, 15)]
+    used = sorted({v for r in ball for v in r} - {0})
+    assert len(used) <= len(MB_SLOTS), "the Master Ball uses %d colours" % len(used)
+    slot = dict(zip(used, MB_SLOTS))
+    pal14 = list(PAL)
+    for v, k in slot.items():
+        pal14[k] = cols[v]
+    def luma(c):
+        return ((c & 31) * 3 + (c >> 5 & 31) * 6 + (c >> 10 & 31)) * 8 / 10
+    # locked: grey like the other unseen silhouettes (5), its light parts (the M, the shine) paler (12)
+    dim = [[0 if v == 0 else (5 if luma(cols[v]) < 130 else 12) for v in r] for r in ball]
+    return [[slot.get(v, 0) for v in r] for r in ball], pal14, dim
+STAR = """
+........
+........
+........
+...RR...
+...RR...
+..RRRR..
+RRRRRRRR
+.RRRRRR.
+..RRRR..
+.RRRRRR.
+.RR..RR.
+RR....RR
+........
+........
+........
+........
+"""
 UP = """
 ........
 ...BB...
@@ -342,7 +426,7 @@ def s(text):
     return J.enc(text) + b"\xff"
 
 
-def data_blob(base, sym, table):
+def data_blob(base, sym, table, rom):
     d = bytearray()
     a = {}
 
@@ -358,22 +442,24 @@ def data_blob(base, sym, table):
                         + bytes((0, 0, 18, 30, 2, 15)) + struct.pack("<H", 541) # footer
                         + bytes((0xFF, 0, 0, 0, 0, 0)) + struct.pack("<H", 0))
     put("PAL", struct.pack("<16H", *PAL))
+    put("MBPAL", struct.pack("<16H", *master_ball(rom)[1]))           # palette 14: the Master Ball
     put("COLORS", b"".join(bytes(c) + b"\x00" for c in COLORS))
     a["COLHEAD"] = a["COLORS"] + 24
     side = grid(ICON_SIDE)
     box = grid(ICON_BOX)
     seen = [[11 if v == 5 else v for v in r] for r in box]
     # by status - 1: done, current, side left behind, side ahead, ahead, legend seen, legend not seen yet
-    # ... legend not seen yet, key item not got yet
+    # ... legend not seen yet, key item not got yet, every legend caught (the Legends' closing row)
     put("ICONS", b"".join(tiles(g) for g in (grid(ICON_DONE), grid(ICON_CURRENT), side, dimmed(side),
-                                              box, seen, box, box)))
-    # by status: colour set (0 normal, 8 current, 16 dim) and whether the row shows its title
-    put("STCOLOR", bytes((0, 0, 8, 0, 16, 16, 0, 16, 16)))
-    put("STSHOW", bytes((0, 1, 1, 1, 0, 0, 1, 0, 1)))
+                                              box, seen, box, box, grid(ICON_DONE))))
+    # by status: colour set (0 normal, 8 current, 16 dim, 32 purple) and whether the row shows its title
+    put("STCOLOR", bytes((0, 0, 8, 0, 16, 16, 0, 16, 16, 32)))
+    put("STSHOW", bytes((0, 1, 1, 1, 0, 0, 1, 0, 1, 1)))
     put("UPICON", tiles(grid(UP)))
     put("DOWNICON", tiles(flip_v(grid(UP))))
     put("LEFTICON", tiles(grid(LEFT)))
     put("RIGHTICON", tiles(flip_h(grid(LEFT))))
+    put("STAR", tiles(grid(STAR)))                                  # after a Side Content name: always shiny
 
     # chapters: {first step, rows, objectives, 0, name}; the last page also holds the closing row
     names = {}
@@ -392,7 +478,8 @@ def data_blob(base, sym, table):
     assert first == len(S.STEPS)
     put("NAME_Legends", s("Legends"), 1)
     assert len(LEGENDS) <= 99, "the header counts with two digits"
-    rows += struct.pack("<BBBBI", 0, len(LEGENDS), len(LEGENDS), 1, a["NAME_Legends"])   # type 1: Legends
+    # type 1: Legends, plus "Gotta catch 'em all!" as row 0 (not counted, like the Journal's closing row)
+    rows += struct.pack("<BBBBI", 0, len(LEGENDS) + 1, len(LEGENDS), 1, a["NAME_Legends"])
     put("NAME_Keys", s("Key Items"), 1)
     assert len(KEYITEMS) <= 99
     rows += struct.pack("<BBBBI", 0, len(KEYITEMS), len(KEYITEMS), 2, a["NAME_Keys"])    # type 2: Key Items
@@ -432,8 +519,8 @@ def data_blob(base, sym, table):
         d.append(0)
     a.update({"STEPS": table, "STEPDONE": sym["step_done"] | 1, "APPEND": sym["append"] | 1,
               "GROUPTAIL": sym["group_tail"] | 1, "U8DEC": sym["u8dec"] | 1, "LEGENDS": 0x08000000 + LEG_FREE,
-              "LEGSIL": 0x08000000 + LEG_FREE + 16 * len(LEGENDS),
-              "LEGSILDIM": 0x08000000 + LEG_FREE + 16 * len(LEGENDS) + 128 * len(LEGENDS),
+              "LEGSIL": 0x08000000 + LEG_FREE + 16 * LEGROWS,
+              "LEGSILDIM": 0x08000000 + LEG_FREE + 16 * LEGROWS + 128 * LEGROWS,
               "KEYS": 0x08000000 + KEY_FREE, "SIDES": 0x08000000 + SIDE_FREE})
     return bytes(d), a
 
@@ -482,7 +569,8 @@ def silhouette(px, colour):
 
 
 def sides_blob(base):
-    """{0, flag u16, name, where, where} per row, then the strings (the hint slot repeats "where")."""
+    """{marks u16, flag u16, name, where, where} per row, then the strings (the hint slot repeats "where").
+    marks bit 0: the Pokemon is always shiny (SHINY), and the list draws a red star after the name."""
     d = bytearray(16 * len(SIDE))
     for i, (flag, name, where) in enumerate(SIDE):
         ptrs = []
@@ -490,7 +578,7 @@ def sides_blob(base):
             assert t.count(b"\xfe") < 8, "too long for one page: %r" % t
             ptrs.append(base + len(d))
             d.extend(t)
-        struct.pack_into("<HHIII", d, 16 * i, 0, flag, ptrs[0], ptrs[1], ptrs[1])
+        struct.pack_into("<HHIII", d, 16 * i, 1 if flag in SHINY else 0, flag, ptrs[0], ptrs[1], ptrs[1])
     while len(d) % 4:
         d.append(0)
     return bytes(d)
@@ -515,16 +603,20 @@ def keys_blob(base, rom):
 
 def legends_blob(base, rom):
     """{dex u16, 0 u16, name, hint, where} per legend, then a dark and a dim silhouette per legend (128 bytes
-    each, 16x16 4bpp), then the strings."""
+    each, 16x16 4bpp), then the strings. Row 0 of each is "Gotta catch 'em all!" (dex 0), with a Master Ball."""
     dex2sp = {}
     for sp in range(1, 1300):
         dex2sp.setdefault(struct.unpack_from("<H", rom, NATDEX + 2 * (sp - 1))[0], sp)
     n = len(LEGENDS)
-    d = bytearray(16 * n)
+    d = bytearray(16 * LEGROWS)
     icons = [icon_pixels(rom, dex2sp[dex]) for dex, *_ in LEGENDS]
+    ball, _, balldim = master_ball(rom)
+    d += tiles(ball)                                            # palette 14's slots
     d += b"".join(tiles(silhouette(px, 2)) for px in icons)     # text colour
+    d += tiles(balldim)
     d += b"".join(tiles(silhouette(px, 5)) for px in icons)     # the dim "still ahead" colour
-    for i, (dex, name, hint, where) in enumerate(LEGENDS):
+    first = (0, ALL_CAUGHT[0], ALL_CAUGHT[1] % n, ALL_CAUGHT[2] % n)
+    for i, (dex, name, hint, where) in enumerate([first] + LEGENDS):
         ptrs = []
         for t in (s(name), pane(hint), pane(where)):
             assert t.count(b"\xfe") < 8, "too long for one page: %r" % t
@@ -567,20 +659,21 @@ def build(inp, outp):
     src = open(os.path.join(HERE, "questlog.s"), encoding="ascii").read()
 
     def assemble(addrs):
-        t = src.replace("#NPAGES", "#%d" % NPAGES).replace("#NLAST", "#%d" % (NPAGES - 1))
+        t = src.replace("#NPAGES", "#%d" % NPAGES).replace("#NLAST", "#%d" % (NPAGES - 1)).replace(
+            "#NLEG", "#%d" % len(LEGENDS))
         for k, v in sorted(addrs.items(), key=lambda kv: -len(kv[0])):   # longest first
             t = t.replace(k + "_ADDR", "0x%08X" % v)
         return thumb(t, BASE)
 
     code_names = ("CB2_INIT", "CB2_MAIN", "VBLANK", "TASK", "WAIT_TASK", "MENU_CB")
-    _, dummy = data_blob(BASE, sym, table)
+    _, dummy = data_blob(BASE, sym, table, rom)
     code, dis = assemble(dict(dummy, **{k: BASE for k in code_names}))
     code_len = (len(code) + 3) & ~3
-    data, daddrs = data_blob(BASE + code_len, sym, table)
+    data, daddrs = data_blob(BASE + code_len, sym, table, rom)
 
     order = ("item_use", "wait_task", "cb2_init", "cb2_main", "vblank", "se_select", "compute", "page_sel",
              "print", "show", "draw_list", "draw_header", "draw_footer", "open_detail", "draw_detail", "task",
-             "hsi", "menu_cb", "case3", "has_journal", "show_widget", "widget_remove", "row_status", "row_title", "ext_entry",
+             "hsi", "menu_cb", "case3", "has_journal", "show_widget", "widget_remove", "row_status", "row_title", "ext_entry", "legend_all",
              "draw_grid", "grid_count", "rect", "corners", "grid_input", "grid_pulse")
     funcs = [i.address for i in dis if i.mnemonic == "push"]
     assert len(funcs) == len(order), "unexpected function layout: %d pushes, expected %d" % (len(funcs), len(order))

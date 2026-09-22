@@ -149,6 +149,11 @@ cb2_init:
     movs r2, #2
     ldr r3, ci_loadpalette
     bl callr3
+    ldr r0, ci_mbpal            @ palette 14: the Master Ball's own colours (see draw_list)
+    movs r1, #0xE0
+    movs r2, #0x20
+    ldr r3, ci_loadpalette
+    bl callr3
     movs r0, #0
     ldr r1, ci_dispcnt
     ldr r3, ci_setgpureg
@@ -247,6 +252,7 @@ ci_deactprinters:   .word 0x080045B1
 ci_initwindows:     .word 0x080031C1
 ci_wintemplates:    .word WINTEMPLATES_ADDR
 ci_pal:             .word PAL_ADDR
+ci_mbpal:           .word MBPAL_ADDR
 ci_loadpalette:     .word 0x080A1939
 ci_dispcnt:         .word 0x00000040
 ci_showbg:          .word 0x08001B31
@@ -582,6 +588,33 @@ dl_nosil:
     ldr r1, [sp, #20]
     lsls r2, r5, #4
     bl print
+    ldrb r0, [r6, #3]           @ Side Content: a red star after the name when its Pokemon is always shiny
+    cmp r0, #3
+    bne dl_next
+    adds r0, r4, #0
+    ldr r1, [sp, #12]
+    bl ext_entry
+    ldrh r1, [r0]               @ marks, bit 0: shiny
+    lsls r1, r1, #31
+    beq dl_next
+    ldr r1, [r0, #4]            @ the name (Side Content rows always show it)
+    movs r0, #1
+    movs r2, #0
+    ldr r7, dr_strwidth
+    bl callr7
+    ldr r2, [sp, #20]
+    adds r2, r2, r0
+    adds r2, #3
+    movs r0, #8
+    str r0, [sp]
+    movs r0, #16
+    str r0, [sp, #4]
+    movs r0, #1
+    ldr r1, dr_star
+    lsls r3, r5, #4
+    ldr r7, dr_blit
+    bl callr7
+dl_next:
     adds r5, #1
     b dl_row
 dl_marks:                       @ more rows above / below
@@ -614,7 +647,45 @@ dl_nou:
     bl callr7
 dl_nod:
     movs r0, #1
-    bl show
+    ldr r3, dr_putwin
+    bl callr3
+    ldrb r0, [r6, #3]           @ Legends scrolled to the top with every legend caught: the Master Ball's four
+    cmp r0, #1                  @ tiles (x 3-4, y 2-3 of the map; PutWindowTilemap just set them to palette
+    bne dl_copy                 @ 15) take palette 14, its own colours
+    ldrb r0, [r4, #1]
+    cmp r0, #0
+    bne dl_copy
+    adds r0, r4, #0
+    movs r1, #0
+    bl row_status
+    cmp r0, #9
+    bne dl_copy
+    movs r1, #0x80
+    lsls r1, r1, #4
+    subs r1, r4, r1             @ the BG tilemap: the 0x800 bytes before V
+    adds r1, #134               @ (3, 2)
+    movs r3, #0xE0
+    lsls r3, r3, #8             @ palette 14
+    movs r2, #2
+dl_mbrow:
+    ldrh r0, [r1]
+    lsls r0, r0, #20
+    lsrs r0, r0, #20
+    orrs r0, r3
+    strh r0, [r1]
+    ldrh r0, [r1, #2]
+    lsls r0, r0, #20
+    lsrs r0, r0, #20
+    orrs r0, r3
+    strh r0, [r1, #2]
+    adds r1, #64
+    subs r2, #1
+    bne dl_mbrow
+dl_copy:
+    movs r0, #1
+    movs r1, #3
+    ldr r3, dr_copywin
+    bl callr3
     add sp, #24
     pop {r4, r5, r6, r7, pc}
 
@@ -633,6 +704,8 @@ dr_stcolor:         .word STCOLOR_ADDR
 dr_sil:             .word LEGSIL_ADDR
 dr_sildim:          .word LEGSILDIM_ADDR
 dr_colors:          .word COLORS_ADDR
+dr_strwidth:        .word 0x08005ED9    @ GetStringWidth
+dr_star:            .word STAR_ADDR
 
 @ draw_header(r0 = V): the chapter with arrows to the others and done/total, or in the detail view the
 @ objective's title and which page of it this is
@@ -701,7 +774,7 @@ dh_noleft:
     ldr r7, dh_blit
     bl callr7
 dh_noright:
-    ldrb r7, [r6, #2]           @ rows that count (the Journal's closing row does not)
+    ldrb r7, [r6, #1]           @ every row: only status 1 counts, which the closing rows never have
     movs r5, #0                 @ done
     movs r6, #0
 dh_cnt:
@@ -717,6 +790,11 @@ dh_cn:
     adds r6, #1
     b dh_cnt
 dh_cntd:
+    ldrb r7, [r4]               @ the total shown: the rows that count (not the Journal's or Legends' closing row)
+    lsls r7, r7, #3
+    ldr r0, dh_pages
+    adds r7, r7, r0
+    ldrb r7, [r7, #2]
     adds r0, r4, #0
     adds r0, #0xE0
     adds r1, r5, #0
@@ -1441,6 +1519,8 @@ rs_legend:
     beq rs_key
     cmp r3, #3
     beq rs_side
+    cmp r1, #0                  @ the first row, "Gotta catch 'em all!": 9 once every legend is caught, else 7
+    beq rs_all
     lsls r1, r1, #4
     ldr r2, rs_legends
     ldrh r4, [r2, r1]           @ National Dex number
@@ -1463,6 +1543,12 @@ rs_notcaught:
     pop {r4, pc}
 rs_unseen:
     movs r0, #7
+    pop {r4, pc}
+rs_all:
+    bl legend_all
+    cmp r0, #0
+    beq rs_unseen
+    movs r0, #9
     pop {r4, pc}
 rs_key:                         @ Key Items: in the Bag, or its "got it" flag (for items that leave the Bag)
     lsls r1, r1, #4
@@ -1551,6 +1637,26 @@ ee_ret:
     adds r0, r0, r1
     pop {r1}
     bx r1
+
+@ legend_all() -> r0 = 1 when the Pokemon of every Legends row (1..NLEG; row 0 is this one) is caught, else 0
+legend_all:
+    push {r4, r5, lr}
+    movs r4, #1
+    ldr r5, rs_legends
+la_loop:
+    lsls r0, r4, #4
+    ldrh r0, [r5, r0]           @ National Dex number
+    movs r1, #1                 @ FLAG_GET_CAUGHT
+    ldr r3, rs_dexflag
+    bl callr3
+    lsls r0, r0, #24
+    beq la_ret
+    adds r4, #1
+    cmp r4, #NLEG
+    bls la_loop
+    movs r0, #1
+la_ret:
+    pop {r4, r5, pc}
 
 .align 2
 rs_pages:           .word PAGES_ADDR
@@ -1737,7 +1843,7 @@ gc2_loop:
     lsls r0, r5, #3
     ldr r1, dg_pages
     adds r0, r0, r1
-    ldrb r0, [r0, #2]
+    ldrb r0, [r0, #1]           @ every row: only status 1 counts, which the closing rows never have
     str r0, [sp, #4]
     movs r6, #0
     movs r7, #0

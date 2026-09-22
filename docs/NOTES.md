@@ -1039,3 +1039,75 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   leads to Steven's Island 35/8 object at (4,5): -Echo-/-Hibiki-, trainer 1016, sets 0x4303. The book at
   35/8 (4,6) (`0x0983D029`) by "Gengyi Xiang" shows entries by 0x4300, 0x4301, 0x41D5, 0x4302.
 - Both are Side Content rows (sidecontent.py). The user's save (2026-09-22): TM53 taken, cave not collapsed.
+
+## QUEST LOG: SHINY STARS ON SIDE CONTENT — 2026-09-22
+- How the hack forces a shiny: `callasm 0x08302931` rebuilds the Pokémon in party slot var 0x8004 (6 = the
+  enemy's first, after `setwildbattle`) with nature var 0x8005 and gender var 0x8006 (255 = random each); var
+  0x8007 = 1 makes it call `0x08302B10`, which rolls a personality whose halves XOR to the player's
+  (TID ^ SID) & 0xFFF8 plus Random % 8, which is always shiny. Its neighbours in the same scripts:
+  `0x08FFF201` sets perfect IVs (var 0x8005 = how many), `0x0981E531` teaches move var 0x8006 in slot var 0x8005.
+  givemon (0x79), ScriptGiveMon (0x080F9244), CreateMon and CreateBoxMon are all vanilla, with no shiny switch.
+- Always shiny, from each row's scripts: the hidden Snivy (0x045D), Litten (0x0415), Grookey (0x40B8) and
+  Scorbunny (0x40EA) battles, the cursed statue's Gengar (0x432D), and the Drifloon gift (0x42DE: getpartysize
+  - 1 into 0x8004 after its givemon). Oshawott, Chespin, Chikorita, Cyndaquil and Totodile skip the call; every
+  other gift is a plain givemon; the six Hisuian trades (sIngameTrades at 0x08BA0300, 0x3C each, indices 0-5)
+  have fixed personalities that are not shiny.
+- Checked in mGBA by running each set-up from its own script (`_testrun/rw/ql/shinycheck/`): Snivy, Litten,
+  Gengar and Drifloon came out with shiny value 0-2 for the save's OT ID; the Oshawott and Beldum controls were
+  3455.
+- `sidecontent.SHINY` holds those flags; `sides_blob` writes bit 0 of each row's first halfword (was 0).
+  `draw_list`, after printing a row of a type-3 page, blits `STAR` (8 x 16, red = palette 15 colour 7) at
+  x = text start + GetStringWidth(1, name, 0) + 3. The star is drawn whether or not the row is ticked. Tested:
+  `test_questlog_side.lua` (every screenful of the chapter), `test_questlog.lua` 94/94 (the task moved to
+  0x08FEA82D).
+
+## SINNOH LEAGUE ATTENDANT TEXT — 2026-09-22
+- Where: the Elite Four hall is map 34/30 (map section "Test of Heart"), reached from the Sinnoh League lobby
+  34/37 through the two guards. Its map script `0x09875272` (type 2/4, var 0x4000) runs on every entry: the
+  x the player arrives at (var 0x8004: 4, 8, 18, 22) says which door they came back through, adds that door's
+  bit to var 0x409C (1, 2, 4, 8), closes the door, then `message 0x09875BFF` (the heal line), the heal jingle,
+  and at 15 the Champion's door (x 13, warp to 34/31); otherwise "Please choose the next door." and
+  `multichoice 20, 4, 126, ignoreB` at `0x098754BF`. Answers 0-3 open the doors at x 4, 8, 18, 22 (warps 6-9);
+  a door whose bit is set gets "didn't you just go through this door?".
+- Untranslated: the heal line (the only reference is that `message`; an English version existed in
+  translation/translations/trans_22.json as "MoeMoe Staff: ..." but was never inserted) and the four door names
+  左一 / 左二 / 右二 / 右一 (left 1, left 2, right 2, right 1, counted from the outer walls). The hack's
+  multichoice table is at `0x09700000` (8 bytes an entry: list pointer, count); list 126 is at `0x09876B14`,
+  {text, unused u32} rows. The window sizes itself to the longest string and moves left if it would overflow.
+- Lucian's line when he beats you (`0x08B41CF9`, used by `0x09875986`) began "Wusong:", his Chinese name 悟松.
+- `patches/leaguetext/`: strings at `0x08FF2460..0x08FF24C0`, the message and the four list pointers repointed,
+  "Wusong" -> "Lucian" in place. The heal line is "Attendant: ...", matching her translated welcome. Tested
+  (`test_leaguetext.lua`): the heal line, the menu with the cursor on each door, the answer (3 for Far right),
+  Lucian's line; all drawn from EWRAM scripts on the field. The whole hall was not played through.
+- Tool: `_testrun/cn.py ADDR` decodes any text address, Chinese included, with story_extract.py's rules.
+
+## QUEST LOG: "GOTTA CATCH 'EM ALL!" — 2026-09-22
+- The Legends chapter has a row 0 above Articuno: "???", an empty box and a dim Master Ball until every legend
+  is caught, then a tick, a Master Ball in colour and "Gotta catch 'em all!" in purple. A reads the hint
+  before and a congratulation after (`ALL_CAUGHT` in questlog_patch.py). It is selected when Legends opens.
+- Data: the Legends table and both silhouette sets gained a first entry (dex 0). PAGES says rows 93,
+  objectives 92.
+- The ball is the Bag's own Master Ball icon, read from the ROM at build time (`master_ball()`): item icon
+  table 0x08FCBFF4 (GetItemIconPicOrPalette, literal at 0x081B0034; {LZ77 4bpp 24x24, LZ77 palette} per item),
+  item 1. The ball fills x/y 3..20 of the 24x24; dropping rows and columns 2 and 15 of that 18x18 crop gives
+  16x16 with the outline, the M and the pink bumps intact. (A first try drew it by hand in palette 15; the
+  palette has no pink, so the bumps came out red.) Its 13 colours go to palette 14 slots 2,3,5-15, with 0/1 the
+  paper and 4 the selection bar as in palette 15, so the row's background looks the same. `cb2_init` loads it
+  (`MBPAL`, LoadPalette 0xE0). `draw_list` now does PutWindowTilemap, then, on the Legends page scrolled to
+  the top with row 0 at status 9, sets the palette bits of the ball's four tilemap entries ((3,2),(4,2),
+  (3,3),(4,3); the tilemap is the 0x800 bytes before V) to 14, then CopyWindowToVram(3). Every redraw's
+  PutWindowTilemap puts them back to 15. Locked, the ball is drawn in palette 15: its dark colours in 5
+  (grey, like the unseen silhouettes), light ones in 12.
+- Code: `row_status` for type 1 sends row 0 to `legend_all` (new function, in the `order` tuple after
+  ext_entry), which checks FLAG_GET_CAUGHT for table rows 1..NLEG (`#NLEG` is substituted by the patcher) and
+  returns status 9 (all caught) or 7. Status 9 is new: tick icon (9th ICONS entry), colour set 32 (COLORS
+  (1,15,3)/(4,15,3)), title shown. open_detail shows the hint only for status 7, so 9 gets the "where" text.
+- Counting: the header (`dh_cnt`) and the grid (`grid_count`) used to count rows 0..objectives-1, which would
+  have skipped the last legend. Both now scan every row and count status 1 only, and show the objectives as
+  the total. The rows left out of the total never have status 1: this one is 7 or 9, and the Journal's
+  closing row is 2 or 5 (`cp_final`).
+- Pokedex flags, for tests: the hack's GetSetPokedexFlag (0x080C0664 -> 0x09257951) uses SaveBlock1 +0x560
+  (seen) and +0x5D8, byte dex/8, bit dex%8 (no -1); caught needs both bits.
+- Tested: `test_questlog_allcaught.lua`, once on the save as it is (39/92: "???", dim ball, hint) and once
+  with ALL=1 (all 92 marked caught: tick, ball, purple title, congratulation, 92/92 in the header and on the
+  grid; the bottom still ends at Enamorus). `test_questlog.lua` 94/94 (task now 0x08FEA835).

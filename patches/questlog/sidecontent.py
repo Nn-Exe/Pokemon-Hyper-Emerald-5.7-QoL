@@ -104,5 +104,13 @@ SIDE = [
      "Steven's Island: the northeast corner of Steven's residence. The passerby from Route 101 is waiting."),
 ]
 
+# Rows whose Pokemon is always shiny: the list shows a red star after the name. Each one's script calls the
+# hack's own rebuild routine 0x08302931 with var 0x8007 = 1, which rolls a personality that is shiny for the
+# player's trainer ID (0x08302B10). The wild starters set it up between setwildbattle and dowildbattle (the
+# enemy's slot, var 0x8004 = 6); Drifloon's gift right after its givemon (the last party slot). Oshawott,
+# Chespin, Chikorita, Cyndaquil and Totodile skip that call, and the other gifts and trades are ordinary.
+SHINY = {0x045D, 0x0415, 0x40B8, 0x40EA, 0x42DE, 0x432D}   # Snivy, Litten, Grookey, Scorbunny, Drifloon, Gengar
+
 assert len({f for f, *_ in SIDE}) == len(SIDE)
 assert all(len(n) <= 24 for _, n, _ in SIDE)
+assert SHINY <= {f for f, *_ in SIDE}
