@@ -842,6 +842,23 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   `test_journal_pages.lua` screenshots every page of five messages (the widest 34-character lines fit with room
   to spare); `test_journal_bag.lua` uses it from the Bag (name, description, icon, message over the Bag, closes
   back to the Bag). On a save that never had it, the item was in Key Items as soon as the field came up.
+- The message ends `FC 09 FF` (wait for a button, then end), not a bare `FF`: the key-item message routines
+  close the box as soon as the printer finishes, so the last page vanished unread (2026-09-22). `make_tests.py`
+  appends the same two bytes to every expected message.
+- After Volo (2026-09-22): 0x431E base-camp report; 0x4319 Cogita on Firespit Island (needs Tornadus/Thundurus/
+  Landorus, species 899-901); 0x4322 the Dried Fish item ball, Prelude Beach 37/104 (13,40), item 744 - Kitty in
+  the developer house (35/8) trades it for the nameless stone, item 745; the summit guard 37/106 (0x098B201D)
+  needs item 745 + 0x4319 + !0x4323 and warps to the Moonbow Dome 35/10: the God of Forms (trainers 1304, 1340,
+  1341) then, after the last battle (the god: "take me with you"), a wild battle with species 1025 Lv 70 - the god itself - -> 0x4323. (Cogita summons the other Enamorus, Lv 50, on Firespit Island: 0x4319.) Species 1025 was named in Chinese (爱娜莫洛斯) until speciesnames; 0x4325 Cogita on
+  Champion Island. The Champion Island ticket step uses 0x005C (set only by Scott's Silver Symbol branch,
+  0x098737CF): the ferry needs 0x08D5 AND item 371, and Yanshan (0x098C49E5) sets 0x08D5 without the item.
+- Solaceon nightmare: 0x4117 husband's story (set on first talk; 37/22, 0x0980DF8C), 0x412F Dawn on Route 210 gives
+  the Lunar Wing (item 647; 35/16, 0x0980977C), 0x412D the woman wakes (0x0980E243), 0x4060 Darkrai's hide flag in
+  the Lost Tower (35/29): the map script only moves the blocking object while 0x412D is clear; Darkrai's script
+  (0x08FE3B51 -> 0x09891F30) needs 0x412D, and the shared legendary handler 0x08FE38F0 (fade, removeobject, fade)
+  sets 0x4060; fleeing clears it (0x09823D1C).
+- Space: the Journal ends at 0x08FE8AE8 with 84 steps (~1.3 KB left before berrynum at 0x08FE9000; move berrynum
+  again, not the Journal, if it grows past that).
 - GOTCHA: in this build SELECT always opens the keyreg popup (PC anywhere made it unconditional), even with one
   registered item. Tests must press SELECT, then UP for the first slot.
 
@@ -851,7 +868,7 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   704-727 and 762-765, i.e. 572-633, and ConvertIntToDecimalStringN prints "?" for a digit above 9. The
   original Chinese ROM has the same bug.
 - `patches/berrynum/`: Occa No44 ... Maranga No67, then 762-765 No68-71. Four places compute the number and all
-  are hooked (trampolines to one stub at `0x08FE8400`, 116 bytes):
+  are hooked (trampolines to one stub at `0x08FE9000`, 116 bytes; `0x08FE8400` until 2026-09-22, when the Journal outgrew the gap):
   * `0x08FD5E32` and `0x08FD7D4E`: the hack's own item-name routine, in TWO identical copies (0x08FD5E20 and
     0x08FD7D3C; the original ROM has both). The Bag's list rows come from the second one. Patching only the
     vanilla sites or only the first copy changed nothing on screen - check every copy.
@@ -865,3 +882,146 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   berry in the game walked over one by one. "Jumped to invalid address: E3A02004" is the BIOS open-bus value
   after an SWI, i.e. a function pointer read from address ~0: session state, not the berry. Heap in the Bag had
   86 KB free. `test_berrynum_report.lua` rebuilds the reported pocket and dumps registers/stack on a crash.
+
+## QUEST LOG — 2026-09-22
+- Asked for a "mission log with ticks" like newer ROM hacks. Using the Journal (item 363) now opens a screen of
+  its own instead of the one-line message: one chapter a page (Hoenn 24, Post-game 38, Sinnoh 3, Lost Artifacts
+  19 + the closing row), a tick for done, a red arrow for the current objective, a diamond for "any order"
+  steps, "???" (dimmed box or diamond) for what is ahead. A on a revealed row shows the objective's full text;
+  L/R or Left/Right turn the chapter; B fades back to the field. The header counts done/total per chapter.
+- `patches/questlog/`, blob at `0x08FEA000`-`0x08FEB418` (code 2312 bytes, then data), in the unreferenced
+  0xFF run `0x08FE9074`-`0x08FF0000` (the pointer-looking words into that run are all inside graphics/audio).
+  The only other change is item 363's field-use pointer (`0x08FC6AFC`): the Journal's `item_use` stays, unused.
+- One rule, not two: the patch imports `journal_patch.layout()` (split out of `build()` for this), rebuilds the
+  Journal blob, reads the one word a rebuild cannot know (its overworld chain target) back from the ROM, and
+  asserts the ROM's Journal is byte for byte that blob. Then it calls the Journal's own `step_done`,
+  `group_tail`, `append` and `u8dec`, and walks its step table. `compute` is the Journal's `build` rule turned
+  into a status per step: 1 done (flags, or an anchor before the last done anchor), 2 current (first not-done
+  from there, or the closing row when all are done), 3 an "any order" step left behind, 4/5 ahead.
+- Titles: `steps.py` has `TITLES` (one per step, <= 24 chars, the same no-spoiler rule) and `FINAL_TITLE`.
+  The patcher asserts the lengths line up.
+- Screen: the Sinnoh Map's shape (bag: `gBagMenu->newScreenCallback`; field: `gFieldCallback` + fade + a wait
+  task). One BG, three full-width windows in palette 15 (header 30x2, list 30x16 = 8 rows of 16 px, footer 30x2;
+  base blocks 1/61/541, 601 tiles under the map at char base 0 / screen 31). One `AllocZeroed(0xC00)`: the BG0
+  tilemap buffer, then the state (layout in `questlog.s`'s header), pointer kept in the task's data[0..1].
+- Text: `AddTextPrinterParameterized4` with speed `0xFF` (TEXT_SKIP_DRAW) draws into the window buffer only; each
+  window is copied once when complete (`CopyWindowToVram(win, 3)`). Icons are 4bpp bitmaps made in the patcher
+  from ASCII art and drawn with `BlitBitmapToWindow` `0x080039A5` (colour 0 is the key, so the row's own fill
+  shows through); `GetStringWidth` `0x08005ED9` right-aligns the counters.
+- Detail pane: the Journal's message for the step (+ `group_tail` for groups) is built into gStringVar4, the
+  "<chapter> - Next objective:" line dropped, every FE/FA/FB turned into a plain line break, 8 lines a page
+  (up to 8 pages). "A: Next page" when there is more.
+- GOTCHA: keystone pads a code-section `.align 2` with `00 BF` and ignores a fill value. The patcher's own
+  `thumb()` allows that nop only straight after a return or unconditional branch, where it cannot run.
+- Tests (muted mGBA, copies of the ROM and save): `test_questlog.lua` runs the Journal's 94 scenarios
+  (`../journal/test_journal_cases.lua`) through the screen from SELECT, and `check_questlog.py` checks against
+  `../journal/expected.json` that the arrow is on the Journal's step, the screen opens on its chapter with it
+  selected, and the detail text is the Journal's text laid out as above: 94 of 94.
+  `test_questlog_screens.lua` opens it from the Bag and screenshots a walk through every chapter.
+- Start menu shortcut (same patch): a framed "[R] Journal" box (R-button icon `F8 03`) at tilemap (1,1), 8x2,
+  base block 8 - the Safari balls window's place and base block, so it is skipped when `GetSafariZoneFlag` or
+  `InBattlePyramid` says that corner is taken, and when the Journal is not in the Bag.
+  * Shown from `InitStartMenuStep` step 3 (the Safari/Pyramid step): its jump table entry at `0x0809F8C4`
+    points at `case3`, which draws the box and jumps on to the original `0x0809F90C`. The table is reached by
+    `mov pc, r0`, so the entry is even and the stub is entered in Thumb. Every path that (re)builds the menu -
+    first open, back from the Pokedex/Bag/Save-cancel - goes through this step.
+  * `HandleStartMenuInput` `0x0809FAC4` gets an 8-byte trampoline (4-aligned, first instruction: the stub
+    replays `push {r4,lr}` before any call, then `r4 = gMain`, `r1 = newKeys`, `r0 = 0x40` and returns to
+    `0x0809FACC`). R: SE_SELECT, box down, `gMenuCallback` = `menu_cb`, FadeScreen, return FALSE.
+    A/B/START: box down first, then the vanilla code. `menu_cb` is StartMenuPokedexCallback's shape and sets
+    `gFieldCallback2 = FieldCB_ReturnToFieldOpenStartMenu`, so B in the Quest Log lands back in the menu.
+  * The window id lives at `0x02039E40` (EWRAM measured free) behind the magic "QLOG". EWRAM survives a soft
+    reset, so a stale id is only removed if `gWindows[id]` still holds our exact template.
+  * Tested (`test_questlog_menu.lua`): box with the menu, R -> Quest Log -> B -> menu with the box, B closes
+    it, Pokedex and back re-shows it, R again. Not tested in the Safari Zone or the Battle Pyramid.
+
+## SINNOH MAP: FLY TO THE LEAGUE DOOR — 2026-09-22
+- Report: flying to the Sinnoh League lands at the Victory Road entrance, not the League. The outdoor League map
+  (36/14, 29x47) has one Pokémon Center door at (10,34), Victory Road at (17,33) and its exit at (20,25), and the
+  League building's door at (14,5). The Ride Pokémon courier has 17 stops, not 16: two are section 97 - block
+  `0x0987D196` (flag 0x42EA, set by 36/14's on-transition script, warp to (10,35)) and block `0x0987D1AF`
+  (flag 0x42EB, set by the trigger at Victory Road (31,2), warp to (14,6)). The Sinnoh Map's table is keyed by
+  section, so it had only the first.
+- `patches/leaguefly/`, data only: a 14-byte script at `0x08FEFF00` (`checkflag 0x42EB; goto_if_set 0x0987D1AF;
+  goto 0x0987D196`) and the section-97 entry's block pointer (`0x08FDC578`) pointed at it. The map's name
+  greying and the "visited" gate still use 0x42EA, as before. Flying to the door needs the flag the game
+  itself uses for that stop, so it cannot skip Victory Road.
+- `test_leaguefly.lua`: with 0x42EB lands at 36/14 (14,6), in front of the League; without it at (10,35).
+
+## QUEST LOG: LEGENDS CHAPTER — 2026-09-22
+- A fifth page: the 82 legendary and mythical Pokémon this ROM has (Gen 9's are absent), in National Dex order,
+  from `patches/questlog/legends.py` (dex number, name, a no-name hint, and where / level / what it takes, each
+  traced in the scripts: `tools/romdata/flag_audit.py`, `scripts.py`). Status comes from the game itself every
+  time: `GetSetPokedexFlag` `0x080C0665` (a trampoline into the hack's expanded dex at `0x09257951`), case 1
+  caught, case 0 seen. Rows: ✔ caught (1), dark box + name seen (6), grey box + "???" not seen (7). A always
+  opens: the hint while unseen, the place once seen.
+- National Dex numbers: the hack's `SpeciesToNationalPokedexNum` (`0x0806D4A4`) reads the table at `0x08F50370`
+  (the table at `0x08F50CD0` is a different dex - Bulbasaur is 252 there). Species ids are not dex numbers:
+  Kyogre is species 404, dex 382; Enamorus is species 1023-1025, dex 905; Dark Lugia (1079) shares Lugia's 249.
+- Code: `row_status` / `row_title` (end of questlog.s) now give every row's status and text; the Journal
+  chapters read the computed status array as before, the Legends page (PAGES entry byte 3 = 1) asks the dex.
+  `STCOLOR` / `STSHOW` tables map a status to its colour set and whether the title shows.
+- Data: the Legends table and texts (11,100 bytes) at `0x09F90000`, in the 0xFF run at the ROM's end
+  (`0x09F82519`-`0x0A000000`). Code at `0x0802BF40` points at `0x09FE0000`, so the far end is left alone; the
+  pointer-looking words into `0x09F90000`-`0x09FA0000` are all odd-aligned noise in graphics and script data.
+- Found while tracing: Mew, Deoxys and Latias/Latios are set up through `setvar 0x8004 <species>` + a special,
+  not `setwildbattle`, so a script scan for battle commands misses them; the value 249 also shows up in every
+  Rock Smash rock's script (not Lugia).
+- Silhouettes: at build time each legend's party icon (`GetMonIconTiles` table `0x08F2A020`, species -> 32x32
+  4bpp, first frame) is cropped to the Pokémon, shrunk to fit 16x16 (a pixel is set when a third of the pixels
+  under it are), and stored twice, in the text colour and the dim colour: 128 bytes each, after the Legends
+  table. draw_list blits one at x=24 and moves the name to x=44 on that page only.
+- Tested (`test_questlog_legends.lua`) on the late-game save: 37/82 caught, seen-not-caught rows present (which
+  also proves case 1 is "caught"), hints and places open with A; the 94 Journal scenarios still 94/94; Start
+  menu R still opens the log.
+
+## QUEST LOG: KEY ITEMS CHAPTER — 2026-09-22
+- A sixth page (PAGES type 2): the 55 key items the scripts hand out, in story order, from
+  `patches/questlog/keyitems.py` {item, flag, name, hint, where}. Ticked when `CheckBagHasItem(item, 1)` or
+  `FlagGet(flag)` - the flag covers items that leave the Bag: Devon Goods 0x8F, Letter 0xBC, Meteorite 0x73
+  (the Journal's own flags), and pickups' object flags (Storage Key 0x44C, Dried Fish 0x4322, ...).
+  `ext_entry` picks the Legends or Key Items table by page type; the Key Items page has no silhouettes.
+- Data at `0x09F98000` (7,204 bytes), after the Legends' 32 KB and inside the checked window. The patcher asserts
+  each id is in the Key Items pocket.
+- `scripts.py` now indexes `copyvarifnotzero VAR_0x8000, <item>` (giveitem / finditem) as items. It also catches
+  trainers' Pokénav registration scripts, which put a trainer id in 0x8000 - so "Gold Teeth", "Tea", "TM Case",
+  a Route 116 "Meteorite" and similar are false hits; keyitems.py was checked by hand against each script's text.
+- Left out (no source in any script): the FireRed leftovers, the Abandoned Ship room keys, Red/Blue Orb 2, the
+  Wishing Chip and item 644. The Shiny Charm is a pickup the original hack put on Route 118 (flag 0x4022).
+- Scott (Battle Frontier house, script `0x082636A8`): with flag 0x5C unset, ANY one Silver Symbol (Tower 0x8C4,
+  Dome 0x8C6, Palace 0x8C8, Arena 0x8CA, Factory 0x8CC, Pyramid 0x8D0) jumps to `0x0987377A`, which gives item 173,
+  the Endorsement (699) and the AuroraTicket (371), then sets 0x5C, 0x04 and 0x8D5 (the ferry flag). The all-gold
+  branch (0x8C5..0x8D1) only gives item 174. The Key Items text first said "all seven gold Symbols" - wrong.
+- Key item names are always shown (asked for: some item icons are custom, the name is what identifies them).
+  Not got yet is status 8 - named, dim, empty box - and A gives `where` at once; the `hint` text is unused.
+- Tested (`test_questlog_keyitems.lua`): 38/55 on the late-game save, used-up items ticked via their flags;
+  94/94 Journal scenarios.
+
+## QUEST LOG: CHAPTER GRID, SIDE CONTENT, ULTRA BEASTS — 2026-09-22
+- The log opens on a chapter grid (V+3 mode 3). `draw_grid` draws cards 76 x 39 at x = 3 + col*79,
+  y = 3 + row*42 on backdrop colour 13: gold border (14) when selected, the card (1), corners repainted by
+  `corners` to round it, a 3 px stripe and a 16 x 16 icon in the chapter's colour (`ACCENT`, `GICONS`), a short
+  label (`GNAMES`: "Artifacts", "Side Quests" - the full names do not fit beside nothing on 76 px), done/total
+  right-aligned (green set COLORS+28 when complete). (A progress bar was tried and removed on request.)
+- Speed: counting every chapter (~90 dex checks, 55 bag checks, the Journal rows) on each cursor move made the
+  grid lag. `grid_count` now counts once when the grid is entered (open, B from a list) into V+0xC8..; a move
+  only redraws. Measured: the cursor byte changes the frame after the press.
+- Flashing border: the selected card's border is palette 15 colour 4 (the lists' selection bar, unused on the
+  grid); `grid_pulse` runs every frame in grid mode and every 4th frame LoadPalettes the next of 16 steps of
+  `PULSE` (gold <-> deep orange; white vanished against the cream card) - no redraw. Opening a chapter
+  LoadPalettes PAL[4] back. The task skips input and pulsing while a palette fade runs.
+  `rect(x, y, w, h; [sp] colour)` wraps FillWindowPixelRect. Palette 15 gained 13 backdrop, 14 gold, 15 purple.
+  Counting borrows V+0 (row_status reads the chapter from it) and restores the cursor. `grid_input`: D-pad
+  moves (Up/Down by 3), A runs `page_sel` and opens the list, B fades out. B in a list now returns to the grid
+  instead of closing. `NPAGES` / `NLAST` in questlog.s are substituted by the patcher (7 / 6); up to 9 fit.
+- Side Content (PAGES type 3), `patches/questlog/sidecontent.py`: {flag, name, where}, ticked by `FlagGet(flag)`,
+  names always shown (status 8 when not done), A shows `where`. Flags are the ones each script sets, from
+  the content audit (`tools/romdata/flag_audit.py`): Hisuian trades 0x0099/0x4327/0x4328/0x009B/0x009A/0x4329,
+  gifts, the Lv5 starters' encounter flags, side-story scene flags.
+- Legends now has the Ultra Beasts (the user counts them as mythical): Nihilego to Stakataka, 92 rows; each
+  Ultra Space map is reached from several wormholes, the row names the main Hoenn one (warps read from
+  maps.json events). Blacephalon is not in the game.
+- Data moved: Legends 0x09F90000 (36 KB), Key Items 0x09F9A000, Side Content 0x09F9C000 - all inside the
+  checked 0x09F90000-0x09FA0000 window; the patcher asserts the three do not overlap.
+- Tested: `test_questlog_grid.lua` (open, move, open Legends, back, open Side Content and a row, close);
+  Start menu R -> grid -> B back to the Start menu; `test_questlog.lua` (now presses A on the grid first) 94/94.

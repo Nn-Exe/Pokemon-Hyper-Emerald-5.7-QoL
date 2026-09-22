@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content Audit — Hyper Emerald v5.7 Guide</title>
+<meta name="description" content="Every flag the game's scripts set, sorted by what it does, and what the Journal covers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,700;100,800;100,900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+table.plain { border-collapse: collapse; width: 100%; margin: .5rem 0 1.25rem; }
+table.plain td, table.plain th { text-align: left; vertical-align: top; padding: .3rem .5rem; border-bottom: 1px solid var(--line, rgba(127,127,127,.2)); }
+details { margin: .25rem 0; }
+details ul { margin: .25rem 0 .75rem; }
+</style>
+</head>
+<body>
+<div class="shell">
+<main class="content">
+<div class="prose wide">
+<p class="eyebrow">Reference</p>
+<h1>Content audit</h1>
+<p class="lede">Every flag a script in the game sets - 934 of them, over every map - sorted by what it does, with
+what the Journal already follows. Read from the ROM's scripts, so it lists what the game can do, not what a
+wiki says. Battle-engine behaviour (level caps, difficulty rules) is code, not script, and is not here.</p>
+<h2 id="summary">In numbers</h2><table class="plain"><tr><th>Kind</th><th>Flags set by scripts</th><th>Followed by the Journal</th></tr>
+<tr><td>Scripted battles (legendaries, set pieces)</td><td>134</td><td>15</td></tr>
+<tr><td>Gift Pokémon</td><td>23</td><td>1</td></tr>
+<tr><td>Items given by script</td><td>11</td><td>1</td></tr>
+<tr><td>Trainer battles</td><td>212</td><td>34</td></tr>
+<tr><td>Story events and switches</td><td>554</td><td>42</td></tr>
+</table>
+<h2 id="side">Side content outside the Journal</h2>
+<h3>Hisuian trades</h3><p>Six people who slipped through time offer Hisuian forms in trade. None is in the Journal.</p><table class='plain'>
+<tr><td>Rustboro City</td><td>Hisuian Zorua (a gift fox turned them into something else)</td><td class='src'>0x0099</td></tr>
+<tr><td>Mauville City</td><td>Hisuian Voltorb ("a Poké Ball-like Pokémon")</td><td class='src'>0x4327</td></tr>
+<tr><td>Lavaridge Town</td><td>Hisuian Growlithe ("all I remember is living in Hisui")</td><td class='src'>0x4328</td></tr>
+<tr><td>Fortree City</td><td>Hisuian Sneasel ("this weasel is different")</td><td class='src'>0x009B</td></tr>
+<tr><td>Safari Zone</td><td>Hisuian Qwilfish ("thousand-needle fish")</td><td class='src'>0x009A</td></tr>
+<tr><td>Route 119</td><td>White-Striped Basculin ("feeding the Phantom Fish")</td><td class='src'>0x4329</td></tr>
+</table>
+<h3>Gift Pokémon</h3><p>Handed to you by a script.</p><table class='plain'>
+<tr><td>Littleroot Town</td><td>Return the Mega Bracelet: a choice of Giratina Lv80, Kyurem, Xerneas or Yveltal Lv50</td><td class='src'>0x4311</td></tr>
+<tr><td>Hearthome City</td><td>Meloetta Lv50, after its stage performance</td><td class='src'>0x4055</td></tr>
+<tr><td>Lilycove City</td><td>A choice of Galar Pokémon Lv15 (Corsola, Eiscue, Glastrier, Indeedee, Morpeko, Mr. Mime, …)</td><td class='src'>0x40B9</td></tr>
+<tr><td>Lilycove City</td><td>Meltan Lv5</td><td class='src'>0x40CA</td></tr>
+<tr><td>Battle Frontier</td><td>Kubfu or Rockruff Lv5</td><td class='src'>0x40F2, 0x42DB-0x42DD</td></tr>
+<tr><td>Ultra Space</td><td>Poipole Lv5</td><td class='src'>0x41BD</td></tr>
+<tr><td>Timeless Woods</td><td>Wimpod Lv10</td><td class='src'>0x41B7</td></tr>
+<tr><td>Hearthome City / Bell Tower</td><td>Let's Go Eevee or Pikachu Lv5</td><td class='src'>0x4307, 0x40CB</td></tr>
+<tr><td>Lavaridge Town</td><td>Pikachu Belle Lv5</td><td class='src'>0x408F</td></tr>
+<tr><td>Rustboro City</td><td>A fossil of your choice revived at Lv20</td><td class='src'>0x010B</td></tr>
+<tr><td>Valley Windworks</td><td>Drifloon Lv15</td><td class='src'>0x42DE-0x42E1</td></tr>
+<tr><td>Route 210</td><td>Magikarp Lv1</td><td class='src'>0x4118</td></tr>
+<tr><td>Mossdeep City</td><td>Beldum Lv5 (Steven's house)</td><td class='src'>0x012A</td></tr>
+</table>
+<h3>Legendary and mythical battles outside the Journal</h3><p>Scripted one-off encounters.</p><table class='plain'>
+<tr><td>Abandoned Ship</td><td>Dark Lugia Lv70</td><td class='src'>0x4095</td></tr>
+<tr><td>Artisan Cave</td><td>Jirachi Lv30</td><td class='src'>0x413A</td></tr>
+<tr><td>Ultra Space</td><td>Eternatus Lv50</td><td class='src'>0x4085</td></tr>
+<tr><td>Desert Ruins / Island Cave / Ancient Tomb</td><td>Regirock, Regice, Registeel Lv40</td><td class='src'>0x01BB-0x01BD</td></tr>
+<tr><td>Regigigas Temple</td><td>Regigigas Lv60</td><td class='src'>0x4065, 0x413B</td></tr>
+<tr><td>Terra Cave / Marine Cave</td><td>Groudon, Kyogre Lv70</td><td class='src'>0x01BF, 0x01BE</td></tr>
+<tr><td>Navel Rock / Route 128</td><td>Articuno, Zapdos, Moltres (Lv40, and Lv50 versions)</td><td class='src'>0x4070-0x4072, 0x40A4-0x40A6, 0x40AC</td></tr>
+<tr><td>Ancient Retreat</td><td>The God of Forms Lv70 (two more encounters)</td><td class='src'>0x0276, 0x0278</td></tr>
+<tr><td>Celestic Town</td><td>Dialga or Palkia Lv80 (a second encounter besides the Journal's)</td><td class='src'>0x40B1</td></tr>
+<tr><td>Mountain Top</td><td>Arceus Lv80 (the fight before the catch)</td><td class='src'>0x4080, 0x42FA</td></tr>
+<tr><td>Faraway Island / Southern Island</td><td>Mew; the Eon dream ("All dreams are but another reality")</td><td class='src'>0x01C7, 0x00CE</td></tr>
+<tr><td>Old Chateau</td><td>Gengar Lv66 in the cursed statue, Rotom Lv15 in the TV</td><td class='src'>0x432D, 0x4269</td></tr>
+</table>
+<h3>Other regions' starters</h3><p>Hidden one-off battles: Lv5 first stages and Lv50 final stages.</p><table class='plain'>
+<tr><td>Lv5</td><td>Snivy (Petalburg Woods), Oshawott (Abandoned Ship), Litten (Meteor Falls), Grookey (Mt. Silver), Scorbunny (Lake of Despair), Chespin (Remote Island), Chikorita (Timeless Woods), Cyndaquil (Bell Tower), Totodile (Whirl Islands)</td><td class='src'></td></tr>
+<tr><td>Lv50</td><td>Greninja, Inteleon (Artisan Cave), Delphox (Couriway Town), Emboar (Cerulean Cave), Decidueye, Venusaur (Giant Chasm), Primarina, Torterra, Blastoise (Remote Island), Charizard (Mt. Silver), Infernape (Whirl Islands), Empoleon (Underwater)</td><td class='src'></td></tr>
+</table>
+<h3>Strong one-off Pokémon</h3><p>Scripted battles, mostly post-game.</p><table class='plain'>
+<tr><td>Sinnoh Victory Road</td><td>Hydreigon, Salamence, Dragonite, Metagross Lv80</td><td class='src'>0x4249, 0x424B, 0x424C, 0x424F</td></tr>
+<tr><td>Sinnoh routes</td><td>Gyarados (203), Milotic (204), Haxorus (210), Aggron (211), Tyranitar (Oreburgh Gate), Lucario (Iron Island), Gallade and Gardevoir (Mt. Coronet) Lv80</td><td class='src'></td></tr>
+<tr><td>Sinnoh</td><td>Leafeon (Eterna Forest), Glaceon (Route 217), Rotom (Eterna City) Lv50</td><td class='src'></td></tr>
+<tr><td>Unova / Kalos areas</td><td>Garchomp (Desert Ruins), Volcarona Lv70, Zoroark (Magic Woods), Flygon, Aerodactyl Lv50</td><td class='src'></td></tr>
+<tr><td>Secret Bases</td><td>Alolan Totem Pokémon Lv80, one per base (part of the Z-Crystal hunt the Journal names)</td><td class='src'>0x4003-0x4011, 0x4140, 0x413F, 0x432C</td></tr>
+</table>
+<h3>Side stories</h3><p>Short scripted scenes and quests the Journal does not name.</p><table class='plain'>
+<tr><td>Route 102</td><td>Red and Blue corner Buzzwole at an Ultra Wormhole</td><td class='src'>0x42A3-0x42A6</td></tr>
+<tr><td>Terra Cave / Marine Cave</td><td>A familiar voice losing to someone who controls the weather</td><td class='src'>0x41DF, 0x41DE, 0x40F8</td></tr>
+<tr><td>Shoal Cave</td><td>Tate and Liza against the Shadow Triad: take the last one</td><td class='src'>0x42B7</td></tr>
+<tr><td>New Mauville</td><td>Someone behind the generator trouble</td><td class='src'>0x42B3</td></tr>
+<tr><td>Petalburg Woods</td><td>A mysterious mentor who teaches you about battles ("you were chosen by it")</td><td class='src'>0x4165</td></tr>
+<tr><td>Couriway Town</td><td>The hotel: a talisman, a suite for ¥10,000, the furnace</td><td class='src'>0x40A8, 0x41AC, 0x4145</td></tr>
+<tr><td>Mauville City</td><td>Save the lady's Skitty; the bike exam with Renli (Eterna City)</td><td class='src'>0x42A7, 0x42A9, 0x4264, 0x4265</td></tr>
+<tr><td>Old Chateau</td><td>The murder on the TV and the grudge in the statue (open-ended)</td><td class='src'>0x4266-0x4269, 0x432D</td></tr>
+<tr><td>Meteor Temple / Meteor Falls</td><td>Zinnia's grandmother on the Draconids; a former Dragon Tamer</td><td class='src'>0x4139, 0x432A</td></tr>
+<tr><td>Sinnoh League</td><td>Lucas and Barry greet you; Barry waits in Twinleaf Town for a battle</td><td class='src'>0x40CE</td></tr>
+<tr><td>Route 110 / Desert Underpass</td><td>A timed cycling run; a vibration in the depths</td><td class='src'>0x40CC, 0x40CD</td></tr>
+</table>
+<h2 id="battles">Every scripted battle and gift</h2><p>From the scripts; "J" is the Journal objective that covers it.</p><table class="plain"><tr><th>Where</th><th>Kind</th><th>Pokémon</th><th>Flag</th><th>J</th></tr>
+<tr><td>Abandoned Ship</td><td>encounter</td><td>Pikachu Lv34</td><td class='src'>0x0447</td><td></td></tr>
+<tr><td>Abandoned Ship</td><td>encounter</td><td>Dark Lugia Lv70</td><td class='src'>0x4095</td><td></td></tr>
+<tr><td>Abandoned Ship</td><td>encounter</td><td>Spiritomb Lv50</td><td class='src'>0x0436</td><td></td></tr>
+<tr><td>Abandoned Ship</td><td>encounter</td><td>Oshawott Lv21</td><td class='src'>0x044D</td><td></td></tr>
+<tr><td>Allearth Forest</td><td>encounter</td><td>Articuno Lv40, Bewear Lv80, Golisopod Lv80, Gumshoos Lv80, Kommo-o Lv80, Lurantis Lv80, Lycanroc Lv80, Marowak Lv80, Mimikyu Lv80, Moltres Lv40, Mudsdale Lv80, </td><td class='src'>0x0273</td><td></td></tr>
+<tr><td>Ancient Retreat</td><td>encounter</td><td>{CN010D}{CN09BE}{CN09A0}{CN091F}{CN0CAB} Lv70</td><td class='src'>0x0276</td><td></td></tr>
+<tr><td>Ancient Retreat</td><td>encounter</td><td>{CN010D}{CN09BE}{CN09A0}{CN091F}{CN0CAB} Lv70</td><td class='src'>0x0278</td><td></td></tr>
+<tr><td>Ancient Tomb</td><td>encounter</td><td>Registeel Lv40</td><td class='src'>0x01BD</td><td></td></tr>
+<tr><td>Aqua Hideout</td><td>encounter</td><td>Electrode Lv30</td><td class='src'>0x01C4</td><td></td></tr>
+<tr><td>Aqua Hideout</td><td>encounter</td><td>Electrode Lv30</td><td class='src'>0x01C5</td><td></td></tr>
+<tr><td>Aqua Hideout</td><td>encounter</td><td>Sharpedo Lv50</td><td class='src'>0x40F3</td><td></td></tr>
+<tr><td>Artisan Cave</td><td>encounter</td><td>Jirachi Lv30</td><td class='src'>0x413A</td><td></td></tr>
+<tr><td>Artisan Cave</td><td>encounter</td><td>Inteleon Lv50</td><td class='src'>0x048A</td><td></td></tr>
+<tr><td>Artisan Cave</td><td>encounter</td><td>Greninja Lv50</td><td class='src'>0x4137</td><td></td></tr>
+<tr><td>Battle Frontier</td><td>gift</td><td>Kubfu Lv5, Rockruff Lv5</td><td class='src'>0x40F2</td><td></td></tr>
+<tr><td>Battle Frontier</td><td>gift</td><td>Kubfu Lv5, Rockruff Lv5</td><td class='src'>0x42DB</td><td></td></tr>
+<tr><td>Battle Frontier</td><td>gift</td><td>Kubfu Lv5, Rockruff Lv5</td><td class='src'>0x42DC</td><td></td></tr>
+<tr><td>Battle Frontier</td><td>gift</td><td>Kubfu Lv5, Rockruff Lv5</td><td class='src'>0x42DD</td><td></td></tr>
+<tr><td>Bell Tower</td><td>gift</td><td>Eevee-LG Lv5, Pikachu-LG Lv5</td><td class='src'>0x40CB</td><td></td></tr>
+<tr><td>Bell Tower</td><td>encounter</td><td>Cyndaquil Lv5</td><td class='src'>0x41C6</td><td></td></tr>
+<tr><td>Celestic Town</td><td>encounter</td><td>Dialga Lv80, Palkia Lv80</td><td class='src'>0x40B1</td><td></td></tr>
+<tr><td>Celestic Town</td><td>encounter</td><td>Dialga Lv80, Palkia Lv80</td><td class='src'>0x42D8</td><td>67</td></tr>
+<tr><td>Cerulean Cave</td><td>encounter</td><td>Mewtwo Lv50</td><td class='src'>0x407C</td><td>37</td></tr>
+<tr><td>Cerulean Cave</td><td>encounter</td><td>Emboar Lv50</td><td class='src'>0x4190</td><td></td></tr>
+<tr><td>Couriway Town</td><td>encounter</td><td>Delphox Lv50</td><td class='src'>0x4133</td><td></td></tr>
+<tr><td>Desert Ruins</td><td>encounter</td><td>Regirock Lv40</td><td class='src'>0x01BB</td><td></td></tr>
+<tr><td>Desert Ruins</td><td>encounter</td><td>Garchomp Lv50</td><td class='src'>0x415F</td><td></td></tr>
+<tr><td>Desert Ruins</td><td>encounter</td><td>Volcarona Lv70</td><td class='src'>0x420B</td><td></td></tr>
+<tr><td>Distortion World</td><td>encounter</td><td>Giratina Lv80</td><td class='src'>0x42BC</td><td>48</td></tr>
+<tr><td>Eterna City</td><td>encounter</td><td>Rotom Lv50</td><td class='src'>0x4228</td><td></td></tr>
+<tr><td>Eterna Forest</td><td>encounter</td><td>Leafeon Lv50</td><td class='src'>0x420A</td><td></td></tr>
+<tr><td>Fiery Path</td><td>encounter</td><td>Ninetales Lv34</td><td class='src'>0x0457</td><td></td></tr>
+<tr><td>Giant Chasm</td><td>encounter</td><td>Decidueye Lv50</td><td class='src'>0x42BE</td><td></td></tr>
+<tr><td>Giant Chasm</td><td>encounter</td><td>Venusaur Lv50</td><td class='src'>0x42C1</td><td></td></tr>
+<tr><td>Granite Cave</td><td>encounter</td><td>Golem Lv30</td><td class='src'>0x041B</td><td></td></tr>
+<tr><td>Hearthome City</td><td>gift</td><td>Meloetta Lv50</td><td class='src'>0x4055</td><td></td></tr>
+<tr><td>Hearthome City</td><td>gift</td><td>Eevee-LG Lv5, Pikachu-LG Lv5</td><td class='src'>0x4307</td><td></td></tr>
+<tr><td>Hisui Region</td><td>encounter</td><td>Enamorus Lv50</td><td class='src'>0x4318</td><td>73</td></tr>
+<tr><td>Hisui Region</td><td>encounter</td><td>Enamorus Lv50</td><td class='src'>0x4319</td><td>81</td></tr>
+<tr><td>Ice Maze</td><td>encounter</td><td>Articuno Lv40, Bewear Lv80, Flygon Lv70, Golisopod Lv80, Gumshoos Lv80, Kommo-o Lv80, Lurantis Lv80, Lycanroc Lv80, Marowak Lv80, Mimikyu Lv80, Moltres Lv40, Mu</td><td class='src'>0x0272</td><td></td></tr>
+<tr><td>Ice Maze</td><td>encounter</td><td>Flygon Lv70</td><td class='src'>0x4160</td><td></td></tr>
+<tr><td>Iron Island</td><td>encounter</td><td>Lucario Lv80</td><td class='src'>0x4248</td><td></td></tr>
+<tr><td>Island Cave</td><td>encounter</td><td>Regice Lv40</td><td class='src'>0x01BC</td><td></td></tr>
+<tr><td>Lake of Despair</td><td>encounter</td><td>Scorbunny Lv5</td><td class='src'>0x40EA</td><td></td></tr>
+<tr><td>Lavaridge Town</td><td>gift</td><td>Pika Belle Lv5</td><td class='src'>0x408F</td><td></td></tr>
+<tr><td>Lilycove City</td><td>gift</td><td>Meltan Lv5</td><td class='src'>0x40CA</td><td></td></tr>
+<tr><td>Lilycove City</td><td>gift</td><td>Corsola Lv15, Eiscue Lv15, Glastrier Lv15, Indeedee Lv15, Morpeko Lv15, Mr. Mime Lv15, Spectrier Lv15, Stunfisk Lv15, Weezing Lv15</td><td class='src'>0x40B9</td><td></td></tr>
+<tr><td>Littleroot Town</td><td>gift</td><td>Giratina Lv80, Kyurem Lv50, Xerneas Lv50, Yveltal Lv50</td><td class='src'>0x4311</td><td></td></tr>
+<tr><td>Magic Woods</td><td>encounter</td><td>Zoroark Lv50</td><td class='src'>0x42ED</td><td></td></tr>
+<tr><td>Marine Cave</td><td>encounter</td><td>Kyogre Lv70</td><td class='src'>0x01BE</td><td></td></tr>
+<tr><td>Meteor Falls</td><td>encounter</td><td>Litten Lv5</td><td class='src'>0x0415</td><td></td></tr>
+<tr><td>Meteor Falls</td><td>encounter</td><td>Cosmog Lv15, Cosmog Lv15</td><td class='src'>0x411E</td><td>36</td></tr>
+<tr><td>Mirage Tower</td><td>encounter</td><td>Cosmog Lv15, Cosmog Lv15</td><td class='src'>0x41E0</td><td></td></tr>
+<tr><td>Mirage Tower</td><td>encounter</td><td>Cosmog Lv15, Cosmog Lv15</td><td class='src'>0x42C7</td><td>54</td></tr>
+<tr><td>Moonbow Dome</td><td>encounter</td><td>{CN010D}{CN09BE}{CN09A0}{CN091F}{CN0CAB} Lv70</td><td class='src'>0x4323</td><td>83</td></tr>
+<tr><td>Mossdeep City</td><td>gift</td><td>Beldum Lv5</td><td class='src'>0x012A</td><td></td></tr>
+<tr><td>Mossdeep City</td><td>gift</td><td>Beldum Lv5</td><td class='src'>0x03C8</td><td></td></tr>
+<tr><td>Mountain Top</td><td>encounter</td><td>Arceus Lv80, Arceus Lv80</td><td class='src'>0x4080</td><td></td></tr>
+<tr><td>Mountain Top</td><td>encounter</td><td>Arceus Lv80, Arceus Lv80</td><td class='src'>0x42FA</td><td></td></tr>
+<tr><td>Mountain Top</td><td>encounter</td><td>Arceus Lv80, Arceus Lv80</td><td class='src'>0x42FB</td><td>66</td></tr>
+<tr><td>Mt. Coronet</td><td>encounter</td><td>Gallade Lv80</td><td class='src'>0x4256</td><td></td></tr>
+<tr><td>Mt. Coronet</td><td>encounter</td><td>Gardevoir Lv80</td><td class='src'>0x42D7</td><td></td></tr>
+<tr><td>Mt. Pyre</td><td>encounter</td><td>Duskull Lv32</td><td class='src'>0x0460</td><td></td></tr>
+<tr><td>Mt. Pyre</td><td>encounter</td><td>Absol Lv48</td><td class='src'>0x0431</td><td></td></tr>
+<tr><td>Mt. Silver</td><td>encounter</td><td>Charizard Lv50</td><td class='src'>0x40B5</td><td></td></tr>
+<tr><td>Mt. Silver</td><td>encounter</td><td>Grookey Lv5</td><td class='src'>0x40B8</td><td></td></tr>
+<tr><td>Navel Rock</td><td>encounter</td><td>Articuno Lv40, Moltres Lv40, Moltres Lv50, Zapdos Lv40</td><td class='src'>0x4070</td><td></td></tr>
+<tr><td>Navel Rock</td><td>encounter</td><td>Articuno Lv40, Moltres Lv40, Moltres Lv50, Zapdos Lv40</td><td class='src'>0x40A4</td><td></td></tr>
+<tr><td>Navel Rock</td><td>encounter</td><td>Articuno Lv40, Articuno Lv50, Moltres Lv40, Zapdos Lv40</td><td class='src'>0x4072</td><td></td></tr>
+<tr><td>Navel Rock</td><td>encounter</td><td>Articuno Lv40, Articuno Lv50, Moltres Lv40, Zapdos Lv40</td><td class='src'>0x40A6</td><td></td></tr>
+<tr><td>Navel Rock</td><td>encounter</td><td>Articuno Lv40, Moltres Lv40, Zapdos Lv40, Zapdos Lv50</td><td class='src'>0x4071</td><td></td></tr>
+<tr><td>Navel Rock</td><td>encounter</td><td>Articuno Lv40, Moltres Lv40, Zapdos Lv40, Zapdos Lv50</td><td class='src'>0x40A5</td><td></td></tr>
+<tr><td>New Mauville</td><td>encounter</td><td>Voltorb Lv25</td><td class='src'>0x01C1</td><td></td></tr>
+<tr><td>New Mauville</td><td>encounter</td><td>Voltorb Lv25</td><td class='src'>0x01C2</td><td></td></tr>
+<tr><td>New Mauville</td><td>encounter</td><td>Voltorb Lv25</td><td class='src'>0x01C3</td><td></td></tr>
+<tr><td>New Mauville</td><td>encounter</td><td>Luxray Lv42</td><td class='src'>0x0433</td><td></td></tr>
+<tr><td>Old Chateau</td><td>encounter</td><td>Gengar Lv66</td><td class='src'>0x432D</td><td></td></tr>
+<tr><td>Old Chateau</td><td>encounter</td><td>Rotom Lv15</td><td class='src'>0x4269</td><td></td></tr>
+<tr><td>Oreburgh Gate</td><td>encounter</td><td>Tyranitar Lv80</td><td class='src'>0x423E</td><td></td></tr>
+<tr><td>Petalburg Woods</td><td>encounter</td><td>Snivy Lv5</td><td class='src'>0x045D</td><td></td></tr>
+<tr><td>Regigigas Temple</td><td>encounter</td><td>Flygon Lv50</td><td class='src'>0x4250</td><td></td></tr>
+<tr><td>Regigigas Temple</td><td>encounter</td><td>Regigigas Lv60</td><td class='src'>0x4065</td><td></td></tr>
+<tr><td>Regigigas Temple</td><td>encounter</td><td>Regigigas Lv60</td><td class='src'>0x413B</td><td></td></tr>
+<tr><td>Remote Island</td><td>encounter</td><td>Primarina Lv50</td><td class='src'>0x417C</td><td></td></tr>
+<tr><td>Remote Island</td><td>encounter</td><td>Torterra Lv50</td><td class='src'>0x4184</td><td></td></tr>
+<tr><td>Remote Island</td><td>encounter</td><td>Lapras Lv50</td><td class='src'>0x4187</td><td></td></tr>
+<tr><td>Remote Island</td><td>encounter</td><td>Chespin Lv5</td><td class='src'>0x4189</td><td></td></tr>
+<tr><td>Remote Island</td><td>encounter</td><td>Blastoise Lv50</td><td class='src'>0x4181</td><td></td></tr>
+<tr><td>Rocket Hideout</td><td>encounter</td><td>Eevee Lv15</td><td class='src'>0x410A</td><td></td></tr>
+<tr><td>Route 103</td><td>encounter</td><td>Wingull Lv16</td><td class='src'>0x045A</td><td></td></tr>
+<tr><td>Route 104</td><td>encounter</td><td>Skitty Lv10</td><td class='src'>0x045B</td><td></td></tr>
+<tr><td>Route 108</td><td>encounter</td><td>Azumarill Lv32</td><td class='src'>0x0473</td><td></td></tr>
+<tr><td>Route 110</td><td>encounter</td><td>Poochyena Lv18</td><td class='src'>0x0475</td><td></td></tr>
+<tr><td>Route 111</td><td>encounter</td><td>Wishiwashi Lv80</td><td class='src'>0x03C0</td><td></td></tr>
+<tr><td>Route 114</td><td>encounter</td><td>Miltank Lv36</td><td class='src'>0x0488</td><td></td></tr>
+<tr><td>Route 115</td><td>encounter</td><td>Altaria Lv48</td><td class='src'>0x0478</td><td></td></tr>
+<tr><td>Route 116</td><td>encounter</td><td>Buneary Lv10</td><td class='src'>0x047A</td><td></td></tr>
+<tr><td>Route 117</td><td>encounter</td><td>Combee Lv26</td><td class='src'>0x03FE</td><td></td></tr>
+<tr><td>Route 119</td><td>encounter</td><td>Scyther Lv40</td><td class='src'>0x0400</td><td></td></tr>
+<tr><td>Route 119</td><td>gift</td><td>Castform Lv25</td><td class='src'>0x0097</td><td>13</td></tr>
+<tr><td>Route 119</td><td>gift</td><td>Castform Lv25</td><td class='src'>0x037A</td><td></td></tr>
+<tr><td>Route 119</td><td>gift</td><td>Castform Lv25</td><td class='src'>0x03E0</td><td></td></tr>
+<tr><td>Route 120</td><td>encounter</td><td>Kecleon Lv30</td><td class='src'>0x011D</td><td></td></tr>
+<tr><td>Route 120</td><td>encounter</td><td>Kecleon Lv30</td><td class='src'>0x0122</td><td></td></tr>
+<tr><td>Route 121</td><td>encounter</td><td>Pidgeot Lv40</td><td class='src'>0x044F</td><td></td></tr>
+<tr><td>Route 123</td><td>encounter</td><td>Pachirisu Lv32</td><td class='src'>0x0418</td><td></td></tr>
+<tr><td>Route 127</td><td>encounter</td><td>Staraptor Lv48</td><td class='src'>0x040A</td><td></td></tr>
+<tr><td>Route 128</td><td>encounter</td><td>Articuno Lv40, Moltres Lv40, Zapdos Lv40</td><td class='src'>0x40AC</td><td></td></tr>
+<tr><td>Route 203</td><td>encounter</td><td>Gyarados Lv80</td><td class='src'>0x4201</td><td></td></tr>
+<tr><td>Route 204</td><td>encounter</td><td>Milotic Lv80</td><td class='src'>0x4205</td><td></td></tr>
+<tr><td>Route 210</td><td>gift</td><td>Magikarp Lv1</td><td class='src'>0x4118</td><td></td></tr>
+<tr><td>Route 210</td><td>encounter</td><td>Haxorus Lv80</td><td class='src'>0x4214</td><td></td></tr>
+<tr><td>Route 211</td><td>encounter</td><td>Aggron Lv80</td><td class='src'>0x421A</td><td></td></tr>
+<tr><td>Route 217</td><td>encounter</td><td>Glaceon Lv50</td><td class='src'>0x422D</td><td></td></tr>
+<tr><td>Rustboro City</td><td>gift</td><td>Aerodactyl Lv20, Amaura Lv20, Anorith Lv20, Archen Lv20, Cranidos Lv20, Kabuto Lv20, Lileep Lv20, Omanyte Lv20, Shieldon Lv20, Tirtouga Lv20, Tyrunt Lv20</td><td class='src'>0x010B</td><td></td></tr>
+<tr><td>Rusturf Tunnel</td><td>encounter</td><td>Whismur Lv16</td><td class='src'>0x0481</td><td></td></tr>
+<tr><td>Safari Zone</td><td>encounter</td><td>Tapu Lele Lv50</td><td class='src'>0x406A</td><td>40</td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Gumshoos Lv80</td><td class='src'>0x413F</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Marowak Lv80</td><td class='src'>0x432C</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Bewear Lv80</td><td class='src'>0x4006</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Salazzle Lv80</td><td class='src'>0x4007</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Mudsdale Lv80</td><td class='src'>0x4008</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Toucannon Lv80</td><td class='src'>0x4009</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Oranguru Lv80</td><td class='src'>0x400A</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Golisopod Lv80</td><td class='src'>0x400B</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Lycanroc Lv80</td><td class='src'>0x400C</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Palossand Lv80</td><td class='src'>0x400D</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Kommo-o Lv80</td><td class='src'>0x400E</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Raticate Lv80</td><td class='src'>0x400F</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Sandslash Lv80</td><td class='src'>0x4010</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Mimikyu Lv80</td><td class='src'>0x4011</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Wishiwashi Lv80</td><td class='src'>0x41A2</td><td>39</td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Vikavolt Lv80</td><td class='src'>0x4003</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Lurantis Lv80</td><td class='src'>0x4140</td><td></td></tr>
+<tr><td>Secret Base</td><td>encounter</td><td>Ninetales Lv80</td><td class='src'>0x4005</td><td></td></tr>
+<tr><td>Sky Pillar</td><td>encounter</td><td>Rayquaza Lv50, Rayquaza Lv50</td><td class='src'>0x0050</td><td></td></tr>
+<tr><td>Sky Pillar</td><td>encounter</td><td>Rayquaza Lv50, Rayquaza Lv50</td><td class='src'>0x01C0</td><td>33</td></tr>
+<tr><td>Strange Island</td><td>encounter</td><td>Tapu Bulu Lv50</td><td class='src'>0x406D</td><td>40</td></tr>
+<tr><td>Strange Island</td><td>encounter</td><td>Tapu Koko Lv50</td><td class='src'>0x406B</td><td>40</td></tr>
+<tr><td>Strange Island</td><td>encounter</td><td>Tapu Fini Lv50</td><td class='src'>0x406C</td><td>40</td></tr>
+<tr><td>Terminus Cave</td><td>encounter</td><td>Aerodactyl Lv50</td><td class='src'>0x41C1</td><td></td></tr>
+<tr><td>Terra Cave</td><td>encounter</td><td>Groudon Lv70</td><td class='src'>0x01BF</td><td></td></tr>
+<tr><td>Timeless Woods</td><td>gift</td><td>Wimpod Lv10</td><td class='src'>0x41B7</td><td></td></tr>
+<tr><td>Timeless Woods</td><td>encounter</td><td>Chikorita Lv5</td><td class='src'>0x4321</td><td></td></tr>
+<tr><td>Ultra Space</td><td>gift</td><td>Poipole Lv5</td><td class='src'>0x41BD</td><td></td></tr>
+<tr><td>Ultra Space</td><td>encounter</td><td>Eternatus Lv50</td><td class='src'>0x4085</td><td></td></tr>
+<tr><td>Underwater</td><td>encounter</td><td>Empoleon Lv50</td><td class='src'>0x4320</td><td></td></tr>
+<tr><td>Valley Windworks</td><td>gift</td><td>Drifloon Lv15</td><td class='src'>0x42DE</td><td></td></tr>
+<tr><td>Valley Windworks</td><td>gift</td><td>Drifloon Lv15</td><td class='src'>0x42E0</td><td></td></tr>
+<tr><td>Valley Windworks</td><td>gift</td><td>Drifloon Lv15</td><td class='src'>0x42E1</td><td></td></tr>
+<tr><td>Victory Road</td><td>encounter</td><td>Chansey Lv50</td><td class='src'>0x043F</td><td></td></tr>
+<tr><td>Victory Road</td><td>encounter</td><td>Hydreigon Lv80</td><td class='src'>0x4249</td><td></td></tr>
+<tr><td>Victory Road</td><td>encounter</td><td>Salamence Lv80</td><td class='src'>0x424B</td><td></td></tr>
+<tr><td>Victory Road</td><td>encounter</td><td>Dragonite Lv80</td><td class='src'>0x424C</td><td></td></tr>
+<tr><td>Victory Road</td><td>encounter</td><td>Metagross Lv80</td><td class='src'>0x424F</td><td></td></tr>
+<tr><td>Whirl Islands</td><td>encounter</td><td>Totodile Lv5</td><td class='src'>0x4088</td><td></td></tr>
+<tr><td>Whirl Islands</td><td>encounter</td><td>Infernape Lv50</td><td class='src'>0x409F</td><td></td></tr>
+</table>
+<h2 id="events">Every other story flag the Journal does not follow, by area</h2><p>Mostly the original Emerald: cutscenes that play once, NPCs who appear or leave, one-time gifts of items and TMs. The first line each script says is shown; flags with no text are switches (doors, hidden NPCs).</p>
+<details><summary>Littleroot Town <span class='src'>(51)</span></summary><ul>
+<li><span class='src'>0x0051</span> Mom: you, how do you like your new room? Good! Everything's put away neatly! They finished moving everything in downstairs, too. Pokémon movers are so convenien</li>
+<li><span class='src'>0x0057</span> Oh, hello. And you are? … … … … … … … … … … … … … … … … … … Oh, you're you, our new next-door neighbor! Hi! We have a … about the same age as you. Our … was exc</li>
+<li><span class='src'>0x0058</span> Hunh? Prof. Birch? The Prof's away on fieldwork. Ergo, he isn't here. Oh, let me explain what fieldwork is. It is to study things in the natural environment, li</li>
+<li><span class='src'>0x0072</span> Prof. Birch: Now… you and {RIVAL}, I've had the two of you help me study Pokémon. Thanks to your help, new facts are coming to light. It appears that in the Hoe</li>
+<li><span class='src'>0x0074</span> Prof. Birch: Oh, hi, you! I heard you beat {RIVAL} on your first try. That's excellent! {RIVAL}'s been helping with my research for a long time. {RIVAL} has an </li>
+<li><span class='src'>0x0085</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x00AE</span> <em>switch</em></li>
+<li><span class='src'>0x00AF</span> <em>switch</em></li>
+<li><span class='src'>0x00B0</span> <em>switch</em></li>
+<li><span class='src'>0x00B1</span> <em>switch</em></li>
+<li><span class='src'>0x00B2</span> <em>switch</em></li>
+<li><span class='src'>0x00B3</span> <em>switch</em></li>
+<li><span class='src'>0x00B4</span> <em>switch</em></li>
+<li><span class='src'>0x00B5</span> <em>switch</em></li>
+<li><span class='src'>0x00B6</span> <em>switch</em></li>
+<li><span class='src'>0x00B7</span> <em>switch</em></li>
+<li><span class='src'>0x00B8</span> <em>switch</em></li>
+<li><span class='src'>0x00B9</span> <em>switch</em></li>
+<li><span class='src'>0x00BA</span> <em>switch</em></li>
+<li><span class='src'>0x00BB</span> <em>switch</em></li>
+<li><span class='src'>0x00D8</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x00FF</span> Dad: Hm? Hey, it's you! It's been a while since I saw you, but you look…stronger, somehow. That's the impression I get. But your old man hasn't given up yet! Oh</li>
+<li><span class='src'>0x0112</span> Mom: you! you! Did you introduce yourself to Prof. Birch? Oh! What an adorable Pokémon! You got it from Prof. Birch. How nice! You're your father's child, all r</li>
+<li><span class='src'>0x0119</span> Prof. Birch: Oh, you! I've already heard about you! It seems your Pokénav's been upgraded with Match Call. Well, I should register, too! That way, I'd be able t</li>
+<li><span class='src'>0x0123</span> Dad: Hm? Hey, it's you! It's been a while since I saw you, but you look…stronger, somehow. That's the impression I get. But your old man hasn't given up yet! Oh</li>
+<li><span class='src'>0x0125</span> Pokémon fully restored! Items ready, and…</li>
+<li><span class='src'>0x012D</span> <em>switch</em></li>
+<li><span class='src'>0x0264</span> Rules for the Pokémon Gym.</li>
+<li><span class='src'>0x0268</span> Rules for the Pokémon Gym.</li>
+<li><span class='src'>0x02D1</span> <em>switch</em></li>
+<li><span class='src'>0x02DF</span> Just now…was that a dream?</li>
+<li><span class='src'>0x02E0</span> Just now…was that a dream?</li>
+<li><span class='src'>0x02E9</span> Hey! You… Who are you? Oh, you're you, aren't you? Moved in next door, right? I didn't know that you're a girl. Dad, Prof. Birch, said that our new next-door ne</li>
+<li><span class='src'>0x02EA</span> Huh? Who… Who are you? … … … … … … … … … … … … … … … … Oh, you're you. So your move was today. Um… I'm May. Glad to meet you! I… I have this dream of becoming f</li>
+<li><span class='src'>0x02F0</span> Mom: you, we're here, honey! It must be tiring riding with our things in the moving truck. Well, this is Littleroot Town. How do you like it? This is our new ho</li>
+<li><span class='src'>0x02F2</span> Mom: you, how do you like your new room? Good! Everything's put away neatly! They finished moving everything in downstairs, too. Pokémon movers are so convenien</li>
+<li><span class='src'>0x02F3</span> Mom: you, how do you like your new room? Good! Everything's put away neatly! They finished moving everything in downstairs, too. Pokémon movers are so convenien</li>
+<li><span class='src'>0x02F6</span> Just now…was that a dream?</li>
+<li><span class='src'>0x02F7</span> Just now…was that a dream?</li>
+<li><span class='src'>0x02F9</span> Mom: you, we're here, honey! It must be tiring riding with our things in the moving truck. Well, this is Littleroot Town. How do you like it? This is our new ho</li>
+<li><span class='src'>0x02FA</span> Mom: you, we're here, honey! It must be tiring riding with our things in the moving truck. Well, this is Littleroot Town. How do you like it? This is our new ho</li>
+<li><span class='src'>0x0310</span> Just now…was that a dream?</li>
+<li><span class='src'>0x0311</span> Just now…was that a dream?</li>
+<li><span class='src'>0x031A</span> Prof. Birch: Now… you and {RIVAL}, I've had the two of you help me study Pokémon. Thanks to your help, new facts are coming to light. It appears that in the Hoe</li>
+<li><span class='src'>0x031B</span> Prof. Birch: Now… you and {RIVAL}, I've had the two of you help me study Pokémon. Thanks to your help, new facts are coming to light. It appears that in the Hoe</li>
+<li><span class='src'>0x0331</span> Hey! You… Who are you? Oh, you're you, aren't you? Moved in next door, right? I didn't know that you're a girl. Dad, Prof. Birch, said that our new next-door ne</li>
+<li><span class='src'>0x0332</span> Huh? Who… Who are you? … … … … … … … … … … … … … … … … Oh, you're you. So your move was today. Um… I'm May. Glad to meet you! I… I have this dream of becoming f</li>
+<li><span class='src'>0x0380</span> <em>switch</em></li>
+<li><span class='src'>0x0381</span> <em>switch</em></li>
+<li><span class='src'>0x0382</span> <em>switch</em></li>
+<li><span class='src'>0x03D3</span> May: you! Over here! Let's hurry home!</li>
+</ul></details>
+<details><summary>Steven's Island <span class='src'>(40)</span></summary><ul>
+<li><span class='src'>0x02EF</span> Incoming Call Wally: Congrats you, on becoming the Champion, I didn't expect that. I am in Petalburg City, I came home, but I plan on returning to Victory Road </li>
+<li><span class='src'>0x40B4</span> ???: Hey! Stop! Now!</li>
+<li><span class='src'>0x40C9</span> While investigating the Ultra Wormholes, we discovered a book that exudes Ultra Space aura. We think it records coordinates of the locations where each Ultra Wo</li>
+<li><span class='src'>0x40F9</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x411B</span> Welcome to Steven's private island, we are responsible for guarding this place.</li>
+<li><span class='src'>0x4150</span> You've finally came, you! Mr. Steven and Mr. Wallace are working with the detectives on the ultra wormhole countermeasures. Hurry up and join the meeting, this </li>
+<li><span class='src'>0x4151</span> Anabel: You're here, you. This place will be our headquarters for the time being. Thanks to Mr. Steven for providing us with the mansion.</li>
+<li><span class='src'>0x4152</span> Steven: Well…that's what happened. After the portal closed, communications returned to normal. Nanu: Hmm…I see. The girl you rescued is called Lillie. She's the</li>
+<li><span class='src'>0x4154</span> Steven's quarters are ahead. No one may enter!</li>
+<li><span class='src'>0x415D</span> No entry allowed without Mr. Steven's permission!</li>
+<li><span class='src'>0x4164</span> Prof. Oak: These are the reports. Please deliver them to your father… The Pokémon you and you found has been identified, Cosmog. They were called star children </li>
+<li><span class='src'>0x416A</span> Gladion: The Alola Region is also investigating a stable crossing of the Ultra Wormholes. And how to deal with the Ultra Beasts. I'll contact you if anything co</li>
+<li><span class='src'>0x416D</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x419E</span> Anabel: you, you're back just in time! There's trouble deep inside Meteor Falls… Steven is still there, but we can't contact him. It's chaotic in there…like an </li>
+<li><span class='src'>0x41A3</span> Nanu: Are you ready to go investigate Tapu Bulu?</li>
+<li><span class='src'>0x41A4</span> Nanu: Are you ready to go investigate Tapu Bulu?</li>
+<li><span class='src'>0x41A6</span> I'll lend you this thing, someday you'll have this power, use it and try to break my nightmare!</li>
+<li><span class='src'>0x41A8</span> I'm ChipApartment, currently in charge of systems development. I hope you all enjoy the Transfer and Dynamax systems. Finishing them was no small feat, haha. Sp</li>
+<li><span class='src'>0x41A9</span> Counterclockwise: ......</li>
+<li><span class='src'>0x41AA</span> Hm? Oh, you haven't caught enough Pokémon to make it worthwhile.</li>
+<li><span class='src'>0x41AE</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x41BE</span> Anabel: you, you're back just in time! There's trouble deep inside Meteor Falls… Steven is still there, but we can't contact him. It's chaotic in there…like an </li>
+<li><span class='src'>0x41D6</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41D7</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41D8</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41D9</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41DA</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41DB</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41DC</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41DD</span> Devon Scout: Well…Steven is currently… investigating the magnetic field found inside Meteor Falls… you, you should go over there and help with the investigation</li>
+<li><span class='src'>0x41E2</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x41E3</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x41E4</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x41E5</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x41E6</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x41E7</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x41E8</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+<li><span class='src'>0x42CC</span> ???: Ah, you are you! I heard about you from Mr. Nanu. It's amazing how much you've achieved at such a young age! Ah, I forgot to introduce myself. I'm also a m</li>
+<li><span class='src'>0x42F2</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x4326</span> Lillie: Uhm…take care of Nebby for nowyou!</li>
+</ul></details>
+<details><summary>Lilycove City <span class='src'>(28)</span></summary><ul>
+<li><span class='src'>0x005F</span> Please come in through here. Good luck!</li>
+<li><span class='src'>0x00A0</span> Congratulations! I did a painting of your Pokémon to commemorate its victory… Well, your Pokémon's appeals were so fantastic, it spurred me into painting better</li>
+<li><span class='src'>0x00A1</span> Congratulations! I did a painting of your Pokémon to commemorate its victory… Well, your Pokémon's appeals were so fantastic, it spurred me into painting better</li>
+<li><span class='src'>0x00A2</span> Congratulations! I did a painting of your Pokémon to commemorate its victory… Well, your Pokémon's appeals were so fantastic, it spurred me into painting better</li>
+<li><span class='src'>0x00A3</span> Congratulations! I did a painting of your Pokémon to commemorate its victory… Well, your Pokémon's appeals were so fantastic, it spurred me into painting better</li>
+<li><span class='src'>0x00A4</span> Congratulations! I did a painting of your Pokémon to commemorate its victory… Well, your Pokémon's appeals were so fantastic, it spurred me into painting better</li>
+<li><span class='src'>0x00D2</span> Hi, there! I'm a big fan of …. What's your opinion of …?</li>
+<li><span class='src'>0x00DA</span> There! Wailmer! Leap out of the water now!</li>
+<li><span class='src'>0x00EA</span> Huh? What? What's that? I'm not near awake yet… You can have this…</li>
+<li><span class='src'>0x00EC</span> Thanks to you, we've added a new painting to our collection! I've heard it depicts your Pokémon. Truly magnificent! Thank you so very, very much!</li>
+<li><span class='src'>0x00F7</span> Go visit other cabins. Trainers bored of the boat trip will be itching to battle.</li>
+<li><span class='src'>0x0155</span> Please come in through here. Good luck!</li>
+<li><span class='src'>0x01AE</span> Hello, are you here for the ferry? May I see your Ticket?</li>
+<li><span class='src'>0x01AF</span> Hello, are you here for the ferry? May I see your Ticket?</li>
+<li><span class='src'>0x01B0</span> Hello, are you here for the ferry? May I see your Ticket?</li>
+<li><span class='src'>0x01B7</span> Have you heard of "Random Battle"? People say Battle Tents are preparing for such battles. Even though I never tried it, I know of a move that makes all battles</li>
+<li><span class='src'>0x01CE</span> Scott: … … … … … … … … … … Zzz… … … … … … Huh?! Oh, sorry, sorry! I was snoozing! I came to check out this Pokémon Contest thing. I have to admit, it does look </li>
+<li><span class='src'>0x01D0</span> Scott: Well, hi, hi! you, you! Something's come up, so I have to disembark, but am I glad to see you! Congratulations, League Champion! There's a place I'd like</li>
+<li><span class='src'>0x01DB</span> Hello, are you here for the ferry? May I see your Ticket?</li>
+<li><span class='src'>0x02DA</span> <em>switch</em></li>
+<li><span class='src'>0x0307</span> Please come in through here. Good luck!</li>
+<li><span class='src'>0x0322</span> <em>switch</em></li>
+<li><span class='src'>0x0340</span> <em>switch</em></li>
+<li><span class='src'>0x0369</span> <em>switch</em></li>
+<li><span class='src'>0x03B7</span> It'll be some time before we make land, I reckon. You can rest up in your cabin if you'd like. Your cabin's No. 2. The bed in there is soft and plushy. I can at</li>
+<li><span class='src'>0x03C2</span> <em>switch</em></li>
+<li><span class='src'>0x03E1</span> <em>switch</em></li>
+<li><span class='src'>0x092C</span> When it gets right down to it… The way dignified simplicity suits me, {55}{56}{57}{58}{59}s perfectly suit Pokémon.</li>
+</ul></details>
+<details><summary>Slateport City <span class='src'>(27)</span></summary><ul>
+<li><span class='src'>0x0061</span> Archie: Oh? Not you again… You are tenacious to track us here, that much I will give you. But now… No one can stop us! No one! Or, will you follow us back to ou</li>
+<li><span class='src'>0x0069</span> Oh? Do you perhaps like Pokémon? I'm on assignment with the TV network. I'm gathering stories on Pokémon and Trainers that occurred recently. If you don't mind,</li>
+<li><span class='src'>0x0094</span> Umm… If this goes here, and that goes over there… Then where does this thing go? And what about that doohickey? Aaargh! I can't make heads or tails of this!</li>
+<li><span class='src'>0x00C8</span> Er-hem! I see you've participated in a Pokémon Contest! Please! Allow me to examine how you have raised your Pokémon. It delights me no end to see Pokémon raise</li>
+<li><span class='src'>0x00C9</span> Er-hem! I see you've participated in a Pokémon Contest! Please! Allow me to examine how you have raised your Pokémon. It delights me no end to see Pokémon raise</li>
+<li><span class='src'>0x00CA</span> Er-hem! I see you've participated in a Pokémon Contest! Please! Allow me to examine how you have raised your Pokémon. It delights me no end to see Pokémon raise</li>
+<li><span class='src'>0x00CB</span> Er-hem! I see you've participated in a Pokémon Contest! Please! Allow me to examine how you have raised your Pokémon. It delights me no end to see Pokémon raise</li>
+<li><span class='src'>0x00CC</span> Er-hem! I see you've participated in a Pokémon Contest! Please! Allow me to examine how you have raised your Pokémon. It delights me no end to see Pokémon raise</li>
+<li><span class='src'>0x00D7</span> Scott: Huh? I'm sure I met you somewhere before. Have I introduced myself to you? If not, my name's Scott. I just saw Team Aqua run away from here like they wer</li>
+<li><span class='src'>0x0109</span> So, like, I couldn't find myself any Pokémon that were, like, for me. So, I figured, like, hey, I should file a complaint to the guy there? And he wouldn't hear</li>
+<li><span class='src'>0x010D</span> Aiyeeeh! What are you doing here? Me? I'm the Team Aqua member you thumped before, remember? Back in Rusturf Tunnel? Here, take this! You have to forgive me!</li>
+<li><span class='src'>0x010F</span> Capt. Stern: Those thugs… They're the same lot who tried to rob the Devon Goods at the Museum.</li>
+<li><span class='src'>0x0116</span> I love seeing Pokémon that love their Trainers. Pokémon are very sensitive to the feelings of their Trainers. If you treat your Pokémon with love and care, they</li>
+<li><span class='src'>0x0126</span> Capt. Stern: Those thugs… They're the same lot who tried to rob the Devon Goods at the Museum.</li>
+<li><span class='src'>0x0151</span> If a wild Pokémon gets hurt, it heals itself by chewing on Berries. Did you know that? Somebody saw that and got the idea of making medicine from Berries. Did y</li>
+<li><span class='src'>0x0156</span> Er-hem! I see you've participated in a Pokémon Contest! Please! Allow me to examine how you have raised your Pokémon. It delights me no end to see Pokémon raise</li>
+<li><span class='src'>0x01B1</span> Heh! My Pokémon totally rules! It's cooler than any Pokémon! But somehow, I forgot something very important related to it… and I can't remember what. Perhaps if</li>
+<li><span class='src'>0x0313</span> Archie: Oh? Not you again… You are tenacious to track us here, that much I will give you. But now… No one can stop us! No one! Or, will you follow us back to ou</li>
+<li><span class='src'>0x0323</span> <em>switch</em></li>
+<li><span class='src'>0x0335</span> Archie: Oh? Not you again… You are tenacious to track us here, that much I will give you. But now… No one can stop us! No one! Or, will you follow us back to ou</li>
+<li><span class='src'>0x0336</span> Archie: Oh? Not you again… You are tenacious to track us here, that much I will give you. But now… No one can stop us! No one! Or, will you follow us back to ou</li>
+<li><span class='src'>0x0372</span> Umm… If this goes here, and that goes over there… Then where does this thing go? And what about that doohickey? Aaargh! I can't make heads or tails of this!</li>
+<li><span class='src'>0x0389</span> <em>switch</em></li>
+<li><span class='src'>0x03C5</span> Aiyeeeh! What are you doing here? Me? I'm the Team Aqua member you thumped before, remember? Back in Rusturf Tunnel? Here, take this! You have to forgive me!</li>
+<li><span class='src'>0x40BC</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4288</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4289</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Battle Frontier <span class='src'>(25)</span></summary><ul>
+<li><span class='src'>0x0077</span> you's battle was recorded on the Frontier Pass.</li>
+<li><span class='src'>0x009C</span> I'm an avid Anti-Pearl battler. In order to win the Anti-Pearl cause, I think it's necessary to understand the abitities of mermaids. This doesn't mean join the</li>
+<li><span class='src'>0x00ED</span> Scott: I hope you're enjoying everything in the Battle Frontier. …Wait a second… Oh, my disbelieving eyes! Your Frontier Pass! You've gathered up the full set o</li>
+<li><span class='src'>0x00EE</span> Scott: I hope you're enjoying everything in the Battle Frontier. …Wait a second… Oh, my disbelieving eyes! Your Frontier Pass! You've gathered up the full set o</li>
+<li><span class='src'>0x0111</span> Hello, and welcome to the Pokémon Center. We restore your tired Pokémon to full health. Would you like to rest your Pokémon?</li>
+<li><span class='src'>0x0152</span> <em>switch</em></li>
+<li><span class='src'>0x0153</span> For 70 years I have raised Pokémon! I am the man they revere as the legendary top Pokémon Breeder! If you ever become as seasoned as me, you'll see the abilitie</li>
+<li><span class='src'>0x0154</span> Howdy! When it comes to news about the Battle Frontier, I'm no. 1. You can think of me as the Frontier Maniac. Just checking, but you are a Trainer, isn't that </li>
+<li><span class='src'>0x0157</span> …Huh? You look to me like a tough Trainer. Heheh… Listen, I have this proposition. We have a little group going here, and we play a little game with what goes o</li>
+<li><span class='src'>0x0159</span> Hello, and welcome to the Pokémon Center. We restore your tired Pokémon to full health. Would you like to rest your Pokémon?</li>
+<li><span class='src'>0x015A</span> Buhahaha! You couldn't tell it from looking now, but I used to be one tough Trainer. I had a reputation as the toughest Beauty around, I tell you! … … … … … … W</li>
+<li><span class='src'>0x015B</span> Fine, fine, look here! Which move should I teach?</li>
+<li><span class='src'>0x01D1</span> Scott: I hope you're enjoying everything in the Battle Frontier. …Wait a second… Oh, my disbelieving eyes! Your Frontier Pass! You've gathered up the full set o</li>
+<li><span class='src'>0x01D2</span> Scott: I hope you're enjoying everything in the Battle Frontier. …Wait a second… Oh, my disbelieving eyes! Your Frontier Pass! You've gathered up the full set o</li>
+<li><span class='src'>0x02BD</span> <em>switch</em></li>
+<li><span class='src'>0x02BE</span> <em>switch</em></li>
+<li><span class='src'>0x0360</span> <em>switch</em></li>
+<li><span class='src'>0x0361</span> <em>switch</em></li>
+<li><span class='src'>0x0396</span> <em>switch</em></li>
+<li><span class='src'>0x0934</span> <em>switch</em></li>
+<li><span class='src'>0x4002</span> <em>switch</em></li>
+<li><span class='src'>0x4004</span> Excellent to see you back! You've conquered the Pyramid! How splendid!</li>
+<li><span class='src'>0x40CF</span> you's battle was recorded on the Frontier Pass.</li>
+<li><span class='src'>0x428E</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x428F</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Rustboro City <span class='src'>(22)</span></summary><ul>
+<li><span class='src'>0x0089</span> That determined expression… That limber way you move… And your well-trained Pokémon… You're obviously a skilled Trainer! No, wait, don't say a word. I can tell </li>
+<li><span class='src'>0x008E</span> Get out! Out of the way!</li>
+<li><span class='src'>0x0090</span> That shady character, I think he took off towards the tunnel over there.</li>
+<li><span class='src'>0x0099</span> I opened a gift I got, and this fox jumped out. Then, everything's changed… I became like this… perhaps a fox with opposite power can revert it… If you could he</li>
+<li><span class='src'>0x009F</span> Oh, it's you! You're that fantastic Trainer who helped me in Petalburg Woods! Help me! I was robbed by Team Aqua! I have to get the Devin Goods back! If I don't</li>
+<li><span class='src'>0x00D5</span> My daddy's working at the Corporation. My daddy made this! But I can't use it, so you can have it.</li>
+<li><span class='src'>0x0110</span> Mr. Stone: I'm counting on you!</li>
+<li><span class='src'>0x0113</span> Students who don't study get a little taste of my Quick Claw. Whether or not you are a good student  will be evident from the way you use this item.</li>
+<li><span class='src'>0x012F</span> I've been developing an added feature for the Pokénav… And it turned out great! you, may I see that Pokénav? The one our President gave you?</li>
+<li><span class='src'>0x0130</span> I've been developing an added feature for the Pokénav… And it turned out great! you, may I see that Pokénav? The one our President gave you?</li>
+<li><span class='src'>0x0136</span> Hello? Didn't we meet before? I think back in Petalburg City. Let me introduce myself. My name's Scott. I've been traveling everywhere in search of outstanding </li>
+<li><span class='src'>0x01CB</span> Hello? Didn't we meet before? I think back in Petalburg City. Let me introduce myself. My name's Scott. I've been traveling everywhere in search of outstanding </li>
+<li><span class='src'>0x02DC</span> That shady character, I think he took off towards the tunnel over there.</li>
+<li><span class='src'>0x034C</span> I've been developing an added feature for the Pokénav… And it turned out great! you, may I see that Pokénav? The one our President gave you?</li>
+<li><span class='src'>0x037E</span> This is the Devon Corporation's third floor. Our President's Office is on this floor. Anyway, I can't tell you how much I'm grateful for what you've done. Um… B</li>
+<li><span class='src'>0x03E7</span> This is the Devon Corporation's third floor. Our President's Office is on this floor. Anyway, I can't tell you how much I'm grateful for what you've done. Um… B</li>
+<li><span class='src'>0x40E1</span> The lady is rehearsing her performance. So dazzling!</li>
+<li><span class='src'>0x4155</span> <em>switch</em></li>
+<li><span class='src'>0x4157</span> <em>switch</em></li>
+<li><span class='src'>0x41FC</span> <em>switch</em></li>
+<li><span class='src'>0x4277</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4278</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Mossdeep City <span class='src'>(20)</span></summary><ul>
+<li><span class='src'>0x0075</span> Steven: Team Magma… What's the point of stealing rocket fuel?</li>
+<li><span class='src'>0x007B</span> Steven: you… As you can see, there's not much here, but this is my home. Thank you for all that you've done. This is my token of appreciation. It's the Hidden M</li>
+<li><span class='src'>0x0098</span> Hey there, Trainer! A Super Rod really is super! Say all you want, but this baby can catch Pokémon off the seafloor! What do you think? You want it, don't you?</li>
+<li><span class='src'>0x00C0</span> I was taking a stroll down the beach when I found this. It's not anything I need, so you can have it!</li>
+<li><span class='src'>0x00E0</span> Wingull: Pihyoh!</li>
+<li><span class='src'>0x0114</span> Steven's house is right over there!</li>
+<li><span class='src'>0x012E</span> Steven: you… As you can see, there's not much here, but this is my home. Thank you for all that you've done. This is my token of appreciation. It's the Hidden M</li>
+<li><span class='src'>0x01B8</span> I can't do this anymore! It's utterly hopeless! I'm a Fighting-type Trainer, so I can't win at the Mossdeep Gym no matter how hard I try! Argh! Kick! Kick! Kick</li>
+<li><span class='src'>0x02E1</span> Steven: Team Magma… What's the point of stealing rocket fuel?</li>
+<li><span class='src'>0x02F4</span> Steven: Team Magma… What's the point of stealing rocket fuel?</li>
+<li><span class='src'>0x0314</span> Steven: you… As you can see, there's not much here, but this is my home. Thank you for all that you've done. This is my token of appreciation. It's the Hidden M</li>
+<li><span class='src'>0x0337</span> Steven: Team Magma… What's the point of stealing rocket fuel?</li>
+<li><span class='src'>0x035E</span> Steven: Team Magma… What's the point of stealing rocket fuel?</li>
+<li><span class='src'>0x03AD</span> Steven: you… As you can see, there's not much here, but this is my home. Thank you for all that you've done. This is my token of appreciation. It's the Hidden M</li>
+<li><span class='src'>0x4067</span> <em>switch</em></li>
+<li><span class='src'>0x40C7</span> you's Bag doesn't have the meteorite fragments.</li>
+<li><span class='src'>0x40D6</span> If Team Magma takes the rocket fuel, I won't be able to go to space! They can't be allowed to get away with such an outrage!</li>
+<li><span class='src'>0x411F</span> <em>switch</em></li>
+<li><span class='src'>0x414E</span> ...Humph, I didn't expect to find an organization of idiots in Hoenn. There are experimental samples from the Aether Foundation in this basement. I'll stay here</li>
+<li><span class='src'>0x428A</span> The simulation experiment went smoothly, no loopholes were found.</li>
+</ul></details>
+<details><summary>Mauville City <span class='src'>(17)</span></summary><ul>
+<li><span class='src'>0x0059</span> Well, well, what have we here? A most energetic customer! Me? You may call me Rydel. I'm the owner of this cycle shop.</li>
+<li><span class='src'>0x005A</span> Well, well, what have we here? A most energetic customer! Me? You may call me Rydel. I'm the owner of this cycle shop.</li>
+<li><span class='src'>0x005B</span> <em>switch</em></li>
+<li><span class='src'>0x0062</span> Hi, do you check out TV at all? They've added a bunch of cool new shows recently. TV is so cool. I've seen my friends on TV just out of the blue. And, sometimes</li>
+<li><span class='src'>0x0063</span> <em>switch</em></li>
+<li><span class='src'>0x006B</span> Woohoo! I hear people call me the Rock Smash Guy, but I find that sort of degrading. I think I deserve a bit more respect, like maybe the Rock Smash Dude. Wooho</li>
+<li><span class='src'>0x00D0</span> Wattson: Oh, you! You look like you have a lot of zip! That's a good thing, wahahahaha! Fine! I've decided! I need a favor, you! Mauville City has an undergroun</li>
+<li><span class='src'>0x00D1</span> Wattson: Oh, you! You look like you have a lot of zip! That's a good thing, wahahahaha! Fine! I've decided! I need a favor, you! Mauville City has an undergroun</li>
+<li><span class='src'>0x00E1</span> Hey, kid, if you want to play here, you need a Coin Case. I think the young lady next door had one. Go see her!</li>
+<li><span class='src'>0x00E2</span> I made a mistake and got two of the same Dolls. Would you like one of them?</li>
+<li><span class='src'>0x0102</span> If I had a Bike, it'd be easy to cycle to Slateport for some shopping. I'd be able to buy Harbor Mail at the Pokémon Mart in Slateport…</li>
+<li><span class='src'>0x034B</span> Woohoo! I hear people call me the Rock Smash Guy, but I find that sort of degrading. I think I deserve a bit more respect, like maybe the Rock Smash Dude. Wooho</li>
+<li><span class='src'>0x0390</span> <em>switch</em></li>
+<li><span class='src'>0x4264</span> Congratulations! You've passed the exam. Now, let's go back.</li>
+<li><span class='src'>0x42A7</span> +you returns Skitty to the lady. Ahhh, my Skitty!! Great, you are finally back! Thank you so much for saving her!</li>
+<li><span class='src'>0x42A9</span> +you returns Skitty to the lady. Ahhh, my Skitty!! Great, you are finally back! Thank you so much for saving her!</li>
+<li><span class='src'>0x4327</span> That is "Modern"… How can time cause such a change… You are a "modern" Trainer, right? Have you seen a Poké Ball-like Pokémon? They're similar to the one I have</li>
+</ul></details>
+<details><summary>EV Training Cave <span class='src'>(13)</span></summary><ul>
+<li><span class='src'>0x02DD</span> Anabel: This is…an Ultra Wormhole! Faba and the Ultra Beast went in it…! Devon's Scout detected this…!</li>
+<li><span class='src'>0x4084</span> Anabel: This is…an Ultra Wormhole! Faba and the Ultra Beast went in it…! Devon's Scout detected this…!</li>
+<li><span class='src'>0x416E</span> <em>switch</em></li>
+<li><span class='src'>0x41E9</span> Colress: You haven't gathered them yet? Then go to Secret Bases around Hoenn and challenge the Totem Pokémon. I'll be on standby here, waiting to begin at any t</li>
+<li><span class='src'>0x41FB</span> Wallace: How's it going, you, have you collected the 18 Z-Crystals? Due to Necrozma's aura, Totem Pokémon appeared in Secret Bases around Hoenn. Defeat them, an</li>
+<li><span class='src'>0x41FE</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x41FF</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x4200</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x42C8</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x42C9</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x42CA</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x42CB</span> Hello, you. I heard from Mr. Steven about the prophecy tablet that he excavated. This war is related to the survival of our world, and you're the last hope. You</li>
+<li><span class='src'>0x4999</span> Anabel: This is…an Ultra Wormhole! Faba and the Ultra Beast went in it…! Devon's Scout detected this…!</li>
+</ul></details>
+<details><summary>Ever Grande City <span class='src'>(13)</span></summary><ul>
+<li><span class='src'>0x0107</span> You haven't obtained all the Badges. If you're bound for the Pokémon League, you must return with them.</li>
+<li><span class='src'>0x01CF</span> Scott: you, you've clawed your way up to face the Pokémon League! I'm happy for you! You made my cheering worthwhile! you, if you were to become the Pokémon Lea</li>
+<li><span class='src'>0x02CD</span> Wallace: This room… This is where we keep records of Pokémon that prevailed through harsh battles. It is here that the League Champions are honored.</li>
+<li><span class='src'>0x02D2</span> Prof. Birch: Whew… I was in the tall grass studying wild Pokémon when I was jumped. You saved me. Thanks a lot! Oh? Hi, you're you! This is not the place to cha</li>
+<li><span class='src'>0x02F8</span> Prof. Birch: Whew… I was in the tall grass studying wild Pokémon when I was jumped. You saved me. Thanks a lot! Oh? Hi, you're you! This is not the place to cha</li>
+<li><span class='src'>0x0319</span> <em>switch</em></li>
+<li><span class='src'>0x035A</span> Wallace: This room… This is where we keep records of Pokémon that prevailed through harsh battles. It is here that the League Champions are honored.</li>
+<li><span class='src'>0x0365</span> Wallace: This room… This is where we keep records of Pokémon that prevailed through harsh battles. It is here that the League Champions are honored.</li>
+<li><span class='src'>0x03CB</span> Wallace: This room… This is where we keep records of Pokémon that prevailed through harsh battles. It is here that the League Champions are honored.</li>
+<li><span class='src'>0x4092</span> <em>switch</em></li>
+<li><span class='src'>0x40AA</span> The IV values are: HP: …, Atk: …, Def: {STR_VAR_3}.</li>
+<li><span class='src'>0x40B2</span> Access denied.</li>
+<li><span class='src'>0x4287</span> I finally made it to Ever Grande City, but now I really want to go back to Verdanturf to see my girlfriend.</li>
+</ul></details>
+<details><summary>Route 111 <span class='src'>(13)</span></summary><ul>
+<li><span class='src'>0x0115</span> We use this Macho Brace to more effectively strengthen our Pokémon in training. Since you've beaten all of us here, I don't know if you need it, but we would li</li>
+<li><span class='src'>0x0301</span> <em>switch</em></li>
+<li><span class='src'>0x0302</span> <em>switch</em></li>
+<li><span class='src'>0x0303</span> <em>switch</em></li>
+<li><span class='src'>0x031C</span> <em>switch</em></li>
+<li><span class='src'>0x031D</span> <em>switch</em></li>
+<li><span class='src'>0x031E</span> <em>switch</em></li>
+<li><span class='src'>0x031F</span> <em>switch</em></li>
+<li><span class='src'>0x0385</span> <em>switch</em></li>
+<li><span class='src'>0x0386</span> <em>switch</em></li>
+<li><span class='src'>0x0387</span> <em>switch</em></li>
+<li><span class='src'>0x0388</span> <em>switch</em></li>
+<li><span class='src'>0x092F</span> I watered the plants every day. They grew lots of flowers. And they gave me lots of Berries, too. Here you go! You can have it!</li>
+</ul></details>
+<details><summary>? <span class='src'>(10)</span></summary><ul>
+<li><span class='src'>0x0104</span> Uh… Hi! I… I'm not acting suspicious! Uh… You can have this! For free! It… Honestly, I won't Fling it at you! I'd never do such a thing! It's clean! You can tak</li>
+<li><span class='src'>0x010E</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x02BF</span> <em>switch</em></li>
+<li><span class='src'>0x02C0</span> <em>switch</em></li>
+<li><span class='src'>0x02C1</span> <em>switch</em></li>
+<li><span class='src'>0x02C2</span> <em>switch</em></li>
+<li><span class='src'>0x02C3</span> <em>switch</em></li>
+<li><span class='src'>0x02C4</span> <em>switch</em></li>
+<li><span class='src'>0x02C5</span> <em>switch</em></li>
+<li><span class='src'>0x02C6</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Petalburg City <span class='src'>(10)</span></summary><ul>
+<li><span class='src'>0x007A</span> you! Please excuse us for dragging you here this way. But our Wally's become very healthy since he went to Verdanturf Town. We owe it all to you! When Wally lef</li>
+<li><span class='src'>0x0087</span> You're… Ah, you must be you, right? Thank you for playing with Wally a little while ago. He's been frail and sickly ever since he was a baby. We've sent him to </li>
+<li><span class='src'>0x02D6</span> Dad: So, did it work out?</li>
+<li><span class='src'>0x033E</span> <em>switch</em></li>
+<li><span class='src'>0x40BD</span> I've got a mysterious jade-colored shining stone here. I'll sell it to you for ¥10,000. How about it?</li>
+<li><span class='src'>0x414A</span> <em>switch</em></li>
+<li><span class='src'>0x4275</span> Which move should I teach?</li>
+<li><span class='src'>0x4276</span> Which move should I teach?</li>
+<li><span class='src'>0x428B</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x428C</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Route 104 <span class='src'>(10)</span></summary><ul>
+<li><span class='src'>0x005E</span> While Berry plants are growing, water them with the Wailmer Pail. Oh, another thing. If you don't pick Berries for a while, they'll drop off onto the ground. Bu</li>
+<li><span class='src'>0x007F</span> Hello! This is the Pretty Petal flower shop. Spreading flowers all over the world!</li>
+<li><span class='src'>0x0093</span> Mr. Briney: Hold on, lass! Wait up, Peeko!</li>
+<li><span class='src'>0x00F6</span> If you see Berries growing in loamy soil, feel free to take them. But make sure you plant a Berry in the same spot. That's common courtesy. Here, I'll share thi</li>
+<li><span class='src'>0x0106</span> Sigh… I wish I could get help at work sometimes. You know, like Pokémon help each other. You can have this, so you try it out! Use it to teach a Pokémon how to </li>
+<li><span class='src'>0x0117</span> This Flower Shop started selling saplings recently. It made me so happy, I went overboard shopping. I don't need this White Herb anymore. Would you take it, ple</li>
+<li><span class='src'>0x0132</span> Registered Dad Norman in the Pokénav.</li>
+<li><span class='src'>0x02CF</span> Mr. Briney: Hold on, lass! Wait up, Peeko!</li>
+<li><span class='src'>0x038A</span> <em>switch</em></li>
+<li><span class='src'>0x0930</span> I'm trying to be like my big sisters. I'm growing flowers, too! Here you go! It's for you!</li>
+</ul></details>
+<details><summary>Shoal Cave <span class='src'>(10)</span></summary><ul>
+<li><span class='src'>0x011B</span> The penetrating cold around these parts is an impediment to training. But with focus, one can overcome! With this Focus Band, buckle down and withstand the cold</li>
+<li><span class='src'>0x03B8</span> There was some Shoal Salt here. But, there's nothing here now.</li>
+<li><span class='src'>0x03B9</span> There was some Shoal Salt here. But, there's nothing here now.</li>
+<li><span class='src'>0x03BA</span> There was some Shoal Salt here. But, there's nothing here now.</li>
+<li><span class='src'>0x03BB</span> There was some Shoal Salt here. But, there's nothing here now.</li>
+<li><span class='src'>0x03BC</span> There was a Shoal Shell here. But, there's nothing here now.</li>
+<li><span class='src'>0x03BD</span> There was a Shoal Shell here. But, there's nothing here now.</li>
+<li><span class='src'>0x03BE</span> There was a Shoal Shell here. But, there's nothing here now.</li>
+<li><span class='src'>0x03BF</span> There was a Shoal Shell here. But, there's nothing here now.</li>
+<li><span class='src'>0x42B7</span> Shadow Triad: We came here in secrecy. How did Mossdeep Gym Leaders find out? Tate: You don't need to know how. As Leaders, it's our duty to protect the town, w</li>
+</ul></details>
+<details><summary>Sootopolis City <span class='src'>(10)</span></summary><ul>
+<li><span class='src'>0x0079</span> For thirty years I've remained in Sootopolis honing my skills. I developed a shattering TM. I bequeath it to you!</li>
+<li><span class='src'>0x009E</span> Maxie: G… Groudon… Please! Stop what you're doing! I know the extent of your power now! If you keep going, all Hoenn, not just Sootopolis, will be utterly ruine</li>
+<li><span class='src'>0x00F5</span> I'm from Johto. Do you know about it?</li>
+<li><span class='src'>0x0133</span> Steven: So that's Rayquaza… It's incredible how the two rampaging Pokémon would flee from it in fear…</li>
+<li><span class='src'>0x0134</span> Archie: Kyogre! What's wrong?! Look over here! It's the Red Orb! Calm down! Kyogre! … … … … … … … … … … … … It's no good! It's not responding at all!</li>
+<li><span class='src'>0x0135</span> Maxie: G… Groudon… Please! Stop what you're doing! I know the extent of your power now! If you keep going, all Hoenn, not just Sootopolis, will be utterly ruine</li>
+<li><span class='src'>0x0265</span> Who might you be? This is the Cave of Origin. The spirits of Pokémon, becalmed at Mt. Pyre, are said to be revived here. Please leave.</li>
+<li><span class='src'>0x033A</span> Maxie: G… Groudon… Please! Stop what you're doing! I know the extent of your power now! If you keep going, all Hoenn, not just Sootopolis, will be utterly ruine</li>
+<li><span class='src'>0x033B</span> Maxie: G… Groudon… Please! Stop what you're doing! I know the extent of your power now! If you keep going, all Hoenn, not just Sootopolis, will be utterly ruine</li>
+<li><span class='src'>0x0932</span> A big Pokémon is fighting with another big Pokémon! Please, someone make them stop!</li>
+</ul></details>
+<details><summary>Route 123 <span class='src'>(8)</span></summary><ul>
+<li><span class='src'>0x00E8</span> I love Grass-type Pokémon! Do you have any Grass-type Pokémon?</li>
+<li><span class='src'>0x00F8</span> The way my husband grows Berries, oh, he's the best in the world. He makes me proud, that he does. Incidentally, child, have you heard a good saying lately?</li>
+<li><span class='src'>0x00F9</span> The way my husband grows Berries, oh, he's the best in the world. He makes me proud, that he does. Incidentally, child, have you heard a good saying lately?</li>
+<li><span class='src'>0x00FA</span> The way my husband grows Berries, oh, he's the best in the world. He makes me proud, that he does. Incidentally, child, have you heard a good saying lately?</li>
+<li><span class='src'>0x00FB</span> The way my husband grows Berries, oh, he's the best in the world. He makes me proud, that he does. Incidentally, child, have you heard a good saying lately?</li>
+<li><span class='src'>0x00FC</span> The way my husband grows Berries, oh, he's the best in the world. He makes me proud, that he does. Incidentally, child, have you heard a good saying lately?</li>
+<li><span class='src'>0x092D</span> You may call me the Berry Master. I dream of filling the world with beautiful flowers, so I raise Berries and hand them out to everyone. You're deserving of one</li>
+<li><span class='src'>0x0931</span> The way my husband grows Berries, oh, he's the best in the world. He makes me proud, that he does. Incidentally, child, have you heard a good saying lately?</li>
+</ul></details>
+<details><summary>Abandoned Ship <span class='src'>(7)</span></summary><ul>
+<li><span class='src'>0x00EF</span> you inserted and turned the Storage Key. The inserted Key stuck fast, but the door opened.</li>
+<li><span class='src'>0x00F0</span> you inserted and turned the Key. The inserted Key stuck fast, but the door opened.</li>
+<li><span class='src'>0x00F1</span> you inserted and turned the Key. The inserted Key stuck fast, but the door opened.</li>
+<li><span class='src'>0x00F2</span> you inserted and turned the Key. The inserted Key stuck fast, but the door opened.</li>
+<li><span class='src'>0x00F3</span> you inserted and turned the Key. The inserted Key stuck fast, but the door opened.</li>
+<li><span class='src'>0x427C</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x427D</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Fortree City <span class='src'>(7)</span></summary><ul>
+<li><span class='src'>0x0076</span> Let this old woman see if your hidden power has awoken… I hold a coin in my hand. Now, tell me, have I palmed it in the right hand? Or in the left?</li>
+<li><span class='src'>0x009B</span> Hmm… this feeling again… a place I've never seen before… Huh? You're a… Tamer… no, Trainer? Sorry, my memory is blurry. This weasel is different from the ones h</li>
+<li><span class='src'>0x00DE</span> There! Go, Bird Pokémon!</li>
+<li><span class='src'>0x00DF</span> There! Go, Bird Pokémon!</li>
+<li><span class='src'>0x0108</span> Let this old woman see if your hidden power has awoken… I hold a coin in my hand. Now, tell me, have I palmed it in the right hand? Or in the left?</li>
+<li><span class='src'>0x0127</span> Something unseeable is in the way.</li>
+<li><span class='src'>0x01B6</span> Humph! My wife relies on Hidden Power to stay awake. But I can predict the near future! It's a gift! I can teach your Pokémon how to Future Sight instead. Inter</li>
+</ul></details>
+<details><summary>Verdanturf Town <span class='src'>(7)</span></summary><ul>
+<li><span class='src'>0x00C1</span> Wally: I lost to you, you, but I'm not feeling down anymore. Because I have a new purpose in life. Together with my Ralts, I'm going to challenge Pokémon Gyms a</li>
+<li><span class='src'>0x00EB</span> My feelings toward my Pokémon… The attraction runs deep… Oh, hi, you didn't see that, did you? Well, it doesn't matter. How would you like this TM for your Poké</li>
+<li><span class='src'>0x01B3</span> It's a very evil move, it transforms the battle into a guessing game, as a result, its use is taboo… Are you willing to let your Pokémon learn this unbeatable m</li>
+<li><span class='src'>0x01CC</span> Scott: Hey there, you! I thought I might see you here. A Battle Tent's a place where you can meet tough Trainers. It doesn't matter what the rules are, or how b</li>
+<li><span class='src'>0x412C</span> I have been taking care of Wally since he was a child. But now he has grown into a Trainer who can stand on his own…</li>
+<li><span class='src'>0x4285</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4286</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Couriway Town <span class='src'>(6)</span></summary><ul>
+<li><span class='src'>0x40A8</span> Erm erm…Welcome…Couriway Hotel… Ahem…do you want to rent a suite…? The check-in only costs 10,000¥…</li>
+<li><span class='src'>0x40A9</span> Hohoho, my old friend has lost his mind. He mistook you for his grandson. I'll give you these an as apology.</li>
+<li><span class='src'>0x40ED</span> It's the Bag of a scrap collector…</li>
+<li><span class='src'>0x4141</span> It's the Bag of a scrap collector…</li>
+<li><span class='src'>0x4145</span> Ding! The furnace's temperature rose!</li>
+<li><span class='src'>0x41AC</span> Hey, are you the new guest? Give me the talisman… You can enter your room now. If you need anything, please contact our room service…</li>
+</ul></details>
+<details><summary>Lavaridge Town <span class='src'>(6)</span></summary><ul>
+<li><span class='src'>0x00DD</span> May: you! Long time no see! Oh? While I visited the hot springs, you got the Lavaridge Gym Badge. You must have collected good Pokémon… No, I believe you raised</li>
+<li><span class='src'>0x00FE</span> You've come to look at herbal medicine in Lavaridge? That's rather commendable. I like you! Take this!</li>
+<li><span class='src'>0x010A</span> I have here an Egg. I'd hoped to hatch it by covering it in hot sand by the hot springs. But that doesn't seem to be enough… I've heard it would be best if it w</li>
+<li><span class='src'>0x4281</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4282</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4328</span> Hmm… I've never seen this place before. The world's so vast… Sorry, I lost my memory, all I remember is living in Hisui… it was hot like a volcano. This good bo</li>
+</ul></details>
+<details><summary>Meteor Falls <span class='src'>(6)</span></summary><ul>
+<li><span class='src'>0x00CF</span> Hehehe! With this Meteorite, that thing in Mt. Chimnet will…</li>
+<li><span class='src'>0x00F4</span> I… I'm Cozmo… I'm a Professor… Team Magma asked me to guide them to Meteor Falls… But they tricked me. They even took my Meteorite away… And then another simila</li>
+<li><span class='src'>0x02FF</span> Hehehe! With this Meteorite, that thing in Mt. Chimnet will…</li>
+<li><span class='src'>0x0333</span> Hehehe! With this Meteorite, that thing in Mt. Chimnet will…</li>
+<li><span class='src'>0x40D8</span> <em>switch</em></li>
+<li><span class='src'>0x432A</span> I learned one thing from my short career as a Dragon Tamer… The more I train them, the more I see they're limited, unless… You surpass Dragons! That's right, I </li>
+</ul></details>
+<details><summary>Mt. Pyre <span class='src'>(6)</span></summary><ul>
+<li><span class='src'>0x0103</span> The Blue Orb and Red Orb taken by those sinister men… They must never be apart… I fear something terrible will happen…</li>
+<li><span class='src'>0x011A</span> All sorts of beings wander the slopes of Mt. Pyre… There is no telling what may happen. Take this. It's for your own good.</li>
+<li><span class='src'>0x034F</span> Archie: Team Magma's Maxie got ahead of us, but we also got what we wanted. The Red Orb preserved at Mt. Pyre… I, Archie, now have it in my possession! Fufufu… </li>
+<li><span class='src'>0x0394</span> Archie: Team Magma's Maxie got ahead of us, but we also got what we wanted. The Red Orb preserved at Mt. Pyre… I, Archie, now have it in my possession! Fufufu… </li>
+<li><span class='src'>0x0395</span> Archie: Team Magma's Maxie got ahead of us, but we also got what we wanted. The Red Orb preserved at Mt. Pyre… I, Archie, now have it in my possession! Fufufu… </li>
+<li><span class='src'>0x427E</span> Machoke rests here.</li>
+</ul></details>
+<details><summary>Eterna City <span class='src'>(5)</span></summary><ul>
+<li><span class='src'>0x40FB</span> <em>switch</em></li>
+<li><span class='src'>0x4199</span> <em>switch</em></li>
+<li><span class='src'>0x41AD</span> Hm? Oh, you haven't caught enough Pokémon to make it worthwhile.</li>
+<li><span class='src'>0x4265</span> Renli: Thanks for helping promote my bike shop!</li>
+<li><span class='src'>0x42EF</span> Hm? Oh, you haven't caught enough Pokémon to make it worthwhile.</li>
+</ul></details>
+<details><summary>Granite Cave <span class='src'>(5)</span></summary><ul>
+<li><span class='src'>0x006D</span> Hey, you. It gets awfully dark ahead. It'll be tough trying to explore. That guy who came by earlier… Steven, I think it was. He knew how to use Flash, so he ou</li>
+<li><span class='src'>0x0131</span> My name is Steven. I'm interested in rare stones, so I travel here and there. Oh? A Letter for me?</li>
+<li><span class='src'>0x4279</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x427A</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x427B</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Hearthome City <span class='src'>(5)</span></summary><ul>
+<li><span class='src'>0x0921</span> I love making {55}{56}{57}{58}{59}S. I always have some Berries with me.</li>
+<li><span class='src'>0x419A</span> <em>switch</em></li>
+<li><span class='src'>0x4272</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x4273</span> So you're the new kid? Here, take these candies.</li>
+<li><span class='src'>0x4314</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Rainbow Castle <span class='src'>(5)</span></summary><ul>
+<li><span class='src'>0x41F1</span> All locks have been opened, unlocking the passage blockade.</li>
+<li><span class='src'>0x41F2</span> All locks have been opened, unlocking the passage blockade.</li>
+<li><span class='src'>0x41F3</span> All locks have been opened, unlocking the passage blockade.</li>
+<li><span class='src'>0x41F4</span> All locks have been opened, unlocking the passage blockade.</li>
+<li><span class='src'>0x41FD</span> Gladion: ……Is that……you? How embarrassing……injured like this… I'm sorry, I can't go with you…… Don't worry……my injuries have been taken care of. Mr. Steven and </li>
+</ul></details>
+<details><summary>Outer Space <span class='src'>(4)</span></summary><ul>
+<li><span class='src'>0x01AC</span> The … fled away!</li>
+<li><span class='src'>0x02FB</span> <em>switch</em></li>
+<li><span class='src'>0x02FC</span> <em>switch</em></li>
+<li><span class='src'>0x40B3</span> Drake: This voice… is that you, you? I expected Steven to be here, not you… Humph…you must have not expected to see me here either… Steven and the others are en</li>
+</ul></details>
+<details><summary>Pacifidlog Town <span class='src'>(4)</span></summary><ul>
+<li><span class='src'>0x012B</span> Ah! Your Pokémon…</li>
+<li><span class='src'>0x012C</span> Ah! Your Pokémon…</li>
+<li><span class='src'>0x4283</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4284</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Remote Island <span class='src'>(4)</span></summary><ul>
+<li><span class='src'>0x4173</span> Steven: …Can you hear me?  Anabel: you? We're trying to locate you… have you found Faba? Steven: Please try to get to a higher place, so we can keep in touch… W</li>
+<li><span class='src'>0x4174</span> Steven: …Can you hear me?  Anabel: you? We're trying to locate you… have you found Faba? Steven: Please try to get to a higher place, so we can keep in touch… W</li>
+<li><span class='src'>0x4178</span> Steven: Can you hear me? you? We've tracked your position! You're in a remote island in Hoenn, on the same time and space as us! Please keep on investigating…</li>
+<li><span class='src'>0x418B</span> Faba: Hahaha! I didn't expect to find Necrozma during my escape! It must be trying to retrieve the Crystals that were scattered last time…</li>
+</ul></details>
+<details><summary>Route 102 <span class='src'>(4)</span></summary><ul>
+<li><span class='src'>0x42A3</span> Blue: We've confirmed the target, it's UB02: Buzzwole! Ultrahole detected nearby, Red, be careful.</li>
+<li><span class='src'>0x42A4</span> Blue: We've confirmed the target, it's UB02: Buzzwole! Ultrahole detected nearby, Red, be careful.</li>
+<li><span class='src'>0x42A5</span> Blue: We've confirmed the target, it's UB02: Buzzwole! Ultrahole detected nearby, Red, be careful.</li>
+<li><span class='src'>0x42A6</span> Blue: We've confirmed the target, it's UB02: Buzzwole! Ultrahole detected nearby, Red, be careful.</li>
+</ul></details>
+<details><summary>Route 114 <span class='src'>(4)</span></summary><ul>
+<li><span class='src'>0x0083</span> Lanette: Oh! you! I'm sorry everything is so cluttered… When I get engrossed in research, things end up this way… This is embarrassing… Please keep this a secre</li>
+<li><span class='src'>0x00E7</span> All my Pokémon does is Screech… No one dares to come near me… Sigh… Would you please take this TM away…</li>
+<li><span class='src'>0x0105</span> My big brother's the Fossil Maniac… He's a nice guy who loves Fossils… He loves digging holes, too… He dug this hole by himself… You can have this, so you can D</li>
+<li><span class='src'>0x092B</span> I love using the Berry Crush machine, so I'm collecting Berries. I'll share one with you, if you'd like.</li>
+</ul></details>
+<details><summary>Route 119 <span class='src'>(4)</span></summary><ul>
+<li><span class='src'>0x037D</span> <em>switch</em></li>
+<li><span class='src'>0x427F</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4280</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4329</span> I had a distant dream… in it, I was feeding the Phantom Fish. Obviously, I fear ghosts, but I still feed them. When my dream ended I woke up here, with this whi</li>
+</ul></details>
+<details><summary>Bell Tower <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x0092</span> The … fled away!</li>
+<li><span class='src'>0x01DC</span> The … fled away!</li>
+<li><span class='src'>0x0321</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Celestic Town <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x4274</span> Too bad! The Bag is full…</li>
+<li><span class='src'>0x42D9</span> Cynthia: From the origin, two beings were released, named Time and Space. Joining time and space gave birth to the world's infinity. And so, time and space desc</li>
+<li><span class='src'>0x42E5</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Dewford Town <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x00E6</span> For me, U-Turn is at the peak of popularity. It's the one. Hunh? You're telling me that you don't know about U-Turn? That's outright pitiful. I'll give you one.</li>
+<li><span class='src'>0x0101</span> This is a renowned fishing spot. Are you getting the itch to fish?</li>
+<li><span class='src'>0x0121</span> Gorge your eyes on this! It's a Silk Scarf. It's right at the cutting edge of fashion, yeah! Oh, I can see your eyes twinkling! You appreciate my dazzling style</li>
+</ul></details>
+<details><summary>Fallarbor Town <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x00E5</span> Prof. Cozmo: Oh… I never should have let myself be conned into telling Team Magma where you can find Metiorites… That Meteorite from Meteor Falls… It's never go</li>
+<li><span class='src'>0x01B5</span> I just finished studying a book called "From the Sanwei Bookstore to the Baicao Garden." Because my botany teacher told me to. In it, I learned how to teach an </li>
+<li><span class='src'>0x01CD</span> Scott: Hi, you! So you came out to this Battle Tent! The people in these parts tend to be easygoing and laid-back. But, you see, what I'm looking for are people</li>
+</ul></details>
+<details><summary>Old Chateau <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x4266</span> <em>switch</em></li>
+<li><span class='src'>0x4267</span> <em>switch</em></li>
+<li><span class='src'>0x4268</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Petalburg Woods <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x0129</span> Oh, neat! That's the Badge from Rustboro Gym! You must be a Trainer. You should try using this item.</li>
+<li><span class='src'>0x40E2</span> An invisible force is blocking the way…</li>
+<li><span class='src'>0x4165</span> You are… you, I see. You were chosen by it. "A green-haired demon! Don't come near me!" Heh, sorry.</li>
+</ul></details>
+<details><summary>Route 101 <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x0052</span> Prof. Birch: Whew… I was in the tall grass studying wild Pokémon when I was jumped. You saved me. Thanks a lot! Oh? Hi, you're you! This is not the place to cha</li>
+<li><span class='src'>0x02BC</span> Prof. Birch: Whew… I was in the tall grass studying wild Pokémon when I was jumped. You saved me. Thanks a lot! Oh? Hi, you're you! This is not the place to cha</li>
+<li><span class='src'>0x02D0</span> Prof. Birch: Whew… I was in the tall grass studying wild Pokémon when I was jumped. You saved me. Thanks a lot! Oh? Hi, you're you! This is not the place to cha</li>
+</ul></details>
+<details><summary>Route 116 <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x0100</span> Oh! It's you! You're that person who not only helped me in Petalburg Woods, but also got back my stolen package and then even graciously delivered it to Slatepo</li>
+<li><span class='src'>0x011F</span> Oh! It's you! You're that person who not only helped me in Petalburg Woods, but also got back my stolen package and then even graciously delivered it to Slatepo</li>
+<li><span class='src'>0x40DF</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Southern Island <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x00CE</span> "All dreams are but another reality. Never forget…"</li>
+<li><span class='src'>0x01C8</span> "All dreams are but another reality. Never forget…"</li>
+<li><span class='src'>0x01C9</span> "All dreams are but another reality. Never forget…"</li>
+</ul></details>
+<details><summary>Whirl Islands <span class='src'>(3)</span></summary><ul>
+<li><span class='src'>0x0091</span> The … fled away!</li>
+<li><span class='src'>0x01DD</span> The … fled away!</li>
+<li><span class='src'>0x42F0</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Faraway Island <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x01C7</span> Myuu…</li>
+<li><span class='src'>0x01CA</span> Myuu…</li>
+</ul></details>
+<details><summary>Hisui Region <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x409D</span> Rei: Oh, right. To help with your survey work in Hisui, you can use this now.</li>
+<li><span class='src'>0x4317</span> Researcher: The damage to base camp has been assessed, and rebuilding is underway. Rei: Understood-good work. I'll report to Captain Cyllene.</li>
+</ul></details>
+<details><summary>Icirrus Town <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x4124</span> Oh! You Pokémon are great! You seem full of enthusiasm to treat your Pokémon the right way. Oh! I'm really impressed, this is for you!</li>
+<li><span class='src'>0x4125</span> Too bad! The Bag is full…</li>
+</ul></details>
+<details><summary>Jubilife City <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x092A</span> This is the Pokémon Lottery Corner. All shoppers at our Department Store get to draw a Pokémon Loto Ticket. If the Loto Ticket's number matches the ID number of</li>
+<li><span class='src'>0x4196</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Marine Cave <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x40F8</span> Male Voice: Hehe, give up. The rainy day is my home now! Familiar Voice: I will not lose! Electivire, use Thunder Punch! Male Voice: Since you don't believe me,</li>
+<li><span class='src'>0x41DE</span> Male Voice: Hehe, give up. The rainy day is my home now! Familiar Voice: I will not lose! Electivire, use Thunder Punch! Male Voice: Since you don't believe me,</li>
+</ul></details>
+<details><summary>Mirage Tower <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x0078</span> <em>switch</em></li>
+<li><span class='src'>0x009D</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Mt. Chimney <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x0073</span> A Meteorite is fitted on a mysterious machine… Do you want to remove the Meteorite?</li>
+<li><span class='src'>0x00DB</span> Archie: Grr, you! I should've guessed you'd show up! See for yourself what the fanatics of Team Magma are up to! They're trying to inject the stolen Meteorite's</li>
+</ul></details>
+<details><summary>Mt. Coronet <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x410D</span> Waji: Yo you finally made it! Why so surprised? Didn't I tell you someone would give you guidance at the Spear Pillar? Is it that strange for me to be here? Or </li>
+<li><span class='src'>0x42E9</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Route 106 <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x41B2</span> Hala: Ah, you! Just like what happened with Nanu… You need to find the other two Kahunas, and help their Tapus!</li>
+<li><span class='src'>0x41BF</span> Hala: Ah, you! Just like what happened with Nanu… You need to find the other two Kahunas, and help their Tapus!</li>
+</ul></details>
+<details><summary>Route 109 <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x008C</span> I'm the owner of the Seashore House. But you can call me Mr. Sea! What I love above all is to see hot Pokémon battles. Let me see that your heart burns hot! If </li>
+<li><span class='src'>0x0118</span> You can have this!</li>
+</ul></details>
+<details><summary>Route 112 <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x42E2</span> The inside of the cave has collapsed, so it can no longer be entered.</li>
+<li><span class='src'>0x4301</span> The inside of the cave has collapsed, so it can no longer be entered.</li>
+</ul></details>
+<details><summary>Ruins of Decision <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x42FD</span> <em>switch</em></li>
+<li><span class='src'>0x42FE</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Rusturf Tunnel <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x006A</span> Wow! You shattered that boulder blocking the way. To show you how much I appreciate it, I'd like you to have this HM.</li>
+<li><span class='src'>0x00C7</span> Wow! You shattered that boulder blocking the way. To show you how much I appreciate it, I'd like you to have this HM.</li>
+</ul></details>
+<details><summary>Safari Zone <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x005D</span> You still have time left. Would you like to exit the Safari Zone now?</li>
+<li><span class='src'>0x009A</span> Thousand-needle fish, thousand-needle fish… Have you ever seen a fish like that? … Huh? Strange, I was just fishing in Cobalt Coastline… And now I'm here? Do yo</li>
+</ul></details>
+<details><summary>Sandgem Town <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x4132</span> Volo: My, still haven't made up your mind? Well, seeing as fate brought us together, I'll wait a little longer for you.</li>
+<li><span class='src'>0x4195</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Sinnoh Region <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x4292</span> Seems like you don't have enough money…</li>
+<li><span class='src'>0x4293</span> Seems like you don't have enough money…</li>
+</ul></details>
+<details><summary>Solaceon Town <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x410F</span> Sorry! I can't give any more Eggs. But I can sell them! How about 10,000?</li>
+<li><span class='src'>0x419B</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Spear Pillar <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x42B8</span> Cyrus: …… …… …… …… …… …… …… The preparations to create a new world have been completed. Now, everything will end, and a new beginning will be welcomed. This Red</li>
+<li><span class='src'>0x42BA</span> you sensed chaotic, dangerous waves. Giratina must have destroyed the spatial supports around the Spear Pillar to stop the Crimson Sun. To avoid being swallowed</li>
+</ul></details>
+<details><summary>Timeless Woods <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x4041</span> I'm Alpha, a tester. I caught 90 Pokémon and not one had its Hidden Ability. I didn't know that… You can't find wild Pokémon with HA. I need a certain kind of B</li>
+<li><span class='src'>0x414D</span> ???: Hey! Stop! Now!</li>
+</ul></details>
+<details><summary>Victory Road <span class='src'>(2)</span></summary><ul>
+<li><span class='src'>0x40A3</span> Researcher: Long time no see. You may not remember me, but we met in the laboratory in Mauville City. Well, that is not a good memory, now that I think about it</li>
+<li><span class='src'>0x42EB</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Ancient Retreat <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x027F</span> Brendan: This is where we started. In the blink of an eye, we choose different paths. But our love for Pokémon remains unchanged. Right here, let's battle! Let </li>
+</ul></details>
+<details><summary>Bellchime Trail <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x0320</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Canalave City <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42E6</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Cave of Origin <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x0137</span> Ah, so you are you? I've heard tales of your exploits. My name is Wallace. I was once the Gym Leader of Sootopolis, but something came up. So now, I've entruste</li>
+</ul></details>
+<details><summary>Champion Island <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x419C</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Crown Shrine <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42F8</span> Too bad! The Bag is full…</li>
+</ul></details>
+<details><summary>Desert Underpass <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x40CD</span> There was a strong vibration coming from the depths.</li>
+</ul></details>
+<details><summary>Distortion World <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4130</span> you's Lunar Wing is reacting to the space around it...! A spatial passage to the Distortion World is slowly taking form...!</li>
+</ul></details>
+<details><summary>Fiery Path <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x02FE</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Floaroma Town <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4198</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Fuego Ironworks <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x430D</span> Yes! Star Pieces are my absolute favorite! Won't you trade with me?!</li>
+</ul></details>
+<details><summary>Lake of Despair <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42C5</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Magic Woods <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x40CE</span> Lucas: Hey! Here they come! Barry: Whoa So this is that Ultra Trainer you mentioned?</li>
+</ul></details>
+<details><summary>Magma Hideout <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x40DB</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Meteor Temple <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4139</span> Grandma: Are you here to ask about Zinnia…she and I are descendants of the Draconid people. Our family aims to pass on the wisdom and truth of Mega Evolution, f</li>
+</ul></details>
+<details><summary>Mountain Top <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4043</span> Gold: …you…I lost… Before you arrived, I challenged the Rainbow Rockets with Elio! But… damn it…! They are too powerful…! you, we can't do much at all, they con</li>
+</ul></details>
+<details><summary>New Mauville <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42B3</span> Someone's here? Is the generator problem their doing?</li>
+</ul></details>
+<details><summary>Oldale Town <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x0084</span> Hi! I work at a Pokémon Mart. Can I get you to come with me?</li>
+</ul></details>
+<details><summary>Oreburgh City <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4197</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Pastoria City <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42E4</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Regigigas Temple <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x413C</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Route 110 <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x40CC</span> Number of collisions: … … …! Total time: … … …!</li>
+</ul></details>
+<details><summary>Route 118 <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x00E3</span> Hmm! A Good Rod is really good! Wouldn't you agree?</li>
+</ul></details>
+<details><summary>Route 120 <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x092E</span> Berries grow by soaking up sunlight. We help the Berries grow by watering them regularly. It's an expression of love, isn't it?</li>
+</ul></details>
+<details><summary>Route 124 <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x00D9</span> I'm the Diving Treasure Hunter! I'm the awesome dude who makes deep-sea dives to gather treasures resting at the bottom.</li>
+</ul></details>
+<details><summary>Sealed Chamber <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x00E4</span> It sounded as if a door opened somewhere far away.</li>
+</ul></details>
+<details><summary>Sinnoh League <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42EA</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Sky Pillar <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x40D7</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Snowpoint City <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42E7</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Space-Time Rift <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4079</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Sunyshore City <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42E8</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Terra Cave <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x41DF</span> Male Voice: Hahaha, you can't win on this sunny day. Familiar Voice: Drapion, use Earthquake! Male Voice: Hahaha, you're so stubborn, Camerupt, use Fire Blast! </li>
+</ul></details>
+<details><summary>Twinleaf Town <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x4194</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Ultra Alliance <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x432B</span> Blue: Is this the Ultra Alliance? It's not that different from the Indigo Plateau! But this time, there won't be a boy with a Red hat rushing in to defeat me… H</li>
+</ul></details>
+<details><summary>Underwater <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x03D4</span> <em>switch</em></li>
+</ul></details>
+<details><summary>Veilstone City <span class='src'>(1)</span></summary><ul>
+<li><span class='src'>0x42E3</span> <em>switch</em></li>
+</ul></details>
+<h2 id="unread">Scripts the tool could not read to the end</h2><table class="plain">
+<tr><td>Terra Cave</td><td>object 0 (local 1, gfx 198, at 17,23, flag 030F)</td><td class='src'>088030F0: unknown opcode ED</td></tr>
+<tr><td>?</td><td>map script type 4 (var 4000 == 0)</td><td class='src'>082104B2: unknown opcode E3</td></tr>
+<tr><td>Battle Frontier</td><td>object 1 (local 2, gfx 22, at 2,5, flag 0000)</td><td class='src'>08265B9C: unknown opcode ED</td></tr>
+<tr><td>Battle Frontier</td><td>object 2 (local 3, gfx 22, at 6,5, flag 0000)</td><td class='src'>08265B9C: unknown opcode ED</td></tr>
+<tr><td>Distortion World</td><td>object 2 (local 3, gfx 4, at 29,0, flag 0000)</td><td class='src'>0800A7A4: unknown opcode FF</td></tr>
+<tr><td>Ultra Alliance</td><td>map script type 2 (var 2691 == 8)</td><td class='src'>080003FF: unknown opcode FB</td></tr>
+<tr><td>Icirrus Town</td><td>object 0 (local 1, gfx 22, at 3,4, flag 0000)</td><td class='src'>08808383: unknown opcode EE</td></tr>
+<tr><td>Remote Island</td><td>map script type 1</td><td class='src'>088961CA: unknown opcode F4</td></tr>
+<tr><td>Distortion World</td><td>object 2 (local 3, gfx 96, at 24,27, flag 42BB)</td><td class='src'>0800A7A4: unknown opcode FF</td></tr>
+</table><p>Two are Battle Frontier move tutors, three point at data rather than a script (Distortion World, Ultra Alliance), three use commands this hack added, and one is a Terra Cave object whose Groudon battle is another script. None of them sets a flag of its own.</p>
+<p class="src">Generated by <code>tools/romdata/flag_audit.py</code> and <code>tools/build_audit_page.py</code>.</p>
+</div>
+</main>
+<aside class="toc-rail"></aside>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

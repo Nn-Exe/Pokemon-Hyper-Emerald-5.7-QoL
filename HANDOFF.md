@@ -65,15 +65,22 @@ Applied to the working ROM and verified in mGBA (on a real late-game save, Sinno
 - the last published release is **v1.4** (DexNav, Sinnoh map + fly, R button, News Tracker fix). **Not yet
   released**, all applied and tested:
   * gold healthbox on your own shinies too (`patches/shinybox/`);
-  * the **Journal** key item: next story objective from Prof. Birch to Volo, 74 steps traced in the game's
+  * the **Journal** key item: next story objective from Prof. Birch to Cogita, 84 steps traced in the game's
     scripts (`patches/journal/`: `steps.py` is the table; `make_tests.py` + `test_journal.lua` +
-    `check_journal.py` check all 84 scenarios byte for byte). Rules and every flag gotcha: NOTES, JOURNAL;
+    `check_journal.py` check all 94 scenarios byte for byte). Rules and every flag gotcha: NOTES, JOURNAL;
+  * the **Quest Log**: the Journal opens a checklist screen, one chapter a page (`patches/questlog/`; it rebuilds
+    and verifies the Journal blob, then calls its routines. `test_questlog.lua` + `check_questlog.py` run the
+    same 94 scenarios through the screen; R in the Start menu opens it too; a fifth chapter, Legends, lists the legendaries from
+    `patches/questlog/legends.py`, a sixth the key items from `keyitems.py`, a seventh
+    side content from `sidecontent.py`; the log opens on a chapter grid). NOTES, QUEST LOG;
   * berry numbers in the Bag: "No?2" -> No44-71 (`patches/berrynum/`, four sites - the hack has two copies of
     its item-name routine);
 - the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
   (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
 
-Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum`.
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly`.
+(On a ROM that already has the old shinybox, "both sides" is the 2-byte edit at `0x08FDA136` in NOTES; the
+patcher itself only builds from a clean BattleMainCB2.)
 
 The chain is now: ... `sinnohmap` → `dexnavchain` → `rbutton` (see *Rebuild from source* in the README). While
 iterating on the DexNav, build from a ROM that has everything up to `sinnohmap` (the working ROM before

@@ -13,7 +13,8 @@ from keystone import Ks, KS_ARCH_ARM, KS_MODE_THUMB
 from capstone import Cs, CS_ARCH_ARM, CS_MODE_THUMB
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FREE = 0x00FE8400                       # after the Journal (ends 0x08FE83D4), in the run free to 0x08FF0000
+FREE = 0x00FE9000                       # past the Journal (ends 0x08FE84F0 and grows with its text: keep ~2.8 KB
+                                        # clear), in the run free to 0x08FF0000. Was 0x08FE8400 until 2026-09-22.
 BASE = 0x08000000 + FREE
 GSTRINGVAR1 = 0x02021CC4
 HACK_SITE = 0x00FD5E32                  # subs r1,#0x84; movs r3,#2; movs r2,#2; ldr r0,[pc,#0x8c]; ldr r6,[pc,#0x90]

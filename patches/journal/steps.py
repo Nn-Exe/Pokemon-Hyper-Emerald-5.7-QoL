@@ -19,6 +19,9 @@ A step is one of
                   only the first one missing, in the order given (Plates, which follow Waji's hint order).
 """
 
+# Wording rule (the user's): say where to go and what to do, never who or what waits there before the story
+# reveals it - "face the phantom of nightmares", not Darkrai. Keep names the player already knows at that
+# point, and names that are the requirement itself (catch Tornadus...).
 W = 34          # the field and bag message boxes both fit 34 characters of the normal font (translation/inserter.py)
 
 HOENN = "Hoenn - Next objective:"
@@ -99,7 +102,7 @@ STEPS = [
     (POST, ANY(0x4159), "Team Magma took your Mega Bracelet. Go to Meteor Falls and stop them."),
     (POST, ANY(0x40C6), "Beat Zinnia in Meteor Falls to get your Mega Bracelet back."),
     (POST, ANY(0x1C0), "Climb the Sky Pillar (Route 131) and face Rayquaza."),
-    (POST, ANY(0x1AD), "Ride Rayquaza into space to stop the meteor, and face Deoxys."),
+    (POST, ANY(0x1AD), "Ride Rayquaza into space to stop the meteor. Something is waiting beyond the sky."),
     (POST, ANY(0x411D), "Back on the ground, talk to Wallace in Mossdeep City."),
     (POST, ANY(0x411E), "Return to Steven's Island. Anabel reports trouble deep inside Meteor Falls: find "
                         "Steven there."),
@@ -139,10 +142,19 @@ STEPS = [
                         "to Team Rainbow Rocket's castle."),
     (POST, ANY(0x41D5), "Storm Team Rainbow Rocket's castle and defeat them at the Mountain Top."),
     (POST, ANY(0x42F1), "Return to Steven's Island: Steven is waiting."),
-    # 0x08E0 is also set by beating Lyra, so it is not an anchor
+    # The way to Champion Island is the Lilycove ferry, which lists it only with flag 0x08D5 AND item 371 (the
+    # ticket; vanilla's Aurora Ticket slot). Scott gives both in his Frontier house (0x082636A8) on your first
+    # Silver Symbol from any facility, with the PWT invitation, and sets 0x005C - which nothing else sets.
+    # Yanshan on Steven's Island also sets 0x08D5 but gives no ticket (tested in game), so 0x08D5 would read
+    # as done too early: the step uses 0x005C. Can be earned early: not an anchor.
+    (POST, ANY(0x005C, anchor=False),
+                        "Earn a Silver Symbol at the Battle Frontier - for one, beat Salon Maiden Anabel, "
+                        "the 35th battle of a Battle Tower Singles streak. Then see Scott in his Frontier "
+                        "house for a ferry ticket to the World Championships."),
+    # 0x08E0 is set when you arrive (Paul's trigger, 0x098712EA); beating Lyra sets it too, so not an anchor
     (POST, ANY(0x08E0, anchor=False),
-                        "Surf to Champion Island, off Route 105, for the World Championships. Paul and "
-                        "Waji are waiting."),
+                        "Take the ferry from Lilycove City to Champion Island for the World Championships. "
+                        "Familiar faces are waiting."),
 
     # ---------------------------------------------------------------- Chapter: Sinnoh
     (SINNOH, ANY(0x42CD, 0x42CE, 0x42CF, 0x42D0, 0x42D1, 0x42D2, 0x42D3, 0x42D4, 0x42D5, anchor=False),
@@ -187,17 +199,17 @@ STEPS = [
     # Only Giratina and the Plates are needed for Arceus. The rift and Celestic steps are how Waji leads you
     # to Giratina, so they count as done once Giratina is.
     (LOST, ANY(0x40F0, 0x42D8, 0x4081, anchor=False),
-                        "Step onto the altar at the Spear Pillar with all 17 Plates. In the rift you face "
-                        "Dialga and Palkia, then a trainer from another world."),
+                        "Step onto the altar at the Spear Pillar with all 17 Plates. The rift that opens will "
+                        "test everything you have."),
     (LOST, ANY(0x42D8, 0x4081, anchor=False),
                         "Waji senses the rift's energy in Celestic Town. Visit its ruins with Dialga and "
                         "Palkia both caught to open a way into the Distortion World, or go in from the islet "
                         "on Route 129."),
     (LOST, ANY(0x4081, anchor=False),
-                        "Battle Giratina in the Distortion World. Ways in: the new passage at the Spear "
-                        "Pillar or Sendoff Spring, or the islet on Route 129 in Hoenn."),
+                        "Enter the Distortion World and face the ruler of the reverse world. Ways in: the new "
+                        "passage at the Spear Pillar or Sendoff Spring, or the islet on Route 129 in Hoenn."),
     (LOST, ANY(0x42FB), "Keep all 17 Plates in your Bag and return to the Mountain Top above Team Rainbow "
-                        "Rocket's castle. Arceus is waiting."),
+                        "Rocket's castle. The Plates' true owner is waiting."),
     (LOST, ANY(0x4313), "Arceus sent you to Hearthome City. Find Cogita in a house on the west side of town, "
                         "with all 17 Plates in your Bag."),
     (LOST, ANY(0x4316), "Step through the space-time rift in Cogita's house. It leads to the Hisui region."),
@@ -208,9 +220,139 @@ STEPS = [
         (0x431B, 1, "Irida, Pearl Clan"),
     ], done_any=(0x4315,), list_all=True),
         "Visit the clan leaders at the hot spring in the Alabaster Icelands."),
-    (LOST, ANY(0x4315), "Diamond and Pearl point to the foot of Mt. Coronet. Enter the Primeval Cave and "
-                        "stop Volo."),
+    (LOST, ANY(0x4315), "Diamond and Pearl point to the foot of Mt. Coronet. Enter the Primeval Cave: whoever is "
+                        "behind the rifts is inside."),
+
+    # ---------------------------------------------------------------- After Volo: the God of Forms
+    # Traced 2026-09-22 with tools/romdata (scripts.py, prereq.py). 0x431E: Rei and Cogita's report, a trigger
+    # at base camp (37/104). 0x4319: Cogita on Firespit Island (37/105, 0x0989D84D), after Volo, once the
+    # Pokedex has Tornadus, Thundurus and Landorus (species 899-901) - she tells you of Enamorus. 0x4322: the
+    # hide flag of the Dried Fish item ball on Prelude Beach (37/104, 13,40), the game's only Dried Fish (item
+    # 744); Kitty in the developer house (35/8, 0x098B1F85) eats it and gives the nameless stone (item 745).
+    # The summit guard (37/106, 0x098B201D) needs item 745 AND 0x4319 AND not 0x4323, and warps to the Moonbow
+    # Dome (35/10): the God of Forms (trainers 1304, 1340, 1341; the stone crumbles its clay figures) and a
+    # Lv 70 Enamorus (species 1025) -> 0x4323. 0x4325: Cogita on Champion Island (35/28, needs 0x4319; or the
+    # 35/6 trigger after 0x431E), which opens her Ancient Retreat (37/119) and the Griseous Core (37/121).
+    # Only 0x431E and 0x4319 must happen in order; the rest can come in any order after 0x4319.
+    (LOST, ANY(0x431E), "Volo is beaten. Return to base camp in Hisui: Rei and Cogita have news."),
+    # The Solaceon nightmare (placed here at the user's request; it has no link to Volo, so every step is
+    # "any order" and doing it early never moves the Journal). 0x4117: the husband in Solaceon (37/22,
+    # 0x0980DF8C) tells his story - set on first talk. 0x412F: Dawn on Route 210 (35/16, 0x0980977C) hands over
+    # the Lunar Wing (item 647). 0x412D: the Lunar Wing wakes the woman (0x0980E243); the husband then gives
+    # Berries. 0x4060: Darkrai's hide flag in the Lost Tower (35/29): shown once 0x412D is set, set by the
+    # shared legendary handler's removeobject (0x08FE38F0) after the battle, cleared again if it flees.
+    (LOST, ANY(0x4117, anchor=False),
+                        "In Solaceon Town in Sinnoh, a woman has slept in a nightmare since her offerings "
+                        "at the Lost Tower. Hear her husband out."),
+    (LOST, ANY(0x412F, anchor=False),
+                        "Dawn, on Route 210, carries a feather said to dispel any nightmare. Tell her about the "
+                        "sleeping woman."),
+    (LOST, ANY(0x412D, anchor=False),
+                        "Bring the Lunar Wing to the sleeping woman in Solaceon Town and wake her."),
+    (LOST, ANY(0x4060, anchor=False),
+                        "The oppressive presence in the Lost Tower has lifted. Something pitch-black stirs deep "
+                        "inside: face the phantom of nightmares."),
+    (LOST, ANY(0x4319), "Catch Tornadus, Thundurus and Landorus, then show Cogita on Firespit Island in Hisui. "
+                        "She has one more legend to tell."),
+    (LOST, ANY(0x4322, anchor=False),
+                        "Kitty in the three-floor house on Steven's Island wants dried fish. Find the "
+                        "Dried Fish on Prelude Beach in Hisui and bring it to her for a nameless stone."),
+    (LOST, ANY(0x4323, anchor=False),
+                        "With Kitty's nameless stone in your Bag, climb toward the Sacred Temple in Hisui's "
+                        "highlands. A dread of unknown origin hangs over the summit."),
+    (LOST, ANY(0x4325, anchor=False),
+                        "Cogita waits on Champion Island with more to tell."),
 ]
 
-FINAL = (LOST, "Every story objective is complete! Still out there: Cogita in Hisui has something for a "
-               "trainer who has caught Tornadus, Thundurus and Landorus.")
+FINAL = (LOST, "Every story objective is complete! Still out there: a trial of six battles at Cogita's retreat "
+               "off Sootopolis, and Adaman and Irida's clan treasures for a trainer who brings Dialga or Palkia.")
+
+# Short titles for the Quest Log, one per step in order (<= 24 characters, the same no-spoiler rule).
+TITLES = [
+    'Help Prof. Birch',
+    'Get the Pokédex',
+    'Beat Roxanne',
+    'Chase the Aqua grunt',
+    'Back to Devon Corp.',
+    'A letter for Steven',
+    'Beat Brawly',
+    'Deliver the Devon Goods',
+    'Beat Wattson',
+    'Chase Team Magma',
+    'Beat Flannery',
+    'Beat Norman',
+    'The Weather Institute',
+    'Beat Winona',
+    'Climb Mt. Pyre',
+    "Team Magma's hideout",
+    "Team Aqua's hideout",
+    "Team Plasma's blockade",
+    'Beat Tate & Liza',
+    'The Space Center',
+    'The Seafloor Cavern',
+    'Crisis in Sootopolis',
+    'Beat Juan',
+    'The Pokémon League',
+    'Interpol at home',
+    "Steven's Island",
+    "Wally's Mega Bracelet",
+    'Emergency at Devon',
+    'A meteorite fragment',
+    'Prof. Cozmo',
+    'The stolen bracelet',
+    'Face Zinnia',
+    'Climb the Sky Pillar',
+    'Beyond the sky',
+    'Wallace in Mossdeep',
+    'Trouble in Meteor Falls',
+    'The first wormhole',
+    'Report to Anabel',
+    'The Totem Pokémon',
+    'The four trials',
+    'Report to Nanu',
+    'Chase Faba',
+    'Report to Anabel',
+    'Train with Champions',
+    'Report to Anabel',
+    'The strange weather',
+    'Report to Anabel',
+    "Mt. Pyre's wormhole",
+    'Report to Anabel',
+    "Shoal Cave's wormhole",
+    'Report to Anabel',
+    "Route 116's wormhole",
+    'Report to Anabel',
+    'Catch Faba',
+    'Report to Anabel',
+    'Find Red',
+    'Report to Anabel',
+    'The 18 Z-Crystals',
+    'Storm the castle',
+    'Steven is waiting',
+    'A Silver Symbol',
+    'To Champion Island',
+    'Sail to Sinnoh',
+    'The Sinnoh Badges',
+    'The Sinnoh League',
+    'The 17 Plates',
+    'The Spear Pillar altar',
+    'A way through',
+    'The reverse world',
+    "The Plates' owner",
+    'Cogita in Hearthome',
+    'Through the rift',
+    'Find Cogita in Hisui',
+    'The clan leaders',
+    'The Primeval Cave',
+    'Back to base camp',
+    'A sleeping woman',
+    'A feather for dreams',
+    'Wake the sleeper',
+    'The Lost Tower',
+    'One more legend',
+    "Kitty's dried fish",
+    'The summit',
+    "Cogita's invitation",
+]
+FINAL_TITLE = 'Beyond the story'
+

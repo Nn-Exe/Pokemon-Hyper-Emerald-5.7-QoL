@@ -112,8 +112,12 @@ b_emit:
     bl group_tail
     adds r7, r0, #0
 b_end:
+    movs r0, #0xFC              @ wait for a button on the last page, then end: the key-item message routines
+    strb r0, [r7]               @ close the box the moment the text is printed, so without this the final
+    movs r0, #0x09              @ page vanished before it could be read (the Sinnoh Map's message does the same)
+    strb r0, [r7, #1]
     movs r0, #0xFF
-    strb r0, [r7]
+    strb r0, [r7, #2]
     pop {r4, r5, r6, r7}
     pop {r0}
     bx r0

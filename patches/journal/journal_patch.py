@@ -132,6 +132,33 @@ def data_blob(base):
     return bytes(d), table, desc
 
 
+ORDER = ("ow_stub", "item_use", "build", "step_done", "group_count", "group_tail", "append", "u8dec", "flag")
+
+
+def layout(prevhook):
+    """The whole blob for a given overworld chain target: (bytes, symbol addresses, step table, description).
+    The Quest Log patch calls this to check the Journal in a ROM byte for byte and to find its routines."""
+    src = open(os.path.join(HERE, "journal.s"), encoding="ascii").read()
+
+    def assemble(steps_addr):
+        s = src.replace("PREVHOOK_ADDR", "0x%08X" % prevhook).replace("STEPS_ADDR", "0x%08X" % steps_addr)
+        return thumb(s, BASE)
+
+    code, dis = assemble(BASE)
+    code_len = (len(code) + 3) & ~3
+    data, table, desc = data_blob(BASE + code_len)
+    code, dis = assemble(table)
+    assert (len(code) + 3) & ~3 == code_len
+
+    funcs = [i.address for i in dis if i.mnemonic == "push"]
+    assert len(funcs) == len(ORDER), "unexpected function layout: %d pushes, expected %d" % (len(funcs), len(ORDER))
+    sym = dict(zip(ORDER, funcs))
+    assert sym["ow_stub"] == BASE, "ow_stub must be first"
+    sym["code_len"] = len(code)
+    sym["data"] = BASE + code_len
+    return bytes(code) + bytes(code_len - len(code)) + data, sym, table, desc
+
+
 def build(inp, outp):
     rom = bytearray(open(inp, "rb").read())
     assert rom[0xAC:0xB0] == b"BPEE" and len(rom) == 0x2000000
@@ -148,25 +175,7 @@ def build(inp, outp):
     assert rom[e + 0x19] == 1, "item 363 is not registrable"
     assert struct.unpack_from("<I", rom, e + 0x1C)[0] == 0x080FE821, "item 363 already has a field use"
 
-    src = open(os.path.join(HERE, "journal.s"), encoding="ascii").read()
-
-    def assemble(steps_addr):
-        s = src.replace("PREVHOOK_ADDR", "0x%08X" % prevhook).replace("STEPS_ADDR", "0x%08X" % steps_addr)
-        return thumb(s, BASE)
-
-    code, dis = assemble(BASE)
-    code_len = (len(code) + 3) & ~3
-    data, table, desc = data_blob(BASE + code_len)
-    code, dis = assemble(table)
-    assert (len(code) + 3) & ~3 == code_len
-
-    funcs = [i.address for i in dis if i.mnemonic == "push"]
-    order = ("ow_stub", "item_use", "build", "step_done", "group_count", "group_tail", "append", "u8dec", "flag")
-    assert len(funcs) == len(order), "unexpected function layout: %d pushes, expected %d" % (len(funcs), len(order))
-    sym = dict(zip(order, funcs))
-    assert sym["ow_stub"] == BASE, "ow_stub must be first"
-
-    blob = bytearray(code) + bytes(code_len - len(code)) + data
+    blob, sym, table, desc = layout(prevhook)
     end = FREE + len(blob)
     assert end <= 0x00FF0000
     assert set(rom[FREE:end]) == {0xFF}, "target region not free"
@@ -178,7 +187,7 @@ def build(inp, outp):
     struct.pack_into("<I", rom, e + 0x1C, sym["item_use"] | 1)
     open(outp, "wb").write(rom)
 
-    print("code %d bytes @%08X, data @%08X, end %08X (%d bytes)" % (len(code), BASE, BASE + code_len,
+    print("code %d bytes @%08X, data @%08X, end %08X (%d bytes)" % (sym["code_len"], BASE, sym["data"],
                                                                    0x08000000 + end, len(blob)))
     print("  ow_stub %08X (chains to %08X), item_use %08X, steps %08X (%d + terminator), desc %08X" % (
         sym["ow_stub"] | 1, prevhook, sym["item_use"] | 1, table, len(S.STEPS), desc))

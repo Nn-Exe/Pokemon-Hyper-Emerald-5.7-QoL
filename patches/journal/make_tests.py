@@ -41,7 +41,14 @@ def model(on):
     return None
 
 
+WAIT = b"\xfc\x09"                     # the message ends by waiting for a button (journal.s b_end)
+
+
 def expected_bytes(i, on):
+    return _body(i, on) + WAIT
+
+
+def _body(i, on):
     if i is None:
         return J.message(*S.FINAL)[:-1]
     header, st, body = S.STEPS[i]

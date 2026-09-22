@@ -111,6 +111,8 @@ def summarise(entry):
         elif op == 0x21: s["cmpvar"].append([u16_(a), u16_(a, 2)])
         elif op == 0x5C: s["trainers"].append(u16_(a, 1))
         elif op == 0x44: s["items"].append([u16_(a), u16_(a, 2)])
+        # giveitem / finditem: copyvarifnotzero VAR_0x8000, <item> (a constant below 0x4000), then callstd
+        elif op == 0x1A and u16_(a) == 0x8000 and u16_(a, 2) < 0x4000: s["items"].append([u16_(a, 2), 1])
         elif op == 0x79: s["mons"].append([u16_(a), a[2]])
         elif op == 0xB6: s["wild"].append([u16_(a), a[2]])
         elif op in WARPS: s["warps"].append([a[0], a[1]])
