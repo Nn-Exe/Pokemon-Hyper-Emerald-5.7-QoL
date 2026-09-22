@@ -87,6 +87,21 @@ SIDE = [
      "The Old Chateau in Sinnoh: watch the TV closely."),
     (0x432D, "The cursed statue",
      "The Old Chateau in Sinnoh: a powerful grudge dwells in a statue."),
+    # ---- hidden powers: the Burning Soul and the Hero Greninja (Ash's Koga ninja style)
+    (0x4301, "The Burning Soul",
+     "Route 112, foot of Mt. Chimney (west): a hidden cave. Take TM53, face the flame creature and stay. "
+     "ONE try: the cave collapses after. Win 3 rounds for the Burning Soul, as a Typhlosion trainer once did."),
+    (0x42FF, "Koga's mark",
+     "Champion Island: battle Koga of Johto's Elite Four. He gives you his mark and tells of a hidden ninja "
+     "village reached through the forest of Route 102."),
+    (0x4300, "The Hero Greninja",
+     "Koga's Village, through the Route 102 forest: bring only one Greninja to Elder Koga's two-stage trial "
+     "(some items are banned). Your Greninja gains its hero form, like Ash's."),
+    (0x4302, "Ash's challenge",
+     "Route 101: once your Greninja has its hero form, Ash from Pallet Town comes to battle. A red-haired "
+     "passerby joins in, and leaves a note behind."),
+    (0x4303, "The note's sender",
+     "Steven's Island: the northeast corner of Steven's residence. The passerby from Route 101 is waiting."),
 ]
 
 assert len({f for f, *_ in SIDE}) == len(SIDE)

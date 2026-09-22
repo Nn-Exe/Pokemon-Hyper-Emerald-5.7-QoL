@@ -1025,3 +1025,17 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   checked 0x09F90000-0x09FA0000 window; the patcher asserts the three do not overlap.
 - Tested: `test_questlog_grid.lua` (open, move, open Legends, back, open Side Content and a row, close);
   Start menu R -> grid -> B back to the Start menu; `test_questlog.lua` (now presses A on the grid first) 94/94.
+
+## HIDDEN POWERS: THE BURNING SOUL AND THE HERO GRENINJA — 2026-09-22
+- Burning Soul: Route 112 (0/27) tile (7,26) - not in vanilla - warps to Magma Hideout 24/93. Object at (47,7)
+  (flag 0x4297) is TM53; the sign at (48,9) needs 0x4297 and the Pokédex (0x864). "Leave?" yes -> var 0x409C=26,
+  warp out; stay -> the Crimson Apostle's trial, rounds in var 0x4001, trainers 1155/1156/1157, Heart Scale
+  move reminder between rounds; finishing sets 0x409C=27. Route 112's map script (`0x098520CF` ->
+  `0x0988240C`) then always sets 0x42E2 (the cave is collapsed for good) and, only for 27, 0x4301. The power
+  itself is not in any script (specials 145/312 are screen effects) - it lives in code.
+- Hero Greninja: Koga on Champion Island (35/6, trainer 1160) sets 0x42FF and points to Route 102's forest;
+  Koga's Village 35/45 (hidden) and trial grounds 35/85: one Greninja only, two stages (1159, 1158), sets 0x4300.
+  Route 101's map script (`0x081EBCD5`, var 0x4023 checks) then stages Ash's 2-vs-2 and sets 0x4302; the note
+  leads to Steven's Island 35/8 object at (4,5): -Echo-/-Hibiki-, trainer 1016, sets 0x4303. The book at
+  35/8 (4,6) (`0x0983D029`) by "Gengyi Xiang" shows entries by 0x4300, 0x4301, 0x41D5, 0x4302.
+- Both are Side Content rows (sidecontent.py). The user's save (2026-09-22): TM53 taken, cave not collapsed.

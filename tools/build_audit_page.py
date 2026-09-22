@@ -81,6 +81,22 @@ CURATED = [
         ("Unova / Kalos areas", "Garchomp (Desert Ruins), Volcarona Lv70, Zoroark (Magic Woods), Flygon, Aerodactyl Lv50", ""),
         ("Secret Bases", "Alolan Totem Pokémon Lv80, one per base (part of the Z-Crystal hunt the Journal names)", "0x4003-0x4011, 0x4140, 0x413F, 0x432C"),
     ]),
+    ("Hidden powers", "Two secret trials that give your Pokémon a power, and what follows them.", [
+        ("Route 112 (foot of Mt. Chimney, west side)", "A hidden cave into a sealed part of the Magma Hideout. "
+         "Take TM53, then face the flame creature and do NOT choose to leave: the Crimson Apostle (a Flareon "
+         "serving the Crimson Nova) runs three rounds of hologram battles (trainers 1155-1157) and awakens the "
+         "Burning Soul. One try only: on the way out the cave collapses (0x42E2) whether you finished or fled; "
+         "0x4301 is set only if you finished. Lore: a Typhlosion trainer passed the same trial on Stark Mountain; "
+         "Flint (Test of Heart) remembers a Johto girl's very fast Typhlosion.", "0x4297, 0x42E2, 0x4301"),
+        ("Champion Island", "Beat Koga (trainer 1160): he gives his mark and points to a hidden village through "
+         "the forest of Route 102.", "0x42FF"),
+        ("Koga's Village (hidden, via Route 102)", "Elder Koga's succession trial: only one Greninja, some items "
+         "banned, two stages (trainers 1159, 1158). Your Greninja gains its hero form, like Ash's.", "0x4300"),
+        ("Route 101", "Ash from Pallet Town comes for a 2-vs-2 battle with you and your rival; a red-haired "
+         "passerby (-Echo-) joins and drops a cartridge and a note.", "0x4302"),
+        ("Steven's Island", "The northeast corner of Steven's residence: -Echo- / -Hibiki- (trainer 1016). A book "
+         "there by Gengyi Xiang adds entries as you earn each power.", "0x4303"),
+    ]),
     ("Side stories", "Short scripted scenes and quests the Journal does not name.", [
         ("Route 102", "Red and Blue corner Buzzwole at an Ultra Wormhole", "0x42A3-0x42A6"),
         ("Terra Cave / Marine Cave", "A familiar voice losing to someone who controls the weather", "0x41DF, 0x41DE, 0x40F8"),
