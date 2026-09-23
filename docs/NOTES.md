@@ -1146,3 +1146,32 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   pixel-identical to the full redraw apart from the pulse phase. `test_questlog.lua` 94/94.
 - Entering the grid (opening the log, or B from a list) still draws all seven cards once, ~12 frames; the
   first one is behind the fade-in. Worth revisiting only if it is noticeable.
+
+## RARE CANDY NPC AND NATURE DISPLAY FIX (PR #1, MERGED IN PART) — 2026-09-23
+- From anibalribeiro's PR #1 on the public repo ("Party editor, Rare Candy NPC, and a nature-display fix",
+  head b426fa4). Taken: `patches/candynpc/` and `patches/naturefix/` (commit 03cb3a5, authored by them).
+  Left out on purpose: the party editor (`patches/partyedit/`), the release patch rebuilt with it, and the
+  v1.5 docs (they predate our Journal/Quest Log rows and would have rolled some README rows back).
+- Their findings, kept: `giveitem` (0x44) masks its amount to a byte (0x080999C8), so 999 goes over as
+  255+255+255+234; the hack's GetFlagAddr (0x09F00CEC) only accepts flags <= 0x3FFF or 0x4000..0x467F; the
+  hack persists object events in SaveBlock1, so a save made inside the Mart keeps that save's NPC positions;
+  the Mart (8/6) object array is flush against its warps, so it is copied to 0x08F53700 with a 5th entry.
+  GetNature (0x0806D070) ignores the Mint's override at mon+0x1F; the stub at 0x08F54200 returns it.
+- Changed on merge, both found by testing on our saves:
+  * The "given" flag. 0x4013 has no script reference, but it was set in all eight saves checked (147 to 601
+    custom flags each), so the hack's code sets it early in every game - the NPC answered "I have already
+    given you my stash" on a first talk. Census (every custom flag set on any save vs every flag any script
+    touches): 354 flags are set by code alone, mostly 0x4013-0x40F7 and 0x4421-0x4609. Now 0x433F: no script
+    references it, clear in all eight, last flag of the SB1+0x3B24 block, past the last story flag 0x432D.
+  * The Mint's list (multichoice 0x7C) is None, Lonely .. Careful, Hardy: 0 means no override and 24 is Hardy
+    (there is no Quirky). The stub returned 24 as-is, so a Mint "Hardy" showed as Quirky. It now maps 24 to 0.
+    Both are neutral natures, so the stats already agreed.
+- A wrong turn worth recording: I first split the 999 into 255,255,255,128..1 to "top up to the cap". The
+  Bag starts a second stack when one fills (as vanilla does), so every chunk landed and gave 1,020. The PR's
+  four chunks give exactly 999 whatever you already hold (checked: 30 -> 1029).
+- Tested on our build (their Lua was tied to their machine and to the party editor):
+  `patches/candynpc/test_candy_mart.lua` warps into 8/6 by a script from EWRAM, talks, says yes: candies
+  30 -> 1029, flag 0x433F 0 -> 1, a second talk gives nothing. `patches/naturefix/test_nature_summary.lua`
+  sets the lead's override and opens the summary: 13 Jolly, 24 Hardy, 0 the personality's own (Bold).
+- Chain: `... -> qolversion -> candynpc -> naturefix`. candynpc uses 0x08F53700..0x08F5382F and naturefix
+  0x08F54200..0x08F5423C, inside the free run 0x08F53700..0x08F54AA0.

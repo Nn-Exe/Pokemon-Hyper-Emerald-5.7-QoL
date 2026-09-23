@@ -18,6 +18,10 @@ getnature_hook:
     ands r1, r2                 @ bits 0-6 only
     cmp r1, #0
     beq gn_base                 @ 0 = no override: behave exactly as before
+    cmp r1, #24                 @ the Mint's list (multichoice 0x7C) is None, Lonely .. Careful, Hardy:
+    bne gn_ret                  @ its last cell, 24, is Hardy (nature 0) - there is no Quirky. Both are
+    movs r1, #0                 @ neutral, so only the name changes.
+gn_ret:
     adds r0, r1, #0
     pop {r1}
     bx r1

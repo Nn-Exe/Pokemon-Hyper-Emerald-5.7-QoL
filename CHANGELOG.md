@@ -4,6 +4,8 @@ One line per change, newest first. The how and why of each change is in [docs/NO
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
 ## 2026-09-23
+- **Added** Rare Candy NPC in Petalburg City's Poké Mart: he offers **999 Rare Candies, once**, behind a yes/no. Contributed by @anibalribeiro (PR #1). Changed on merge: the "given" flag is now `0x433F` - the PR's `0x4013` is set by the hack's own code early in every game, so on real saves he refused straight away. `patches/candynpc/`
+- **Fixed** The summary's **Nature** line now follows a Mint: the hack stores the Mint's nature at `mon+0x1F` and uses it for the stats, but `GetNature` still returned `personality % 25`. Contributed by @anibalribeiro (PR #1). Changed on merge: the Mint's last choice, "Hardy" (value 24 in its list), now displays as Hardy rather than Quirky. `patches/naturefix/`
 - **Fixed** Quest Log chapter grid: moving the cursor took about a fifth of a second to show. A move now repaints only the two card frames that change instead of the whole grid, so it responds in 2 frames instead of 13. `patches/questlog/`
 - **Added** The Option screen's title now names this patch set too: "Ultra Emerald v5.7 +QoL1.5 (Standard)", for each difficulty. `patches/qolversion/`
 

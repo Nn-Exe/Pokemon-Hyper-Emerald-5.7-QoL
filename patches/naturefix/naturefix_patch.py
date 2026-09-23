@@ -1,4 +1,4 @@
-"""Nature display fix (Hyper Emerald v5.7). Apply after the partyedit build.
+"""Nature display fix (Hyper Emerald v5.7). Apply at the end of the chain.
 
 GetNature (0x0806D070) computes `personality % 25` and ignores the hack's nature override at mon+0x1F, so
 a Mint - or the party editor - moves the stats but the summary's "Nature:" line keeps showing the old
@@ -6,7 +6,8 @@ nature (verified: writing 5 = Bold left the summary on Impish, personality % 25 
 
 This repoints the whole 24-byte GetNature at a stub that returns the non-zero override when there is one
 and otherwise runs the original code. Zero stays "no override", which is what the Mint's "None" cell
-writes, so untouched Pokemon display exactly as before.
+writes, so untouched Pokemon display exactly as before. The Mint's list has no Quirky: its last
+cell, 24, is Hardy, so 24 displays as Hardy (nature 0); both are neutral, so the stats agree.
 
 usage: python naturefix_patch.py <in.gba> <out.gba>
 """
@@ -15,7 +16,7 @@ from keystone import Ks, KS_ARCH_ARM, KS_MODE_THUMB
 from capstone import Cs, CS_ARCH_ARM, CS_MODE_THUMB
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FREE = 0x00F54200                       # after partyedit (ends 0x08F54154), same verified 5 KB run
+FREE = 0x00F54200                       # in the same verified run as candynpc (partyedit is not applied here)
 BASE = 0x08000000 + FREE
 HOOK = 0x6D070                          # GetNature
 ORIG = bytes.fromhex("00b500210022fdf74ffa19217af2b0fd0006000e02bc0847")   # 24 bytes

@@ -26,8 +26,14 @@ item and stores the result, so the caller supplies the message (ours does).
 
 The flag must be inside the range the hack's GetFlagAddr (0x09F00CEC) accepts: `<= 0x3FFF`,
 or `0x4000..0x467F`. 0x4F1F is past the end and silently does nothing, which is what made
-the NPC give out candies forever. GIVEN is 0x4013, which is in range and is not referenced
-by any script in the ROM via setflag/clearflag/checkflag.
+the NPC give out candies forever. The PR's second choice, 0x4013, is in range and no script
+references it, but the hack's own code sets it early in every game (it was on in all eight saves
+checked, early and late), so on a real save he refused at once. GIVEN is now 0x433F: no script
+references it and it was clear in all eight; it is the last flag of the SB1+0x3B24 block, just
+past the hack's last story flag 0x432D.
+
+The four calls always all land: the Bag starts a second stack when one reaches the cap, as
+vanilla does, so a player who already holds some gets exactly 999 more (checked: 30 -> 1029).
 
 Script opcodes used, each confirmed against a real script in the ROM:
     lock 0x6A (the Mart clerk's own script starts 6A 5A), faceplayer 0x5A,
@@ -48,7 +54,7 @@ OBJ_SIZE = 24
 RARE_CANDY = 68
 CANDY_COUNT = 999                       # the total to hand over; each giveitem call caps at 255
 CANDY_CALLS = (255, 255, 255, CANDY_COUNT - 255 * 3)   # = 255,255,255,234
-GIVEN_FLAG = 0x4013                     # must be <= 0x3FFF or 0x4000..0x467F for the hack's GetFlagAddr
+GIVEN_FLAG = 0x433F                     # must be <= 0x3FFF or 0x4000..0x467F; 0x4013 is set by the hack's code
 TILE = (5, 6)                            # beside the door: map 8/6's warps (3,7)/(4,7) are the doorway,
                                          # so (5,6) is the first floor tile in and to the right of it
 LOCAL_ID = 5                             # the map's objects use 1-4
