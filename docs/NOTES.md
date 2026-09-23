@@ -1175,3 +1175,33 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   sets the lead's override and opens the summary: 13 Jolly, 24 Hardy, 0 the personality's own (Bold).
 - Chain: `... -> qolversion -> candynpc -> naturefix`. candynpc uses 0x08F53700..0x08F5382F and naturefix
   0x08F54200..0x08F5423C, inside the free run 0x08F53700..0x08F54AA0.
+
+## HYPER TRAINING: "THE IV STILL SHOWS THE OLD VALUE" — 2026-09-23
+- Report: after hyper training on Champion Island the IV "doesn't show 31, it keeps the old value".
+- The trainer (map 35/28, object 18, script 0x09812758): A2 (choose a Pokemon), must be level 100
+  (0x098126D9 reads mon[+VAR_8005] = +0x54), then multichoice 0x74 - "All (Gold)", "HP (Silver)" ..
+  "Sp. Def (Silver)". Gold needs var 0x40FB > 0 and item 0x2AF; a single stat needs var 0x40FC > 0 and item
+  0x2B0. 0x098126FD ORs VAR_8005 into **mon+0x1E** (Gold: 0x7E; one stat: 0x09812721 makes 1 << choice) and
+  compares old/new to refuse a second time. Bits, tested one at a time: 1 HP, 2 Atk, 3 Def, 4 Spe, 5 SpA, 6 SpD
+  - the IV field order 0x27..0x2C, so bit = field - 0x26. (mon+0x1F is the Mint's nature byte.)
+- The training works: the hack's CalculateMonStats (0x08068D0D) counts a trained stat as IV 31 (Gardevoir,
+  all six: max HP 272 -> 289 with IV 14, Def 149 -> 177, SpD 246 -> 276). The IV word at +0x48 is never
+  rewritten - as in the official games, so breeding and Hidden Power keep the real IVs.
+- What was wrong: (1) the EV-IV Display item (item 650, 0x09689001; its loader 0x0968A42C reads IVs with
+  GetMonData 0x27..0x2C) and the IV judges (script 0x08FF0040 -> callasm 0x08FF0001, via the stub
+  0x08FF0020) print the raw IV; (2) the stats only move on a recalculation. The trainer says "deposit it on
+  the PC to rest", but depositing does nothing (tested through the real storage screens: the box copy keeps
+  the bits and the old IVs); it is the withdraw that recalculates.
+- `patches/hypertrain/`: ht_getmondata (returns 31 for a trained IV field, everything else passes through)
+  behind the EV-IV loader's literal 0x0968A65C and the judges' stub word 0x08FF0028 - both used by nothing
+  else. The screen then worked out Hidden Power from the displayed 31s (Dragon turned into Dark in the
+  first test): its parity code 0x0968A07A..0x0968A0B1 now goes through a 10-byte trampoline to ht_hptype,
+  which returns the real IVs' low bits that ht_getmondata recorded at EWRAM 0x0203D600 - masked to six bits,
+  because EWRAM is not zeroed (the first try skipped the mask and drew a garbage type icon). The trainer's
+  success path 0x09812840 now goes through a script that calls ht_recalc (CalculateMonStats on
+  gPlayerParty[VAR_8004]) and rejoins; his last line says the stats are maxed out instead of "deposit it".
+  Code and script at 0x08F54300..0x08F543CD.
+- Tested (`test_hypertrain.lua`, BITS=126 and BITS=2; `test_hypertrain_bits.lua` maps the bits): stats
+  change the moment he finishes; the EV-IV Display shows 31 for trained stats only and keeps the real
+  Hidden Power type (Dragon); the judges read 31/31/31 for all six, 31/20/3 for HP only. The item and var
+  checks in front of the training are the hack's and were not changed.
