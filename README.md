@@ -135,7 +135,17 @@ python patches/newsfix/newsfix_patch.py       out21.gba out22.gba   # News Track
 python patches/sinnohmap/sinnohmap_patch.py   out22.gba out23.gba   # Sinnoh map screen
 python patches/dexnavchain/dexnavchain_patch.py out23.gba out24.gba  # DexNav search, chain and field bar
 python patches/rbutton/rbutton_patch.py       out24.gba out25.gba   # R opens the DexNav, Auto Run moves to Options
-python tools/romdiff.py create original.gba out25.gba release/hyper-emerald-en-qol.hpatch
+python patches/journal/journal_patch.py       out25.gba out26.gba   # Journal key item
+python patches/berrynum/berrynum_patch.py     out26.gba out27.gba   # berry numbers No44+ in the Bag
+python patches/speciesnames/speciesnames_patch.py out27.gba out28.gba  # Enamorus's name
+python patches/questlog/questlog_patch.py     out28.gba out29.gba   # Quest Log (needs the Journal)
+python patches/leaguefly/leaguefly_patch.py   out29.gba out30.gba   # Sinnoh Map: League fly lands at the door
+python patches/leaguetext/leaguetext_patch.py out30.gba out31.gba   # Sinnoh League attendant, Lucian's name
+python patches/qolversion/qolversion_patch.py out31.gba out32.gba   # +QoL version in the Option title
+python patches/candynpc/candynpc_patch.py     out32.gba out33.gba   # Rare Candy NPC in Petalburg's Mart
+python patches/naturefix/naturefix_patch.py   out33.gba out34.gba   # the summary shows a Mint's nature
+python patches/hypertrain/hypertrain_patch.py out34.gba out35.gba   # Hyper Training shows 31, stats at once
+python tools/romdiff.py create original.gba out35.gba release/hyper-emerald-en-qol.hpatch
 ```
 
 ## How it was built (for other ROM hackers)

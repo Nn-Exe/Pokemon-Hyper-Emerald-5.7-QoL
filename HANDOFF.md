@@ -61,9 +61,9 @@ These are not style preferences; each one is a bug that already happened.
 
 Applied to the working ROM and verified in mGBA (on a real late-game save, Sinnoh post-game):
 
-- everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-22**;
-- the last published release is **v1.4** (DexNav, Sinnoh map + fly, R button, News Tracker fix). **Not yet
-  released**, all applied and tested:
+- everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-23**;
+- the last published release is **v1.5** (2026-09-23), which added, on top of v1.4 (DexNav, Sinnoh map + fly,
+  R button, News Tracker fix):
   * gold healthbox on your own shinies too (`patches/shinybox/`);
   * the **Journal** key item: next story objective from Prof. Birch to Cogita, 84 steps traced in the game's
     scripts (`patches/journal/`: `steps.py` is the table; `make_tests.py` + `test_journal.lua` +
@@ -78,7 +78,7 @@ Applied to the working ROM and verified in mGBA (on a real late-game save, Sinno
 - the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
   (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
 
-Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix`.
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain`.
 (On a ROM that already has the old shinybox, "both sides" is the 2-byte edit at `0x08FDA136` in NOTES; the
 patcher itself only builds from a clean BattleMainCB2.)
 
