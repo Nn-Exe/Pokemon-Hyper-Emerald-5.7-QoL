@@ -674,7 +674,7 @@ def build(inp, outp):
     order = ("item_use", "wait_task", "cb2_init", "cb2_main", "vblank", "se_select", "compute", "page_sel",
              "print", "show", "draw_list", "draw_header", "draw_footer", "open_detail", "draw_detail", "task",
              "hsi", "menu_cb", "case3", "has_journal", "show_widget", "widget_remove", "row_status", "row_title", "ext_entry", "legend_all",
-             "draw_grid", "grid_count", "rect", "corners", "grid_input", "grid_pulse")
+             "draw_grid", "grid_count", "rect", "corners", "card_border", "grid_input", "grid_pulse")
     funcs = [i.address for i in dis if i.mnemonic == "push"]
     assert len(funcs) == len(order), "unexpected function layout: %d pushes, expected %d" % (len(funcs), len(order))
     f = dict(zip(order, funcs))

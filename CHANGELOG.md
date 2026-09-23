@@ -3,6 +3,10 @@
 One line per change, newest first. The how and why of each change is in [docs/NOTES.md](docs/NOTES.md); each
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
+## 2026-09-23
+- **Fixed** Quest Log chapter grid: moving the cursor took about a fifth of a second to show. A move now repaints only the two card frames that change instead of the whole grid, so it responds in 2 frames instead of 13. `patches/questlog/`
+- **Added** The Option screen's title now names this patch set too: "Ultra Emerald v5.7 +QoL1.5 (Standard)", for each difficulty. `patches/qolversion/`
+
 ## 2026-09-22
 - **Added** Quest Log Legends: a first row above Articuno, "Gotta catch 'em all!", the final goal. It stays "???" with a dim Master Ball until you have caught every legendary and mythical Pokémon, then it is ticked, in purple, with the Bag's own Master Ball icon in its real colours. The count stays out of 92. `patches/questlog/`
 - **Fixed** Sinnoh League: the attendant in the Elite Four hall spoke Chinese when she healed your team after each win, and her door menu was in Chinese too. Both are now English ("Attendant: Good work out there! Allow me to restore your Pokémon." and Far left / Left / Right / Far right). Lucian's line after you lose to him was signed "Wusong" (his Chinese name) and now says Lucian. `patches/leaguetext/`

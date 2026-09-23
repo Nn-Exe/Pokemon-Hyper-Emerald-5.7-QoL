@@ -1926,6 +1926,61 @@ corners:
 .align 2
 rc_fillrect:        .word 0x08003B65    @ FillWindowPixelRect
 
+@ card_border(r0 = V, r1 = card, r2 = colour): the 2 px frame around one card and its rounded corners - all
+@ that changes when the cursor moves. Redrawing every card took 12 frames (FillWindowPixelRect is per pixel);
+@ this is four thin rects and four pixels.
+card_border:
+    push {r4, r5, r6, lr}
+    sub sp, #8
+    adds r6, r2, #0
+    adds r0, r1, #0             @ card -> column, row
+    movs r1, #0
+cb_div:
+    cmp r0, #3
+    blo cb_divd
+    subs r0, #3
+    adds r1, #1
+    b cb_div
+cb_divd:
+    movs r2, #79                @ x = 3 + column * 79
+    muls r2, r0, r2
+    adds r4, r2, #3
+    movs r2, #42                @ y = 3 + row * 42
+    muls r2, r1, r2
+    adds r5, r2, #3
+    str r6, [sp]
+    subs r0, r4, #2             @ top
+    subs r1, r5, #2
+    movs r2, #80
+    movs r3, #2
+    bl rect
+    str r6, [sp]
+    subs r0, r4, #2             @ bottom
+    adds r1, r5, #0
+    adds r1, #39
+    movs r2, #80
+    movs r3, #2
+    bl rect
+    str r6, [sp]
+    subs r0, r4, #2             @ left
+    adds r1, r5, #0
+    movs r2, #2
+    movs r3, #39
+    bl rect
+    str r6, [sp]
+    adds r0, r4, #0             @ right
+    adds r0, #76
+    adds r1, r5, #0
+    movs r2, #2
+    movs r3, #39
+    bl rect
+    adds r0, r4, #0             @ the corners take the frame's colour
+    adds r1, r5, #0
+    adds r2, r6, #0
+    bl corners
+    add sp, #8
+    pop {r4, r5, r6, pc}
+
 @ grid_input(r0 = V, r1 = newKeys, r2 = newAndRepeatedKeys)
 grid_input:
     push {r4, r5, r6, lr}
@@ -1964,11 +2019,21 @@ gi_up:
     cmp r0, #3
     blo gi_ret
     subs r0, #3
-gi_move:
+gi_move:                        @ only the two frames change: the cards themselves are already drawn
+    ldrb r6, [r4]
     strb r0, [r4]
+    adds r5, r0, #0
     bl se_select
     adds r0, r4, #0
-    bl draw_grid
+    adds r1, r6, #0
+    movs r2, #13                @ the backdrop: erase the frame the cursor left
+    bl card_border
+    adds r0, r4, #0
+    adds r1, r5, #0
+    movs r2, #4                 @ the selected frame, which grid_pulse cycles
+    bl card_border
+    movs r0, #1
+    bl show
     b gi_ret
 gi_a:
     movs r1, #1                 @ A: open the chapter

@@ -1111,3 +1111,38 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
 - Tested: `test_questlog_allcaught.lua`, once on the save as it is (39/92: "???", dim ball, hint) and once
   with ALL=1 (all 92 marked caught: tick, ball, purple title, congratulation, 92/92 in the header and on the
   grid; the bottom still ends at Enamorus). `test_questlog.lua` 94/94 (task now 0x08FEA835).
+
+## QOL VERSION IN THE OPTION TITLE — 2026-09-23
+- `patches/qolversion/`: the Option screen's title bar (main menu -> Option, CB2 0x080BA4B1) reads
+  "Ultra Emerald v5.7 (Standard)"; it now reads "Ultra Emerald v5.7 +QoL1.5 (Standard)". One string per
+  difficulty, through the table at 0x09F07DF4 (4 words: Standard, Hard Mode, Challenge, Lunatic, each
+  pointing a byte or two into a string that starts with a space and the colour codes FC 01 04 FC 03 05).
+  The patch copies each string from its own pointer, inserts "+QoL<version>" before the "(", writes it to
+  free space (0x08FF24C0..) and repoints the word, so the hack's own wording and colour codes are kept.
+  Hand-writing the prefix instead put a stray hanzi in front of the text.
+- Width: the title window's text area is x 24..225. Measured in mGBA: the old title ends at 174, this one at
+  216, and the longest ("Hard Mode", "Challenge") at 219. " +QoL 1.5 " with the inner space overflows - the
+  first try was cut off at "(Standar" - so the tag is written "+QoL1.5".
+- The hack writes "V5.7" for Standard and "v5.7" for the other three; copying its bytes keeps that quirk.
+- Still plain 5.7: the mode-select screen's "Ultra Emerald v5.7" (0x09F07DD5, from 0x09F03434 / 0x09F0368C)
+  and the "Ultra Emerald 5.7   Mode: X" banner (0x09F0B5ED.., table around 0x09F0ABEC) - not touched, their
+  screens were not measured.
+- `patches/version/` (5.5 -> 5.7) is unchanged and still runs early in the chain; this one goes at the end.
+
+## QUEST LOG: THE GRID CURSOR WAS SLOW — 2026-09-23
+- Reported as lag when moving between the chapter cards. Measured (`_testrun/rw/ql/lag/test_grid_lag.lua`:
+  press a direction, then screenshot every frame and follow the gold frame): the cursor byte V+0 changed on
+  the frame after the press, but the frame on screen only moved **13 frames later**. So the input was fine
+  and `draw_grid` was taking ~12 frames of CPU.
+- Why: every move redrew the whole grid - FillWindowPixelBuffer over the window, then for each of the 7 cards
+  a 76x39 filled rect, corners, a stripe, a 16x16 icon and two strings. `rect` is FillWindowPixelRect
+  (0x08003B65), which fills **one pixel at a time**, recomputing the tile address per pixel: ~24,000 pixels a
+  redraw. The 2026-09-22 fix (caching the counts in `grid_count`) removed the counting, not the drawing.
+- Fix: a move changes only two things, the frame the cursor left and the one it arrived at, and the cards
+  themselves are already on screen. `card_border(V, card, colour)` draws one card's 2 px frame as four thin
+  rects plus `corners`; `gi_move` calls it for the old card in the backdrop colour (13) and the new one in
+  colour 4 (which `grid_pulse` cycles), then `show`. About 950 pixels instead of 24,000.
+- Measured after: the frame moves **2 frames** after the press (one to process, one to display). The grid is
+  pixel-identical to the full redraw apart from the pulse phase. `test_questlog.lua` 94/94.
+- Entering the grid (opening the log, or B from a list) still draws all seven cards once, ~12 frames; the
+  first one is behind the fade-in. Worth revisiting only if it is noticeable.
