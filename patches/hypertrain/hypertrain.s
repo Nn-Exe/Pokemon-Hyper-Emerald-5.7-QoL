@@ -80,5 +80,5 @@ lit_getmondata:     .word 0x0806A519    @ GetMonData
 lit_calcstats:      .word 0x08068D0D    @ CalculateMonStats (the hack's: honours the training bits)
 lit_var8004:        .word 0x020375E0    @ gSpecialVar_0x8004
 lit_party:          .word 0x020244EC    @ gPlayerParty
-lit_scratch:        .word 0x0203D600    @ 1 byte, EWRAM measured free (hyper-emerald-patch skill)
+lit_scratch:        .word 0x0203F13C    @ 1 byte of scratch, never saved (see hypertrain_patch.py)
 lit_hpret:          .word 0x0968A0B3    @ the EV-IV screen, just after its parity bits

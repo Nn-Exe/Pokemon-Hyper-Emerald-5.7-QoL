@@ -33,10 +33,11 @@ Two checks in that template matter more than they look:
 ## Rules that are not negotiable
 
 1. Free space is a run of `0xFF` **with no pointers into it**. Current blobs run from `0x08FD8C00` to
-   `0x08FDED20`, plus the Journal at `0x08FE5400..0x08FE8AF8` (it grows with its text), berrynum at
-   `0x08FE9000..0x08FE9074`, the Quest Log at `0x08FEA000..0x08FEC154`, leaguefly at `0x08FEFF00..0x08FEFF0E` and
-   leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FEC154` to `0x08FEFF00`
-   and from `0x08FF24C0` to `0x08FFD5A0`. The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
+   `0x08FDED20`, plus the Journal at `0x08FE5400..0x08FE91DC` (it grows with its text), berrynum at
+   `0x08FEFE00..0x08FEFE74`, the Quest Log at `0x08FEA000..0x08FECB3C`, leaguefly at `0x08FEFF00..0x08FEFF0E` and
+   leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FECB3C` to `0x08FEFF00`
+   and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
+   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
    naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
@@ -63,7 +64,8 @@ a pattern and plays through battles, menus, the bag, a save and a Pokénav call,
 `0x0203B700` looked perfect and turned out to be a save staging buffer. `0x0203A660` (32 bytes + 96 of
 scratch) is in use by the DexNav chain; `0x02039E40`, `0x0203D600`, `0x0203F100` and `0x02031C00` also
 survived the same test. Taken since: `0x02039E40` (the Quest Log's Start-menu widget) and `0x0203D600` (one
-byte, hypertrain); `0x0203F100` and `0x02031C00` are free (the Lua tests put scripts at `0x0203F100`).
+byte, hypertrain); `0x02031C00` (64 bytes) is the egg-move buffer since the eggmoves patch; `0x0203F100` is free (the Lua
+tests put scripts at `0x0203F100`).
 
 Guard every scratch block with a magic word and zero it when the magic is absent — EWRAM does not come up
 zeroed on hardware.

@@ -237,16 +237,14 @@ STEPS = [
     (LOST, ANY(0x431E), "Volo is beaten. Return to base camp in Hisui: Rei and Cogita have news."),
     # The Solaceon nightmare (placed here at the user's request; it has no link to Volo, so every step is
     # "any order" and doing it early never moves the Journal). 0x4117: the husband in Solaceon (37/22,
-    # 0x0980DF8C) tells his story - set on first talk. 0x412F: Dawn on Route 210 (35/16, 0x0980977C) hands over
-    # the Lunar Wing (item 647). 0x412D: the Lunar Wing wakes the woman (0x0980E243); the husband then gives
-    # Berries. 0x4060: Darkrai's hide flag in the Lost Tower (35/29): shown once 0x412D is set, set by the
+    # 0x0980DF8C) tells his story - set on first talk. 0x412D: the woman wakes (0x0980E243); the husband then
+    # gives Berries. (Dawn's "A feather for dreams" step, 0x412F, was removed on 2026-09-28: her Route 210
+    # script (35/16, 0x0980977C) sets 0x412F and 0x4118 around a battle, checks 0x412E, which no script sets,
+    # and 0x4118 is also a Steven's Island trainer's flag - the flag did not mean "she gave the Lunar Wing".) 0x4060: Darkrai's hide flag in the Lost Tower (35/29): shown once 0x412D is set, set by the
     # shared legendary handler's removeobject (0x08FE38F0) after the battle, cleared again if it flees.
     (LOST, ANY(0x4117, anchor=False),
                         "In Solaceon Town in Sinnoh, a woman has slept in a nightmare since her offerings "
                         "at the Lost Tower. Hear her husband out."),
-    (LOST, ANY(0x412F, anchor=False),
-                        "Dawn, on Route 210, carries a feather said to dispel any nightmare. Tell her about the "
-                        "sleeping woman."),
     (LOST, ANY(0x412D, anchor=False),
                         "Bring the Lunar Wing to the sleeping woman in Solaceon Town and wake her."),
     (LOST, ANY(0x4060, anchor=False),
@@ -346,7 +344,6 @@ TITLES = [
     'The Primeval Cave',
     'Back to base camp',
     'A sleeping woman',
-    'A feather for dreams',
     'Wake the sleeper',
     'The Lost Tower',
     'One more legend',

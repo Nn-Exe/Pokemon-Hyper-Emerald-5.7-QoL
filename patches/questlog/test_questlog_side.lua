@@ -1,5 +1,5 @@
 -- Quest Log, Side Content chapter: open from SELECT (the grid), go to Side Content, screenshot every screenful
--- (side_NN.png) down all 44 rows - the always-shiny rows carry a red star after the name - then put the
+-- (side_NN.png) down all 43 rows - the always-shiny rows carry a red star after the name - then put the
 -- selection bar on Snivy (a starred row) and one row with no star. Run next to game.gba/game.sav with DIR set.
 NAME = "questlog_side"
 DIR = DIR or "./"
@@ -25,9 +25,9 @@ for s = 1, 5 do
   at(t + 10, function() shot(string.format("side_%02d", s)) end); t = t + 20
 end
 for i = 1, 50 do at(t, function() tap(K.UP) end); t = t + 8 end
-for i = 1, 19 do at(t, function() tap(K.DOWN) end); t = t + 12 end        -- row 19: Snivy
+for i = 1, 18 do at(t, function() tap(K.DOWN) end); t = t + 12 end        -- row 18: Snivy
 at(t + 10, function() shot("side_snivy_sel") end)
-at(t + 20, function() tap(K.DOWN) end)                                       -- row 20: Oshawott, no star
+at(t + 20, function() tap(K.DOWN) end)                                       -- row 19: Oshawott, no star
 at(t + 40, function() shot("side_oshawott_sel") end)
 at(t + 50, function() tap(K.B) end)
 at(t + 90, function() tap(K.B) end)

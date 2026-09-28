@@ -12,7 +12,8 @@
 @   V+4 detail page   V+5 detail pages   V+6 current step   V+7 first step after the last done anchor
 @   V+0x08 detail page starts (8 words)   V+0x40 status per step (1 done, 2 current, 3 side quest left
 @   behind, 4 side quest ahead, 5 ahead)   V+0xC8 the grid's done count per chapter   V+0xE0 scratch for
-@   numbers   V+0x100 the detail text
+@   numbers   V+0xF0 a colour triple   V+0x100 the detail text   V+0x400 a picture (0x2000)
+@   V+0x2400 its palette
 @ Two more chapters are not the Journal's: Legends (the legendary and mythical Pokemon in National Dex order,
 @ status from the Pokedex) and Key Items (ticked when in the Bag or its "got it" flag is set). A PAGES entry's
 @ byte 3 says which: 0 Journal, 1 Legends, 2 Key Items (status 8: not got yet, but named), 3 Side Content
@@ -241,7 +242,7 @@ ci_setgpureg:       .word 0x080010B5
 ci_resetbgs:        .word 0x080017BD
 ci_bgtemplates:     .word BGTEMPLATES_ADDR
 ci_initbgs:         .word 0x080017E9
-ci_allocsize:       .word 0x00000C00
+ci_allocsize:       .word 0x00002C40    @ tilemap 0x800, then V: state, texts, picture 0x2000, palette
 ci_alloczeroed:     .word 0x08000B4D
 ci_setbgtilemap:    .word 0x08002251
 ci_resetpalfade:    .word 0x080A1A75
@@ -427,8 +428,8 @@ ps_zero:
     movs r3, #0
 ps_have:
     strb r3, [r4, #2]
-    subs r3, #3
-    subs r2, #8                 @ the last top row that still fills the list
+    subs r3, #1
+    subs r2, #LROWS             @ the last top row that still fills the list
     cmp r2, #0
     bge ps_max
     movs r2, #0
@@ -483,13 +484,16 @@ show:
     bl callr3
     pop {r4, pc}
 
-@ draw_list(r0 = V)
+@ draw_list(r0 = V): the chapter as an Unbound-style mission log - four dark rows (a arrow on the selected one,
+@ the name, a coloured status tag on the right), a divider with scroll arrows, then the info panel for the
+@ selected row (draw_pane): a portrait, "Location:" and a short text. List-window coordinates: rows y 0-79 (five),
+@ the panel 80-143 with the portrait flush under the list and the scroll arrows in its top right corner. Frame: [sp] [sp+4] call args, +8 selected?, +12 row, +16 status, +20 name x.
 draw_list:
     push {r4, r5, r6, r7, lr}
     sub sp, #24
     adds r4, r0, #0
     movs r0, #1
-    movs r1, #0x11
+    movs r1, #0xDD              @ the dark backdrop
     ldr r7, dr_fillwin
     bl callr7
     ldrb r0, [r4]
@@ -498,7 +502,7 @@ draw_list:
     adds r6, r6, r0
     movs r5, #0                 @ screen row
 dl_row:
-    cmp r5, #8
+    cmp r5, #LROWS
     bne dl_r1
     b dl_marks
 dl_r1:
@@ -509,95 +513,66 @@ dl_r1:
     blo dl_r2
     b dl_marks
 dl_r2:
-    str r0, [sp, #12]           @ row in the chapter
+    str r0, [sp, #12]
     movs r2, #0
     ldrb r1, [r4, #2]
     cmp r0, r1
     bne dl_ns
-    movs r0, #240               @ the selection bar
+    movs r0, #8                 @ the selected row: a lighter band and a arrow
     str r0, [sp]
-    movs r0, #16
+    movs r0, #0
+    lsls r1, r5, #4
+    movs r2, #240
+    movs r3, #15
+    bl rect
+    movs r0, #8
+    str r0, [sp]
     str r0, [sp, #4]
     movs r0, #1
-    movs r1, #0x44
-    movs r2, #0
+    ldr r1, dr_arrow
+    movs r2, #3
     lsls r3, r5, #4
-    ldr r7, dr_fillrect
+    adds r3, #4
+    ldr r7, dr_blit
     bl callr7
-    movs r2, #4                 @ selected colours follow each normal set
+    movs r2, #1
 dl_ns:
     str r2, [sp, #8]
+    movs r0, #10                @ a hairline under the row
+    str r0, [sp]
+    movs r0, #0
+    lsls r1, r5, #4
+    adds r1, #15
+    movs r2, #240
+    movs r3, #1
+    bl rect
     adds r0, r4, #0
     ldr r1, [sp, #12]
     bl row_status
     str r0, [sp, #16]
-    subs r1, r0, #1
-    lsls r1, r1, #7             @ 128 bytes an icon
-    ldr r2, dr_icons
-    adds r1, r1, r2
-    movs r2, #16
-    str r2, [sp]
-    str r2, [sp, #4]
-    movs r0, #1
-    movs r2, #6
-    lsls r3, r5, #4
-    ldr r7, dr_blit
-    bl callr7
-    movs r1, #26                @ where the text starts
-    str r1, [sp, #20]
-    ldrb r0, [r4]
-    lsls r0, r0, #3
-    ldr r1, dr_pages
-    adds r0, r0, r1
-    ldrb r0, [r0, #3]
-    cmp r0, #1                  @ Legends only
-    bne dl_nosil
-    ldr r1, [sp, #12]           @ Legends: the Pokemon's silhouette between the mark and the name
-    lsls r1, r1, #7
-    ldr r2, dr_sil
-    ldr r0, [sp, #16]
-    cmp r0, #7
-    bne dl_sil
-    ldr r2, dr_sildim           @ not seen yet: a dim one
-dl_sil:
-    adds r1, r1, r2
-    movs r2, #16
-    str r2, [sp]
-    str r2, [sp, #4]
-    movs r0, #1
-    movs r2, #24
-    lsls r3, r5, #4
-    ldr r7, dr_blit
-    bl callr7
-    movs r1, #44
-    str r1, [sp, #20]
-dl_nosil:
+    ldr r1, dr_namefg           @ the name: white, or grey while it is still "???"
+    ldrb r1, [r1, r0]
+    bl dl_colours
+    str r0, [sp]
     adds r0, r4, #0
     ldr r1, [sp, #12]
     bl row_title
     adds r3, r0, #0
-    ldr r1, [sp, #16]
-    ldr r2, dr_stcolor
-    ldrb r1, [r2, r1]           @ normal, current or dim, by status
-    ldr r2, [sp, #8]
-    adds r1, r1, r2
-    ldr r2, dr_colors
-    adds r1, r1, r2
-    str r1, [sp]
     movs r0, #1
-    ldr r1, [sp, #20]
+    movs r1, #13
+    str r1, [sp, #20]
     lsls r2, r5, #4
     bl print
     ldrb r0, [r6, #3]           @ Side Content: a red star after the name when its Pokemon is always shiny
     cmp r0, #3
-    bne dl_next
+    bne dl_tag
     adds r0, r4, #0
     ldr r1, [sp, #12]
     bl ext_entry
     ldrh r1, [r0]               @ marks, bit 0: shiny
     lsls r1, r1, #31
-    beq dl_next
-    ldr r1, [r0, #4]            @ the name (Side Content rows always show it)
+    beq dl_tag
+    ldr r1, [r0, #4]
     movs r0, #1
     movs r2, #0
     ldr r7, dr_strwidth
@@ -614,10 +589,34 @@ dl_nosil:
     lsls r3, r5, #4
     ldr r7, dr_blit
     bl callr7
-dl_next:
+dl_tag:
+    ldr r0, [sp, #16]           @ the status tag, right-aligned
+    lsls r0, r0, #2
+    ldr r1, dr_tags
+    ldr r7, [r1, r0]
+    movs r0, #1
+    adds r1, r7, #0
+    movs r2, #0
+    ldr r3, dr_strwidth
+    bl callr3
+    movs r1, #234
+    subs r1, r1, r0
+    str r1, [sp, #20]
+    ldr r0, [sp, #16]
+    ldr r1, dr_tagfg
+    ldrb r1, [r1, r0]
+    bl dl_colours
+    str r0, [sp]
+    movs r0, #1
+    ldr r1, [sp, #20]
+    lsls r2, r5, #4
+    adds r3, r7, #0
+    bl print
     adds r5, #1
     b dl_row
-dl_marks:                       @ more rows above / below
+dl_marks:
+    adds r0, r4, #0             @ the panel first: the arrows sit in its top right corner
+    bl draw_pane
     ldrb r0, [r4, #1]
     cmp r0, #0
     beq dl_nou
@@ -626,13 +625,13 @@ dl_marks:                       @ more rows above / below
     str r0, [sp, #4]
     movs r0, #1
     ldr r1, dr_upicon
-    movs r2, #228
-    movs r3, #4
+    movs r2, #214
+    movs r3, #82
     ldr r7, dr_blit
     bl callr7
 dl_nou:
     ldrb r0, [r4, #1]
-    adds r0, #8
+    adds r0, #LROWS
     ldrb r1, [r6, #1]
     cmp r0, r1
     bhs dl_nod
@@ -641,53 +640,275 @@ dl_nou:
     str r0, [sp, #4]
     movs r0, #1
     ldr r1, dr_downicon
-    movs r2, #228
-    movs r3, #116
+    movs r2, #226
+    movs r3, #82
     ldr r7, dr_blit
     bl callr7
 dl_nod:
     movs r0, #1
-    ldr r3, dr_putwin
-    bl callr3
-    ldrb r0, [r6, #3]           @ Legends scrolled to the top with every legend caught: the Master Ball's four
-    cmp r0, #1                  @ tiles (x 3-4, y 2-3 of the map; PutWindowTilemap just set them to palette
-    bne dl_copy                 @ 15) take palette 14, its own colours
-    ldrb r0, [r4, #1]
-    cmp r0, #0
-    bne dl_copy
-    adds r0, r4, #0
-    movs r1, #0
-    bl row_status
-    cmp r0, #9
-    bne dl_copy
-    movs r1, #0x80
-    lsls r1, r1, #4
-    subs r1, r4, r1             @ the BG tilemap: the 0x800 bytes before V
-    adds r1, #134               @ (3, 2)
-    movs r3, #0xE0
-    lsls r3, r3, #8             @ palette 14
-    movs r2, #2
-dl_mbrow:
-    ldrh r0, [r1]
-    lsls r0, r0, #20
-    lsrs r0, r0, #20
-    orrs r0, r3
-    strh r0, [r1]
-    ldrh r0, [r1, #2]
-    lsls r0, r0, #20
-    lsrs r0, r0, #20
-    orrs r0, r3
-    strh r0, [r1, #2]
-    adds r1, #64
-    subs r2, #1
-    bne dl_mbrow
-dl_copy:
-    movs r0, #1
-    movs r1, #3
-    ldr r3, dr_copywin
-    bl callr3
+    bl show
+    movs r0, #3                 @ the portrait on top of the panel
+    bl show
     add sp, #24
     pop {r4, r5, r6, r7, pc}
+
+@ dl_colours(r1 = foreground colour; [sp+12+8] of draw_list = selected?) -> r0 = a colour triple in scratch:
+@ {background: 8 selected / 13 not, r1, shadow 10}. Called from draw_list only: reads its frame.
+dl_colours:
+    add r0, sp, #8              @ draw_list's frame (no push here)
+    ldr r2, [r0]                @ selected?
+    movs r3, #13
+    cmp r2, #0
+    beq dlc_bg
+    movs r3, #8
+dlc_bg:
+    adds r0, r4, #0
+    adds r0, #0xF0              @ V+0xF0: three bytes
+    strb r3, [r0]
+    strb r1, [r0, #1]
+    movs r2, #10
+    strb r2, [r0, #2]
+    bx lr
+
+@ draw_pane(r0 = V): the info panel for the selected row
+draw_pane:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #16
+    adds r4, r0, #0
+    movs r0, #13                @ the panel, y 80-143
+    str r0, [sp]
+    movs r0, #0
+    movs r1, #80
+    movs r2, #240
+    movs r3, #64
+    bl rect
+    movs r0, #8                 @ a line between the list and the text
+    str r0, [sp]
+    movs r0, #76
+    movs r1, #80
+    movs r2, #164
+    movs r3, #1
+    bl rect
+    movs r0, #9                 @ the portrait's white frame (window 3 inside shows the cream backdrop)
+    str r0, [sp]
+    movs r0, #7
+    movs r1, #79
+    movs r2, #66
+    movs r3, #65
+    bl rect
+    adds r0, r4, #0
+    ldrb r1, [r4, #2]
+    bl row_status
+    adds r6, r0, #0             @ status
+    adds r0, r4, #0
+    ldrb r1, [r4, #2]
+    bl pane_entry
+    adds r5, r0, #0             @ {kind, silhouette?, id, location, text, hidden text}
+    cmp r6, #4                  @ a Journal step still ahead: no picture, "???"
+    beq dp_hidden
+    cmp r6, #5
+    beq dp_hidden
+    ldrb r0, [r5]
+    ldrb r2, [r5, #1]           @ always a silhouette unless ... (the Gotta catch 'em all row: until status 9)
+    cmp r2, #0
+    beq dp_notmb
+    movs r2, #1
+    cmp r6, #9
+    bne dp_pic
+    movs r2, #0
+    b dp_pic
+dp_notmb:
+    cmp r6, #7                  @ a legend not seen yet: its silhouette
+    bne dp_pic
+    movs r2, #1
+dp_pic:
+    ldrh r1, [r5, #2]
+    adds r3, r4, #0
+    bl portrait
+    ldr r7, [r5, #4]            @ the location...
+    ldr r6, [r5, #8]            @ ...and the text
+    ldrb r0, [r4]               @ (a legend not seen yet: "???" and its hint)
+    lsls r0, r0, #3
+    ldr r1, dp_pages
+    adds r0, r0, r1
+    ldrb r0, [r0, #3]
+    cmp r0, #1
+    bne dp_text
+    adds r0, r4, #0
+    ldrb r1, [r4, #2]
+    bl row_status
+    cmp r0, #7
+    bne dp_text
+    ldr r7, dp_qqq
+    ldr r6, [r5, #12]
+    b dp_text
+dp_hidden:
+    movs r0, #0
+    movs r1, #0
+    movs r2, #0
+    adds r3, r4, #0
+    bl portrait
+    ldr r7, dp_qqq
+    ldr r6, dp_qqq
+dp_text:
+    ldr r0, dp_colgold          @ "Location:" in gold, the place in white
+    str r0, [sp]
+    movs r0, #1
+    movs r1, #80
+    movs r2, #81
+    ldr r3, dp_loclabel
+    bl print
+    movs r0, #1
+    ldr r1, dp_loclabel
+    movs r2, #0
+    ldr r3, dp_strwidth
+    bl callr3
+    adds r0, #83
+    str r0, [sp, #8]
+    ldr r0, dp_colwhite
+    str r0, [sp]
+    movs r0, #1
+    ldr r1, [sp, #8]
+    movs r2, #81
+    adds r3, r7, #0
+    bl print
+    ldr r0, dp_colwhite
+    str r0, [sp]
+    movs r0, #1
+    movs r1, #80
+    movs r2, #97
+    adds r3, r6, #0
+    bl print
+    add sp, #16
+    pop {r4, r5, r6, r7, pc}
+
+@ pane_entry(r0 = V, r1 = row in the chapter) -> r0 = the row's 16-byte panel entry. The Journal chapters
+@ index one table by step (first + row); Legends, Key Items have one table each, and Side Content and
+@ Badges share one (Badges start at their chapter's first row).
+pane_entry:
+    ldrb r2, [r0]
+    lsls r2, r2, #3
+    ldr r3, dp_pages
+    adds r2, r2, r3
+    ldrb r3, [r2, #3]
+    lsls r3, r3, #2
+    ldr r0, dp_panes
+    ldr r0, [r0, r3]            @ PANES[type]
+    ldrb r2, [r2]
+    adds r1, r1, r2             @ by first + row: the Journal's steps, and Badges after Side Content
+pe_row:
+    lsls r1, r1, #4
+    adds r0, r0, r1
+    bx lr
+
+@ portrait(r0 = kind 0 none / 1 Pokemon / 2 trainer / 3 item, r1 = id, r2 = silhouette?, r3 = V): the picture
+@ into window 3 (8x8 tiles, BG palette 13), from the LZ77 data the game's own tables point at: decompressed into
+@ V+0x400 (up to 0x2000 bytes: Castform keeps its four forms in one), the palette into V+0x2400. Kind 0 leaves the box empty (the cream backdrop).
+portrait:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #8
+    adds r4, r0, #0
+    adds r5, r1, #0
+    adds r6, r2, #0
+    movs r7, #0x80
+    lsls r7, r7, #3
+    adds r7, r3, r7             @ V+0x400
+    movs r0, #3
+    movs r1, #0
+    ldr r3, pt_fillwin
+    bl callr3
+    cmp r4, #0
+    beq pt_done
+    lsls r0, r5, #3             @ the table entry {picture, palette}
+    ldr r1, pt_monpics
+    cmp r4, #1
+    beq pt_pic
+    ldr r1, pt_trpics
+    cmp r4, #2
+    beq pt_pic
+    ldr r1, pt_items
+pt_pic:
+    ldr r0, [r1, r0]
+    adds r1, r7, #0
+    ldr r3, pt_lz77
+    bl callr3
+    cmp r4, #3
+    beq pt_icon
+    ldr r0, pt_gwindows         @ a 64x64 picture is laid out like the window's own tiles: copy it in
+    ldr r1, [r0, #44]           @ gWindows[3].tileData
+    adds r0, r7, #0
+    movs r2, #0x80
+    lsls r2, r2, #4             @ 2048 bytes
+pt_copy:
+    ldr r3, [r0]
+    str r3, [r1]
+    adds r0, #4
+    adds r1, #4
+    subs r2, #4
+    bne pt_copy
+    b pt_pal
+pt_icon:
+    movs r0, #24                @ an item icon: 24x24 in the middle
+    str r0, [sp]
+    str r0, [sp, #4]
+    movs r0, #3
+    adds r1, r7, #0
+    movs r2, #20
+    movs r3, #20
+    ldr r4, pt_blit
+    bl callr4
+    movs r4, #3
+pt_pal:
+    ldr r0, pt_silpal           @ a silhouette: every colour dark
+    cmp r6, #0
+    bne pt_loadpal
+    lsls r0, r5, #3
+    ldr r1, pt_monpals
+    cmp r4, #1
+    beq pt_palent
+    ldr r1, pt_trpals
+    cmp r4, #2
+    beq pt_palent
+    ldr r1, pt_items
+    adds r1, #4
+pt_palent:
+    ldr r0, [r1, r0]
+    movs r1, #0x80
+    lsls r1, r1, #6
+    adds r1, r7, r1             @ V+0x2400
+    ldr r3, pt_lz77
+    bl callr3
+    movs r0, #0x80
+    lsls r0, r0, #6
+    adds r0, r7, r0
+pt_loadpal:
+    movs r1, #0xD0              @ BG palette 13
+    movs r2, #32
+    ldr r3, pt_loadpalette
+    bl callr3
+pt_done:
+    add sp, #8
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+pt_fillwin:         .word 0x08003C49
+pt_monpics:         .word MONPICS_ADDR
+pt_trpics:          .word TRPICS_ADDR
+pt_items:           .word ITEMICONS_ADDR
+pt_monpals:         .word MONPALS_ADDR
+pt_trpals:          .word TRPALS_ADDR
+pt_lz77:            .word 0x082E7091    @ LZ77UnCompWram
+pt_gwindows:        .word 0x02020004
+pt_blit:            .word 0x080039A5
+pt_silpal:          .word SILPAL_ADDR
+pt_loadpalette:     .word 0x080A1939
+dp_pages:           .word PAGES_ADDR
+dp_panes:           .word PANES_ADDR
+dp_qqq:             .word QQQ_ADDR
+dp_colgold:         .word COLGOLD_ADDR
+dp_colwhite:        .word COLWHITE_ADDR
+dp_loclabel:        .word LOCLABEL_ADDR
+dp_strwidth:        .word 0x08005ED9
 
 .align 2
 dr_addtext4:        .word 0x08199EED    @ AddTextPrinterParameterized4
@@ -697,13 +918,12 @@ dr_fillwin:         .word 0x08003C49    @ FillWindowPixelBuffer
 dr_fillrect:        .word 0x08003B65    @ FillWindowPixelRect
 dr_blit:            .word 0x080039A5    @ BlitBitmapToWindow
 dr_pages:           .word PAGES_ADDR
-dr_icons:           .word ICONS_ADDR
-dr_upicon:          .word UPICON_ADDR
-dr_downicon:        .word DOWNICON_ADDR
-dr_stcolor:         .word STCOLOR_ADDR
-dr_sil:             .word LEGSIL_ADDR
-dr_sildim:          .word LEGSILDIM_ADDR
-dr_colors:          .word COLORS_ADDR
+dr_upicon:          .word GUPICON_ADDR
+dr_downicon:        .word GDOWNICON_ADDR
+dr_arrow:           .word RIGHTICON_ADDR
+dr_namefg:          .word NAMEFG_ADDR
+dr_tagfg:           .word TAGFG_ADDR
+dr_tags:            .word TAGS_ADDR
 dr_strwidth:        .word 0x08005ED9    @ GetStringWidth
 dr_star:            .word STAR_ADDR
 
@@ -756,7 +976,7 @@ dh_noleft:
     movs r2, #0
     ldr r3, [r6, #4]
     bl print
-    cmp r5, #NLAST
+    cmp r5, #NLISTLAST
     beq dh_noright
     movs r0, #1
     ldr r1, [r6, #4]
@@ -875,6 +1095,9 @@ draw_footer:
     push {r4, r5, lr}
     sub sp, #8
     adds r4, r0, #0
+    ldrb r0, [r4, #3]           @ the list: no footer, the info panel reaches the bottom
+    cmp r0, #0
+    beq df_ret
     movs r0, #2
     movs r1, #0x88
     ldr r5, df_fillwin
@@ -902,6 +1125,7 @@ df_p:
     bl print
     movs r0, #2
     bl show
+df_ret:
     add sp, #8
     pop {r4, r5, pc}
 
@@ -1104,6 +1328,16 @@ tk_2:
     ldr r1, tk_gmain
     ldrh r6, [r1, #0x2E]        @ newKeys
     ldrh r7, [r1, #0x30]        @ newAndRepeatedKeys, so holding Up/Down keeps going
+    cmp r0, #4
+    bne tk_nocase
+    adds r0, r4, #0             @ the badge case: its cursor frame pulses like the grid's
+    bl grid_pulse
+    adds r0, r4, #0
+    adds r1, r6, #0
+    adds r2, r7, #0
+    bl case_input
+    b tk_ret
+tk_nocase:
     cmp r0, #3
     bne tk_notgrid
     adds r0, r4, #0
@@ -1179,10 +1413,10 @@ tk_down:
     bhs tk_ret1
     strb r0, [r4, #2]
     ldrb r1, [r4, #1]
-    adds r1, #8
+    adds r1, #LROWS
     cmp r0, r1
     blo tk_moved
-    subs r0, #7
+    subs r0, #LROWS - 1
     strb r0, [r4, #1]
     b tk_moved
 tk_page:
@@ -1199,7 +1433,7 @@ tk_right:
     tst r0, r6
     beq tk_a
     ldrb r0, [r4]
-    cmp r0, #NLAST
+    cmp r0, #NLISTLAST          @ Badges is a case, not a list: R stops at Side Content
     beq tk_ret1
     adds r0, #1
 tk_newpage:
@@ -1573,11 +1807,20 @@ rs_nothave:                     @ not got yet: still named, dimmed, and A says w
 rs_have:
     movs r0, #1
     pop {r4, pc}
-rs_side:                        @ Side Content: its script's own flag
+rs_side:                        @ Side Content and Badges: its script's own flag
+    ldrb r2, [r2]               @ the chapter's first row in the shared table (Badges come after Side Content)
+    adds r1, r1, r2
     lsls r1, r1, #4
     ldr r2, rs_sides
     adds r4, r2, r1
     ldrh r0, [r4, #2]
+    ldr r3, rs_flagget
+    bl callr3
+    lsls r0, r0, #24
+    beq rs_nothave
+    ldrh r0, [r4]               @ marks bits 1-15: a second flag that must be set too (Snivy), or 0
+    lsrs r0, r0, #1
+    beq rs_have
     ldr r3, rs_flagget
     bl callr3
     lsls r0, r0, #24
@@ -1624,13 +1867,15 @@ ext_entry:
     lsls r2, r2, #3
     ldr r3, rs_pages
     adds r2, r2, r3
-    ldrb r2, [r2, #3]
+    ldrb r3, [r2, #3]
+    ldrb r2, [r2]               @ the chapter's first row: 0, except Badges (after Side Content in one table)
+    adds r1, r1, r2
     lsls r1, r1, #4
     ldr r0, rs_legends
-    cmp r2, #1
+    cmp r3, #1
     beq ee_ret
     ldr r0, rs_keys
-    cmp r2, #2
+    cmp r3, #2
     beq ee_ret
     ldr r0, rs_sides
 ee_ret:
@@ -1682,7 +1927,7 @@ draw_grid:
     ldrb r0, [r4]
     str r0, [sp, #16]
     movs r0, #1
-    movs r1, #0xDD              @ the backdrop, colour 13
+    movs r1, #0xAA              @ the backdrop, colour 10 (the darkest navy)
     ldr r7, dg_fillwin
     bl callr7
     movs r5, #0
@@ -1724,14 +1969,14 @@ dg_divd:
     movs r3, #43
     bl rect
 dg_card:
-    movs r0, #1                 @ the card
+    movs r0, #13                @ the card, dark navy like the list
     str r0, [sp]
     ldr r0, [sp, #8]
     ldr r1, [sp, #12]
     movs r2, #76
     movs r3, #39
     bl rect
-    movs r2, #13                @ round it: the corners take the colour behind the card
+    movs r2, #10                @ round it: the corners take the colour behind the card
     ldr r0, [sp, #16]
     cmp r0, r5
     bne dg_round
@@ -1761,7 +2006,7 @@ dg_round:
     adds r3, #3
     ldr r7, dg_blit
     bl callr7
-    ldr r0, dg_colors           @ the name
+    ldr r0, dg_gcol             @ the name, white
     str r0, [sp]
     lsls r3, r5, #2
     ldr r0, dg_gnames
@@ -1801,13 +2046,13 @@ dg_round:
     ldr r7, dg_strwidth
     bl callr7
     adds r6, r0, #0
-    ldr r0, dg_colors
-    adds r0, #16                @ dim
+    ldr r0, dg_gcol
+    adds r0, #4                 @ the count: grey
     ldr r1, [sp, #20]
     ldr r2, [sp, #24]
     cmp r1, r2
     bne dg_cntcol
-    adds r0, #12                @ complete: the green set
+    adds r0, #4                 @ complete: green
 dg_cntcol:
     str r0, [sp]
     movs r0, #1
@@ -1823,6 +2068,8 @@ dg_cntcol:
     b dg_loop
 dg_done:
     movs r0, #1
+    bl show
+    movs r0, #2                 @ the footer sits on the list window's last two rows: back on top
     bl show
     add sp, #32
     pop {r4, r5, r6, r7, pc}
@@ -2039,6 +2286,14 @@ gi_a:
     movs r1, #1                 @ A: open the chapter
     tst r1, r5
     beq gi_b
+    ldrb r0, [r4]
+    cmp r0, #NLAST              @ the last card, Badges: the badge case instead of a list
+    bne gi_list
+    bl se_select
+    adds r0, r4, #0
+    bl case_open
+    b gi_ret
+gi_list:
     ldr r0, gp_pal              @ colour 4 back to the lists' selection bar
     adds r0, #8
     movs r1, #0xF4
@@ -2079,7 +2334,7 @@ gi_ret:
 .align 2
 dg_fillwin:         .word 0x08003C49
 dg_fillrect:        .word 0x08003B65
-dg_colors:          .word COLORS_ADDR
+dg_gcol:            .word GCOL_ADDR
 dg_pages:           .word PAGES_ADDR
 dg_u8dec:           .word U8DEC_ADDR
 dg_beginfade:       .word 0x080A1AD5
@@ -2118,3 +2373,440 @@ gp_ret:
 gp_pulse:           .word PULSE_ADDR
 gp_pal:             .word PAL_ADDR
 gp_loadpal:         .word 0x080A1939    @ LoadPalette
+
+@ ---- the badge case ------------------------------------------------------------------------------------
+@ The Badges card opens a case like the DS one, not a list (mode 4): Sinnoh's eight badges (Hoenn's are on the
+@ Trainer Card) on a dark panel, four across, in colour with a sparkle once earned, a silhouette before. Each badge is a 4x4-tile
+@ window of its own with its own BG palette (1-8, which nothing else here uses), so every badge keeps its
+@ colours; the panel, the cursor frame and the line of text under the badges are window 1. The D-pad moves
+@ the frame, B goes back to the grid.
+@ V+0xD5 cursor 0-7, V+0xD8..0xDF the badge windows' ids.
+
+@ case_open(r0 = V): make the eight badge windows, then draw the case
+case_open:
+    push {r4, r5, lr}
+    adds r4, r0, #0
+    movs r0, #4
+    strb r0, [r4, #3]
+    movs r5, #0
+co_win:
+    lsls r0, r5, #3
+    ldr r1, bc_wintpl
+    adds r0, r0, r1
+    ldr r3, bc_addwin
+    bl callr3
+    adds r1, r4, r5
+    adds r1, #0xD8
+    strb r0, [r1]
+    adds r5, #1
+    cmp r5, #8
+    bne co_win
+    adds r0, r4, #0
+    bl case_draw
+    pop {r4, r5, pc}
+
+@ case_entry(r0 = V, r1 = slot 0-7) -> r0 = that badge's 32-byte entry:
+@ {flag u16, 0, art, silhouette, palette, name, earned text, not-yet text, 0}
+case_entry:
+    lsls r2, r1, #5
+    ldr r0, bc_case
+    adds r0, r0, r2
+    bx lr
+
+@ case_draw(r0 = V): the whole case - header, panel, the eight badges, the frame, the text, the footer
+case_draw:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #16
+    adds r4, r0, #0
+    movs r0, #0                 @ header: "Sinnoh Badges", earned/8 at the right
+    movs r1, #0x88
+    ldr r3, bc_fillwin
+    bl callr3
+    ldr r0, bc_colhead
+    str r0, [sp]
+    movs r0, #0
+    movs r1, #8
+    movs r2, #0
+    ldr r3, bc_title
+    bl print
+    movs r6, #0                 @ earned
+    movs r7, #0
+cd_cnt:
+    adds r0, r4, #0
+    adds r1, r7, #0
+    bl case_entry
+    ldrh r0, [r0]
+    ldr r3, bc_flagget
+    bl callr3
+    lsls r0, r0, #24
+    beq cd_cn
+    adds r6, #1
+cd_cn:
+    adds r7, #1
+    cmp r7, #8
+    bne cd_cnt
+    adds r0, r4, #0
+    adds r0, #0xE0
+    adds r1, r6, #0
+    ldr r3, bc_u8dec
+    bl callr3
+    movs r1, #0xBA              @ "/8"
+    strb r1, [r0]
+    movs r1, #0xA9
+    strb r1, [r0, #1]
+    movs r1, #0xFF
+    strb r1, [r0, #2]
+    movs r0, #1
+    adds r1, r4, #0
+    adds r1, #0xE0
+    movs r2, #0
+    ldr r3, bc_strwidth
+    bl callr3
+    movs r1, #232
+    subs r1, r1, r0
+    ldr r0, bc_colhead
+    str r0, [sp]
+    movs r0, #0
+    movs r2, #0
+    adds r3, r4, #0
+    adds r3, #0xE0
+    bl print
+    movs r0, #0
+    bl show
+    movs r0, #1                 @ window 1: the backdrop, then the panel with rounded corners
+    movs r1, #0xAA
+    ldr r3, bc_fillwin
+    bl callr3
+    movs r0, #13
+    str r0, [sp]
+    movs r0, #8
+    movs r1, #4
+    movs r2, #224
+    movs r3, #112
+    bl rect
+    movs r0, #10
+    str r0, [sp]
+    movs r0, #8
+    movs r1, #4
+    movs r2, #1
+    movs r3, #1
+    bl rect
+    movs r0, #10
+    str r0, [sp]
+    movs r0, #231
+    movs r1, #4
+    movs r2, #1
+    movs r3, #1
+    bl rect
+    movs r0, #10
+    str r0, [sp]
+    movs r0, #8
+    movs r1, #115
+    movs r2, #1
+    movs r3, #1
+    bl rect
+    movs r0, #10
+    str r0, [sp]
+    movs r0, #231
+    movs r1, #115
+    movs r2, #1
+    movs r3, #1
+    bl rect
+    movs r5, #0                 @ the badges: art or silhouette into each window, its palette to BG 1 + slot
+cd_badge:
+    adds r0, r4, #0
+    adds r1, r5, #0
+    bl case_entry
+    adds r6, r0, #0
+    ldrh r0, [r6]
+    ldr r3, bc_flagget
+    bl callr3
+    lsls r0, r0, #24
+    ldr r0, [r6, #8]            @ not yet: the silhouette
+    beq cd_src
+    ldr r0, [r6, #4]            @ earned: the badge
+cd_src:
+    adds r1, r4, r5
+    adds r1, #0xD8
+    ldrb r1, [r1]
+    lsls r2, r1, #1
+    adds r2, r2, r1
+    lsls r2, r2, #2             @ gWindows[id] (12 bytes each)
+    ldr r3, bc_gwindows
+    adds r2, r2, r3
+    ldr r1, [r2, #8]            @ .tileData
+    movs r2, #0x80
+    lsls r2, r2, #2             @ 512 bytes
+cd_copy:
+    ldr r3, [r0]
+    str r3, [r1]
+    adds r0, #4
+    adds r1, #4
+    subs r2, #4
+    bne cd_copy
+    ldr r0, [r6, #12]
+    adds r1, r5, #1
+    lsls r1, r1, #4
+    movs r2, #32
+    ldr r3, bc_loadpal
+    bl callr3
+    adds r5, #1
+    cmp r5, #8
+    bne cd_badge
+    adds r0, r4, #0
+    movs r1, #0xD5
+    ldrb r1, [r4, r1]
+    movs r2, #4                 @ the frame in colour 4, which grid_pulse cycles
+    bl case_frame
+    adds r0, r4, #0
+    bl case_text
+    adds r0, r4, #0
+    bl case_show
+    movs r0, #2                 @ footer
+    movs r1, #0x88
+    ldr r3, bc_fillwin
+    bl callr3
+    ldr r0, bc_colhead
+    str r0, [sp]
+    movs r0, #2
+    movs r1, #8
+    movs r2, #0
+    ldr r3, bc_hint
+    bl print
+    movs r0, #2
+    bl show
+    add sp, #16
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+bc_case:            .word CASE_ADDR
+bc_wintpl:          .word CASEWIN_ADDR
+bc_addwin:          .word 0x08003381    @ AddWindow
+bc_fillwin:         .word 0x08003C49    @ FillWindowPixelBuffer
+bc_colhead:         .word COLHEAD_ADDR
+bc_title:           .word CASETITLE_ADDR
+bc_strwidth:        .word 0x08005ED9    @ GetStringWidth
+bc_flagget:         .word 0x0809D791    @ FlagGet
+bc_u8dec:           .word U8DEC_ADDR
+bc_gwindows:        .word 0x02020004
+bc_loadpal:         .word 0x080A1939    @ LoadPalette
+bc_hint:            .word HINTCASE_ADDR
+
+@ case_show(r0 = V): window 1, then the badge windows and the footer on top of it (they share the tilemap of
+@ BG0, and window 1 reaches down under the footer)
+case_show:
+    push {r4, r5, lr}
+    adds r4, r0, #0
+    movs r0, #1
+    bl show
+    movs r5, #0
+csh_loop:
+    adds r0, r4, r5
+    adds r0, #0xD8
+    ldrb r0, [r0]
+    bl show
+    adds r5, #1
+    cmp r5, #8
+    bne csh_loop
+    movs r0, #2
+    bl show
+    pop {r4, r5, pc}
+
+@ case_frame(r0 = V, r1 = slot, r2 = colour): the 2 px frame 3 px outside a badge. Slot -> column, row; the
+@ badge windows sit at tiles x 2 + 7 * column, y 4 + 6 * row, i.e. window 1 pixels 16 + 56c, 16 + 48r.
+case_frame:
+    push {r4, r5, r6, lr}
+    sub sp, #8
+    adds r6, r2, #0
+    movs r0, #3
+    ands r0, r1
+    lsrs r1, r1, #2
+    movs r2, #56
+    muls r0, r2, r0
+    adds r0, #13
+    adds r4, r0, #0
+    movs r2, #48
+    muls r1, r2, r1
+    adds r1, #13
+    adds r5, r1, #0
+    str r6, [sp]
+    adds r0, r4, #0             @ top
+    adds r1, r5, #0
+    movs r2, #38
+    movs r3, #2
+    bl rect
+    str r6, [sp]
+    adds r0, r4, #0             @ bottom
+    adds r1, r5, #0
+    adds r1, #36
+    movs r2, #38
+    movs r3, #2
+    bl rect
+    str r6, [sp]
+    adds r0, r4, #0             @ left
+    adds r1, r5, #0
+    movs r2, #2
+    movs r3, #38
+    bl rect
+    str r6, [sp]
+    adds r0, r4, #0             @ right
+    adds r0, #36
+    adds r1, r5, #0
+    movs r2, #2
+    movs r3, #38
+    bl rect
+    add sp, #8
+    pop {r4, r5, r6, pc}
+
+@ case_text(r0 = V): under the badges, the selected one: its name (gold) and who you won it from (white), or
+@ before it is earned the name and its Gym, both dim
+case_text:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #8
+    adds r4, r0, #0
+    movs r0, #13
+    str r0, [sp]
+    movs r0, #12
+    movs r1, #98
+    movs r2, #216
+    movs r3, #15
+    bl rect
+    adds r0, r4, #0
+    movs r1, #0xD5
+    ldrb r1, [r4, r1]
+    bl case_entry
+    adds r5, r0, #0
+    ldrh r0, [r5]
+    ldr r3, bi_flagget
+    bl callr3
+    lsls r0, r0, #24
+    ldr r6, bi_colgold
+    ldr r7, [r5, #20]
+    bne ct_print
+    ldr r6, bi_coldim
+    ldr r7, [r5, #24]
+ct_print:
+    str r6, [sp]
+    movs r0, #1
+    movs r1, #16
+    movs r2, #98
+    ldr r3, [r5, #16]
+    bl print
+    movs r0, #1
+    ldr r1, [r5, #16]
+    movs r2, #0
+    ldr r3, bi_strwidth
+    bl callr3
+    adds r0, #22
+    adds r1, r0, #0
+    ldr r0, bi_coldim
+    cmp r6, r0
+    beq ct_col
+    ldr r0, bi_colwhite
+ct_col:
+    str r0, [sp]
+    movs r0, #1
+    movs r2, #98
+    adds r3, r7, #0
+    bl print
+    add sp, #8
+    pop {r4, r5, r6, r7, pc}
+
+@ case_input(r0 = V, r1 = newKeys, r2 = newAndRepeatedKeys)
+case_input:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #8
+    adds r4, r0, #0
+    adds r5, r1, #0
+    adds r6, r2, #0
+    movs r0, #0xD5
+    ldrb r7, [r4, r0]
+    adds r0, r7, #0
+    movs r1, #0x10              @ Right, within the row
+    tst r1, r6
+    beq bi_left
+    movs r1, #3
+    ands r1, r7
+    cmp r1, #3
+    beq bi_keys
+    adds r0, #1
+    b bi_move
+bi_left:
+    movs r1, #0x20
+    tst r1, r6
+    beq bi_down
+    movs r1, #3
+    ands r1, r7
+    cmp r1, #0
+    beq bi_keys
+    subs r0, #1
+    b bi_move
+bi_down:
+    movs r1, #0x80
+    tst r1, r6
+    beq bi_up
+    cmp r7, #4
+    bhs bi_keys
+    adds r0, #4
+    b bi_move
+bi_up:
+    movs r1, #0x40
+    tst r1, r6
+    beq bi_keys
+    cmp r7, #4
+    blo bi_keys
+    subs r0, #4
+bi_move:
+    movs r1, #0xD5
+    strb r0, [r4, r1]
+    bl se_select
+    adds r0, r4, #0
+    adds r1, r7, #0
+    movs r2, #13                @ the colour of the panel: the old frame goes
+    bl case_frame
+    adds r0, r4, #0
+    movs r1, #0xD5
+    ldrb r1, [r4, r1]
+    movs r2, #4
+    bl case_frame
+    adds r0, r4, #0
+    bl case_text
+    adds r0, r4, #0
+    bl case_show
+    b bi_ret
+bi_keys:
+    movs r0, #2                 @ B: the badge windows go, back to the grid
+    tst r0, r5
+    beq bi_ret
+    bl se_select
+    movs r5, #0
+bi_rm:
+    adds r0, r4, r5
+    adds r0, #0xD8
+    ldrb r0, [r0]
+    ldr r3, bi_removewin
+    bl callr3
+    adds r5, #1
+    cmp r5, #8
+    bne bi_rm
+    movs r0, #3
+    strb r0, [r4, #3]
+    adds r0, r4, #0
+    bl grid_count
+    adds r0, r4, #0
+    bl draw_header
+    adds r0, r4, #0
+    bl draw_grid
+    adds r0, r4, #0
+    bl draw_footer
+bi_ret:
+    add sp, #8
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+bi_flagget:         .word 0x0809D791
+bi_strwidth:        .word 0x08005ED9
+bi_colgold:         .word COLGOLD_ADDR
+bi_coldim:          .word COLDIM_ADDR
+bi_colwhite:        .word COLWHITE_ADDR
+bi_removewin:       .word 0x08003575    @ RemoveWindow

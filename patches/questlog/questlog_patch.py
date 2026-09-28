@@ -22,7 +22,9 @@ import journal_patch as J
 import steps as S
 from legends import LEGENDS
 from keyitems import KEYITEMS
-from sidecontent import SIDE, SHINY
+from sidecontent import SIDE, SHINY, ALSO, BADGES
+import portraits as P
+import badgecase
 
 FREE = 0x00FEA000                       # in the unreferenced 0xFF run 0x08FE9074..0x08FF0000
 BASE = 0x08000000 + FREE
@@ -33,10 +35,17 @@ HSI_BYTES = "10b52a4ce18d4020"          # push {r4,lr}; ldr r4,=gMain; ldrh r1,[
 STEP_TABLE = 0x0009F8B8                 # InitStartMenuStep's jump table; entry 3 shows the Safari window
 SIDE_FREE = 0x01F9C000                  # the Side Content chapter's table and texts, after the Key Items'
 KEY_FREE = 0x01F9A000                   # the Key Items chapter's table and texts, after the Legends' 40 KB
+CASE_FREE = 0x01FB0000                  # the badge case: Sinnoh's 8 badges' art, silhouettes, palettes, texts
 LEG_FREE = 0x01F90000                   # the Legends chapter's names and texts: in the 0xFF run at the ROM's
                                         # end (0x09F82519..), well clear of 0x09FE0000, which code points at
 
-NPAGES = 7                              # the four Journal chapters, Legends, Key Items, Side Content
+LROWS = 5                               # rows the list shows at once (the info panel takes the rest)
+# where the game keeps its pictures, each checked against the literal in the routine that uses it
+MONPICS, MONPICS_REF = 0x00F20A20, 0x000346CC    # LoadSpecialPokePic: species -> {LZ77 64x64, size/tag}
+MONPALS, MONPALS_REF = 0x00F25520, 0x0006E758    # GetMonSpritePalFromSpeciesAndPersonality: species -> {LZ77 pal}
+TRPICS, TRPICS_REF = 0x0101BE90, 0x0005DF78      # DecompressTrainerFrontPic: trainer pic -> {LZ77 64x64}
+TRPALS, TRPALS_REF = 0x0101C660, 0x0005DF80      # ... and its palettes
+NPAGES = 8                              # the four Journal chapters, Legends, Key Items, Side Content, Badges
 
 # the Legends chapter's first row: "???" and a dim Master Ball until every legend is caught, then ticked, in
 # purple, with the Master Ball in colour. A reads the hint before, the "where" text after. Not counted.
@@ -183,22 +192,39 @@ SSSSSSSSSSSSSSSS
 ................
 ................
 ................"""),
-    ("Side Quests", 10, """
-..VVVVVVVVVVVV..
-.VVVVVVVVVVVVVV.
-.VVVVVVWWVVVVVV.
-.VVVVVVWWVVVVVV.
-.VVVVVVWWVVVVVV.
-.VVVVVVWWVVVVVV.
-.VVVVVVVVVVVVVV.
-.VVVVVVWWVVVVVV.
-.VVVVVVVVVVVVVV.
-..VVVVVVVVVVVV..
-.....VVV........
-....VVV.........
-...VV...........
+    ("Side Quests", 12, """
+..LLLLLLLLLLLL..
+.LLLLLLLLLLLLLL.
+.LLLLLLVVLLLLLL.
+.LLLLLLVVLLLLLL.
+.LLLLLLVVLLLLLL.
+.LLLLLLVVLLLLLL.
+.LLLLLLLLLLLLLL.
+.LLLLLLVVLLLLLL.
+.LLLLLLLLLLLLLL.
+..LLLLLLLLLLLL..
+.....LLL........
+....LLL.........
+...LL...........
 ................
 ................
+................"""),
+    ("Badges", 14, """
+................
+......YYYY......
+....YYYYYYYY....
+...YYWWYYYYYY...
+..YYWYYYYYYYYY..
+..YWYYYRRYYYYY..
+..YYYYRRRRYYYY..
+..YYYYRRRRYYYY..
+..YYYYYRRYYYYY..
+...YYYYYYYYYY...
+....YYYYYYYY....
+......YYYY......
+.....RR..RR.....
+....RR....RR....
+...RR......RR...
 ................"""),
 ]
 
@@ -438,10 +464,29 @@ def data_blob(base, sym, table, rom):
 
     put("BGTEMPLATES", struct.pack("<I", 0x01F0))                       # BG0: char base 0, map 31
     put("WINTEMPLATES", bytes((0, 0, 0, 30, 2, 15)) + struct.pack("<H", 1)      # header
-                        + bytes((0, 0, 2, 30, 16, 15)) + struct.pack("<H", 61)  # list / detail pane
-                        + bytes((0, 0, 18, 30, 2, 15)) + struct.pack("<H", 541) # footer
+                        + bytes((0, 0, 2, 30, 18, 15)) + struct.pack("<H", 61)  # list + panel / detail / grid
+                        + bytes((0, 0, 18, 30, 2, 15)) + struct.pack("<H", 601) # footer (over the list's last rows)
+                        + bytes((0, 1, 12, 8, 8, 13)) + struct.pack("<H", 661)  # the panel's portrait, BG palette 13
                         + bytes((0xFF, 0, 0, 0, 0, 0)) + struct.pack("<H", 0))
     put("PAL", struct.pack("<16H", *PAL))
+    # the list: by row status (0 unused, 1 done, 2 current, 3 side left behind, 4 side ahead, 5 ahead, 6 legend
+    # seen, 7 legend not seen / Gotta catch not yet, 8 key item or side quest not done, 9 Gotta catch done)
+    put("NAMEFG", bytes((9, 9, 9, 9, 5, 5, 9, 5, 5, 9)), 1)
+    put("TAGFG", bytes((5, 6, 14, 15, 5, 5, 14, 5, 5, 6)), 1)
+    tags = {}
+    for word in ("Done", "Active", "Side", "???", "Seen", "To do"):
+        put("TAG_" + word, s(word), 1)
+        tags[word] = a["TAG_" + word]
+    order = ("???", "Done", "Active", "Side", "???", "???", "Seen", "???", "To do", "Done")
+    put("TAGS", struct.pack("<10I", *(tags[w] for w in order)))
+    put("COLGOLD", bytes((13, 14, 10, 0)))
+    put("GCOL", bytes((13, 9, 10, 0, 13, 5, 10, 0, 13, 6, 10, 0)))  # the grid's cards: name, count, complete count
+    put("COLWHITE", bytes((13, 9, 10, 0)))
+    put("LOCLABEL", s("Location:"), 1)
+    put("SILPAL", struct.pack("<16H", 0, *([rgb(40, 40, 56)] * 15)))
+    arrow = [[14 if v == 11 else v for v in r] for r in grid(UP)]   # the divider's arrows, in gold
+    put("GUPICON", tiles(arrow))
+    put("GDOWNICON", tiles(flip_v(arrow)))
     put("MBPAL", struct.pack("<16H", *master_ball(rom)[1]))           # palette 14: the Master Ball
     put("COLORS", b"".join(bytes(c) + b"\x00" for c in COLORS))
     a["COLHEAD"] = a["COLORS"] + 24
@@ -486,6 +531,9 @@ def data_blob(base, sym, table, rom):
     put("NAME_Side", s("Side Content"), 1)
     assert len(SIDE) <= 99
     rows += struct.pack("<BBBBI", 0, len(SIDE), len(SIDE), 3, a["NAME_Side"])            # type 3: Side Content
+    put("NAME_Badges", s("Badges"), 1)
+    # also type 3: the same row table, starting after Side Content's rows
+    rows += struct.pack("<BBBBI", len(SIDE), len(BADGES), len(BADGES), 3, a["NAME_Badges"])
     assert len(rows) // 8 == NPAGES and NPAGES <= 9, "the grid has 9 tiles"
     put("PAGES", rows)
 
@@ -521,7 +569,20 @@ def data_blob(base, sym, table, rom):
               "GROUPTAIL": sym["group_tail"] | 1, "U8DEC": sym["u8dec"] | 1, "LEGENDS": 0x08000000 + LEG_FREE,
               "LEGSIL": 0x08000000 + LEG_FREE + 16 * LEGROWS,
               "LEGSILDIM": 0x08000000 + LEG_FREE + 16 * LEGROWS + 128 * LEGROWS,
-              "KEYS": 0x08000000 + KEY_FREE, "SIDES": 0x08000000 + SIDE_FREE})
+              "KEYS": 0x08000000 + KEY_FREE, "SIDES": 0x08000000 + SIDE_FREE,
+              "MONPICS": 0x08000000 + MONPICS, "MONPALS": 0x08000000 + MONPALS,
+              "TRPICS": 0x08000000 + TRPICS, "TRPALS": 0x08000000 + TRPALS,
+              "ITEMICONS": 0x08000000 + ITEM_ICONS})
+    put("PANES", struct.pack("<4I", *panes_blob(0x08000000 + PANE_FREE, rom)[1]))
+    # the badge case (mode 4): eight 4x4-tile windows, BG palettes 1-8, tile blocks after the portrait's
+    wins = b""
+    for i in range(8):
+        wins += bytes((0, 2 + 7 * (i % 4), 4 + 6 * (i // 4), 4, 4, 1 + i)) + struct.pack("<H", 725 + 16 * i)
+    put("CASEWIN", wins)
+    put("CASETITLE", s("Sinnoh Badges"), 1)
+    put("HINTCASE", s("B: Back"), 1)
+    put("COLDIM", bytes((13, 5, 10, 0)))
+    a["CASE"] = 0x08000000 + CASE_FREE
     return bytes(d), a
 
 
@@ -570,18 +631,157 @@ def silhouette(px, colour):
 
 def sides_blob(base):
     """{marks u16, flag u16, name, where, where} per row, then the strings (the hint slot repeats "where").
-    marks bit 0: the Pokemon is always shiny (SHINY), and the list draws a red star after the name."""
-    d = bytearray(16 * len(SIDE))
-    for i, (flag, name, where) in enumerate(SIDE):
+    marks bit 0: the Pokemon is always shiny (SHINY), and the list draws a red star after the name; bits 1-15: a
+    second flag that must also be set for the row to count as done (ALSO), or 0."""
+    d = bytearray(16 * len(SIDE + BADGES))
+    for i, (flag, name, where) in enumerate(SIDE + BADGES):          # Side Content, then the Badges chapter
         ptrs = []
         for t in (s(name), pane(where)):
             assert t.count(b"\xfe") < 8, "too long for one page: %r" % t
             ptrs.append(base + len(d))
             d.extend(t)
-        struct.pack_into("<HHIII", d, 16 * i, 1 if flag in SHINY else 0, flag, ptrs[0], ptrs[1], ptrs[1])
+        struct.pack_into("<HHIII", d, 16 * i, (1 if flag in SHINY else 0) | ALSO.get(flag, 0) << 1, flag,
+                         ptrs[0], ptrs[1], ptrs[1])
     while len(d) % 4:
         d.append(0)
     return bytes(d)
+
+
+FONTW, FONTW_REF = 0x006542E4, 0x0000691C       # GetGlyphWidth_Normal: glyph -> width in pixels
+SPNAMES = 0x144                                   # ROM header: the species names table (11 bytes a name)
+PANE_FREE = 0x01FA0000                            # the info panel's tables and texts
+PANE_END = 0x01FB0000
+PANE_TEXT_W = 158                                 # the panel's text column, in pixels
+import re as _re
+
+
+def px(rom, text):
+    return sum(rom[FONTW + b] for b in J.enc(text))
+
+
+def wrap_px(rom, text, width, lines):
+    """Words into at most `lines` lines of `width` px; a cut text ends in an ellipsis."""
+    out, cur = [], ""
+    words = text.split()
+    for k, word in enumerate(words):
+        cand = word if not cur else cur + " " + word
+        if px(rom, cand) <= width:
+            cur = cand
+            continue
+        out.append(cur)
+        cur = word
+        if len(out) == lines:
+            break
+    else:
+        out.append(cur)
+        return out
+    last = out[-1]
+    while px(rom, last + "…") > width:
+        last = last.rsplit(" ", 1)[0] if " " in last else last[:-1]
+    out[-1] = last + "…"
+    return out
+
+
+PLACE_RE = _re.compile(r"(Route \d+|Steven's Island|Battle Frontier|Ultra Space Zero|Ultra Space|Mt\. \w+|"
+                       r"(?:[A-Z][\w'é.-]*\s)+(?:City|Town|Islands|Island|Ship|Chateau|World|Tomb|Cave|Tower|Ruins|Woods|Falls|Chasm|Temple|Shrine|"
+                       r"Paradise|Center|Hideout|Pillar|Road|Lake|Isle|Rock|Underpass|Village|Windworks|Castle|Forest|"
+                       r"Lab|Dome|Cavern|Maze|Gate|Zone|Hamlet|Isle|Grande City)|Hisui|Sinnoh|Johto|Kalos|Unova|Hoenn|"
+                       r"Safari Zone|Deep Sea|Faraway Island|Navel Rock|Southern Island)")
+
+
+def tidy(place):
+    """ "The Bell Tower" -> "Bell Tower", "In Giant Chasm" -> "Giant Chasm", "Route 210 in Sinnoh" -> "Route 210" """
+    place = _re.sub(r"^(The|In) ", "", place.strip())
+    return _re.sub(r" in (Sinnoh|Johto|Hisui|Hoenn|Kalos|Unova)$", "", place)
+
+
+def place_in(text):
+    m = PLACE_RE.search(text)
+    return tidy(m.group(1)) if m else "Hoenn"
+
+
+def species_by_name(rom):
+    base = struct.unpack_from("<I", rom, SPNAMES)[0] - 0x08000000
+    names = {}
+    for sp in range(1, 1300):
+        raw = bytes(rom[base + 11 * sp:base + 11 * sp + 11]).split(b"\xff")[0]
+        names.setdefault(raw, sp)
+    return lambda name: names[J.enc(name)]
+
+
+def panes_blob(base, rom):
+    """The info panel: per chapter type a table of 16-byte rows {kind, Gotta-catch row?, id, location, text,
+    hidden text} (kind 0 none, 1 Pokemon, 2 trainer, 3 item), then the strings. Returns (bytes, [4 tables])."""
+    sp = species_by_name(rom)
+    dex2sp = {}
+    for s_ in range(1, 1300):
+        dex2sp.setdefault(struct.unpack_from("<H", rom, NATDEX + 2 * (s_ - 1))[0], s_)
+    locw = PANE_TEXT_W - px(rom, "Location:") - 3
+    d = bytearray()
+    strings = {}
+
+    def string(t):
+        if t not in strings:
+            strings[t] = len(d)
+            d.extend(t)
+        return base + strings[t]
+
+    def text(t):
+        return string(b"\xfe".join(J.enc(l) for l in wrap_px(rom, t, PANE_TEXT_W, 3)) + b"\xff")
+
+    def loc(t):
+        assert px(rom, t) <= locw, "location too wide for the panel: %r" % t
+        return string(J.enc(t) + b"\xff")
+
+    def pic(p):
+        if p is None:
+            return 0, 0
+        kind, val = p
+        if kind == "m":
+            return 1, sp(val)
+        if kind == "s":
+            return 1, val
+        return (2 if kind == "t" else 3), val
+
+    tables = []
+    rows = []                                   # Journal: every step, then the closing row
+    assert len(P.JOURNAL) == len(S.STEPS) + 1, "portraits.JOURNAL needs a row per step and the closing row"
+    for (where, p), body in zip(P.JOURNAL, [b for _, _, b in S.STEPS] + [S.FINAL[1]]):
+        k, i = pic(p)
+        rows.append((k, 0, i, where, body, "???"))
+    tables.append(rows)
+    rows = [(3, 1, 1, "Everywhere", ALL_CAUGHT[2] % len(LEGENDS), ALL_CAUGHT[1] % len(LEGENDS))]
+    for dex, name, hint, where in LEGENDS:
+        rows.append((1, 0, dex2sp[dex], P.LOC_OVERRIDE.get(name) or place_in(where), where, hint))
+    tables.append(rows)
+    rows = []
+    for item, flag, name, hint, where in KEYITEMS:
+        rows.append((3, 0, item, P.LOC_OVERRIDE.get(name) or place_in(where), where, where))
+    tables.append(rows)
+    rows = []
+    for flag, name, where in SIDE + BADGES:
+        place, _, what = where.partition(": ")
+        k, i = pic(P.SIDE[flag])
+        place = tidy(place)
+        if not what or px(rom, place) > locw:
+            place = place_in(where)
+        place = P.LOC_OVERRIDE.get(name, place)
+        what = (what[:1].upper() + what[1:]) if what else where        # the place moved to "Location:"
+        rows.append((k, 0, i, place, what, what))
+    tables.append(rows)
+
+    starts = []
+    for rows in tables:                        # the tables first, the strings after them
+        while len(d) % 4:
+            d.append(0)
+        starts.append(len(d))
+        d.extend(bytes(16 * len(rows)))
+    for t, rows in enumerate(tables):
+        for r, (k, mb, i, where, body, hidden) in enumerate(rows):
+            struct.pack_into("<BBHIII", d, starts[t] + 16 * r, k, mb, i, loc(where), text(body), text(hidden))
+    while len(d) % 4:
+        d.append(0)
+    return bytes(d), [base + x for x in starts], tables
 
 
 def keys_blob(base, rom):
@@ -628,6 +828,32 @@ def legends_blob(base, rom):
     return bytes(d)
 
 
+def case_blob(base, rom):
+    """The badge case: 8 entries of 32 bytes {flag u16, 0, art, silhouette, palette, name, earned text, not-yet
+    text, 0}, Sinnoh's badges in order, then the graphics (badgecase.py) and the strings."""
+    import re
+    assert len(BADGES) == 8
+    d = bytearray(32 * 8)
+    art = badgecase.all_badges(rom)
+    lim = 212                                   # the line under the badges: x 16 .. 228
+    for i, ((flag, name, where), (tiles, sil, pal)) in enumerate(zip(BADGES, art)):
+        city, _, rest = where.partition(": ")
+        leader = re.search(r"Gym Leaders? (.+?)(?:,|\.$)", rest).group(1)
+        earned, notyet = "%s, %s" % (leader, city), "%s Gym" % city
+        for t in (earned, notyet):
+            assert px(rom, name) + 6 + px(rom, t) <= lim, "badge text too wide: %s %s" % (name, t)
+        ptrs = []
+        for blob, align in ((tiles, 4), (sil, 4), (pal, 4), (s(name), 1), (s(earned), 1), (s(notyet), 1)):
+            while len(d) % align:
+                d.append(0)
+            ptrs.append(base + len(d))
+            d.extend(blob)
+        struct.pack_into("<HH6II", d, 32 * i, flag, 0, *ptrs, 0)
+    while len(d) % 4:
+        d.append(0)
+    return bytes(d)
+
+
 def journal_in(rom):
     """Rebuild the Journal the way patches/journal makes it and insist the ROM holds exactly that."""
     prevhook = struct.unpack_from("<I", rom, J.OW_TARGET)[0]
@@ -659,7 +885,9 @@ def build(inp, outp):
     src = open(os.path.join(HERE, "questlog.s"), encoding="ascii").read()
 
     def assemble(addrs):
-        t = src.replace("#NPAGES", "#%d" % NPAGES).replace("#NLAST", "#%d" % (NPAGES - 1)).replace(
+        t = src.replace("#NPAGES", "#%d" % NPAGES).replace("#NLAST", "#%d" % (NPAGES - 1))
+        t = t.replace("#NLISTLAST", "#%d" % (NPAGES - 2))            # lists turn up to Side Content
+        t = t.replace("#LROWS - 1", "#%d" % (LROWS - 1)).replace("#LROWS", "#%d" % LROWS).replace(
             "#NLEG", "#%d" % len(LEGENDS))
         for k, v in sorted(addrs.items(), key=lambda kv: -len(kv[0])):   # longest first
             t = t.replace(k + "_ADDR", "0x%08X" % v)
@@ -672,9 +900,10 @@ def build(inp, outp):
     data, daddrs = data_blob(BASE + code_len, sym, table, rom)
 
     order = ("item_use", "wait_task", "cb2_init", "cb2_main", "vblank", "se_select", "compute", "page_sel",
-             "print", "show", "draw_list", "draw_header", "draw_footer", "open_detail", "draw_detail", "task",
+             "print", "show", "draw_list", "draw_pane", "portrait", "draw_header", "draw_footer", "open_detail", "draw_detail", "task",
              "hsi", "menu_cb", "case3", "has_journal", "show_widget", "widget_remove", "row_status", "row_title", "ext_entry", "legend_all",
-             "draw_grid", "grid_count", "rect", "corners", "card_border", "grid_input", "grid_pulse")
+             "draw_grid", "grid_count", "rect", "corners", "card_border", "grid_input", "grid_pulse",
+             "case_open", "case_draw", "case_show", "case_frame", "case_text", "case_input")
     funcs = [i.address for i in dis if i.mnemonic == "push"]
     assert len(funcs) == len(order), "unexpected function layout: %d pushes, expected %d" % (len(funcs), len(order))
     f = dict(zip(order, funcs))
@@ -694,6 +923,20 @@ def build(inp, outp):
     assert set(rom[KEY_FREE:KEY_FREE + len(keys)]) == {0xFF}, "Key Items region not free"
     assert KEY_FREE + len(keys) <= 0x01FA0000, "outside the checked window"
     rom[KEY_FREE:KEY_FREE + len(keys)] = keys
+    for gtable, ref, what in ((MONPICS, MONPICS_REF, "Pokemon pictures"), (MONPALS, MONPALS_REF, "Pokemon palettes"),
+                             (TRPICS, TRPICS_REF, "trainer pictures"), (TRPALS, TRPALS_REF, "trainer palettes"),
+                             (FONTW, FONTW_REF, "glyph widths")):
+        assert struct.unpack_from("<I", rom, ref)[0] == 0x08000000 + gtable, "the %s table moved" % what
+    panes, _, ptables = panes_blob(0x08000000 + PANE_FREE, rom)
+    assert PANE_FREE + len(panes) <= PANE_END, "the info panel's data outgrew its space"
+    assert set(rom[PANE_FREE:PANE_FREE + len(panes)]) == {0xFF}, "info panel region not free"
+    for rows in ptables:                         # every picture must decompress to at most 0x2000 bytes
+        for k, mb, i, *_ in rows:
+            if k:
+                tab = {1: MONPICS, 2: TRPICS, 3: ITEM_ICONS}[k]
+                pic = struct.unpack_from("<I", rom, tab + 8 * i)[0] - 0x08000000
+                assert rom[pic] == 0x10 and struct.unpack_from("<I", rom, pic)[0] >> 8 <= 0x2000, "picture %d/%d" % (k, i)
+    rom[PANE_FREE:PANE_FREE + len(panes)] = panes
     assert KEY_FREE + len(keys) <= SIDE_FREE, "the Key Items data runs into the Side Content's"
     sides = sides_blob(0x08000000 + SIDE_FREE)
     assert set(rom[SIDE_FREE:SIDE_FREE + len(sides)]) == {0xFF}, "Side Content region not free"
@@ -701,6 +944,10 @@ def build(inp, outp):
     rom[SIDE_FREE:SIDE_FREE + len(sides)] = sides
     assert set(rom[LEG_FREE:LEG_FREE + len(leg)]) == {0xFF}, "Legends region not free"
     rom[LEG_FREE:LEG_FREE + len(leg)] = leg
+    case = case_blob(0x08000000 + CASE_FREE, rom)
+    assert set(rom[CASE_FREE:CASE_FREE + len(case)]) == {0xFF}, "badge case region not free"
+    assert CASE_FREE + len(case) <= 0x01FE0000, "the badge case outgrew 0x09FB0000..0x09FE0000"
+    rom[CASE_FREE:CASE_FREE + len(case)] = case
     struct.pack_into("<I", rom, e + 0x1C, f["item_use"] | 1)
     rom[HSI:HSI + 4] = bytes.fromhex("004b1847")                   # ldr r3,[pc,#0]; bx r3
     struct.pack_into("<I", rom, HSI + 4, f["hsi"] | 1)

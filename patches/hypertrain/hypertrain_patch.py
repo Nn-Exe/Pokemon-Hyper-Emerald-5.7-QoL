@@ -18,8 +18,11 @@ This patch:
     trained IV field and passes every other field through;
   * keeps the EV-IV screen's Hidden Power type honest: it builds the type from the IVs it loaded (bit 0 of
     each, 0x0968A07A..0x0968A0B1), which would now be 31s - the first test showed Dragon turn into Dark.
-    ht_getmondata records each real IV's low bit (EWRAM 0x0203D600) and a 10-byte trampoline at 0x0968A07A
-    hands those to the calculation instead;
+    ht_getmondata records each real IV's low bit (EWRAM 0x0203F13C) and a 10-byte trampoline at 0x0968A07A
+    hands those to the calculation instead. (It was 0x0203D600 until 2026-09-28: that byte is saved - it lies in
+    the hack's overflow stream - and is the species of the Pokemon the fusion code keeps at 0x0203D5E0 (the
+    Solgaleo of a Dusk Mane Necrozma), so every IV read rewrote that species. 0x0203F13C is past the stream, in
+    the 0x0203F100..0x0203F13F run the scratch-RAM test measured free, and no literal in the ROM points into it);
   * runs CalculateMonStats on the trained Pokemon straight after the training (the trainer's success path at
     0x09812840 now goes through a new script that calls ht_recalc, then rejoins it);
   * replaces the trainer's closing line, which told you to deposit it, with one that says it is done.

@@ -1,6 +1,8 @@
 -- Hyper Training end to end: train the lead's six stats the trainer's way, run his success path (0x09812840),
--- log the stats right after, then open the EV-IV Display (SELECT popup, DOWN) and run an IV judge
+-- log the stats right after, then open the EV-IV Display (registered to UP here: SELECT popup, UP) and run an IV judge
 -- (0x08FF0040). Screenshots t*_*.png. Run next to game.gba/game.sav.
+-- Also: the fusion slots (a whole Pokemon kept at 0x0203D5E0 / 0x0203D644 while Necrozma is fused) must come
+-- out of all that unchanged - the old scratch byte 0x0203D600 was the first slot's species.
 NAME = "htfull"
 dofile((DIR or "./") .. "../dexnavchain/test_boot.lua")
 local SCRIPT, PARTY = 0x0203F100, 0x020244EC
@@ -26,7 +28,27 @@ local function run(bytes)
   emu:write8(0x03000F2C, 1)
   emu:write8(0x03000E38, 0)
 end
+local FUSION = {0x0203D5E0, 0x0203D644}
+local fusion0
+local function fusion()
+  local t = {}
+  for _, a in ipairs(FUSION) do for k = 0, 99, 4 do t[#t + 1] = string.format("%08X", emu:read32(a + k)) end end
+  return table.concat(t)
+end
 at(0, function()
+  -- the EV-IV Display (item 650): into the Key Items pocket if missing, registered to UP in the SELECT popup
+  local kp, cap, have, free = emu:read32(0x02039DD8 + 32), emu:read8(0x02039DD8 + 36), false, nil
+  for i = 0, cap - 1 do
+    local id = emu:read16(kp + 4 * i)
+    if id == 650 then have = true elseif id == 0 and not free then free = i end
+  end
+  if not have and free then
+    emu:write16(kp + 4 * free, 650)
+    emu:write16(kp + 4 * free + 2, 1 ~ (emu:read32(emu:read32(0x03005D90) + 0xAC) & 0xFFFF))
+  end
+  emu:write16(emu:read32(0x03005D8C) + 0x496, 650)
+  fusion0 = fusion()
+  w(string.format("fusion slot species: %d, %d", emu:read16(FUSION[1] + 0x20), emu:read16(FUSION[2] + 0x20)))
   w(string.format("before: +0x1E %02X | %s | %s", emu:read8(PARTY + 0x1E), ivs(PARTY), stats(PARTY)))
   -- setvar 8004,0 ; setvar 8005,BITS ; callasm 0x098126FD (the trainer's own) ; goto 0x09812840 (his success path)
   run({0x16, 0x04, 0x80, 0x00, 0x00, 0x16, 0x05, 0x80, BITS, 0x00, 0x23, 0xFD, 0x26, 0x81, 0x09,
@@ -40,7 +62,7 @@ at(520, function()
   w(string.format("after:  +0x1E %02X | %s | %s  (field lock %d)", emu:read8(PARTY + 0x1E), ivs(PARTY), stats(PARTY), lock()))
   tap(K.SEL)
 end)
-at(570, function() tap(K.DOWN) end)
+at(570, function() tap(K.UP) end)
 at(740, function() shot("t3_evivdisplay") end)
 at(760, function() tap(K.R) end)
 at(820, function() shot("t4_evivdisplay_r") end)
@@ -53,7 +75,11 @@ at(1160, function() tap(K.A) end)
 at(1260, function() shot("t6_judge2") end)
 at(1270, function() tap(K.A) end)
 at(1320, function() tap(K.A) end)
-at(1400, function() done() end)
+at(1400, function()
+  w(string.format("fusion slot species after: %d, %d; both slots %s", emu:read16(FUSION[1] + 0x20),
+    emu:read16(FUSION[2] + 0x20), fusion() == fusion0 and "UNCHANGED" or "CHANGED"))
+  done()
+end)
 function TEST(f)
   t0 = t0 or f
   for _, p in ipairs(plan) do if f - t0 == p[1] then p[2]() end end

@@ -51,7 +51,10 @@ These are not style preferences; each one is a bug that already happened.
 4. **Thumb-1 only.** The patchers assemble a twin with the literal pools replaced by nops and assert that
    Capstone finds no 4-byte instruction: a stray Thumb-2 encoding will not run on a GBA. Watch the reach
    limits — pc-relative `ldr` reaches 1020 bytes, so long functions need several literal pools.
-5. **Never write to the save.** No feature so far stores anything in SaveBlock1/2. Scratch goes in EWRAM
+5. **Never write to the save.** No feature so far stores anything in SaveBlock1/2. (One deliberate exception:
+   `bagslots` moves the Items pocket within the hack's own saved "overflow stream", 0x0203CF64-0x0203DE00, with a
+   one-time migration - NOTES, *Items pocket 100 -> 200 slots*. That stream is saved: never use it as scratch.)
+   Scratch goes in EWRAM
    that has been *measured* to be unused (fill a candidate with a pattern, play through battles, menus, the
    bag, a save and a Pokénav call, then check what survived — `patches/dexnavchain/test_scratch_ram.lua`).
 6. **Verify in the emulator, not by reading.** Every feature here has a Lua test that drives the game and
@@ -72,13 +75,21 @@ Applied to the working ROM and verified in mGBA (on a real late-game save, Sinno
     and verifies the Journal blob, then calls its routines. `test_questlog.lua` + `check_questlog.py` run the
     same 94 scenarios through the screen; R in the Start menu opens it too; a fifth chapter, Legends, lists the legendaries from
     `patches/questlog/legends.py`, a sixth the key items from `keyitems.py`, a seventh
-    side content from `sidecontent.py`; the log opens on a chapter grid). NOTES, QUEST LOG;
+    side content from `sidecontent.py`; the log opens on a chapter grid; lists are Unbound-style with an info
+    panel - portraits and locations in `portraits.py`). NOTES, QUEST LOG;
   * berry numbers in the Bag: "No?2" -> No44-71 (`patches/berrynum/`, four sites - the hack has two copies of
     its item-name routine);
 - the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
   (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
 
-Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain`.
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots`.
+After pulling a change to any patch that is not last, rebuild the whole chain from the v1.4 archive + the shinybox
+edit - see NOTES, *Working ROM rebuilt*. `bagslots` changes the save: see NOTES, *Items pocket 100 -> 200 slots*.
+`questlog_patch.py` needs numpy. Tests: `make_tests.py` (93 cases); `test_journal.lua` on the chain's Journal-only
+stage (after `journal`, before `questlog`) and `test_questlog.lua` on the end, with their check_*.py;
+`test_hypertrain.lua`; `test_bagslots.lua` then `test_bagslots_reload.lua`, `test_bagslots_newgame.lua`,
+`test_bagslots_saves.lua`.
+
 (On a ROM that already has the old shinybox, "both sides" is the 2-byte edit at `0x08FDA136` in NOTES; the
 patcher itself only builds from a clean BattleMainCB2.)
 

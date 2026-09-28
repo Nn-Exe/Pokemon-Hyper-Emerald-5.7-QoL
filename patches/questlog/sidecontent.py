@@ -19,8 +19,6 @@ SIDE = [
     (0x4329, "White-Striped Basculin",
      "Route 119: someone who dreamed of feeding the Phantom Fish trades a White-Striped Basculin."),
     # ---- gift Pokémon
-    (0x4311, "A legendary choice",
-     "Littleroot Town: return the Mega Bracelet at home for a choice of Giratina, Kyurem, Xerneas or Yveltal."),
     (0x4055, "Meloetta",
      "Hearthome City: it joins you after its performance on stage, Lv50."),
     (0x40B9, "A Galar gift",
@@ -109,8 +107,27 @@ SIDE = [
 # player's trainer ID (0x08302B10). The wild starters set it up between setwildbattle and dowildbattle (the
 # enemy's slot, var 0x8004 = 6); Drifloon's gift right after its givemon (the last party slot). Oshawott,
 # Chespin, Chikorita, Cyndaquil and Totodile skip that call, and the other gifts and trades are ordinary.
+# The Badges chapter (a badge case, Sinnoh only: the Trainer Card shows Hoenn's): the same kind of rows (a flag
+# each), read from the same table after SIDE. The flags are the hack's Sinnoh gym flags 0x42CD-0x42D4 (steps.py).
+BADGES = [
+    (0x42CD, "Coal Badge", "Oreburgh City: won from Gym Leader Roark."),
+    (0x42CE, "Forest Badge", "Eterna City: won from Gym Leader Gardenia."),
+    (0x42CF, "Cobble Badge", "Veilstone City: won from Gym Leader Maylene."),
+    (0x42D0, "Fen Badge", "Pastoria City: won from Gym Leader Crasher Wake."),
+    (0x42D1, "Relic Badge", "Hearthome City: won from Gym Leader Fantina."),
+    (0x42D2, "Mine Badge", "Canalave City: won from Gym Leader Byron."),
+    (0x42D3, "Icicle Badge", "Snowpoint City: won from Gym Leader Candice."),
+    (0x42D4, "Beacon Badge", "Sunyshore City: won from Gym Leader Volkner."),
+]
+
+# Rows whose flag alone does not prove it: the second flag must be set too. Snivy's 0x045D is also its object's
+# "hidden" flag - set from the start of the game, cleared by Ever Grande's guard after the League (the same script
+# sets 0x41B0), set again by the battle - so the battle is done only once both are set.
+ALSO = {0x045D: 0x41B0}
+
 SHINY = {0x045D, 0x0415, 0x40B8, 0x40EA, 0x42DE, 0x432D}   # Snivy, Litten, Grookey, Scorbunny, Drifloon, Gengar
 
-assert len({f for f, *_ in SIDE}) == len(SIDE)
+assert len({f for f, *_ in SIDE + BADGES}) == len(SIDE) + len(BADGES)
+assert all(f in {r[0] for r in SIDE} and 0 < g < 0x8000 for f, g in ALSO.items())
 assert all(len(n) <= 24 for _, n, _ in SIDE)
 assert SHINY <= {f for f, *_ in SIDE}

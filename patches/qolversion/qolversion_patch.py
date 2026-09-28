@@ -3,20 +3,20 @@
 The Option screen's title bar reads "Ultra Emerald v5.7 (Standard)" - the hack's version and the save's
 difficulty. This puts this patch set's own version in it as well:
 
-    Ultra Emerald v5.7 +QoL1.5 (Standard)
+    Ultra Emerald v5.7 +QoL1.6 (Standard)
 
 One string per difficulty, reached through the table at 0x09F07DF4 (four words: Standard, Hard Mode,
 Challenge, Lunatic). Each new string is built from the ROM's own bytes - its leading colour codes and its
 mode name are copied, "+QoL<version>" is inserted before the mode - so nothing here hardcodes the hack's
 wording. The originals stay where they are; only the four table words change, plus the new strings in free
-space. "+QoL1.5" is written without an inner space because " +QoL 1.5 (Hard Mode)" runs past the window:
+space. "+QoL1.6" is written without an inner space because " +QoL 1.6 (Hard Mode)" runs past the window:
 measured in mGBA, the longest of the four ends 6 px inside the box (the window's text area is x 24..225).
 
 Apply late in the chain, after `version` has made these strings read 5.7.
 """
 import os, struct, sys
 
-QOL = "1.5"                             # this patch set's release
+QOL = "1.6"                             # this patch set's release
 FREE = 0x00FF24C0                       # in the unreferenced 0xFF run 0x08FF2454.., after leaguetext's strings
 TABLE = 0x01F07DF4                      # the Option screen's title, one word a difficulty
 MODES = 4

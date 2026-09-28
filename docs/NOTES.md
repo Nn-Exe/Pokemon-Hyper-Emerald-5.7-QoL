@@ -1205,3 +1205,375 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   change the moment he finishes; the EV-IV Display shows 31 for trained stats only and keeps the real
   Hidden Power type (Dragon); the judges read 31/31/31 for all six, 31/20/3 for HP only. The item and var
   checks in front of the training are the hack's and were not changed.
+
+## QUEST LOG: UNBOUND-STYLE LIST AND INFO PANEL — 2026-09-24
+- Asked for (with a screenshot of Unbound's mission log). The list window is now 30 x 18 tiles (the footer
+  window sits on its last two rows and is only put back in the grid and detail views; `draw_footer` returns at
+  once in list mode, `draw_grid` re-puts it after every redraw). `draw_list` draws LROWS = 5 rows (y 0-79) on the
+  dark backdrop: a hairline, the selected row in colour 8 with the white arrow, the name (white, grey while
+  "???": `NAMEFG` by status) and a right-aligned tag (`TAGS` / `TAGFG` by status: Done green, Active gold, Side
+  purple, Seen gold, To do / ??? grey). Gold scroll arrows sit in the panel's top right corner (drawn after it). `dl_colours` builds a
+  {bg, fg, shadow} triple at V+0xF0 for the selected / unselected background. Scrolling: `tk_down`, `page_sel`
+  now use LROWS.
+- The panel (`draw_pane`, y 80-143): a white frame, window 3 (8 x 8 tiles at map (1,12), BG palette 13, base
+  block 661) with the portrait, "Location:" (gold) plus the place (white), and three lines of text. Rows come
+  from `pane_entry`: PANES[chapter type] -> 16-byte rows {kind, Gotta-catch row?, id, location, text, hidden
+  text}; the Journal table is indexed by step (first + row). Journal steps still ahead (status 4/5): "???", no
+  picture. A legend not seen (7): its silhouette, "???" and its hint. The Gotta catch row: the Master Ball icon,
+  as a silhouette until status 9.
+- `portrait(kind, id, silhouette?, V)`: LZ77UnCompWram (0x082E7091) the picture into V+0x400 (8 KB: Castform keeps
+  all four forms in one 0x2000 block), a 64x64 one copied straight into gWindows[3].tileData (same tile layout),
+  an item icon (24x24) blitted in the middle; the palette decompressed to V+0x2400 and LoadPalette'd to 0xD0,
+  or `SILPAL` (all dark) for a silhouette. Alloc is now 0x2C40.
+- Tables (each asserted against the literal in the routine that uses it): Pokémon pictures 0x08F20A20
+  (LoadSpecialPokePic, literal 0x080346CC), palettes 0x08F25520 (0x0806E758), trainer pictures 0x0901BE90
+  (DecompressTrainerFrontPic, 0x0805DF78), their palettes 0x0901C660 (0x0805DF80), item icons 0x08FCBFF4 (as the
+  Master Ball row already used). 500 trainer-pic slots, 250 real; `tools/romdata/dump_trainers.py` gives each
+  trainer's `pic`. Hisuian forms share names with the regular ones (Zorua 623 / 1017, ...): portraits.py can name
+  a species by number.
+- Texts are wrapped by pixel width at build time with the game's glyph widths (`gFontNormalLatinGlyphWidths`
+  0x086542E4, checked at GetGlyphWidth_Normal 0x0800691C) to 158 px, three lines, an ellipsis when cut.
+  Locations: portraits.JOURNAL by hand; Legends / Key Items / Side Content from their own texts (`place_in`,
+  `tidy`) with `LOC_OVERRIDE`. No-spoiler: Journal steps whose text hides who waits there have no portrait.
+- Data: the panel tables and texts at 0x09FA0000 (asserted < 0x09FB0000). Free for other work now:
+  0x09FB0000-0x09FDFFFF.
+- The grid follows the same theme: backdrop colour 10, cards 13, white names and grey counts (`GCOL`: name, count,
+  complete), the Side Quests card's bubble light (12) instead of navy.
+- Tested (`test_questlog_panel.lua`) on the late-game save, every chapter type; `test_questlog.lua` 94/94.
+
+## HISUI ON THE SINNOH MAP — 2026-09-25
+- `patches/hisuimap/`: the Sinnoh Map shows Hisui while you are in Hisui. The screen is sinnohmap's, rebuilt as
+  `regionmap.s` around a REGION RECORD {palettes, tiles LZ, tilemap LZ, places, fly table, names or 0} and
+  installed new at `0x08FF3000..0x08FF54C0` (unreferenced run 0x08FF2574..0x08FFD5A0). Item 361's field-use pointer
+  moves 0x08FDBCB1 -> 0x08FF3001. The old screen stays in the ROM unused; its overworld stub (hands you the item)
+  is still what the hook chain runs. The Sinnoh record points INTO the old blob (palette 0x08FDC5C0, tiles
+  0x08FDC760, tilemap 0x08FDDF58, places 0x08FDE3C0, couriers 0x08FDC4FC), found by content and asserted unique,
+  so leaguefly's edit of the section-97 courier entry keeps working.
+- `where()` picks the record on every lookup: GetMapSec; section 104 = Hisui (only 37/103..108 use it - checked
+  by walking every map header), key = SB1+5 mapNum; anything else = Sinnoh, key = mapsec. Tables are {key, x, y}
+  and {key, pad, flag, block}; a fly flag of 0 means always allowed (Mingyao checks nothing). Hisui names come from
+  its own table {key, pad[3], text}; Sinnoh still uses GetMapName.
+- Marker tile moved to a fixed slot, tile 511 of BG1's character block (0x06007FE0, entry 0xD1FF), past both
+  pictures (Sinnoh 409 tiles, Hisui 360). The old task clobbered r7 without saving it; the new one pushes it.
+- Fly blocks are Mingyao's (menu at 0x0989ADF0, multichoice 137): `75 <Braviary> 01 04` showmonpic, `6D`
+  WAITBUTTONPRESS, `76` hidemonpic, `39 25 <map> 01 ...` warp 37.<map> warp 1. 104 AE3C, 103 AE4D, 105 AE5E,
+  107 AE6F, 106 AE80 (0x0989xxxx). So after A on the map her Braviary appears and waits for a button, as it
+  does when you talk to her. The temple (37/108) has no block: on foot from Coronet Highlands (40,38).
+- Mingyao's list 137 at 0x098031A8: entries 1 and 3 (0x098365E1 / 0x098365F3, Chinese) repointed to "Deertrack
+  Heights" and "Snowfall Hot Spring" in the blob. The multichoice box sizes itself; "Snowfall Hot Spring" fits.
+- Picture: `tools/make_hisui_townmap.py` (Sinnoh palette, drawn from the Legends: Arceus map; the squares now
+  fill exactly one 8x8 cell so the marker covers them) -> `tools/make_region_map.py --colors 32` -> 2 palettes,
+  360 tiles, 5.6 KB + 1 KB LZ77. Places (tiles): Snowfall (10,4), Temple (15,7), Coronet (15,9), Firespit (26,5),
+  Deertrack (6,12), Prelude (10,14).
+- Tested (`test_hisuimap.lua`): warp to 37/106, open (direct CB2 and through START > Bag > Use), hop U,U,L,D,R,R
+  (Temple, Snowfall, Deertrack, Prelude, Coronet, Firespit - names right), A on Firespit -> Braviary, A -> 37/105;
+  from the Bag, D -> Deertrack, A, A -> 37/103 next to Mingyao, script lock 0; her menu shows five English names.
+  Sinnoh regression: 36/3 opens on Oreburgh City, hops name Oreburgh Gate / Route 204, B back to the field.
+
+## POKEDEX DESCRIPTIONS AGAINST THE FRAME — 2026-09-25
+- Report: Morelull's entry on the "registration completed" page started under the frame ("t scatters...") and
+  stopped on a ▼. PrintMonInfo (0x080C020C; the description part 0x080C0314..0x080C0342) prints the text from
+  the dex table 0x09250000 (+16) centred: x = GetStringCenterAlignXOffset(1, text, 240) (0x081DB35C), y 95.
+- Cause: 5 of 960 descriptions (slots 562, 722, 753, 755, 802) used 0xFA (scroll + wait for a button) as a line
+  break. The printer waits on it (the ▼), and the width measured for centring ran the lines around it together
+  past 240 px, so x fell to 0. The other 955 use 0xFE only.
+- Also: the hack's own English entries are at most 224 px wide per line; ours went to 231 (4 px from the frame).
+- `patches/dexdesc/`: 0xFA -> 0xFE, and any description wider than 224 px re-wrapped greedily at 224 px in at most
+  4 lines (30 entries; none needed a 5th). Only separator bytes change (93 bytes, 0x00 <-> 0xFE / 0xFA -> 0xFE),
+  so lengths and addresses stay; nothing repointed. After: max width 224, max 4 lines, no 0xFA.
+- Checked by measuring with the game's glyph widths (gFontNormalLatinGlyphWidths 0x086542E4), not yet on screen.
+
+## OVAL CHARM, AND ITEM 644 — 2026-09-25
+- `patches/ovalcharm/`, blob `0x08FF5600..0x08FF590E`: egg_roll, the icon (LZ77 pic + palette), texts, the
+  Day-Care Man's new head.
+- Item: slot 114, one of the hack's unused "???" slots (name `3D`x7..., id 0x72, pocket 1; the script index
+  shows no give/take/check of 114-116). Entry copied from the Shiny Charm (119: pocket 5, type 4, field use
+  0x080FE821 "can't use"), name/id/description replaced. Icon table 0x08FCBFF4 entry 114 -> ours;
+  `make_icon.py` redraws the Shiny Charm's icon (string, bead, tassel kept) with an oval gem, 9-colour palette.
+- Egg roll: TryProduceOrHatchEgg is vanilla. 0x08070B0E..0x08070B33 was `adds r0,r6,#0; bl 0x08070D4C
+  (GetDaycareCompatibilityScore: 0/20/50/70); bl Random 0x0806F5CC; *100; bl __udivsi3 0x082E7B68 by 0xFFFF;
+  cmp; bl TriggerPendingDaycareEgg 0x080701E0`. Now: `adds r0,r6,#0; ldr r3,=egg_roll; bl <bx r3>; cmp r0,#0;
+  beq out; bl 0x080701E0; b out` + pool + `mov r8,r8` filler. egg_roll repeats the roll with 20->40, 50->80,
+  70->88 when CheckBagHasItem(114, 1). The other caller of the score (0x08070E76, the man's "get along" line)
+  is untouched. GOTCHA from the skill: Keystone's `nop` is 00 BF - never use it, even in dead filler.
+- Day-Care Man: Route 117 (0/32) object 2, script 0x08291C18 (`6A 5A 25 B8 00` lock, faceplayer, special
+  0xB8; three references, all to the entry, none into its first 5 bytes). Those 5 bytes -> `goto` our head:
+  lock, faceplayer; checkflag 0x433E / goto_if set -> usual; checkflag 0x864 / goto_if unset -> usual;
+  msgbox intro; additem 114,1 (raw 0x44); setflag 0x433E; playfanfare 0x173; msgbox "received"; waitfanfare;
+  msgbox; release; end. "usual" = special 0xB8; goto 0x08291C1D.
+- Flags: 0x864 = FLAG_SYS_GAME_CLEAR, the Hoenn League beaten (the Journal's Hoenn finale uses it; first built
+  on 0x42D5, the Sinnoh League, set only in Cynthia's room 34/31 - moved to Hoenn at the user's request).
+  0x433E (given): no script
+  references it, no aligned literal of it anywhere, clear in all 34 saves checked (0x433F is candynpc's).
+- Item 644 was 脚本测试器 "Script Tester": a developer's item (field use 0x08FF1C41 runs a test script via
+  ScriptContext1_SetupScript), in no script, with the Grassium Z's description. Renamed, own description.
+- Tested (`test_ovalcharm.lua`): GIFT on the user's save (0x864 set): warp below him, talk -> intro ("...became the Champion of Hoenn!"),
+  "Jude received the Oval Charm!", closing line; item 114 in Key Items; talk again -> his usual line; lock 0. NOHOF=1 (clearflag 0x864 first): only his usual line, nothing given.
+  ODDS on a test copy whose egg_roll reads a forced score from an EWRAM stub, 5000 rolls each: no charm
+  0 / 19.7 / 50.4 / 69.8 %, with charm 0 / 40.9 / 79.2 / 88.0 % for scores 0 / 20 / 50 / 70. BAG: both items'
+  names, icons and descriptions in Key Items. Diff vs the archived ROM: only the six intended regions.
+- Not in the Quest Log's Key Items chapter yet (that needs the questlog rebuild).
+
+## HOENN FLY MAP: SQUARES FOR THE ISLANDS — 2026-09-25
+- Report: Steven's Island can be flown to from the Fly map but nothing marks it there.
+- The hack's GetMapsecType (0x08123D58) is table-driven: u16 per map section at 0x08C4CFA0 (literal at
+  0x08123D9C); 0xFFFF -> 1 route, 0 -> 0 none, else FlagGet(flag) ? 2 (can fly) : 3. The Fly map's A press
+  (0x08124DAE) flies on type 2 or 4. Non-town sections with a flag: Battle Frontier 0x3A (0x8A8), Champion
+  Island 0x45 (0x419C), Southern Island 0x49 (0x8A9), Strange Island 0x71 (0x4178), Steven's Island 0x9E
+  (0x4150).
+- Towns get their dots from the region map picture; special areas get a red-outlined square SPRITE from
+  CreateSpecialAreaFlyTargetIcons (vanilla), which walks sRedOutlineFlyDestinations {flag, mapsec}...{0xFFFF,
+  0xD5} at 0x085A1F18 - only the Battle Frontier. Its only reader is the literal at 0x08124CAC.
+- `patches/flyicons/`: a new table at 0x08FF5A00 (24 bytes) with all five, read from the hack's flag table and
+  using the same flags, so a square shows exactly when Fly works; the literal repointed. Sprite position is
+  ((x+1)*8, (y+2)*8) from gRegionMapEntries (0x085A147C), 16x16 for 1x1 sections.
+- Other region-map facts found on the way: CB2_OpenFlyMap 0x08124691 (party menu literal 0x081B5620); map
+  tiles LZ 0x0859F77C (233 8bpp tiles), 64x64 affine tilemap LZ 0x085A04E0, palette 0x0859F73C.
+- Tested (`test_flyicons.lua`, opens the Fly map from the field): on the user's save the control shows only the
+  Battle Frontier's square; patched adds Steven's Island, Strange Island and Champion Island (the last partly
+  under the fixed name box, where the island is). Southern Island's flag is clear on that save.
+
+## EGG MOVES — 2026-09-25
+- Report: "egg moves aren't passed down; the egg move table might be wrong".
+- How eggs get moves here (_GiveEggFromDaycare 0x080708C8): parentSlots from DetermineEggSpeciesAndParentSlots
+  (0x080707EC, vanilla: [0] mother = female or non-Ditto, [1] father = the other / Ditto); InheritIVs is
+  trampolined (0x08070260 -> 0x09F00B08, the hack's): IVs/items, then with the mother from 0x09F007F8 it
+  inherits her Ball (0x09F007A0) and her egg moves (0x09F009A4: GetEggMoves(egg), each one the mother knows ->
+  GiveMoveToMon 0x08069141 / DeleteFirstMoveAndGiveMoveToMon 0x080694D1). Then vanilla BuildEggMoveset
+  (0x08070470, called at 0x08070906 with father = mons[parentSlots[1]]): father's egg moves, his TM moves,
+  moves both know. GetEggSpecies 0x08070004 -> 0x09F006F9 (the hack's).
+- So the modern rule already holds. Measured (test_eggmoves.lua: two parents written into SB1+0x3030, the egg
+  made by 0x080708C9 via callasm, its moves read from the party): mother / father / Ditto+female / Ditto+male
+  each pass Curse to a Bulbasaur egg; a father with 4 TMs does not push it out.
+- The table (0x09D78128, species+20000 markers, 381 lists) matches modern data; of ~65 common breeders checked
+  only Tynamo, Rufflet, Carbink, Impidimp have none, as in the modern games. Internal species ids are not
+  National Dex numbers - use tools/romdata/out/species.json and moves.json for names, not the header tables.
+- The bug: GetEggMoves copies up to 16 (`cmp r2,#0xF` 0x08070446) into sHatchedEggEggMoves 0x02024A38, which
+  BuildEggMoveset sizes at 10 (`cmp r6,#9` 0x080704BA). 11-16 spilled over sHatchedEggMotherMoves 0x02024A4C and
+  beyond; a 17th was never read (Turtwig, 17: Tickle). `patches/eggmoves/`: buffer -> 0x02031C00 (32 moves;
+  the 64 bytes test_scratch_ram.lua measured), the three words naming it repointed (0x08070580, 0x09F00A60,
+  0x09F01CA0 - asserted to be the only ones), both limits -> 31. Turtwig then passes Tickle from either parent;
+  the other nine cases give the same eggs as before.
+
+## EXP. SHARE ON/OFF — 2026-09-25
+- The hack's Exp. Share is key item 182 (pocket 5, field use 0x080FE821 "can't use"); its own text says "Just
+  keep it in your Bag and it takes effect". The experience code (hack, around 0x09D5AB00; getexp in the command
+  table 0x0831BD10 entry 0x23 points at 0x08E0BC01, not readable as plain Thumb - not needed) checks
+  CheckBagHasItem(0xB6, 1) at 0x09D5AB80, 0x09D5AC22, 0x09D5ACE6 (pool word 0x09D5AE40) and 0x09D5B018 (pool
+  0x09D5B094); those two words have no other readers.
+- `patches/expshare/`, blob 0x08FF5B00..0x08FF5C36: share_check = CheckBagHasItem, but 0 for item 182 while flag
+  0x433D is set (both pool words repointed); item_use flips 0x433D (FlagGet 0x0809D791, FlagSet 0x0809D741,
+  FlagClear 0x0809D769) and shows the message the Coin Case way (StringExpandPlaceholders into gStringVar4,
+  over the Bag 0x081ABB4D / on the field 0x081978ED). Item 182: field use -> item_use, registrability 1, new
+  description. 0x433D: no script refs, no literal, clear in 34 saves.
+- Tested (test_expshare.lua, user's save: party Lv 100 x5 + Lv 69 in slot 3): share_check 1; Lv 2 Magikarp
+  won with slot 0 -> slot 3 +2 EXP; used from the Bag -> "turned off", share_check 0; same battle -> slot 3 +0;
+  used again -> "turned on", share_check 1. Test gotcha again: the Start menu keeps its cursor and the Bag
+  its pocket between uses.
+
+## WORKING ROM REBUILT WITH THE QUEST LOG REDESIGN — 2026-09-25
+- The Unbound-style Quest Log (6ecc413, made on the other PC) had been pulled but never built into the working
+  ROM, which still had the 321ba5a Quest Log. questlog sits early in the chain, so the ROM was rebuilt from the
+  v1.4 archive + the shinybox 2-byte edit + the whole post-1.4 chain (HANDOFF order).
+- Check first: the same chain with the 321ba5a questlog sources (git archive 321ba5a patches translation tools)
+  reproduced the working ROM with 0 differing bytes. With the current sources the only differences are the
+  Quest Log's own: its blob 0x08FEA000..0x08FEC5D4 (now 9684 bytes), its panel data 0x09FA0000..0x09FA6196 and
+  its two bl sites 0x0809F8C2 / 0x0809FAC6. Every later patch applied unchanged at the same addresses.
+- Tested on the rebuilt ROM: test_questlog_panel.lua (every chapter type, detail, grid, back to the field) and
+  test_questlog.lua (94 cases, no failures).
+- Lesson: after pulling a change to a patch that is not last in the chain, rebuild the chain right away.
+
+## SIDE CONTENT ROWS TICKED ON A NEW GAME; BURNING SOUL PORTRAIT — 2026-09-25
+- Report: "A legendary choice" and "Snivy" were ticked right after starting.
+- Snivy (0x045D): it is the object's own flag (Petalburg Woods 24/11 object 11, flag 0x045D) - set from the start
+  (hidden), cleared by Ever Grande's guard (0x0983CD07: sets 0x40B2, 0x41B0, clears 0x045D, after 0x864/0x40C3),
+  set again by the battle script (0x098B9847). No other script touches it. Now done = 0x045D AND 0x41B0:
+  sidecontent.ALSO {flag: second flag}; the row's marks u16 carries it in bits 1-15 (bit 0 stays the shiny
+  star, tested with lsls #31 only), and row_status's rs_side checks it when non-zero.
+- "A legendary choice" (0x4311): Littleroot Town trigger (8,7), var 0x4009 == 0 - a TEMP var, so it runs on
+  every entry - script 0x0982BF18: setvar 0x4009 1; if 0x4311 set, end; setflag 0x4311; then 0x0982BF45 (gives
+  the Mega Bracelet back when 0x40C6 is set and item 120 is missing) and four calls (0x0989202E/208A/20D1/2118)
+  that givemon Kyurem 699 / Giratina 540 / Xerneas 769 / Yveltal 770 only when callasm 0x08C60571 (->
+  0x09F037C9: caught in the Pokédex, per GetSetPokedexFlag mode 1, and not owned) says so. So 0x4311 = "been to
+  Littleroot", and the script is a lost-legendary safety net, not a choice. No other script gives those four.
+  Row removed (43 rows); the legendaries are in Legends.
+- Every other Side flag: set by exactly the script the row names and never cleared (script index); only
+  0x045D is cleared anywhere. (No pre-League save exists on this PC to check code-set flags directly.)
+- Burning Soul portrait: Flareon -> species 157 Typhlosion; trans_17 line 76, the Crimson Apostle: the last one to
+  pass the trials and awaken the Burning Soul was a trainer with a Typhlosion (火暴兽). The trial trainers
+  1155-1157 use neither.
+- Tested (test_questlog_snivy.lua, STATE start/league/done): Snivy To do / To do / Done, count 19/43, 19/43,
+  20/43; Burning Soul panel shows Typhlosion; test_questlog_panel.lua passes on the rebuilt ROM.
+
+## QUEST LOG: BADGES CHAPTER — 2026-09-25
+- Request: a collection of Sinnoh badges (the Trainer Card shows Hoenn's only). The user chose a new tile on the
+  Quest Log grid over touching the Trainer Card or the Start menu (which cannot take a 10th entry).
+- Chapter 8 "Badges" (NPAGES 7 -> 8; the grid is 3x3, card 7 is row 3 column 2; V+0xC8.. counts now fill C8-CF,
+  still clear of the pulse counter at V+0xD0). It is a second type-3 chapter: its rows (sidecontent.BADGES,
+  {flag, name, "City: text"}) are appended to the Side Content table and to type 3's panel table, and its page
+  record's `first` byte = len(SIDE). row_status (rs_side), ext_entry and pane_entry now add the chapter's first
+  row for every type (Legends / Key Items / Side Content have first 0, so they read exactly as before; the
+  Journal's pane lookup already did this). Every other reader of `first` (the opening chapter scan, page_sel,
+  the detail page) only uses it for Journal chapters (type 0) - checked.
+- Flags: Hoenn FLAG_BADGE01_GET.. 0x867-0x86E (0x866 is clear, 0x86F is FLAG_VISITED_LITTLEROOT); Sinnoh the
+  hack's gym flags 0x42CD-0x42D4 (steps.py). Portraits: trainer pics 40-47 (Roxanne..Juan) and 178-185
+  (Roark..Volkner) from trainers.json. Grid icon: a gold medal on a red ribbon, accent 14.
+- test_questlog.lua finds the screen by its task function: now 0x08FEAA59 (was ..A5D); the default is updated.
+- Tested: test_questlog_badges.lua (4 badge flags cleared: grid card 12/16, list, panels, detail), the 94
+  Journal cases (check_questlog.py: 94 of 94 match), the panel test, the Snivy test.
+- 2026-09-25, later: the user wanted the DS-style badge case (a picture of Platinum's), not a list. The Badges
+  card now opens mode 4 (case_open/case_draw/case_show/case_frame/case_text/case_input in questlog.s); the
+  list for chapter 8 still exists (grid counts come from it) but L/R in the lists stop at Side Content
+  (#NLISTLAST = NPAGES - 2) and the header shows no arrow there, so the case is the only way in.
+  - Each badge is its own 4x4-tile window (AddWindow 0x08003381 on opening, RemoveWindow 0x08003575 on B), x
+    2 + 7c, y 4 + 6r tiles, BG palette 1 + slot (1-8: unused by the Quest Log), baseBlock 725 + 16 * slot
+    (after the portrait's 661..724). Its 512-byte tile buffer (gWindows 0x02020004 + 12 * id + 8) gets the art
+    or the silhouette; LoadPalette its 16 colours. Window 1 (panel, frame, text) is shown first, then the
+    badge windows, then the footer - they share BG0's tilemap and window 1 reaches under the footer; the first
+    build lost the footer after every cursor move until case_show re-put it.
+  - A transparent pixel would show the backdrop (cream), not the panel, so every badge palette carries the
+    panel colour at 12 and the art fills its 32x32 with it. Palette: 1-11 art, 12 panel, 13/14 silhouette fill
+    and outline, 15 the sparkle.
+  - Art (badgecase.py): Hoenn = the Trainer Card's badges, LZ77 0x0857BCC0 (a 16x2-tile sheet, badge b =
+    columns 2b..2b+1), palette 0x0856F4EC (checked against the card), EPX-doubled to 32x32. Sinnoh =
+    badges/sinnoh.png, cut from the user's picture of Platinum's case by badges/extract_sinnoh.py (flood fill of
+    the grey panel stops at each badge's rim; scaled to fit 30x30), median-cut to 11 colours.
+  - Data: CASE table at 0x09FB0000 (the free window NOTES listed): 16 x 32 bytes {flag, art, silhouette,
+    palette, name, "Leader, City", "City Gym"} then the graphics and strings; widths checked at build time.
+  - V bytes: 0xD4 region, 0xD5 cursor, 0xD8-0xDF window ids (clear of 0xC8-0xCF counts and 0xD0 pulse).
+  - Tested (test_questlog_badges.lua, four badges cleared): grid card 12/16; case Hoenn 7/8 with the Rain Badge
+    a silhouette ("Rain Badge  Sootopolis City Gym", dim); frame moves; R -> Sinnoh 5/8 (Mine, Icicle, Beacon
+    silhouettes); B -> grid. Regressions: 94/94 Journal cases, panel test.
+- 2026-09-25, final: Sinnoh only, at the user's request (the Trainer Card has Hoenn's). BADGES is the eight Sinnoh
+  rows (the grid card counts /8), the case table 8 entries, no region byte (case_entry = CASE + 32 * slot), no
+  L/R, header "Sinnoh Badges" + earned/8, footer "B: Back"; Hoenn art, pictures and the EPX doubling removed.
+  Tested again: grid 5/8 with Mine/Icicle/Beacon cleared, frame and text on earned and unearned badges, B back;
+  94/94 Journal cases.
+
+## ITEMS POCKET 100 -> 200 SLOTS — 2026-09-28
+- Asked for: raise the Bag's 100 unique-item limit. `patches/bagslots/`, applied last.
+- How the hack stores the Bag: 0x08FD7EA4 (through SetBagItemsPointers' trampoline word 0x080D65F4; helper
+  0x08FD7E88) gives each pocket its size and packs them back to back from EWRAM 0x0203D030 - Items 100
+  (0x0203D030), Key Items 50 (0x0203D1C0), Poke Balls 32 (0x0203D288), TMs 130 (0x0203D308), Berries 50
+  (0x0203D510), to 0x0203D5D8. (A pocket no bigger than its vanilla count would stay in SaveBlock1; none is.) An older
+  copy of the routine at 0x08FD5F88 (Items 100, Key 60, Balls 32, TMs 108, Berries 80, from 0x0203D094) has no
+  caller.
+- The save's overflow stream: the hack's HandleWriteSector (trampoline word 0x081527A4 -> 0x092582FC) fills every
+  sector to 0xFF0 - the vanilla data, then bytes taken in order from EWRAM 0x0203CF64 (a running counter at
+  0x02024064, byte-stored, reset at sector id 0); its CopySaveSlotData (word 0x08152E14 -> 0x09258444) reads them
+  back in sector-id order; HandleReplaceSector is patched mid-body at 0x08152B00 -> 0x094A330A (filler 0x094A38B4)
+  for link-style saves. Sizes 0xF2C / 0xF80 x3 / 0xF08 / 0xF80 x8 / 0x7D0 leave 3,740 bytes: 0x0203CF64-0x0203DE00,
+  which is where vanilla EWRAM ends (sRayScene 0x0203CF60 is its last variable). Checked on the user's save: the
+  stream rebuilt from the .sav equals RAM byte for byte.
+- Who uses the stream: the pockets; 100-byte stored Pokemon at 0x0203D5E0, 0x0203D644 (0x09F01054, 0x094A2A02) and
+  0x0203D800 (0x08FD704E); flags at 0x0203D900 / 0x0203D904 (0x09510ACA); hypertrain's scratch byte 0x0203D600.
+  0x0203D908-0x0203DE00: no aligned literal and no script-style unaligned pointer (the five unaligned hits are
+  instruction bytes or graphics; the aligned 0x08D26000 -> 0x0203DD78 is compressed data). The hack's extended flags
+  (0x09F00CEC) map into SaveBlock1/2, and vars are vanilla (SaveBlock1). So the tail is free.
+- Not free: the vanilla bag slots in SaveBlock1 (+0x560..0x848) - the hack keeps other data there (167 non-zero
+  bytes in the user's save), even though no pocket points at them any more.
+- Why not just 100 -> 200: the pockets are packed, so a bigger Items pocket would move the other four on every
+  existing save; and the stored Pokemon start 8 bytes after the pockets.
+- The patch (184 bytes at 0x08FF6000; the run 0x08FF5C35..0x08FFD5A0 has three data words pointing at 0x08FF6673+,
+  so it stays below 0x08FF6600):
+  * set_ptrs (word 0x080D65F4): the hack's layout, then gBagPockets[0] = 0x0203DAE0, capacity 200 - 800 bytes that end
+    exactly at the stream's end (sector 13's spare bytes).
+  * load_slot (word 0x08152E14): the hack's loader; then, if it returned 1 and MARKER (0x0203DADC) is not "BAG2"
+    (0x32474142), copy the 100 old slot words (id + key-encrypted quantity, as saved) from 0x0203D030, zero slots
+    100-199, set MARKER. The old copy is left in place: an older build would still show it.
+  * clear_bag (8-byte trampoline at ClearBag 0x080D7094; its only caller is NewGameInitData): the game's loop
+    (ClearItemSlots over the five pockets), then zero the old area and set MARKER. Without it, a New Game started
+    after the title screen had loaded (and migrated) an old save would carry that save's old area into its own first
+    save, and the next load would copy it over the new game's items.
+  * The Bag's list buffers (the hack's AllocateBagItemListBuffers, 0x08FD7F38): Alloc(0x9C << 3) -> Alloc(0xCA << 3)
+    = 202 ListMenuItems, and the names literal 0x08FD7F60 0xE22 -> 0x1300 (202 x 24; LoadBagItemListBuffers' stride
+    is 24). They were sized for about 150 rows.
+- Limits: gBagPockets' capacity and the Bag's numItemStacks (gBagMenu+0x829, Cancel included) are u8 - 254 is the
+  ceiling. Every other reader takes the capacity from gBagPockets: the vanilla bag functions (u8 loop counters, fine
+  under 255), AddBagItem (allocates capacity x 4), bagsort (sorts the first N used slots), quickball (the Balls
+  entry), the hack's quantity clamp 0x09000150 and its free-slot count 0x09F034EC. No code knows 0x0203D030 but the
+  layout routine.
+- Frontier/link saves (TrySavingData(SAVE_LINK): SaveGameFrontier, Save*Challenge, SavePyramidChallenge, link
+  contests, LinkTest) write sectors 0-4 only, so they do not refresh sector 13 - as for the Poke Balls, TMs and
+  Berries pockets already (stream past 0x0203D260). In single player these come only mid-challenge, after the
+  lobby's normal save, and the Bag cannot change during a challenge. The hack's own TrySavingData call (0x09F06B48)
+  is a Hall of Fame save (full).
+- Tested (mGBA, copies of the user's save, both on the full chain and on the working ROM): test_bagslots.lua -
+  migration (63 items, 100-199 empty, MARKER), 200 distinct items in the field Bag scrolled to Cancel (row 200; list
+  heap blocks 1616 / 4864 bytes; the 200th name right), three sorts keep the same items, additem into slot 200 (1),
+  a 201st item refused with the pocket unchanged (0), stacking (1), a wild battle's Bag scrolled to Cancel and the
+  battle won, a save from the Start menu, and a pattern in the margin 0x0203D908..MARKER untouched;
+  test_bagslots_reload.lua boots that save - the 200 slots exactly as saved, no second migration, the margin pattern
+  back through the save; test_bagslots_newgame.lua - New Game over an old save: the pocket and old area empty,
+  MARKER set, right after NewGameInitData. The patched ROM differs from its input only at the three hook words, the
+  ClearBag trampoline, the two buffer sizes and the code.
+- Test harness notes: emu:reset() from a frame callback stalls the script (hence the separate reload script). A
+  wild battle started from a script sits on "Wild X appeared!" until a key; B moves text on and picks nothing at
+  the action menu (HandleInputChooseAction 0x08057589 is vanilla here). NewGameInitData's effects show a few frames
+  after gMain.callback2 reads CB2_NewGame.
+- Working ROM: installed on top of the previous working ROM (archived "(before bagslots)", with the .sav). That ROM
+  had been rebuilt 2026-09-24 from the v1.4 chain + questlog/leaguefly/leaguetext, so it lacks qolversion..expshare
+  (checked: no 0x0203D600 literal, 16 regions differ from the v1.5 ROM). The full chain builds from the repo except
+  for patches/questlog/badges/sinnoh.png, which .gitignore's *.png had kept out (exception added); with it, rebuild
+  the chain (HANDOFF order) and add bagslots last.
+- Follow-up checks (same day), asked "other players' saves?", "sure it is unused?", "does the save screen's count
+  follow?":
+  * Other saves: make_test_saves.py builds two from any old-layout save - full_junk.sav (a full 100-item pocket and
+    random bytes over the whole tail 0x0203D908..0x0203DE00, as a cartridge whose EWRAM was never cleared might
+    have) and already.sav (MARKER set, 150 items in the new area, a different stale old area). The hack stores
+    checksum 0x0001 in every sector and no longer checks them, so edited sectors load. test_bagslots_saves.lua: all
+    100 copied in order and the junk in 100-199 cleared; the upgraded save left alone (no second migration).
+  * Pointers built at run time near the tail: 0x0203D900 holds one pointer (a 0x1004-byte heap block allocated at
+    0x09510012, freed at 0x09510FE0; every other use reads through it) and 0x0203D904 one byte (a sprite id,
+    CreateSprite at 0x09510AC4, then gSprites[id]). The module at 0x09510000 reaches both through a GOT-like
+    literal table at 0x0951267C (after its tile data), read by pointer - which is why no direct load showed up.
+    The fusion code (0x09F00F62) keeps a whole Pokemon (memcpy of 100 bytes) in 0x0203D5E0 (Solgaleo, for Dusk
+    Mane Necrozma) or 0x0203D644 (Lunala); 0x08FD704E the same at 0x0203D800 (Reshiram/Zekrom for Kyurem). No
+    base in the stream is indexed past its own block, so nothing reaches 0x0203D908.
+  * The save dialog's "There's N space left for items." is the hack's InitSave (0x0809FF28 -> 0x09F0386A ->
+    0x09F034EC: capacity - used of gBagPockets[0], into gStringVar1): 37 on the old ROM with the user's 63 items,
+    137 on the new one; three digits fit.
+- FOUND ON THE WAY - HYPER TRAINING CORRUPTS A STORED FUSION PARTNER: hypertrain's "free" scratch byte 0x0203D600
+  is offset 0x20 of the fusion slot 0x0203D5E0 - the low byte of the stored Pokemon's species. ht_getmondata
+  rewrites its bits 0-5 on every IV read by the EV-IV Display or the IV judges, so a Solgaleo fused into Necrozma
+  (species 844 = 0x34C) can come back as any species 832-895 (Bruxish..Typhlosion) when split. The user's save
+  has that Solgaleo (Lv85) - intact, as the Mac's working ROM lacks hypertrain; v1.5 and the full chain have it.
+  The scratch-RAM test that cleared 0x0203D600 ran with that slot empty. Fix: move SCRATCH out of the save stream
+  to RAM measured free (and re-measure with a fusion stored), then rebuild the chain from hypertrain on.
+
+## JOURNAL: "A FEATHER FOR DREAMS" REMOVED — 2026-09-28
+- Asked for ("wrong flags"). The step was ANY(0x412F), "Dawn, on Route 210, carries a feather...". Dawn's script
+  (35/16, 0x0980977C) sets 0x4118 and 0x412F around a battle (trainer 864), checks 0x412E - which no script sets -
+  and gives item 647 (Lunar Wing); 0x4118 is also the flag of a Steven's Island trainer (0x0988F037, trainer 1161).
+  So 0x412F never meant "she gave you the feather". On the user's save 0x4117 = 1, 0x412F = 0: the row had not been
+  ticked - rows behind the current objective that are "any order" and not done show the grey Side tag, which reads
+  like done (their earlier report).
+- Not changed, for the user to decide: "Wake the sleeper" (0x412D) says "Bring the Lunar Wing...", but the woman's
+  script (0x0980E243) wakes her when 0x405F is set - the hide flag of Cresselia's objects (Mt. Pyre 24/21 and 24/22,
+  Crescent Isle 35/30; set by the removeobject after the battle, cleared again if it flees). The Lunar Wing is not
+  checked.
+- Changed: steps.py (the step, its title, the comment), portraits.py (row 78 and the numbering after it),
+  make_tests.py re-run (104 cases), docs/journal.html rebuilt (94 objectives).
+- Tested: on the full chain (placeholder badge art) test_journal on the Journal-only stage and test_questlog on the
+  end: 104/104 each. On the working ROM's own lineage (below): 93/93 each, and the Lost Artifacts list shows
+  "A sleeping woman" (Done) then "Wake the sleeper" (Active), 18 rows.
+- The working ROM's lineage: v1.4 archive + the shinybox 2-byte edit + journal, berrynum, speciesnames, questlog,
+  leaguefly, leaguetext from commit 6ecc413's sources reproduces the pre-bagslots working ROM byte for byte
+  (b450a795...). The same edit there, then bagslots on top, is the installed ROM (9f45b76c...); it differs from the
+  one before only in the Journal blob (0x08FE5400..), the Journal item's description pointer, the Quest Log blob and
+  its panel data (0x09FA0000..).
+
+## HYPER TRAINING: SCRATCH BYTE MOVED OUT OF THE SAVE — 2026-09-28
+- The bug (found while checking bagslots, above): SCRATCH 0x0203D600 = fusion slot 0x0203D5E0 + 0x20, the stored
+  Pokemon's species, inside the saved overflow stream. Shown on the user's save with test_hypertrain.lua: the stored
+  Solgaleo (844) became Decidueye (894) after the EV-IV Display and one IV judge.
+- Fix: lit_scratch = 0x0203F13C - past the stream (0x0203DE00), inside 0x0203F100..0x0203F13F that
+  test_scratch_ram.lua measured free, no ROM literal into 0x0203F100..0x0203F1ED (the hack's block at 0x0203F000
+  ends by 0x0203F0BE as far as its literals go; the Lua tests borrow 0x0203F100.. for injected scripts, short of it).
+- test_hypertrain.lua now registers the EV-IV Display (item 650) to UP itself (the user's save had the Sinnoh Map on
+  DOWN, so the old navigation never opened it) and checks both fusion slots are unchanged. Old build: 844 -> 894,
+  CHANGED. Fixed build: 844, UNCHANGED; the EV-IV screen (31s, Hidden Power "DGN" = the real type) and both judge
+  screens pixel-identical to the old build's.
+- Saves that already went through the bug keep whatever species the byte holds: not repairable in general (the
+  original species is gone). A player with a fused Necrozma who used the EV-IV screen or a judge on v1.5 should
+  check the Pokemon they get back.
