@@ -1,8 +1,7 @@
 -- Lilycove Dept. Store TM clerk: warp onto the TM floor (13/19) at (9,4), across the counter from him at (9,6),
--- talk, Buy, and buy TM01 (row 0),
--- TM109 (row 100) and TM120 (row 111, the last), logging money and TM counts after each. A purchase the hack's
--- sellable check rejects soft-resets, which shows as cb2 leaving the field/shop and the map changing. TM counts
--- are quantities.
+-- talk, Buy, and buy the Ability Patch (row 0, free), the Ability Pill (row 1, free), TM01 (row 2), TM109
+-- (row 102) and TM120 (row 113, the last), logging money and counts after each. A purchase the hack's sellable
+-- check rejects soft-resets, which shows as cb2 leaving the field/shop and the map changing. Counts are quantities.
 -- Run next to game.gba/game.sav with DIR set; screenshots tm_*.png.
 NAME = "tmshop"
 dofile((DIR or "./") .. "../dexnavchain/test_boot.lua")
@@ -41,9 +40,9 @@ local function run(bytes)
 end
 local function state(tag)
   local sb1 = emu:read32(0x03005D8C)
-  w(string.format("%s: map %d/%d pos (%d,%d) cb2 %08X money %d TM01 %d TM100 %d TM109 %d TM120 %d", tag,
+  w(string.format("%s: map %d/%d pos (%d,%d) cb2 %08X money %d Patch %d Pill %d TM01 %d TM109 %d TM120 %d", tag,
     emu:read8(sb1 + 4), emu:read8(sb1 + 5), emu:read16(sb1), emu:read16(sb1 + 2), cb2(), money(),
-    count(378), count(477), count(486), count(497)))
+    count(741), count(646), count(378), count(486), count(497)))
 end
 -- buy the highlighted row: A (item), A (quantity 1), A (YES), then one A to close "Here you go" - a second A
 -- would open the same row again
@@ -65,19 +64,23 @@ at(480, function() tap(K.A) end)
 at(580, function() shot("tm_menu") end)
 at(590, function() tap(K.A) end)                              -- Buy
 at(720, function() state("list open"); shot("tm_list") end)
-buy(740, "tm01")
-for k = 0, 99 do at(1260 + k * 12, function() tap(K.DOWN, 4) end) end
-at(2500, function() shot("tm_row100") end)
-buy(2520, "tm109")
-for k = 0, 10 do at(3040 + k * 12, function() tap(K.DOWN, 4) end) end
-at(3200, function() shot("tm_row111") end)
-buy(3220, "tm120")
-at(3740, function() tap(K.DOWN, 4) end)
-at(3800, function() shot("tm_cancel_row") end)
-at(3810, function() tap(K.B) end)
-at(3950, function() tap(K.B) end)
-at(4100, function() tap(K.A) end)
-at(4250, function() state("end"); shot("tm_end"); done() end)
+buy(740, "patch")
+at(1260, function() tap(K.DOWN, 4) end)
+buy(1300, "pill")
+at(1820, function() tap(K.DOWN, 4) end)
+buy(1860, "tm01")
+for k = 0, 99 do at(2380 + k * 12, function() tap(K.DOWN, 4) end) end
+at(3620, function() shot("tm_row102") end)
+buy(3640, "tm109")
+for k = 0, 10 do at(4160 + k * 12, function() tap(K.DOWN, 4) end) end
+at(4320, function() shot("tm_row113") end)
+buy(4340, "tm120")
+at(4860, function() tap(K.DOWN, 4) end)
+at(4920, function() shot("tm_cancel_row") end)
+at(4930, function() tap(K.B) end)
+at(5070, function() tap(K.B) end)
+at(5220, function() tap(K.A) end)
+at(5370, function() state("end"); shot("tm_end"); done() end)
 function TEST(f)
   t0 = t0 or f
   for _, p in ipairs(plan) do if f - t0 == p[1] then p[2]() end end

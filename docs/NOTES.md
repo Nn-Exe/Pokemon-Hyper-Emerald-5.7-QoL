@@ -1695,6 +1695,18 @@ IVs 28/12/3/1/11/19 read straight out of `0x96198D9C`); three RIGHTs on HP IV ta
   last row before Cancel (-50,000); each lands in the TM pocket, no reset, and leaving returns to the field.
   Harness gotcha: after YES and "Here you go" a single A is enough; a second A opens the same row again, and
   DOWN in its quantity box then winds the count down (bought 16 TM01 on the first run).
+- Ability Patch (741) and Ability Pill (646), added on request at the top of the list. Neither was in the
+  sellable table and both cost 0. The patcher sets their bits (bytes 0x09E0FE03 and 0x09E0FE0F) and the list is
+  now 114 items, 0x08F54400..0x08F544E6. At 0 the list, quantity box and "That will be ¥0" all worked and YES
+  soft-reset: check (4) wants a total of at least 50 per item. So both prices (item table +16) are now 50, the
+  lowest it accepts; selling one back pays 25.
+- Tested again: Patch -50, Pill -50, then TM01/TM109/TM120 as before, no reset. `test_ability_items.lua` gives
+  one, sets gSpecialVar_ItemId (0x0203CE7C) and runs the items' script 0x08F7F0D0 (callasm 0x08C60D29 ->
+  0x09F00DD1; VAR_RESULT 0 changed, 1 only one regular ability, 2 already hidden, 3 hidden = current): the
+  Patch on the test Chimchar gives "Chimchar's ability's changed!", mon byte +0x1E 0->1 (the hidden-ability
+  bit), and it is used up; the Pill gives "It can't be used on Pokemon with only one regular ability." and is
+  kept. After a refusal the script returns to the Pokemon chooser, which ignored B and Cancel in this harness;
+  the script is meant to run from the Bag, and these patches do not touch it.
 
 ## HMS WITHOUT THE POKEMON — 2026-09-29 — `patches/hmfree/`
 - Asked for: use HMs without a party Pokemon that has the move. Decided: the HM item in the Bag plus the badge the

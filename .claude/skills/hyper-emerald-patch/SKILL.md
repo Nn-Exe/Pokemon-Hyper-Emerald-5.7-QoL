@@ -39,7 +39,7 @@ Two checks in that template matter more than they look:
    and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
    flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
    partyedit (`0x08F53900..0x08F5416C`), naturefix (`0x08F54200..0x08F5423C`), hypertrain (`0x08F54300..0x08F543CD`), tmshop's list
-   (`0x08F54400..0x08F544E2`) and hmfree (`0x08F54500..0x08F54668`). Check inbound pointers
+   (`0x08F54400..0x08F544E6`) and hmfree (`0x08F54500..0x08F54668`). Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
    the hack's own code (`ldr rX,[pc,#0]; bx rX; .word target`) — repointing that word is the cheapest hook
