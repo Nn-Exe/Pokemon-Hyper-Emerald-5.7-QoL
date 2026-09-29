@@ -4,6 +4,7 @@ One line per change, newest first. The how and why of each change is in [docs/NO
 patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix · **Changed** · **Tool** for modders.
 
 ## 2026-09-29
+- **Changed** Docs and website wording reviewed: the two early crashes this patch fixed are described as coming from our own translation passes, and "older versions" lines name the hack's own earlier releases. The site's credits match the README. README and the site now say the patch may still contain glitches or bugs, and to keep a save backup.
 - **Changed** Release v1.6 (everything since v1.5): the 200-slot Items pocket, the Sinnoh badge case, Hisui on the Sinnoh Map, the Oval Charm, the Exp. Share switch, the Unbound-style Quest Log, the Hyper Training fusion fix, and the egg-move, Fly map and Pokédex text fixes. The Option screen's title reads **+QoL1.6**. Rebuilt `release/hyper-emerald-en-qol.hpatch` and `release/CHECKSUMS.txt` against the original Chinese ROM (result sha1 `dba0ac1b…`); the working ROM is the full chain in HANDOFF with `bagslots` last.
 
 ## 2026-09-28
@@ -115,12 +116,12 @@ patch folder has its own notes. Tags: **Added** new feature · **Fixed** bug fix
 - **Added** Trainer hiding: the release hides 3 Team Flare grunts on Allearth Forest that no script refers to. `patches/trainerhide/`
 - **Tool** `trainers.py` lists a map's trainers as SAFE / CHECK / RISKY; `strict_select.py` finds script-free grunts.
 - **Added** Mint nature changer without the quiz: the teacher in the Rustboro Trainer's School now offers Mints straight away. `patches/mintskip/`
-- **Fixed** Garbled graphics in Rustboro and 57 other maps (text passes had overwritten compressed tiles). `patches/gfxfix/`
+- **Fixed** Garbled graphics in Rustboro and 57 other maps (our own translation passes had overwritten compressed tiles). `patches/gfxfix/`
 - **Tool** `audit_gfx.py` checks every compressed graphic against the original ROM.
 - **Checked** Desert Ruins Garchomp guardian crash: not reproducible on this build, the original, or older builds.
 
 ## 2026-09-14
-- **Fixed** New-game crash in the Mountain Top cutscene, plus 8 other scenes (text passes had overwritten movement scripts). `patches/movefix/`
+- **Fixed** New-game crash in the Mountain Top cutscene, plus 8 other scenes (our own translation passes had overwritten movement scripts). `patches/movefix/`
 - **Added** Player's guide website (GitHub Pages) and credits for the earlier translation team.
 
 ## 2026-09-13

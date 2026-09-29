@@ -27,7 +27,7 @@
 <h3>Does it need the translation-only build first?</h3>
 <p>No. The release patch goes from the Chinese ROM straight to the final build in one step.</p>
 <h3>The game crashes right after New Game, in the mountain cutscene ("Jumped to invalid address")</h3>
-<p>That was a bug in patches released before 2026-09-14: the translation had overwritten a few of the hack's movement scripts (the cutscene where the villains line up on the mountain, the Slateport Contest Hall reception and six later scenes) with English text. Re-apply the current <code>release/hyper-emerald-en-qol.hpatch</code> to a clean Chinese ROM; your <code>.sav</code> keeps working.</p>
+<p>That was a bug in this patch's own releases before 2026-09-14: our translation pass had overwritten a few of the hack's movement scripts (the cutscene where the villains line up on the mountain, the Slateport Contest Hall reception and six later scenes) with English text. Re-apply the current <code>release/hyper-emerald-en-qol.hpatch</code> to a clean Chinese ROM; your <code>.sav</code> keeps working.</p>
 
 <h2>Saves</h2>
 <h3>My save is gone after switching to the new ROM</h3>
@@ -51,7 +51,6 @@
 <tr><td>The bag freezes when the cursor lands on one item</td><td>Press SELECT to skip over that item, then B to leave the bag.</td></tr>
 <tr><td>Save disappears after the League (PC emulators)</td><td>Set the emulator's save type to <strong>Flash 128K</strong>; the hack needs the full 128 KB save.</td></tr>
 <tr><td>Evolution by stone does not teach the new form's move</td><td>Use the party menu's <em>Moves</em> option (the patch's relearner) to pick it up.</td></tr>
-<tr><td>Game freezes in the Volo / Arceus cutscene</td><td>This was a bug in the older community translation (text written into memory the game still used). The current patch fixes it.</td></tr>
 </tbody>
 </table>
 </div>

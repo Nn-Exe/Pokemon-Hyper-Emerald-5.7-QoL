@@ -7,6 +7,9 @@ No ROMs or saves are included. You apply the patch to your own copy of `Hyper EM
 (the Chinese hack, **not** vanilla Pokémon Emerald; see [Which ROM do I patch?](#which-rom-do-i-patch-read-this-first)).
 Existing saves keep working.
 
+> **Heads-up:** this is a fan patch on top of a large ROM hack. It is tested, but it may still contain glitches or
+> bugs. Keep a backup of your `.sav`, and please report anything odd you run into.
+
 <p align="center">
   <img src="docs/showcase/stat-colors.gif" width="320" alt="Coloured stat names">
   <img src="docs/showcase/relearner.gif" width="320" alt="In-party move relearner">
@@ -120,8 +123,8 @@ python patches/lrepel/lrepel_patch.py         out5.gba out6.gba
 python translation/patch_remaining.py         out6.gba out7.gba   # second text pass (uses translation/plan_remaining.json)
 python patches/relearner/relearner_patch.py   out7.gba out8.gba
 python patches/statcolor/statcolor_patch.py   out8.gba out9.gba
-python patches/movefix/movefix_patch.py       out9.gba out10.gba original.gba   # restores movement scripts the text passes overwrote
-python patches/gfxfix/gfxfix_patch.py         out10.gba out11.gba original.gba  # restores compressed graphics the text passes overwrote
+python patches/movefix/movefix_patch.py       out9.gba out10.gba original.gba   # restores movement scripts our translation passes overwrote
+python patches/gfxfix/gfxfix_patch.py         out10.gba out11.gba original.gba  # restores compressed graphics our translation passes overwrote
 python patches/mintskip/mintskip_patch.py     out11.gba out12.gba
 python patches/trainerhide/trainerhide_patch.py out12.gba out13.gba   # hides the trainers listed in patches/trainerhide/hidden.json
 python patches/pcanywhere/pcanywhere_patch.py   out13.gba out14.gba
