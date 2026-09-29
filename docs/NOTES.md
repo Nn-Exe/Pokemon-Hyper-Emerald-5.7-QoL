@@ -80,6 +80,8 @@
   hack code at 0x096FFF00 for item purchases, which apparently only handles the hack's own mart lists (0x08F5xxxx) and
   ends in a jump to address 0. Reverted per user (AllFeatures ROM deleted); current deliverable stays `... + AutoRun v2.gba`.
   If revisited: study 0x096FFF00 to see how it keys shops (likely by list pointer) and register the new list there.
+  Answered 2026-09-29 (see *EVERY TM AT THE LILYCOVE DEPT. STORE*): it keys on the item, not the list - Rare Candy
+  is simply not in its sellable table.
 
 ## AUTO-RUN TOGGLE (R button in the overworld) — 2026-09-12
 - `Hyper Emerald v5.7 - Full English + BagSort + MultiRegister + QuickBall + AutoRun.gba` = previous build + auto-run.
@@ -1667,3 +1669,29 @@ IVs 28/12/3/1/11/19 read straight out of `0x96198D9C`); three RIGHTs on HP IV ta
   that shows a stat recalculation.
 - Not fixed, as it was on the v1.5 build: the labels sit on white blocks and the seventh row (`EV total`) is cut
   off at the window's bottom edge.
+
+## EVERY TM AT THE LILYCOVE DEPT. STORE — 2026-09-29 — `patches/tmshop/`
+- Asked for: an NPC selling every TM, in Lilycove, game prices, no HMs, TM101-108 left out (see below).
+- The hack's purchase check (why the Rare Candy shop soft-reset): BuyMenuTryMakePurchase (0x080E0EDC) goes to
+  0x096FFF00 before buying. With r4 = the shop data it (1) tests the bought item id (`+0xA`) against a bit table
+  read BACKWARDS from 0x09E0FE5F - bit `id & 7` of the byte at `0x09E0FE5F - (id >> 3)`; (2) compares the
+  selected list row's name pointer with the item table's; (3) walks the whole list-menu array (`+0x28`, 8-byte
+  entries, until an id >= 800, i.e. Cancel) and tests every id against the same table; (4) a price sanity check.
+  Any failure is `movs r0,#0; bx r0` - a jump to 0, the soft reset. So it keys on items, not on list addresses:
+  a new list anywhere works if every item on it is in the table. Rare Candy (68) is not; Poke Ball is.
+- TMs in this hack: items 378-497 are TM01-TM120 (pocket byte +26 = 3; the hack's pocket numbers are not
+  vanilla's - Berries are 4), 498-505 HM01-08 (price 0). The sellable table has TM01-100, TM109-120 and the
+  HMs; TM101-108 (478-485) are missing.
+- Lilycove Dept. Store TM floor is map 13/19 (18x8). Objects 1-3 are shoppers (one msgbox each); object 4 at
+  (7,6) sells evolution items (hack script 0x08F55BF0); object 5 at (9,6), script 0x0821FE2C, is the TM clerk -
+  `pokemart 0x0830AD06` (TM08/09/17/18/19/60/61/62). The vanilla clerk script 0x0821FE06 (list 0x0821FE20) has
+  no object any more. The clerks stand inside a booth whose counter is row 5: talk from (9,4) facing down.
+- The patch: 112 halfwords + terminator at 0x08F54400..0x08F544E2 (after hypertrain; the run is free to
+  0x08F54AA0, and the only pointers near it are hypertrain's own, below 0x08F54400), and the unaligned word at
+  0x0821FE35 (pokemart's argument, the only reference to the old list) repointed. The patcher asserts each listed
+  item is a TM in pocket 3 with a price and a set sellable bit. The ROM differs from its input only there.
+- Tested (`test_tmshop.lua`, on the partyedit build, test save with money set to 999,999): 112 rows at the
+  item table's prices, TM01 bought (-40,000), 100 DOWNs land on TM109 right after TM100 (-40,000), TM120 is the
+  last row before Cancel (-50,000); each lands in the TM pocket, no reset, and leaving returns to the field.
+  Harness gotcha: after YES and "Here you go" a single A is enough; a second A opens the same row again, and
+  DOWN in its quantity box then winds the count down (bought 16 TM01 on the first run).
