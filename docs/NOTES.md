@@ -1577,3 +1577,93 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
 - Saves that already went through the bug keep whatever species the byte holds: not repairable in general (the
   original species is gone). A player with a fused Necrozma who used the EV-IV screen or a judge on v1.5 should
   check the Pokemon they get back.
+
+## PARTY EDITOR (nature / IVs / EVs) — 2026-09-21 — `patches/partyedit/`
+An **Edit** action in the party menu opens a screen that edits the selected Pokemon. Written from scratch
+in the shape of `patches/dexnav/` (own BG0 + window + palette + VBlank, text via
+AddTextPrinterParameterized4, B returns to the field). One window (26x16, base block 1, palette 15).
+Page 0 = Nature + six IVs, page 1 = six EVs + `EV total n/510`; up/down row, left/right ±1, L/R ±5,
+START page, B done. Every change writes to the mon and calls `CalculateMonStats` (0x08068D0D).
+
+Entry. The party action table was already relocated once by the relearner to `0x08FD9B8C` (34 entries,
+entry 33 = "Moves"), with its three readers at `0x1B32F8/0x1B37C8/0x1B37F8` and the builder trampoline at
+`0x081B3518` -> `0x08FD9B00`. partyedit relocates the table AGAIN with a 35th entry (34 = "Edit") and
+repoints that trampoline at its own `builder_hook`, which appends EDIT when `numActions < 6` and then jumps
+to the relearner's hook (which appends MOVES when `numActions < 7`, then CANCEL, then resumes `0x081B3529`).
+Chaining, not replacing - verified in game: a fresh mon gives `actions={0,3,34,33,2}` (Summary, Item, Edit,
+Moves, Cancel), and the unpatched control gives `{0,3,33,2}`.
+
+Data (this hack stores party mons unencrypted and unshuffled; `gPlayerParty` = 0x020244EC, 100-byte entries):
+nature override at `mon+0x1F` bits 0-6 (bit 7 preserved); IVs are 5-bit fields of the word at `mon+0x48`,
+display order HP,Atk,Def,SpA,SpD,Spe -> shifts 0,5,10,20,25,15 (bits 30/31 = isEgg/ability slot preserved);
+EVs are six bytes at `mon+0x38` in the order HP,Atk,Def,Spe,SpA,SpD -> offsets 0,1,2,4,5,3.
+
+Gotchas that cost time, in order:
+- **A scratch buffer in the blob is ROM.** `u8dec` wrote the digits to a buffer that happened to be inside
+  the free-space blob, so every write was dropped and the unterminated string ran straight into the next
+  data string ("Edit"). It now lives in EWRAM at 0x0203F120 (see *Port to v1.6* below for why it moved from
+  0x02039E40). Anything the code writes must be RAM.
+- **GBA key bits are not the test-script indices.** The masks are A1 B2 SELECT4 START8 RIGHT16 LEFT32 UP64
+  DOWN128; the first cut had UP/DOWN swapped and R/L/START shifted by one bit, so DOWN moved nothing,
+  START added +5 (it was being read as R) and the nature changed while testing the IVs.
+- **Thumb-1 `ldr rX,[pc,#imm]` cannot reach backwards**, only ~1020 bytes forward. Pools must come AFTER
+  every function that reads them; a pool placed between two halves of the screen assembled as `ldr.w`
+  (Thumb-2, which the GBA cannot run) and the `thumb()` twin check caught it.
+- **Capstone needs the even address.** Disassembling a `...|1` function pointer with CS_MODE_THUMB reads
+  one byte off and prints garbage; use the even address.
+- The party action list holds 8 and `Edit` shares the pool with `Moves`: a mon with four field moves gives
+  `numActions=8`, `actions={0,19,24,23,22,3,33,2}` and hides BOTH, which is the desired degradation.
+
+Verified in mGBA (dev 0.11-9139, `--script`): the screen renders the mon's real values (Chimchar: nature 0,
+IVs 28/12/3/1/11/19 read straight out of `0x96198D9C`); three RIGHTs on HP IV take the word to
+`0x96198D9F` (28->31, bits 30/31 untouched); two RIGHTs on the EV page take HP EV 0->2 and the total to
+`13/510`; B returns to `CB2_Overworld` (0x08085E5D) with the new bytes intact. Tests:
+`test_entry.lua`, `test_screen.lua`, `test_edit.lua`, `test_fields.lua`.
+
+### Two things a user report turned up (2026-09-21)
+- **The summary's Nature line does not read the hack's override.** `test_display.lua` writes
+  `mon+0x1F = 5` (Bold) with the README's editor out of the picture entirely and opens the party summary:
+  the byte is still 5 at that moment, `personality % 25` is 8, and page 1 prints **Impish**. So the nature
+  shown on the summary comes from the personality value, and a nature edit changes the STATS (which go
+  through `CalculateMonStats`, and do read the override) but not that label. The hack's own Mint writes the
+  same byte and has the same behaviour - this is inherited, not introduced here.
+- **The summary shows computed stats, never raw IVs or EVs.** `test_display.lua` pokes the stat fields
+  directly (`+0x58`/`+0x5A`/`+0x5E`) and page 2 follows exactly (max HP 35->77, Attack 20->99, Speed
+  22->88), so the page reads the party mon live and anything `CalculateMonStats` writes does show. What it
+  will not show is the IV/EV numbers themselves, and at low level the stat formula hides small edits: at
+  Lv 12, +3 HP IV is `floor(3*12/100) = 0`, and even +19 Attack IV is +2. `test_stats.lua` shows a real
+  edit landing: Atk IV 12->31 moves the mon's Attack 20->22.
+- **Exit fix.** `0x08086195` is `CB2_ReturnToFieldWithOpenMenu`, not plain `CB2_ReturnToField`: the first
+  cut dropped the player back into the START menu with the cursor on Pokedex, which is a trap when you exit
+  the editor to go and look at a summary. Now exits via `0x080860C9`, landing on the field with no menu,
+  like the relearner.
+- **The Nature row shows the name, not the number.** Nature names come from the 25-pointer table at
+  `0x0861CB50` - standard order Hardy..Quirky, matching the override byte, and it is the LIVE table
+  (referenced by code at `0x8073188`, `0x8167C7C`, `0x81C31E8`; the near-copy at `0x0861CAAC` that the
+  older notes call dead really is dead). The strings carry trailing `FC` control codes and the arrow
+  glyphs (the font's arrows live at `0x79-0x7C`), so `nat_name` copies up to the first `FC`, which keeps
+  the arrows and drops the colour codes: the row reads e.g. "Jolly ^Spe vSp.A". The value column moved from
+  x=120 to x=88 so the longest label ("Naughty ^Atk vSp.A") fits inside the 26-tile window.
+  `test_nature.lua` steps the row and checks the byte (0 -> 8 -> 13) with screenshots.
+- **The editor shows the EFFECTIVE nature.** Override 0 means "no override" (that is what the Mint's
+  "None" cell writes), so reading `mon+0x1F` raw would label every untouched Pokemon "Hardy" while the
+  summary said something else. `value_of` therefore falls back to `personality % 25` (`__umodsi3` by 25)
+  when the override is zero, and `ApplyDelta` writes a real value as soon as the row is touched.
+
+### Port to v1.6 (2026-09-29)
+- The PR #1 merge took candynpc and naturefix but not the editor; it is now applied last, after `bagslots`, on
+  the v1.6 release ROM (`romdiff.py apply` of `release/` gives sha1 `dba0ac1b…`). Nothing it touches had moved:
+  the three table literals still read `0x08FD9B8C`, the builder trampoline word is still `0x08FD9B01`, and
+  `0x08F53900..0x08F5416C` is still free (candynpc now ends at `0x08F5382F`, naturefix starts at `0x08F54200`).
+  `naturemenu` would fight over the same table and trampoline, but it is shelved and not in the chain.
+- The patched ROM differs from v1.6 only at the three literals, the trampoline word and the blob.
+- **Scratch moved.** The value strings were written to `0x02039E40`, which the Quest Log's Start-menu widget took
+  since (magic "QLOG" + window id). Every value drawn overwrote that magic. Moved to `0x0203F120..0x0203F13B`: in
+  the run `test_scratch_ram.lua` measured free, below hypertrain's byte at `0x0203F13C`; the longest string is 19
+  bytes. `test_scratch.lua` checks it: on the old build the 24 bytes at `0x02039E40` change during an edit, on
+  the new one they and `0x0203F13C` stay as they were and the strings land at `0x0203F120`.
+- The nine older tests give the same results as on the v1.5 build. Their save's Chimchar has 31 in every IV, so
+  the IV rows only show the clamp; `test_e2e.lua` (+250 Attack EV, Attack 24 -> 32 in the summary) is the one
+  that shows a stat recalculation.
+- Not fixed, as it was on the v1.5 build: the labels sit on white blocks and the seventh row (`EV total`) is cut
+  off at the window's bottom edge.

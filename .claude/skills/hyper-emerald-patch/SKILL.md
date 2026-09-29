@@ -38,7 +38,7 @@ Two checks in that template matter more than they look:
    leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FECB3C` to `0x08FEFF00`
    and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
    flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
-   naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Check inbound pointers
+   partyedit (`0x08F53900..0x08F5416C`), naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
    the hack's own code (`ldr rX,[pc,#0]; bx rX; .word target`) — repointing that word is the cheapest hook
@@ -65,7 +65,8 @@ a pattern and plays through battles, menus, the bag, a save and a Pokénav call,
 scratch) is in use by the DexNav chain; `0x02039E40`, `0x0203D600`, `0x0203F100` and `0x02031C00` also
 survived the same test. Taken since: `0x02039E40` (the Quest Log's Start-menu widget) and `0x0203D600` (one
 byte, hypertrain); `0x02031C00` (64 bytes) is the egg-move buffer since the eggmoves patch; `0x0203F100` is free (the Lua
-tests put scripts at `0x0203F100`).
+tests put scripts at `0x0203F100`) apart from partyedit's value strings at `0x0203F120..0x0203F13B` (only while
+its screen is open) and hypertrain's byte at `0x0203F13C`.
 
 Guard every scratch block with a magic word and zero it when the magic is absent — EWRAM does not come up
 zeroed on hardware.
