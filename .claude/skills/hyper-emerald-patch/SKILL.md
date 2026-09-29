@@ -38,8 +38,8 @@ Two checks in that template matter more than they look:
    leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FECB3C` to `0x08FEFF00`
    and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
    flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
-   partyedit (`0x08F53900..0x08F5416C`), naturefix (`0x08F54200..0x08F5423C`), hypertrain (`0x08F54300..0x08F543CD`) and tmshop's list
-   (`0x08F54400..0x08F544E2`). Check inbound pointers
+   partyedit (`0x08F53900..0x08F5416C`), naturefix (`0x08F54200..0x08F5423C`), hypertrain (`0x08F54300..0x08F543CD`), tmshop's list
+   (`0x08F54400..0x08F544E2`) and hmfree (`0x08F54500..0x08F54668`). Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
    the hack's own code (`ldr rX,[pc,#0]; bx rX; .word target`) — repointing that word is the cheapest hook
@@ -93,7 +93,10 @@ Pokémon is made — sample a few hundred frames in as well before believing it.
 ## Facts worth having in front of you
 
 - `GetMonData 0x0806A519`, `SetMonData 0x0806ACAD`, `CalculateMonStats 0x08068D0D`, `Random16 0x0806F5CD`,
-  `__umodsi3 0x082E7BE1`, `IsShinyOtIdPersonality 0x0806EBD1`, `PlaySE 0x080A37A5`.
+  `__umodsi3 0x082E7BE1`, `IsShinyOtIdPersonality 0x0806EBD1`, `PlaySE 0x080A37A5`, `FlagGet 0x0809D791`,
+  `CheckBagHasItem 0x080D6725`, `AppendToList 0x080A0945`.
+- The party menu's field-action builder is a chain from the trampoline at `0x081B3518`: hmfree -> partyedit ->
+  relearner, which appends CANCEL and resumes the game. A new link goes in front and jumps to the old word.
 - Mon data is **unencrypted and unshuffled**: species `+0x20`, moves `+0x2C`, PP `+0x34`, IV word `+0x48`
   (5 bits per stat, bit 30 isEgg, bit 31 second ability), level `+0x54`. `gEnemyParty 0x02024744`,
   `gPlayerParty 0x020244EC`.

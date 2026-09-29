@@ -1695,3 +1695,44 @@ IVs 28/12/3/1/11/19 read straight out of `0x96198D9C`); three RIGHTs on HP IV ta
   last row before Cancel (-50,000); each lands in the TM pocket, no reset, and leaving returns to the field.
   Harness gotcha: after YES and "Here you go" a single A is enough; a second A opens the same row again, and
   DOWN in its quantity box then winds the count down (bought 16 TM01 on the first run).
+
+## HMS WITHOUT THE POKEMON — 2026-09-29 — `patches/hmfree/`
+- Asked for: use HMs without a party Pokemon that has the move. Decided: the HM item in the Bag plus the badge the
+  game already asks for; Fly and Flash from every Pokemon's party menu; Rock Climb left as it is.
+- How the hack gates field moves. Every obstacle script starts with a vanilla `goto` into hack script: Cut
+  (0x082906BB -> 0x09864016), Rock Smash (0x082907A6), Strength (0x082908BA), Surf (0x08271EA0 -> 0x09864066),
+  Waterfall (0x08290A49), Dive (0x08290B0F, 0x08290B5A), plus Rock Smash at 0x098A44D0 / 0x098B91CE and four Rock
+  Climb scripts at 0x098C346C.. (map events, no badge check anywhere). Each does `setvar VAR_0x8004, move;
+  callasm 0x08FF1BA1; compare VAR_0x8004, 6`. That routine looks the move up in the TM/HM list 0x09E0FE80
+  (TM01-120 then HM01-08 = Cut, Fly, Surf, Strength, Flash, Rock Smash, Waterfall, Dive; items 498-505) and
+  then in 0x08FD80B8, and returns the first non-egg party slot whose species is *compatible* (bit tables
+  0x0806E0B0 / 0x081B2390) - so the hack already asks for "can learn", not "knows". The badge checks come first:
+  Cut 0x867, Rock Smash 0x869, Strength 0x86A in the scripts; Surf 0x86B in the field code at 0x0809C7F2 (whose
+  PartyHasMonWithSurf result, 0x0808BE00, the hack no longer branches on); Waterfall and Dive in the field code.
+  Vanilla `checkpartymove` (0x0809B3DC, "knows the move") is still used by Headbutt, Whirlpool (TM36 here) and
+  Secret Power; untouched.
+- Obstacles: 8-byte trampoline over 0x08FF1BA0 (push {r4-r7,lr}; ldr r5; ldrh r5; ldr r7 - 4-aligned) to fm_entry,
+  which saves the move, calls fm_orig (those four instructions replayed, then `bx` to 0x08FF1BA9), and only on 6
+  looks the move up in its own 8-entry HM table: HM in the Bag (CheckBagHasItem 0x080D6724) -> VAR_0x8004 = the
+  first party slot with a species that is not an egg.
+- Party menu: pm_hook is the new head of the builder chain (0x081B351C: pm_hook -> partyedit 0x08F53901 ->
+  relearner). Fly = action 24 (0x13 + FIELD_MOVE_FLY 5), Flash = 20 (0x13 + 1), appended when numActions < 7,
+  not already listed (a Pokemon that knows the move has it from the game), badge set and HM owned; Flash also
+  needs gMapHeader.cave (0x02037318 + 0x15) == 1 and FLAG_SYS_USE_FLASH (0x888) clear. They go before Edit and
+  Moves, so a Pokemon with two field moves and Switch can lose Edit. Choosing one is the game's own field-move
+  path (badge message, "can't use that here", the Fly map).
+- 344 bytes of code + the 8 moves at 0x08F54500..0x08F54668. The ROM differs from the tmshop build only there, at
+  the trampoline and at the builder word.
+- Tested (`test_hmfree.lua`, the party's Chimchar turned into a Magikarp, which can learn no HM): unit - each of
+  the eight moves answers 6 without its HM and 0 with it; on the tmshop build (control) 6 both ways; Rock Climb 6;
+  a Chimchar with Cut compatibility still gets 0 without HM01. surf - Petalburg (19,7): the prompt, "used Surf",
+  on the pond (19,6), avatar surfing bit; without HM03 nothing. cut - Route 102 (10,7): "Chimchar used Cut"
+  (nickname), Magikarp in the popup, tree flag 0x12 set; without HM01 the plain "can be Cut down!" line. party -
+  Petalburg: {Summary, Item, Fly, Edit, Moves, Cancel}, Fly opens "Fly to where?", A lands at (19,16); without
+  HM02 no Fly; with Fly known it is listed once, in the game's own place. flash - Granite Cave 34/71 (cave 1):
+  Flash listed, chosen, flag 0x888 set and the light circle drawn; without HM05 not listed; not listed outdoors.
+  partyedit's entry/e2e/scratch tests unchanged on the final ROM.
+- Not tested: an egg in the first slot (first_mon skips eggs by GetMonData isEgg), Waterfall, Dive, Strength and
+  Rock Smash end to end (the unit test covers their routine answer; their scripts use it the same way as Cut/Surf).
+- Harness gotchas: gBagPockets (0x02039DD8) is in vanilla pocket order (Items, Balls, TMs, Berries, Key), not the
+  hack's EWRAM order; a control run with the same screenshot names overwrites the real run's pictures.
