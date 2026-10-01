@@ -134,8 +134,9 @@ for (const s of species)
     if (to && to !== s.sid && !parents.has(to)) parents.set(to, { from: s.sid, how: e.how, text: e.text });
   }
 
-// Mega Evolutions, Primal Reversions and Gigantamax forms hang off their base species. The game links the Megas
-// itself; most Gigantamax slots carry no link, so those are matched by name, then by National Dex number.
+// Mega Evolutions, Primal Reversions and Gigantamax forms hang off their base species. The game links them itself
+// (the Mega rows of its evolution table, and its battle-form table for Gigantamax); a form neither table names,
+// Eternamax Eternatus, is matched by name, then by National Dex number.
 const formLinks = new Map<number, FormLink[]>();
 const baseOf = new Map<number, { from: number; how: string }>();
 const link = (from: number, to: number, how: string) => {

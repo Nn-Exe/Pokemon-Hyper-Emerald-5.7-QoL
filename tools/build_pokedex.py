@@ -24,6 +24,11 @@ Where each table is (ROM header = the pointer block at 0x128-0x1D4, the layout D
   egg moves         0x09D78128     the vanilla list: species + 20000, then its moves
   evolutions        0x08F387C0     40 bytes a species, five {method, parameter, target, extra}; Eevee's ten are
                                    at 0x09F0B4A0. The methods are read as patches/questlog/evolutions.py reads them.
+  battle forms      0x08C9A3B0     {u16 species, u16 the slot it turns into, u16 held item}, 0xFEFE ends. The item
+                                   is 0xEFEF for a Gigantamax form (34 of them: Venusaur -> slot 254...) and the
+                                   Rusty Sword / Shield for Zacian and Zamazenta. The Dynamax code's own table
+                                   (its pointer is at 0x08FF18C4); the evolution table knows none of these but
+                                   Charizard's, which the Wishing Piece also triggers.
   National Dex no.  0x08F50370     u16, species - 1
   Pokédex entries   0x09250000     32 bytes a dex number: category, +12 height (dm), +14 weight (hg), +16 text
 """
@@ -60,6 +65,7 @@ TM_MOVES, N_TMHM, N_TM = 0x01E0FE80, 128, 120
 TM_COMPAT = 0x00FCD8F4
 EGG_MOVES = 0x01D78128
 EVOS, EEVEE, EEVEE_EVOS = 0x00F387C0, 133, 0x01F0B4A0
+BATTLE_FORMS, GMAX_MARK = 0x00C9A3B0, 0xEFEF
 NATDEX = 0x00F50370
 DEX_ENTRIES = 0x01250000
 REGION_MAP = 0x005A147C
@@ -68,6 +74,7 @@ HISUIAN_PILL, GMAX_ITEM = 753, 702
 assert rom[BASE_STATS + 28:BASE_STATS + 34] == bytes([45, 49, 49, 45, 65, 65]), "base stats moved"
 assert u16(u32(LEARNSETS + 4) - 0x08000000) == 33, "level-up table moved"       # Bulbasaur starts with Tackle
 assert u32(0x06B698) == 0x09D73A81, "the ability lookup is not hooked where it was"
+assert (u16(BATTLE_FORMS + 24), u16(BATTLE_FORMS + 26), u16(BATTLE_FORMS + 28)) == (3, 254, GMAX_MARK),     "battle-form table moved"                                                    # Venusaur -> its Gigantamax slot
 assert [u16(ABILITIES + 6 + 2 * k) for k in range(3)] == [65, 65, 34], "ability table moved"   # Bulbasaur
 
 TYPES = {0: "Normal", 1: "Fighting", 2: "Flying", 3: "Poison", 4: "Ground", 5: "Rock", 6: "Bug", 7: "Ghost",
@@ -235,6 +242,13 @@ for a in range(1, N_ABILITIES):
     d = pointer(ABILITY_DESCS + 4 * a)
     abilities[a] = {"id": a, "name": ABILITY_FULL.get(name, name), "desc": text(d) if d else ""}
 
+# ---------------- Gigantamax and the other forms a battle brings out ----------------
+battle_forms = {}
+o = BATTLE_FORMS
+while u16(o) != 0xFEFE:
+    battle_forms.setdefault(u16(o), []).append((u16(o + 2), u16(o + 4)))
+    o += 6
+
 # ---------------- egg moves ----------------
 egg = {}
 o, cur = EGG_MOVES, None
@@ -358,6 +372,9 @@ for sid in range(1, N_SPECIES):
         if m >> 8 in (0x3F, 0xFF):
             sentence += " To get its Egg, a parent must hold %s %s." % (article(item(x)), item(x))
         evos.append({"to": t, "how": short, "text": sentence})
+    for t, held in battle_forms.get(sid, []):
+        if is_species(t) and all(f["to"] != t for f in forms):
+            forms.append({"to": t, "how": "Gigantamax" if held == GMAX_MARK else item(held)})
     if evos:
         entry["evo"] = evos
     if forms:
