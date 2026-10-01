@@ -8,7 +8,7 @@ import { SITE_NAME } from '../../../consts';
 
 const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Pokédex' }];
 const n = (x: number) => x.toLocaleString('en-US');
-const description = `All ${dexStats.species} Pokémon in Hyper Emerald v5.7, Bulbasaur to Enamorus, plus ${dexStats.forms} Mega, Gigantamax, regional and alternate forms: types, base stats, abilities, evolutions, locations and learnsets.`;
+const description = `All ${dexStats.species} Pokémon in Hyper Emerald v5.7, Bulbasaur to Enamorus, plus ${dexStats.forms} Mega, Gigantamax, regional and alternate forms and how to get each one: types, base stats, abilities, evolutions, locations and learnsets.`;
 const FORM_LABELS = { Standard: 'Standard', Regional: 'Regional form', Mega: 'Mega / Primal', Gigantamax: 'Gigantamax', Form: 'Alternate form' };
 ---
 
@@ -21,6 +21,7 @@ const FORM_LABELS = { Standard: 'Standard', Regional: 'Regional form', Mega: 'Me
     <ul class="dex-totals">
       <li><strong>{n(dexStats.species)}</strong> species</li>
       <li><strong>{dexStats.forms}</strong> other forms</li>
+      <li><strong>{dexStats.unnumbered}</strong> of the hack’s own</li>
       <li><strong>{n(dexStats.total)}</strong> pages in all</li>
       <li><strong>{dexStats.hidden}</strong> with a hidden ability</li>
     </ul>

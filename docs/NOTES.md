@@ -2143,3 +2143,43 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   previous working ROM in exactly the 19 pointers and the two text blocks; installed (sha1 141ec5fe...), backup
   "(before TM descriptions)".
 
+## FORM CHANGES: WHERE THE GAME KEEPS THEM — 2026-10-02 — `tools/romdata/forms.py`
+- Asked for: every form on the guide's Pokédex with how you get into it, "even if it is just in battle".
+  The evolution table only knows Mega Evolution, Primal Reversion, Ultra Burst and one Gigantamax (Charizard, by the
+  Wishing Piece). Everything else is in other tables or in code:
+  - **Gigantamax and Crowned forms**: 0x08C9A3B0, {u16 species, u16 form, u16 item}, 0xFEFE ends; 36 rows.
+    0x08FF1830 walks it for both parties when a battle is set up (called from 0x08FF1134 and 0x09D48F96) and
+    0x08FF1858 does a row: item 0xEFEF means "this Pokémon's Gigantamax bit is set" (mon +0x4E, bit 7), anything
+    else must be the held item (Rusty Sword 698, Rusty Shield 692). The bit comes from the Max Soup cook on
+    Champion Island (35/28, script 0x098A7425: 3 Max Mushrooms, the party's first Pokémon). Two more tables beside
+    it (0x08C9A4B0 / 0x08C9A4F0) swap Iron Head for Behemoth Blade / Bash on the Crowned forms.
+  - **Held-item forms**: 0x09E0FC70, {u16 form, u16 base, u16 item, u16 item or 0xFFF}, a 0xFFF row ends; 46
+    rows: Arceus (the type's Z-Crystal, then its Plate), Silvally, Genesect, Giratina (Griseous Orb), Armored
+    Mewtwo (Mewtwo Armor / Revenger Armor), Dialga and Palkia (Adamant Crystal, Lustrous Globe), Shadow Lugia.
+    SetMonData's held-item case (0x0806B050) jumps to 0x0981E826, which changes the species the moment the item is
+    given or taken. Lugia's row is special: last word 0x1063 = "only item 0x063 (Shiny Stone) turns it back";
+    the Dusk Stone (100) turns it.
+  - **By move** (battle, 0x09D5D380, pool 0x09D5D9A4): Marshadow + Spectral Thief (666) or 717, Solgaleo +
+    Sunsteel Strike (667) or 726, Lunala + Moongeist Beam (668) or 727, Xerneas + Geomancy (601), Keldeo + Secret
+    Sword (548); the same routine turns Arceus by Judgment (449) with the Legend Plate (751) held. Meloetta +
+    Relic Song (547) is at 0x09D59922, next to Cramorant's Gulp Missile.
+  - **By ability**: the battle code's own cases. 0x09D77138 is the list of battle forms and what they go back to
+    ({u16, u16}, 0xFFFF ends): Cherrim, Aegislash, both Darmanitan, Minior, Wishiwashi, Ash-Greninja, Mimikyu,
+    Lunala, Xerneas, Solgaleo, Marshadow, Eiscue, both Cramorant, Morpeko.
+  - **Bag items**: each item's field-use routine sets a callback that starts a script (ScriptContext_SetupScript
+    0x08098EF9): Gracidea 0x08FD6A84, Prison Bottle 0x08FD6500, Reveal Glass 0x08FD6B40 (routine 0x09F0157C:
+    Tornadus, Thundurus, Landorus, Enamorus), the Nectars 0x08FD6688 / 6634 / 6730 / 66DC, DNA Splicers
+    0x08FD6554, Rotom Catalog 0x08FD6794, Deoxys Meteor 0x08FD6300 (routine 0x08FD7A04), Zygarde Cube 0x0988FFC1
+    (10 Cells the 10% form, 50 the 50%, 100 the Power Construct one), N-Solarizer / N-Lunarizer / Unity Reins
+    0x094A27C0.
+- **The ability table**, found the same day: 0x097A0000, three u16 a species (see the CHANGELOG entry).
+- **Names that were on the wrong slot** (`species_display.py`): 963 is Ash-Greninja and 1011 the Battle Bond
+  Greninja; 1086 is Eiscue and 1177 its Noice Face; 1077 is Cramorant and 1146 Gulping; 953 is Deoxys's Normal
+  Forme and 954 its Defense (410 is the Speed Forme); 1150 is the blue Low Key Toxtricity. Told by base stats,
+  front pictures, which slot the wild tables use, and which way the battle code swaps them. 1106 is a Mega Flygon
+  of the hack's own (Flygonite), 1091 the Typhlosion with the Burning Soul ability.
+- **The National Dex table is wrong for five slots**: Hisuian Sneasel (1062) carries 586, Sawsbuck's; the four
+  restored fossil Pokémon (990-993, Chinese names in the ROM) carry Pikachu's 25. `forms.natdex()` puts them right.
+- Gotchas: `tools/romdata/` has a `dis.py`, which shadows the standard library's when that folder comes first on
+  `sys.path` (keystone -> inspect -> dis): append the folder, do not insert it. mGBA stops on a "Temporary file
+  loaded" dialog when the ROM is under a temp folder, so `--script` tests never start there.

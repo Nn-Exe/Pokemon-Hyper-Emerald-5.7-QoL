@@ -24,11 +24,8 @@ Where each table is (ROM header = the pointer block at 0x128-0x1D4, the layout D
   egg moves         0x09D78128     the vanilla list: species + 20000, then its moves
   evolutions        0x08F387C0     40 bytes a species, five {method, parameter, target, extra}; Eevee's ten are
                                    at 0x09F0B4A0. The methods are read as patches/questlog/evolutions.py reads them.
-  battle forms      0x08C9A3B0     {u16 species, u16 the slot it turns into, u16 held item}, 0xFEFE ends. The item
-                                   is 0xEFEF for a Gigantamax form (34 of them: Venusaur -> slot 254...) and the
-                                   Rusty Sword / Shield for Zacian and Zamazenta. The Dynamax code's own table
-                                   (its pointer is at 0x08FF18C4); the evolution table knows none of these but
-                                   Charizard's, which the Wishing Piece also triggers.
+  other forms       tools/romdata/forms.py: Mega Evolution, Gigantamax, held items, moves, abilities, Bag
+                                   items, fusions. Its docstring lists the tables and routines behind each.
   National Dex no.  0x08F50370     u16, species - 1
   Pokédex entries   0x09250000     32 bytes a dex number: category, +12 height (dm), +14 weight (hg), +16 text
 """
@@ -42,6 +39,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "romdata"))
 import romlib as R  # noqa: E402
 from species_display import FORMS, display_name  # noqa: E402
+import forms as F  # noqa: E402
 from display_names import item_name as item_display, move_name as move_display  # noqa: E402
 
 OUT = os.path.join(HERE, "..", "site", "src", "data")
@@ -65,16 +63,14 @@ TM_MOVES, N_TMHM, N_TM = 0x01E0FE80, 128, 120
 TM_COMPAT = 0x00FCD8F4
 EGG_MOVES = 0x01D78128
 EVOS, EEVEE, EEVEE_EVOS = 0x00F387C0, 133, 0x01F0B4A0
-BATTLE_FORMS, GMAX_MARK = 0x00C9A3B0, 0xEFEF
 NATDEX = 0x00F50370
 DEX_ENTRIES = 0x01250000
 REGION_MAP = 0x005A147C
-HISUIAN_PILL, GMAX_ITEM = 753, 702
+HISUIAN_PILL = 753
 
 assert rom[BASE_STATS + 28:BASE_STATS + 34] == bytes([45, 49, 49, 45, 65, 65]), "base stats moved"
 assert u16(u32(LEARNSETS + 4) - 0x08000000) == 33, "level-up table moved"       # Bulbasaur starts with Tackle
 assert u32(0x06B698) == 0x09D73A81, "the ability lookup is not hooked where it was"
-assert (u16(BATTLE_FORMS + 24), u16(BATTLE_FORMS + 26), u16(BATTLE_FORMS + 28)) == (3, 254, GMAX_MARK),     "battle-form table moved"                                                    # Venusaur -> its Gigantamax slot
 assert [u16(ABILITIES + 6 + 2 * k) for k in range(3)] == [65, 65, 34], "ability table moved"   # Bulbasaur
 
 TYPES = {0: "Normal", 1: "Fighting", 2: "Flying", 3: "Poison", 4: "Ground", 5: "Rock", 6: "Bug", 7: "Ghost",
@@ -205,17 +201,6 @@ def evolution(lo, p, x):
     return "Special", "It evolves in a special way."
 
 
-def form_change(lo, p):
-    """how a Mega Evolution, Primal Reversion, Gigantamax or Ultra Burst is triggered"""
-    if lo == 250:
-        return "Ultra Burst"
-    if lo == 252:
-        return "Knows " + move(p)
-    if p == GMAX_ITEM:
-        return "Gigantamax (%s)" % item(p)
-    return item(p)
-
-
 # ---------------- moves and abilities ----------------
 moves = {}
 for m in range(1, 937):
@@ -242,13 +227,6 @@ for a in range(1, N_ABILITIES):
     d = pointer(ABILITY_DESCS + 4 * a)
     abilities[a] = {"id": a, "name": ABILITY_FULL.get(name, name), "desc": text(d) if d else ""}
 
-# ---------------- Gigantamax and the other forms a battle brings out ----------------
-battle_forms = {}
-o = BATTLE_FORMS
-while u16(o) != 0xFEFE:
-    battle_forms.setdefault(u16(o), []).append((u16(o + 2), u16(o + 4)))
-    o += 6
-
 # ---------------- egg moves ----------------
 egg = {}
 o, cur = EGG_MOVES, None
@@ -264,21 +242,15 @@ while True:
         egg[cur].append(v)
 
 # ---------------- species ----------------
-natdex = {sid: u16(NATDEX + 2 * (sid - 1)) for sid in range(1, N_SPECIES)}
+natdex = {sid: F.natdex(rom, sid) for sid in range(1, N_SPECIES)}     # with the table's five wrong slots put right
+NO_NUMBER = F.NO_NUMBER
 first = {}                                    # National Dex number -> the species that owns it
 for sid in range(1, N_SPECIES):
     if natdex[sid]:
         first.setdefault(natdex[sid], sid)
 
-SKIP = set(range(412, 440)) | {1199}          # the Egg, Unown's letter forms, a blank slot
-
-
 def is_species(sid):
-    if sid in SKIP or not 0 < sid < N_SPECIES:
-        return False
-    b = rom[BASE_STATS + 28 * sid:BASE_STATS + 28 * sid + 6]
-    name = rom_name(sid)
-    return sum(b) > 0 and name.strip() not in ("", "?") and (not name.startswith("{CN") or sid in FORMS)
+    return F.is_species(rom, sid, FORMS)
 
 
 def form_kind(sid, name):
@@ -305,11 +277,13 @@ def learnset(sid):
 
 
 names = {sid: display_name(sid, rom_name(sid)) for sid in range(1, N_SPECIES)}
-# the forms that share a printed name with another species get told apart here
-for sid, extra in ((975, "Douse Drive"), (976, "Shock Drive"), (977, "Burn Drive"), (978, "Chill Drive"),
-                   (275, "Amped"), (276, "Low Key"), (1007, "Single Strike"), (1008, "Rapid Strike")):
-    names[sid] = "%s (%s)" % (names[sid].split(" (")[0], extra)
-names[1151] = "Toxtricity (Low Key)"
+
+# ---------------- every other form and how it comes about ----------------
+ability_by_name = {a["name"]: a for a in abilities.values()}
+form_links = {}
+for ln in F.links(rom, lambda sid: names[sid], item, move, lambda ab: ability_by_name.get(ab, {}).get("desc")):
+    form_links.setdefault(ln["from"], []).append(ln)
+battle_only = {ln["to"] for lns in form_links.values() for ln in lns if ln["battle"]}
 
 species = []
 slugs = {}
@@ -320,8 +294,7 @@ for sid in range(1, N_SPECIES):
     own = [u16(ABILITIES + 6 * sid + 2 * k) for k in range(3)]
     name = names[sid]
     dex = natdex[sid]
-    if not dex:                               # the Gigantamax slots carry no number: take the base species'
-        base_name = re.sub(r"^(Gigantamax|Eternamax) | \(.*\)$", "", name)
+    if not dex and sid not in NO_NUMBER:      # the Gigantamax slots carry no number: take the base species'
         dex = next((natdex[s] for s in range(1, N_SPECIES) if rom_name(s) == rom_name(sid) and natdex[s]), 0)
     slug = re.sub(r"[^a-z0-9]+", "-", name.lower().replace("♀", "-f").replace("♂", "-m").replace("é", "e")
                   .replace("'", "").replace("’", "").replace(".", "").replace(":", "").replace("%", "")).strip("-")
@@ -365,16 +338,23 @@ for sid in range(1, N_SPECIES):
         lo = m & 0xFF
         if not m or not is_species(t) or lo == 255:
             continue
-        if lo >= 250:
-            forms.append({"to": t, "how": form_change(lo, p)})
+        if lo >= 250:                             # Mega Evolution and the like: forms.py reads these rows
             continue
         short, sentence = evolution(lo, p, x)
         if m >> 8 in (0x3F, 0xFF):
             sentence += " To get its Egg, a parent must hold %s %s." % (article(item(x)), item(x))
         evos.append({"to": t, "how": short, "text": sentence})
-    for t, held in battle_forms.get(sid, []):
-        if is_species(t) and all(f["to"] != t for f in forms):
-            forms.append({"to": t, "how": "Gigantamax" if held == GMAX_MARK else item(held)})
+    for ln in form_links.get(sid, []):
+        if not is_species(ln["to"]):
+            continue
+        same = next((f for f in forms if f["to"] == ln["to"]), None)
+        if same:                                  # Rayquaza: Dragon Ascent, or the Final Meteor held
+            same["how"] += " or " + ln["how"]
+            same["text"] += " Or: " + ln["text"][0].lower() + ln["text"][1:]
+        else:
+            forms.append({"to": ln["to"], "how": ln["how"], "text": ln["text"], "kind": ln["kind"]})
+    if sid in battle_only:
+        entry["battle"] = True                    # exists only for the length of a battle
     if evos:
         entry["evo"] = evos
     if forms:
@@ -385,7 +365,8 @@ for sid in range(1, N_SPECIES):
     entry["egg"] = [m for m in egg.get(sid, []) if m in moves]
     species.append(entry)
 
-species.sort(key=lambda s: (s["dex"] or 9999, s["form"] != "Standard", s["sid"]))
+RANK = {"Standard": 0, "Regional": 1, "Form": 1, "Mega": 2, "Gigantamax": 3}
+species.sort(key=lambda s: (s["dex"] or 9999, RANK[s["form"]], s["sid"]))
 learned = {m for s in species for _, m in s["levelUp"]} | {tm_moves[i] for s in species for i in s["tm"]} \
     | {m for s in species for m in s["egg"]}
 used_abilities = {a for s in species for a in s["abilities"] + [s["hidden"]] if a}
@@ -404,3 +385,9 @@ print("species and forms: %d (%d standard) | moves learned by something: %d of %
     len(species), sum(s["form"] == "Standard" for s in species), len(learned), len(moves), len(used_abilities)))
 print("with a hidden ability: %d | with a dex entry: %d | with egg moves: %d" % (
     sum(1 for s in species if s["hidden"]), sum(1 for s in species if "entry" in s), sum(1 for s in species if s["egg"])))
+kinds = {}
+for s in species:
+    for f in s.get("forms", []):
+        kinds[f["kind"]] = kinds.get(f["kind"], 0) + 1
+print("form changes: %d (%s) | battle-only forms: %d" % (
+    sum(kinds.values()), ", ".join("%s %d" % kv for kv in sorted(kinds.items())), sum(1 for s in species if s.get("battle"))))

@@ -46,7 +46,7 @@ const s = species[index];
 const prev = species[index - 1];
 const next = species[index + 1];
 const total = bst(s);
-const temporary = s.form === 'Mega' || s.form === 'Gigantamax';
+const temporary = !!s.battle;
 const base = baseForm(s);
 
 const regular = s.abilities.map((a) => ability(a)!).filter(Boolean);
@@ -61,15 +61,12 @@ const wild = wildSightings(s);
 const scripted = scriptedBattles(s);
 const legends = legendEntries(s);
 const direct = wild.length + scripted.length + legends.length > 0;
-const steps = lineage((base?.species ?? s).sid);
+const steps = lineage(s.sid);
 let source: Species | undefined;
-if (!direct) {
-  const chain = [...(base ? [base.species] : []), ...steps.map((st) => st.from).reverse()];
-  source = chain.find(obtainableDirectly);
-}
+if (!direct) source = steps.map((st) => st.from).reverse().find(obtainableDirectly);
 const firstStep = source ? steps.findIndex((st) => st.from.sid === source!.sid) : -1;
-const sourceSteps = firstStep >= 0 ? steps.slice(firstStep) : [];
-const trigger = base && !['Gigantamax', 'Mega Evolution'].includes(base.how) ? base.how : '';
+// a battle-only form's last step is the battle itself: the note above the list already says how
+const sourceSteps = (firstStep >= 0 ? steps.slice(firstStep) : []).filter((st) => !(temporary && st.to.sid === s.sid));
 const sourceWild = source ? wildSightings(source) : [];
 const sourceScripted = source ? scriptedBattles(source) : [];
 const sourceLegends = source ? legendEntries(source) : [];
@@ -103,7 +100,7 @@ const sections = [
   { id: 'stats', label: 'Stats' },
   { id: 'abilities', label: 'Abilities' },
   ...(temporary ? [] : [{ id: 'training', label: 'Training' }]),
-  ...(tree || siblings.length ? [{ id: 'evolution', label: 'Evolution' }] : []),
+  ...(tree || siblings.length ? [{ id: 'evolution', label: 'Evolution & forms' }] : []),
   { id: 'locations', label: 'Where to find' },
   { id: 'moves', label: 'Moves' },
 ];
@@ -136,7 +133,17 @@ const sections = [
           {s.category && <span>{s.category} Pokémon</span>}
           {!temporary && s.height ? <span>{heightText(s.height)}</span> : null}
           {!temporary && s.weight ? <span>{weightText(s.weight)}</span> : null}
-          {s.form !== 'Standard' && <span>{s.form === 'Form' ? 'Alternate form' : s.form === 'Regional' ? 'Regional form' : s.form}</span>}
+          {(s.form !== 'Standard' || temporary) && (
+            <span>
+              {temporary && s.form !== 'Mega' && s.form !== 'Gigantamax'
+                ? 'Battle-only form'
+                : s.form === 'Form'
+                  ? 'Alternate form'
+                  : s.form === 'Regional'
+                    ? 'Regional form'
+                    : s.form}
+            </span>
+          )}
         </p>
         {s.entry && <p class="dex-entry">{s.entry}</p>}
       </div>
@@ -255,13 +262,13 @@ const sections = [
     {
       (tree || siblings.length > 0) && (
         <section class="dex-section" id="evolution" aria-labelledby="evolution-title">
-          <h2 id="evolution-title">Evolution</h2>
+          <h2 id="evolution-title">Evolution & Forms</h2>
           {tree ? (
-            <div class="evo-family" tabindex="0" role="region" aria-label={`${s.name} evolution family`}>
+            <div class="evo-family" tabindex="0" role="region" aria-label={`${s.name}: evolutions and forms`}>
               <EvoNode node={tree} current={s.sid} />
             </div>
           ) : (
-            <p class="dex-note">{s.name} does not evolve.</p>
+            <p class="dex-note">{s.name} does not evolve, and nothing in the game changes its form.</p>
           )}
           {siblings.length > 0 && (
             <>
@@ -287,8 +294,7 @@ const sections = [
         temporary && base && (
           <p class="dex-note">
             {s.name} is a battle-only form of <a href={url(pokedexHref(base.species))}>{base.species.name}</a>, so it
-            has no encounter of its own.
-            {trigger && <span> Trigger: {trigger}.</span>}
+            has no encounter of its own. {base.text}
             {s.form === 'Mega' && (
               <span>
                 {' '}
@@ -379,7 +385,7 @@ const sections = [
           <ol class="dex-steps">
             {sourceSteps.map((st) => (
               <li>
-                Evolve <a href={url(pokedexHref(st.from))}>{st.from.name}</a> into{' '}
+                {st.form ? 'Change' : 'Evolve'} <a href={url(pokedexHref(st.from))}>{st.from.name}</a> into{' '}
                 <a href={url(pokedexHref(st.to))}>{st.to.name}</a>: <span>{st.text}</span>
               </li>
             ))}
@@ -388,10 +394,18 @@ const sections = [
       }
 
       {
+        direct && base && !temporary && (
+          <p class="dex-note">
+            <a href={url(pokedexHref(base.species))}>{base.species.name}</a> can also be changed into it. {base.text}
+          </p>
+        )
+      }
+
+      {
         !direct && !source && !temporary && (
           <p class="dex-note">
             {s.name} has no wild encounter and no scripted battle in the game’s tables
-            {steps.length > 0 ? `, and neither do the stages before it` : ''}. Pokémon like this come from gifts,
+            {steps.length > 0 ? `, and neither do the forms and stages before it` : ''}. Pokémon like this come from gifts,
             in-game trades, eggs, events or shops: check
             <a href={url('/guides/side-content/')}>Side Content & Gift Pokémon</a> and
             <a href={url('/guides/legendaries/')}>Legendary Locations</a>.

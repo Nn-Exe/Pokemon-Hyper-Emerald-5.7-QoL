@@ -18,6 +18,8 @@ python tools/build_site_content.py                     # -> site/src/data/{journ
 cd site && npm run build                               # -> docs/ (the published site)
 ```
 
+`forms.py` lists every way a Pokémon changes form (Mega Evolution, Gigantamax, held items, moves, abilities, Bag
+items, fusions) and where the game keeps each; the Pokédex tool and the Quest Log's Evolutions pages both read it.
 `species_display.py` and `display_names.py` hold the names the site prints: the ROM's tables cut names to 10-13
 characters and name every alternate form after its base species.
 

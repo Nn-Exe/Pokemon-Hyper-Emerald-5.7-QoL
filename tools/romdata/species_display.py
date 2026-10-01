@@ -5,6 +5,9 @@ The ROM's species-name table holds 10 characters a name and gives every alternat
 alone. This maps a species id to the name a player would use. Forms were identified from their menu icons
 (tools/build_sprites.py) and, where two looked alike, from the teams that use them (Maylene's Urshifu knows
 Wicked Blow, Wake's Surging Strikes; Giovanni's two Mewtwo hold "Mewtwo Armor" and "RevengerArmor").
+Three pairs sit the other way round from what their slot numbers suggest, and were settled by their base stats,
+their front pictures and the battle code that swaps them: 963 is Ash-Greninja and 1011 the Greninja it comes
+from; 1086 is the Eiscue you meet and 1177 its Noice Face; 1077 is Cramorant and 1146 the one with its catch.
 
 display_name(sid, rom_name) falls back to the ROM's own name.
 """
@@ -33,7 +36,7 @@ FORMS = {
     266: "Gigantamax Coalossal", 267: "Gigantamax Hatterene", 268: "Gigantamax Grimmsnarl",
     269: "Gigantamax Flapple", 270: "Gigantamax Appletun", 271: "Gigantamax Melmetal",
     272: "Gigantamax Sandaconda", 273: "Gigantamax Copperajah", 274: "Gigantamax Duraludon",
-    275: "Gigantamax Toxtricity", 276: "Gigantamax Toxtricity",
+    275: "Gigantamax Toxtricity", 276: "Gigantamax Toxtricity (Amped)",
     # Alolan forms
     856: "Alolan Rattata", 857: "Alolan Raticate", 858: "Alolan Raichu", 859: "Alolan Sandshrew",
     860: "Alolan Sandslash", 861: "Alolan Vulpix", 862: "Alolan Ninetales", 863: "Alolan Diglett",
@@ -59,14 +62,15 @@ FORMS = {
     946: "Mega Garchomp", 947: "Mega Lucario", 948: "Mega Abomasnow", 949: "Mega Gallade",
     950: "Mega Audino", 951: "Mega Diancie",
     # other alternate forms
-    952: "Deoxys (Attack)", 953: "Deoxys (Defense)", 954: "Deoxys (Speed)",
+    # Deoxys itself (410) is the Speed Forme, as in Emerald: 953 has the Normal Forme's picture and stats
+    952: "Deoxys (Attack)", 953: "Deoxys (Normal)", 954: "Deoxys (Defense)",
     955: "Rotom (Heat)", 956: "Rotom (Wash)", 957: "Rotom (Frost)", 958: "Rotom (Fan)", 959: "Rotom (Mow)",
     960: "Aegislash (Blade)", 961: "Darmanitan (Zen Mode)", 962: "Wishiwashi (School)",
-    963: "Greninja (Battle Bond)", 964: "Meowstic ♀", 965: "Meloetta (Pirouette)",
+    963: "Ash-Greninja", 964: "Meowstic ♀", 965: "Meloetta (Pirouette)",
     966: "Basculin (Blue-Striped)", 967: "Zygarde (Complete)", 968: "Zygarde (10%)", 969: "Hoopa (Unbound)",
     970: "Lycanroc (Midnight)", 971: "Minior (Core)", 972: "Oricorio (Pom-Pom)", 973: "Oricorio (Pa'u)",
-    974: "Oricorio (Sensu)", 975: "Genesect (Drive)", 976: "Genesect (Drive)", 977: "Genesect (Drive)",
-    978: "Genesect (Drive)", 979: "Burmy (Sandy Cloak)", 980: "Burmy (Trash Cloak)",
+    974: "Oricorio (Sensu)", 975: "Genesect (Douse Drive)", 976: "Genesect (Shock Drive)",
+    977: "Genesect (Burn Drive)", 978: "Genesect (Chill Drive)", 979: "Burmy (Sandy Cloak)", 980: "Burmy (Trash Cloak)",
     981: "Wormadam (Sandy Cloak)", 982: "Wormadam (Trash Cloak)", 983: "Cherrim (Sunshine)",
     984: "Shellos (East Sea)", 985: "Gastrodon (East Sea)", 986: "Keldeo (Resolute)", 987: "Frillish ♀",
     988: "Jellicent ♀", 989: "Basculin (White-Striped)",
@@ -74,9 +78,9 @@ FORMS = {
     990: "Fossilized Bird", 991: "Fossilized Drake", 992: "Fossilized Fish", 993: "Fossilized Dino",
     997: "Mimikyu (Busted)", 998: "Lycanroc (Dusk)", 999: "Pyroar ♀", 1000: "Magearna (Original Color)",
     1002: "Hisuian Sliggoo", 1003: "Gigantamax Rillaboom", 1004: "Gigantamax Cinderace",
-    1005: "Gigantamax Inteleon", 1006: "Gigantamax Drednaw", 1007: "Gigantamax Urshifu",
-    1008: "Gigantamax Urshifu", 1009: "Zygarde (Power Construct)", 1010: "Rockruff (Own Tempo)",
-    1011: "Ash-Greninja", 1012: "Gigantamax Garbodor", 1013: "Gigantamax Alcremie",
+    1005: "Gigantamax Inteleon", 1006: "Gigantamax Drednaw", 1007: "Gigantamax Urshifu (Single Strike)",
+    1008: "Gigantamax Urshifu (Rapid Strike)", 1009: "Zygarde (Power Construct)", 1010: "Rockruff (Own Tempo)",
+    1011: "Greninja (Battle Bond)", 1012: "Gigantamax Garbodor", 1013: "Gigantamax Alcremie",
     1014: "Gigantamax Centiskorch", 1015: "Hisuian Qwilfish", 1017: "Hisuian Zorua", 1018: "Hisuian Zoroark",
     1019: "Hisuian Growlithe", 1020: "Hisuian Arcanine", 1021: "Hisuian Voltorb", 1022: "Hisuian Electrode",
     1024: "Enamorus (Therian)", 1026: "Dialga (Origin Forme)", 1027: "Palkia (Origin Forme)",
@@ -85,12 +89,13 @@ FORMS = {
     1036: "Urshifu (Rapid Strike)", 1057: "Xerneas (Active Mode)", 1058: "Marshadow (Zenith)",
     1062: "Hisuian Sneasel", 1064: "Hisuian Braviary", 1065: "Unfezant ♀",
     1066: "Solgaleo (Radiant Sun)", 1067: "Lunala (Full Moon)", 1076: "Ash's Pikachu",
-    1077: "Cramorant (Gulping)", 1078: "Cramorant (Gorging)", 1080: "Galarian Yamask",
+    1078: "Cramorant (Gorging)", 1080: "Galarian Yamask",
     1081: "Galarian Mr. Mime", 1082: "Galarian Stunfisk", 1083: "Galarian Weezing", 1084: "Galarian Corsola",
-    1085: "Indeedee ♂", 1086: "Eiscue (Noice Face)", 1096: "Hisuian Avalugg", 1097: "Armored Mewtwo",
+    1085: "Indeedee ♂", 1096: "Hisuian Avalugg", 1097: "Armored Mewtwo",
     1101: "Galarian Zigzagoon", 1102: "Galarian Linoone", 1104: "Galarian Ponyta", 1105: "Galarian Rapidash",
     1107: "Galarian Meowth", 1108: "Galarian Farfetch'd", 1118: "Armored Mewtwo (Revenger)",
-    1175: "Hisuian Lilligant", 1178: "Indeedee ♀", 1179: "Morpeko (Hangry)",
+    1146: "Cramorant (Gulping)", 1175: "Hisuian Lilligant", 1177: "Eiscue (Noice Face)", 1178: "Indeedee ♀",
+    1179: "Morpeko (Hangry)",
     1193: "Zacian (Crowned Sword)", 1194: "Zamazenta (Crowned Shield)", 1195: "Eternamax Eternatus",
     1196: "Galarian Darumaka", 1197: "Galarian Darmanitan", 1198: "Galarian Darmanitan (Zen Mode)",
 }
@@ -98,8 +103,14 @@ for _i, _t in enumerate(TYPES):
     FORMS[874 + _i] = "Arceus (%s)" % _t
     FORMS[1040 + _i] = "Silvally (%s)" % _t
 
+# two forms of the hack's own: Flygon's Mega (the Flygonite row of the evolution table leads to it) and the
+# Typhlosion with the Burning Soul ability, the reward of the side quest of that name
+FORMS[1151] = "Toxtricity (Amped)"       # the yellow one; plain Toxtricity (1150) is the blue Low Key form
+FORMS[1106] = "Mega Flygon"
+FORMS[1091] = "Typhlosion (Burning Soul)"
+
 # forms that could not be told apart from their icon keep the ROM's name with this note
-UNSURE = {1091, 1106}
+UNSURE = set()
 
 
 def display_name(sid, rom_name):

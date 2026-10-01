@@ -66,7 +66,8 @@ FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six R
 ```
 
 The names the site prints for alternate forms (Alolan, Hisuian, Mega, Gigantamax…) and for names the ROM cuts
-short are in `tools/romdata/species_display.py` and `display_names.py`.
+short are in `tools/romdata/species_display.py` and `display_names.py`; how each form comes about (Mega Stones, Max
+Soup, held items, moves, abilities, Bag items) is read by `tools/romdata/forms.py`, which `build_pokedex.py` uses.
 
 ## Scope
 

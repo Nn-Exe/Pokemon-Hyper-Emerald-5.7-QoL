@@ -34,7 +34,10 @@ export type Species = {
   weight?: number;
   entry?: string;
   evo?: Evolution[];
-  forms?: { to: number; how: string }[];
+  /** the forms it can take: Mega Evolution, Gigantamax, a held item, a move, an ability, a Bag item… */
+  forms?: { to: number; how: string; text: string; kind: string }[];
+  /** true for a form that lasts only for the battle */
+  battle?: boolean;
   /** [level, move]; level 0 is learned on evolving */
   levelUp: [number, number][];
   /** indexes into TMS */
@@ -90,7 +93,8 @@ export const pokedexUrl = (sid: number) => {
   return s ? url(pokedexHref(s)) : undefined;
 };
 export const frontSprite = (sid: number, shiny = false) => url(`/sprites/front/${sid}${shiny ? 's' : ''}.png`);
-export const dexNo = (s: Species) => '#' + String(s.dex).padStart(3, '0');
+/** "#006"; the hack's four restored fossil Pokémon have no number of their own. */
+export const dexNo = (s: Species) => (s.dex ? '#' + String(s.dex).padStart(3, '0') : '#???');
 export const bst = (s: Species) => s.stats.reduce((a, b) => a + b, 0);
 
 // ---- moves and abilities ----
@@ -126,7 +130,7 @@ for (const s of species) {
 }
 
 // ---- evolution families ----
-type FormLink = { to: number; how: string };
+type FormLink = { to: number; how: string; text: string };
 const parents = new Map<number, { from: number; how: string; text: string }>();
 for (const s of species)
   for (const e of s.evo || []) {
@@ -134,58 +138,45 @@ for (const s of species)
     if (to && to !== s.sid && !parents.has(to)) parents.set(to, { from: s.sid, how: e.how, text: e.text });
   }
 
-// Mega Evolutions, Primal Reversions and Gigantamax forms hang off their base species. The game links them itself
-// (the Mega rows of its evolution table, and its battle-form table for Gigantamax); a form neither table names,
-// Eternamax Eternatus, is matched by name, then by National Dex number.
+// The forms a species can take hang off it: Mega Evolutions, Gigantamax, forms held items, moves, abilities
+// and Bag items bring about. The game's own tables and battle code name every one (tools/romdata/forms.py).
 const formLinks = new Map<number, FormLink[]>();
-const baseOf = new Map<number, { from: number; how: string }>();
-const link = (from: number, to: number, how: string) => {
-  if (baseOf.has(to) || from === to) return;
-  baseOf.set(to, { from, how });
-  formLinks.set(from, [...(formLinks.get(from) || []), { to, how }]);
-};
+const baseOf = new Map<number, { from: number; how: string; text: string }>();
 for (const s of species)
   for (const f of s.forms || []) {
     const to = bySid.get(f.to)?.sid;
-    if (to) link(s.sid, to, f.how);
+    if (!to || to === s.sid || baseOf.has(to)) continue;
+    baseOf.set(to, { from: s.sid, how: f.how, text: f.text });
+    formLinks.set(s.sid, [...(formLinks.get(s.sid) || []), { to, how: f.how, text: f.text }]);
   }
-for (const s of species) {
-  if ((s.form !== 'Mega' && s.form !== 'Gigantamax') || baseOf.has(s.sid)) continue;
-  const plain = s.name.replace(/^(Gigantamax|Eternamax|Mega|Primal) /, '');
-  const base =
-    species.find((o) => o.name === plain) ||
-    species.find((o) => o.dex === s.dex && o.form === 'Standard') ||
-    species.find((o) => o.dex === s.dex && o.form !== 'Mega' && o.form !== 'Gigantamax');
-  if (base) link(base.sid, s.sid, s.form === 'Gigantamax' ? 'Gigantamax' : 'Mega Evolution');
-}
 export const formsOf = (s: Species) => formLinks.get(s.sid) || [];
-/** The species a Mega or Gigantamax form comes from, and what triggers it. */
+/** The species a form comes from, and what brings the form about. */
 export const baseForm = (s: Species) => {
   const b = baseOf.get(s.sid);
-  return b ? { species: bySid.get(b.from)!, how: b.how } : undefined;
+  return b ? { species: bySid.get(b.from)!, how: b.how, text: b.text } : undefined;
 };
 
-/** The first stage of the line a species belongs to (a Mega or Gigantamax form belongs to its base's line). */
+/** The first stage of the line a species belongs to (a form belongs to its base's line). */
 export function familyRoot(sid: number): number {
-  const self = bySid.get(sid)?.sid ?? sid;
-  let cur = baseOf.get(self)?.from ?? self;
+  let cur = bySid.get(sid)?.sid ?? sid;
   const seen = new Set<number>();
-  while (parents.has(cur) && !seen.has(cur)) {
+  while (!seen.has(cur) && (parents.has(cur) || baseOf.has(cur))) {
     seen.add(cur);
-    cur = parents.get(cur)!.from;
+    cur = (parents.get(cur) ?? baseOf.get(cur))!.from;
   }
   return cur;
 }
 
-/** The steps from the first stage to this species: [{ from, to, how, text }], empty for a first stage. */
+/** The steps from the first stage to this species, evolutions and form changes alike; empty for a first stage. */
 export function lineage(sid: number) {
-  const steps: { from: Species; to: Species; how: string; text: string }[] = [];
+  const steps: { from: Species; to: Species; how: string; text: string; form: boolean }[] = [];
   let cur = bySid.get(sid)?.sid ?? sid;
   const seen = new Set<number>();
-  while (parents.has(cur) && !seen.has(cur)) {
+  while (!seen.has(cur) && (parents.has(cur) || baseOf.has(cur))) {
     seen.add(cur);
-    const p = parents.get(cur)!;
-    steps.unshift({ from: bySid.get(p.from)!, to: bySid.get(cur)!, how: p.how, text: p.text });
+    const form = !parents.has(cur);
+    const p = (parents.get(cur) ?? baseOf.get(cur))!;
+    steps.unshift({ from: bySid.get(p.from)!, to: bySid.get(cur)!, how: p.how, text: p.text, form });
     cur = p.from;
   }
   return steps;
@@ -222,7 +213,7 @@ export function family(sid: number): FamilyNode | undefined {
     }
     for (const f of formsOf(s)) {
       const t = bySid.get(f.to);
-      if (t && !seen.has(t.sid)) children.push(build(t, 'form', f.how));
+      if (t && !seen.has(t.sid)) children.push(build(t, 'form', f.how, f.text));
     }
     return { species: s, how, text, kind, children };
   };
@@ -240,7 +231,7 @@ export function familyMembers(node: FamilyNode | undefined, into = new Set<numbe
 
 /** Other entries that share a National Dex number: regional forms, Megas, alternate forms. */
 export function otherForms(s: Species) {
-  return species.filter((o) => o.dex === s.dex && o.sid !== s.sid);
+  return s.dex ? species.filter((o) => o.dex === s.dex && o.sid !== s.sid) : [];
 }
 
 // ---- where to get one ----
@@ -274,16 +265,19 @@ export function genderText(ratio: number) {
   return `${100 - female}% male, ${female}% female`;
 }
 
-const dexNumbers = new Set(species.map((s) => s.dex)).size;
+const dexNumbers = new Set(species.filter((s) => s.dex).map((s) => s.dex)).size;
 export const dexStats = {
   /** every page in the Pokédex: species and their forms */
   total: species.length,
   /** National Dex numbers: Bulbasaur to Enamorus */
   species: dexNumbers,
-  forms: species.length - dexNumbers,
+  forms: species.filter((s) => s.dex).length - dexNumbers,
+  /** the hack's own Pokémon, which the National Dex has no number for */
+  unnumbered: species.filter((s) => !s.dex).length,
   megas: species.filter((s) => s.form === 'Mega').length,
   gigantamax: species.filter((s) => s.form === 'Gigantamax').length,
   regional: species.filter((s) => s.form === 'Regional').length,
+  battleOnly: species.filter((s) => s.battle).length,
   hidden: species.filter((s) => s.hidden).length,
   moves: moves.length,
   abilities: abilities.length,
