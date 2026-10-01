@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Clip from '../components/Clip.astro';
+import Shot from '../components/Shot.astro';
+import ContextLinks from '../components/ContextLinks.astro';
+import { clips, clipGroups } from '../lib/media';
+import { SCREENSHOTS } from '../data/gallery';
+import { slugify } from '../lib/url';
+import { SITE_NAME } from '../consts';
+
+const crumbs = [{ name: 'Gallery' }];
+const title = 'Hyper Emerald Gallery';
+const description = `${clips.length} gameplay clips and ${SCREENSHOTS.length} screenshots of Hyper Emerald v5.7 with the English + QoL patch: story moments, boss battles, the DexNav, the Quest Log, maps and menus.`;
+const groups = [
+  ...clipGroups.map((g) => ({ key: slugify(g), title: g, count: clips.filter((c) => c.group === g).length })),
+  { key: 'screenshots', title: 'Screenshots', count: SCREENSHOTS.length },
+];
+---
+
+<Base title={`${title} - ${SITE_NAME}`} description={description} crumbs={crumbs} image="/showcase/clips/opening-legends.png">
+  <PageHero eyebrow="See it in game" title={title} lede={description} crumbs={crumbs} />
+
+  <section class="section-tight" style="padding-top:0">
+    <div class="container">
+      <div class="gallery-tabs" role="group" aria-label="Show a category" data-tabs>
+        <button type="button" aria-pressed="true" data-tab="">All</button>
+        {
+          groups.map((g) => (
+            <button type="button" aria-pressed="false" data-tab={g.key}>
+              {g.title}
+            </button>
+          ))
+        }
+      </div>
+
+      {
+        clipGroups.map((g) => (
+          <section class="gallery-group" data-group={slugify(g)}>
+            <h2 id={slugify(g)}>{g}</h2>
+            <div class="gallery-grid">
+              {clips
+                .filter((c) => c.group === g)
+                .map((c) => (
+                  <Clip slug={c.slug} />
+                ))}
+            </div>
+          </section>
+        ))
+      }
+
+      <section class="gallery-group" data-group="screenshots">
+        <h2 id="screenshots">Screenshots</h2>
+        <p class="muted" style="margin:-.4rem 0 1rem">Select a screenshot to enlarge it; the arrow keys step through them.</p>
+        <div class="gallery-grid">
+          {SCREENSHOTS.map((s) => <Shot src={s.src} alt={s.alt} caption={s.caption} />)}
+        </div>
+      </section>
+
+      <ContextLinks
+        title="What you are looking at"
+        links={[
+          { href: '/features/', label: 'Every patch feature' },
+          { href: '/guides/walkthrough-hoenn/', label: 'Start the walkthrough' },
+          { href: '/guides/install/', label: 'Install & play' },
+        ]}
+      />
+    </div>
+  </section>
+</Base>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-tabs] button')];
+  const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
+  tabs.forEach((tab) =>
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
+      groups.forEach((g) => (g.hidden = Boolean(tab.dataset.tab) && g.dataset.group !== tab.dataset.tab));
+    }),
+  );
+</script>

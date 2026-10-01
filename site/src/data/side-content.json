@@ -1,0 +1,260 @@
+[
+ {
+  "title": "Hisuian trades",
+  "blurb": "Six people who slipped through time offer Hisuian forms in trade. None is in the Journal.",
+  "rows": [
+   {
+    "where": "Rustboro City",
+    "what": "Hisuian Zorua (a gift fox turned them into something else)"
+   },
+   {
+    "where": "Mauville City",
+    "what": "Hisuian Voltorb (\"a Poké Ball-like Pokémon\")"
+   },
+   {
+    "where": "Lavaridge Town",
+    "what": "Hisuian Growlithe (\"all I remember is living in Hisui\")"
+   },
+   {
+    "where": "Fortree City",
+    "what": "Hisuian Sneasel (\"this weasel is different\")"
+   },
+   {
+    "where": "Safari Zone",
+    "what": "Hisuian Qwilfish (\"thousand-needle fish\")"
+   },
+   {
+    "where": "Route 119",
+    "what": "White-Striped Basculin (\"feeding the Phantom Fish\")"
+   }
+  ]
+ },
+ {
+  "title": "Gift Pokémon",
+  "blurb": "Handed to you by a script.",
+  "rows": [
+   {
+    "where": "Littleroot Town",
+    "what": "Return the Mega Bracelet: a choice of Giratina Lv80, Kyurem, Xerneas or Yveltal Lv50"
+   },
+   {
+    "where": "Hearthome City",
+    "what": "Meloetta Lv50, after its stage performance"
+   },
+   {
+    "where": "Lilycove City",
+    "what": "A choice of Galar Pokémon Lv15 (Corsola, Eiscue, Glastrier, Indeedee, Morpeko, Mr. Mime, …)"
+   },
+   {
+    "where": "Lilycove City",
+    "what": "Meltan Lv5"
+   },
+   {
+    "where": "Battle Frontier",
+    "what": "Kubfu or Rockruff Lv5"
+   },
+   {
+    "where": "Ultra Space",
+    "what": "Poipole Lv5"
+   },
+   {
+    "where": "Timeless Woods",
+    "what": "Wimpod Lv10"
+   },
+   {
+    "where": "Hearthome City / Bell Tower",
+    "what": "Let's Go Eevee or Pikachu Lv5"
+   },
+   {
+    "where": "Lavaridge Town",
+    "what": "Pikachu Belle Lv5"
+   },
+   {
+    "where": "Rustboro City",
+    "what": "A fossil of your choice revived at Lv20"
+   },
+   {
+    "where": "Valley Windworks",
+    "what": "Drifloon Lv15"
+   },
+   {
+    "where": "Route 210",
+    "what": "Magikarp Lv1"
+   },
+   {
+    "where": "Mossdeep City",
+    "what": "Beldum Lv5 (Steven's house)"
+   }
+  ]
+ },
+ {
+  "title": "Legendary and mythical battles outside the Journal",
+  "blurb": "Scripted one-off encounters.",
+  "rows": [
+   {
+    "where": "Abandoned Ship",
+    "what": "Dark Lugia Lv70"
+   },
+   {
+    "where": "Artisan Cave",
+    "what": "Jirachi Lv30"
+   },
+   {
+    "where": "Ultra Space",
+    "what": "Eternatus Lv50"
+   },
+   {
+    "where": "Desert Ruins / Island Cave / Ancient Tomb",
+    "what": "Regirock, Regice, Registeel Lv40"
+   },
+   {
+    "where": "Regigigas Temple",
+    "what": "Regigigas Lv60"
+   },
+   {
+    "where": "Terra Cave / Marine Cave",
+    "what": "Groudon, Kyogre Lv70"
+   },
+   {
+    "where": "Navel Rock / Route 128",
+    "what": "Articuno, Zapdos, Moltres (Lv40, and Lv50 versions)"
+   },
+   {
+    "where": "Ancient Retreat",
+    "what": "The God of Forms Lv70 (two more encounters)"
+   },
+   {
+    "where": "Celestic Town",
+    "what": "Dialga or Palkia Lv80 (a second encounter besides the Journal's)"
+   },
+   {
+    "where": "Mountain Top",
+    "what": "Arceus Lv80 (the fight before the catch)"
+   },
+   {
+    "where": "Faraway Island / Southern Island",
+    "what": "Mew; the Eon dream (\"All dreams are but another reality\")"
+   },
+   {
+    "where": "Old Chateau",
+    "what": "Gengar Lv66 in the cursed statue, Rotom Lv15 in the TV"
+   }
+  ]
+ },
+ {
+  "title": "Other regions' starters",
+  "blurb": "Hidden one-off battles: Lv5 first stages and Lv50 final stages.",
+  "rows": [
+   {
+    "where": "Lv5",
+    "what": "Snivy (Petalburg Woods), Oshawott (Abandoned Ship), Litten (Meteor Falls), Grookey (Mt. Silver), Scorbunny (Lake of Despair), Chespin (Remote Island), Chikorita (Timeless Woods), Cyndaquil (Bell Tower), Totodile (Whirl Islands)"
+   },
+   {
+    "where": "Lv50",
+    "what": "Greninja, Inteleon (Artisan Cave), Delphox (Couriway Town), Emboar (Cerulean Cave), Decidueye, Venusaur (Giant Chasm), Primarina, Torterra, Blastoise (Remote Island), Charizard (Mt. Silver), Infernape (Whirl Islands), Empoleon (Underwater)"
+   }
+  ]
+ },
+ {
+  "title": "Strong one-off Pokémon",
+  "blurb": "Scripted battles, mostly post-game.",
+  "rows": [
+   {
+    "where": "Sinnoh Victory Road",
+    "what": "Hydreigon, Salamence, Dragonite, Metagross Lv80"
+   },
+   {
+    "where": "Sinnoh routes",
+    "what": "Gyarados (203), Milotic (204), Haxorus (210), Aggron (211), Tyranitar (Oreburgh Gate), Lucario (Iron Island), Gallade and Gardevoir (Mt. Coronet) Lv80"
+   },
+   {
+    "where": "Sinnoh",
+    "what": "Leafeon (Eterna Forest), Glaceon (Route 217), Rotom (Eterna City) Lv50"
+   },
+   {
+    "where": "Unova / Kalos areas",
+    "what": "Garchomp (Desert Ruins), Volcarona Lv70, Zoroark (Magic Woods), Flygon, Aerodactyl Lv50"
+   },
+   {
+    "where": "Secret Bases",
+    "what": "Alolan Totem Pokémon Lv80, one per base (part of the Z-Crystal hunt the Journal names)"
+   }
+  ]
+ },
+ {
+  "title": "Hidden powers",
+  "blurb": "Two secret trials that give your Pokémon a power, and what follows them.",
+  "rows": [
+   {
+    "where": "Route 112 (foot of Mt. Chimney, west side)",
+    "what": "A hidden cave into a sealed part of the Magma Hideout. Take TM53, then face the flame creature and do NOT choose to leave: the Crimson Apostle (a Flareon serving the Crimson Nova) runs three rounds of hologram battles (trainers 1155-1157) and awakens the Burning Soul. One try only: on the way out the cave collapses (0x42E2) whether you finished or fled; 0x4301 is set only if you finished. Lore: a Typhlosion trainer passed the same trial on Stark Mountain; Flint (Test of Heart) remembers a Johto girl's very fast Typhlosion."
+   },
+   {
+    "where": "Champion Island",
+    "what": "Beat Koga (trainer 1160): he gives his mark and points to a hidden village through the forest of Route 102."
+   },
+   {
+    "where": "Koga's Village (hidden, via Route 102)",
+    "what": "Elder Koga's succession trial: only one Greninja, some items banned, two stages (trainers 1159, 1158). Your Greninja gains its hero form, like Ash's."
+   },
+   {
+    "where": "Route 101",
+    "what": "Ash from Pallet Town comes for a 2-vs-2 battle with you and your rival; a red-haired passerby (-Echo-) joins and drops a cartridge and a note."
+   },
+   {
+    "where": "Steven's Island",
+    "what": "The northeast corner of Steven's residence: -Echo- / -Hibiki- (trainer 1016). A book there by Gengyi Xiang adds entries as you earn each power."
+   }
+  ]
+ },
+ {
+  "title": "Side stories",
+  "blurb": "Short scripted scenes and quests the Journal does not name.",
+  "rows": [
+   {
+    "where": "Route 102",
+    "what": "Red and Blue corner Buzzwole at an Ultra Wormhole"
+   },
+   {
+    "where": "Terra Cave / Marine Cave",
+    "what": "A familiar voice losing to someone who controls the weather"
+   },
+   {
+    "where": "Shoal Cave",
+    "what": "Tate and Liza against the Shadow Triad: take the last one"
+   },
+   {
+    "where": "New Mauville",
+    "what": "Someone behind the generator trouble"
+   },
+   {
+    "where": "Petalburg Woods",
+    "what": "A mysterious mentor who teaches you about battles (\"you were chosen by it\")"
+   },
+   {
+    "where": "Couriway Town",
+    "what": "The hotel: a talisman, a suite for ¥10,000, the furnace"
+   },
+   {
+    "where": "Mauville City",
+    "what": "Save the lady's Skitty; the bike exam with Renli (Eterna City)"
+   },
+   {
+    "where": "Old Chateau",
+    "what": "The murder on the TV and the grudge in the statue (open-ended)"
+   },
+   {
+    "where": "Meteor Temple / Meteor Falls",
+    "what": "Zinnia's grandmother on the Draconids; a former Dragon Tamer"
+   },
+   {
+    "where": "Sinnoh League",
+    "what": "Lucas and Barry greet you; Barry waits in Twinleaf Town for a battle"
+   },
+   {
+    "where": "Route 110 / Desert Underpass",
+    "what": "A timed cycling run; a vibration in the depths"
+   }
+  ]
+ }
+]

@@ -1,0 +1,380 @@
+[
+ {
+  "slug": "opening-legends",
+  "caption": "Opening: the legends on the mountain",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "opening-heroes",
+  "caption": "Opening: the heroes arrive",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "sky-pillar-rayquaza",
+  "caption": "Sky Pillar: Rayquaza descends",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "giovanni-mewtwo",
+  "caption": "Giovanni with Mewtwo",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "volo-hoopa-eternatus",
+  "caption": "Volo: Hoopa and Eternatus",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "n-reshiram-zekrom",
+  "caption": "N: Reshiram and Zekrom",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "red-mt-silver",
+  "caption": "Red on Mt. Silver",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "giratina-distortion-world",
+  "caption": "Giratina, Distortion World",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "arceus",
+  "caption": "Arceus",
+  "group": "Story & bosses",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "sinnoh-map-fly",
+  "caption": "Sinnoh Map: free cursor, fly",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "hisui-map",
+  "caption": "Hisui on the Sinnoh Map",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "hoenn-fly-spots",
+  "caption": "Hoenn: a red square for every Fly spot",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "fast-surf",
+  "caption": "Hold B: surf twice as fast",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "auto-run",
+  "caption": "Auto Run (Option menu)",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "hm-cut",
+  "caption": "Cut without a Pokémon that knows it",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "hm-surf",
+  "caption": "Surf without a Pokémon that knows it",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "both-bikes",
+  "caption": "Both bikes at once",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "l-quick-repel",
+  "caption": "L: quick repel",
+  "group": "Maps & travel",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "key-ring",
+  "caption": "SELECT: key items as a ring",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "pc-anywhere",
+  "caption": "PC anywhere: A in the ring",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "no-pc-dungeons",
+  "caption": "No PC in six late dungeons",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "bag-sort",
+  "caption": "Bag sort (START)",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "bag-999",
+  "caption": "999 per item",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "bag-200-slots",
+  "caption": "200 item slots",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "instant-text",
+  "caption": "Instant text speed",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "move-relearner",
+  "caption": "Move relearner in the party",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "nature-changer",
+  "caption": "Nature changer, no quiz",
+  "group": "Bag & menus",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "type-badges",
+  "caption": "Type badges on the foe",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "move-effectiveness",
+  "caption": "Move effectiveness",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "shiny-gold-box",
+  "caption": "Gold box on shinies",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "quick-ball",
+  "caption": "Quick ball throw (R)",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "stat-colours",
+  "caption": "Coloured stat changes",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "instant-text-battle",
+  "caption": "Instant text in battle",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "english-trainer-names",
+  "caption": "English trainer names",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "pokedex-english",
+  "caption": "Every Pokédex entry in English",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "cynthia-champion",
+  "caption": "Cynthia, Champion",
+  "group": "Battle",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-screen",
+  "caption": "DexNav, Unbound style",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-unseen",
+  "caption": "Unseen Pokémon are shadows",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-search",
+  "caption": "A: SEARCH, back to the field",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-hunting",
+  "caption": "Hunting: the bar and STOP",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-patch",
+  "caption": "A shaking patch to step on",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-rock-fishing",
+  "caption": "Rock Smash and Fishing",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-real-table",
+  "caption": "Every map's real table",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-gold-stars",
+  "caption": "Gold stars: all six IVs perfect",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dexnav-chain",
+  "caption": "Chain and Search Level",
+  "group": "DexNav",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "evolutions-family",
+  "caption": "Evolutions: every family",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "evolutions-shadows",
+  "caption": "Evolutions: shadows until seen",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-story",
+  "caption": "Quest Log: the story, step by step",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-legends",
+  "caption": "Every legendary tracked",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-key-items",
+  "caption": "Key Items: where to find them",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-side-content",
+  "caption": "Side content checklist",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "sinnoh-badge-case",
+  "caption": "Sinnoh badge case",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-next-objective",
+  "caption": "Next objective, with its location",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-step-detail",
+  "caption": "Every step explained",
+  "group": "Quest Log & Journal",
+  "width": 480,
+  "height": 320
+ }
+]

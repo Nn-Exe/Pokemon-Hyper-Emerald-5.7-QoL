@@ -1,0 +1,168 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import WikiNav from '../../../components/WikiNav.astro';
+import Team from '../../../components/Team.astro';
+import { url } from '../../../lib/url';
+import { trainerGroups, bossCount, spritePos, trainerTitle, levelRange } from '../../../lib/data';
+import { SITE_NAME } from '../../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Trainer Battles' }];
+const description =
+  'Teams, levels, held items and moves of every Gym Leader, Elite Four member, Champion, rival and boss trainer in Hyper Emerald v5.7, read straight from the ROM.';
+const avg = (levels: number[]) => Math.round(levels.reduce((a, b) => a + b, 0) / levels.length);
+---
+
+<Base title={`Trainer Battles - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Trainer Battles" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <aside class="callout plain">
+      <strong class="callout-title">About levels</strong>
+      <p>
+        The hack scales some boss fights with its difficulty setting and trainer-level system; the numbers here are
+        what the ROM’s trainer table stores for the normal encounter. Where a trainer has several entries (rematches,
+        hard mode), every version is listed. Route trainers are in
+        <a href={url('/wiki/trainers/all/')}>Every Trainer</a>.
+      </p>
+    </aside>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search trainer battles</span>
+        <input type="search" placeholder="Trainer, location or Pokémon" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Group</span>
+        <select data-group>
+          <option value="">All groups</option>
+          {trainerGroups.map((g) => <option value={g.key}>{g.title}</option>)}
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{bossCount} battles</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No trainer battles match those filters.</p>
+
+    {
+      trainerGroups.map((g) => (
+        <section data-group-block={g.key}>
+          <div class="region-heading">
+            <h2 id={g.key}>{g.title}</h2>
+            <span>{g.trainers.length} battles</span>
+          </div>
+          {g.intro && <p class="muted" style="margin-bottom:.9rem">{g.intro}</p>}
+          {g.trainers.map((t) => {
+            const title = trainerTitle(t);
+            return (
+              <details
+                class="record"
+                id={`t-${t.id}`}
+                data-trainer
+                data-group={g.key}
+                data-search={`${title} ${t.where} ${t.party.map((p) => p.species).join(' ')}`.toLowerCase()}
+              >
+                <summary>
+                  <span class="team-portrait">
+                    <span class="spr spr-trainer" style={spritePos('trainer', t.pic)} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span class="record-title">{title}</span>
+                    {t.where && <span class="team-where">{t.where}</span>}
+                  </span>
+                  <span class="record-icons" aria-hidden="true">
+                    {t.party.map((p) => (
+                      <span class="spr spr-mon" style={spritePos('mon', p.sid)} />
+                    ))}
+                  </span>
+                  <span class="record-meta">
+                    {t.lv && <span class="chip">Lv {levelRange(t.lv[0], t.lv[1])}</span>}
+                    {t.double && <span class="chip">Double</span>}
+                    {t.party.length > 0 && (
+                      <span class="chip is-quiet">Avg. Lv {avg(t.party.map((p) => p.level))}</span>
+                    )}
+                  </span>
+                  <span class="record-chevron" aria-hidden="true">›</span>
+                </summary>
+                <Team trainer={t} headless />
+              </details>
+            );
+          })}
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .record :global(.team) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .record-icons {
+    flex-wrap: wrap;
+  }
+  @media (max-width: 767px) {
+    .record-icons {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const group = form.querySelector<HTMLSelectElement>('[data-group]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const blocks = [...document.querySelectorAll<HTMLElement>('[data-group-block]')];
+  const records = [...document.querySelectorAll<HTMLDetailsElement>('[data-trainer]')];
+
+  function apply() {
+    const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const el of records) {
+      const ok =
+        (!group.value || el.dataset.group === group.value) && terms.every((t) => el.dataset.search!.includes(t));
+      el.hidden = !ok;
+      if (ok) shown++;
+    }
+    for (const b of blocks) b.hidden = !b.querySelector('[data-trainer]:not([hidden])');
+    empty.hidden = shown > 0;
+    count.textContent = `${shown} ${shown === 1 ? 'battle' : 'battles'}`;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 90);
+  });
+  group.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    group.value = '';
+    apply();
+  });
+
+  function openFromHash() {
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (el instanceof HTMLDetailsElement) {
+      el.hidden = false;
+      el.open = true;
+      el.scrollIntoView({ block: 'start' });
+    }
+  }
+  window.addEventListener('hashchange', openFromHash);
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+  openFromHash();
+</script>

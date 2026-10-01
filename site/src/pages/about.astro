@@ -1,0 +1,170 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { url } from '../lib/url';
+import { SITE_NAME, REPO, ISSUES, UPDATED } from '../consts';
+
+const crumbs = [{ name: 'About & Credits' }];
+const title = 'About This Guide';
+const description =
+  'Who made Pokémon Hyper Emerald: Lost Artifacts, who made the English + QoL patch, and where the information in this guide comes from.';
+
+const SOURCES = [
+  ['https://www.pokecommunity.com/threads/hyper-emerald-lost-artifacts.531499/', 'PokéCommunity discussion thread', ''],
+  ['https://www.scribd.com/document/939116945/Pokemon-Hyper-Emerald-v5-6-Lost-Artifacts-Guide', '“Leon’s” v5.6 location guide (Scribd)', 'route encounters and static encounters for the older version'],
+  ['https://www.scribd.com/document/461872589/33422-docx', 'Mega Stone locations (Scribd)', ''],
+  ['https://www.youtube.com/watch?v=9p9cO5ZtH50', 'All Legendary Gen 1–8 locations, v5.6 (YouTube)', ''],
+  ['https://www.youtube.com/watch?v=IarP0RP5OFU', 'All Mega Stone locations, v5.6 (YouTube)', ''],
+  ['https://www.youtube.com/watch?v=J9iKR3n9fxk', 'All Z-Crystal locations, v5.6 (YouTube)', ''],
+  ['https://www.youtube.com/playlist?list=PL1ZWk9MwNoN08id0BSDite3fC_4voOJzP', 'Post-game walkthrough playlist, English translation (YouTube)', ''],
+  ['https://pt.scribd.com/document/753823416/Guia-Hyper-Emerald-5-5-Lost-Artifacts-Copia-7', 'Guia da Hyper Emerald 5.5 (Portuguese, Scribd)', 'difficulty modes, starters, tutors'],
+  ['https://www.pokeharbor.com/2024/03/pokemon-hyper-emerald-v5-5-lost-artifacts/', 'pokeharbor page and comment thread', 'bug workarounds, Rocket passwords, the trade-evolution NPC'],
+  ['https://www.9game.cn/kdygjjlbs/8432931.html', '9game v5.5 text walkthrough (Chinese)', ''],
+  ['https://www.bilibili.com/video/BV1Aa4y1k7RK/', '49-part Bilibili video guide (Chinese)', ''],
+  ['https://www.wlgooo.com/14904.html', 'v5.5 release notes and known-bug list (Chinese mirror)', ''],
+];
+---
+
+<Base title={`${title} - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="AboutPage">
+  <PageHero eyebrow="The project" title={title} lede={description} crumbs={crumbs} updated={UPDATED} />
+
+  <section class="section-tight" style="padding-top:0">
+    <div class="container content-grid">
+      <article class="prose">
+        <h2 id="the-hack">The hack</h2>
+        <p>
+          <strong>Pokémon Hyper Emerald: Lost Artifacts</strong> (口袋妖怪 究极绿宝石) is the work of its Chinese authors:
+          Destvol, Satochu, Popy, Potato, Hurricane, Feiyixiang and their team. It is built on Pokémon Emerald and was
+          originally released through Baidu. On top of the Hoenn story it adds the whole Sinnoh region as post-game,
+          Mega Evolution, Z-Moves and Dynamax, every species through Sword and Shield, over a hundred side quests and
+          a hard mode. The 32 MB ROM is twice the size of the original game.
+        </p>
+        <aside class="callout">
+          <strong class="callout-title">Previous translation team</strong>
+          <p>
+            All the credits for the previous translation and for fixing the earlier bugs go to
+            <strong>Luciano Fire, Helper, and Gustavo Neves</strong>. Their community English translation (up to Champion
+            Island) is the foundation this build stands on; the patch only continues their work.
+          </p>
+        </aside>
+
+        <h2 id="the-patch">The English + QoL patch</h2>
+        <p>
+          Binary patches on the “bugfix 2” build of v5.7, with no source access: the remaining text translated, and
+          the quality-of-life features on the <a href={url('/features/')}>Features</a> page. Each feature is Thumb
+          assembly placed in verified free space, with an automated mGBA test that drives the game and checks the
+          result.
+        </p>
+        <ul>
+          <li>
+            <strong>HMs without the Pokémon</strong> and the <strong>Nature display fix</strong> were contributed by
+            <a href="https://github.com/anibalribeiro" target="_blank" rel="noopener noreferrer">@anibalribeiro</a>.
+          </li>
+          <li>
+            The in-battle type badge art is from the ROM hack <strong>SoulGold</strong>; credit to its authors.
+          </li>
+          <li>Tools: mGBA (with Lua scripting for the tests), Capstone, Keystone, Python and Pillow.</li>
+          <li>
+            Scripts, tools, docs and translation data are MIT-licensed. The game and the hack are not covered and are
+            not distributed.
+          </li>
+        </ul>
+
+        <h2 id="sources">Where the guide’s data comes from</h2>
+        <ul>
+          <li>
+            <strong>Wild encounters, trainer teams, map names, item and species lists</strong>: read directly from the
+            patched ROM with the scripts in the repository. These are the same bytes the game uses, so they are exact
+            for v5.7 bugfix 2. The Pokémon, trainer and item sprites are the game’s own, cut from the same tables.
+          </li>
+          <li>
+            <strong>Story, quest steps and NPC hints</strong>: reconstructed from the game’s dialogue and scripts and
+            checked against community playthroughs where possible. The Journal objectives are the table the in-game
+            Journal is built from.
+          </li>
+          <li>
+            <strong>Legendary and Mega Stone locations</strong>: community guides for v5.5–v5.6 (listed below),
+            cross-checked with the dialogue and the ROM’s script data. Anything that could not be confirmed for v5.7
+            is marked <span class="tag warn">community</span> on its page.
+          </li>
+        </ul>
+
+        <h2 id="further-reading">Further reading</h2>
+        <ul>
+          {
+            SOURCES.map(([href, label, note]) => (
+              <li>
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                  {label}
+                </a>
+                {note && `: ${note}`}
+              </li>
+            ))
+          }
+        </ul>
+
+        <h2 id="reporting-mistakes">Reporting mistakes</h2>
+        <p>
+          If a level, location or step here is wrong, open an issue on the
+          <a href={ISSUES} target="_blank" rel="noopener noreferrer">repository</a> with a screenshot. The guide’s
+          source is in the repository’s <code>site/</code> folder, so pull requests are welcome too.
+        </p>
+
+        <h2 id="disclaimer">Disclaimer</h2>
+        <p>
+          This is an unofficial fan guide. It is not affiliated with Nintendo, Game Freak, The Pokémon Company or the
+          authors of Hyper Emerald. Pokémon and related names are trademarks of their respective owners. No ROMs are
+          hosted or linked here: you patch your own copy.
+        </p>
+      </article>
+
+      <aside class="stack">
+        <section aria-labelledby="project-resources">
+          <h2 id="project-resources" class="resource-group-title">Project resources</h2>
+          <div class="resource-card-stack">
+            <a class="resource-card" href={REPO} target="_blank" rel="noopener noreferrer">
+              <span class="resource-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              </span>
+              <span class="resource-card-copy">
+                <strong>GitHub repository</strong>
+                <span>The patch, the patchers’ source and the engineering notes.</span>
+                <span class="resource-card-action">Open GitHub <span aria-hidden="true">↗</span></span>
+              </span>
+            </a>
+            <a class="resource-card" href={url('/wiki/')}>
+              <span class="resource-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Zm0 16a2 2 0 0 0 2 2h13M9 8h6"></path></svg>
+              </span>
+              <span class="resource-card-copy">
+                <strong>Hyper Emerald Wiki</strong>
+                <span>Wild encounters, the Pokémon finder, boss teams and scripted battles.</span>
+                <span class="resource-card-action">Explore the Wiki <span aria-hidden="true">→</span></span>
+              </span>
+            </a>
+            <a class="resource-card" href={url('/guides/')}>
+              <span class="resource-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14"></path></svg>
+              </span>
+              <span class="resource-card-copy">
+                <strong>Hyper Emerald Guides</strong>
+                <span>The walkthrough, legendary locations, Mega Stones, side content and the Journal.</span>
+                <span class="resource-card-action">Browse Guides <span aria-hidden="true">→</span></span>
+              </span>
+            </a>
+            <a class="resource-card" href={ISSUES} target="_blank" rel="noopener noreferrer">
+              <span class="resource-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4m0 4h.01"></path></svg>
+              </span>
+              <span class="resource-card-copy">
+                <strong>Report a problem</strong>
+                <span>A bug in the patch or a mistake in the guide.</span>
+                <span class="resource-card-action">Open an issue <span aria-hidden="true">↗</span></span>
+              </span>
+            </a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </section>
+</Base>

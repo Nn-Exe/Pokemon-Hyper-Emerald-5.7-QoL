@@ -1,0 +1,29 @@
+---
+import { url } from '../lib/url';
+
+interface Props {
+  crumbs: { name: string; href?: string }[];
+}
+const { crumbs } = Astro.props;
+---
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href={url('/')}>Home</a></li>
+    {
+      crumbs.map((c, i) =>
+        i === crumbs.length - 1 || !c.href ? (
+          <li aria-current={i === crumbs.length - 1 ? 'page' : undefined}>
+            <span aria-hidden="true">/</span>
+            <span>{c.name}</span>
+          </li>
+        ) : (
+          <li>
+            <span aria-hidden="true">/</span>
+            <a href={url(c.href)}>{c.name}</a>
+          </li>
+        ),
+      )
+    }
+  </ol>
+</nav>

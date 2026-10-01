@@ -1,0 +1,40 @@
+---
+// A guide in a hub grid: thumbnail, category, title, blurb.
+import { url, showcase } from '../lib/url';
+import { imageSize } from '../lib/media';
+
+interface Props {
+  href: string;
+  category: string;
+  title: string;
+  blurb: string;
+  /** file in docs/showcase */
+  image: string;
+  imageAlt: string;
+  feature?: boolean;
+  stacked?: boolean;
+  eager?: boolean;
+}
+const { href, category, title, blurb, image, imageAlt, feature = false, stacked = false, eager = false } = Astro.props;
+const { width, height } = imageSize(image);
+const kind = feature ? 'guide-feature' : 'guide-card';
+---
+
+<a class:list={[kind, { 'is-stacked': stacked }]} href={url(href)}>
+  <div class={`${kind}-media`}>
+    <img
+      src={showcase(image)}
+      width={width}
+      height={height}
+      alt={imageAlt}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  </div>
+  <div class={`${kind}-copy`}>
+    <p class="eyebrow">{category}</p>
+    <h3>{title}</h3>
+    <p>{blurb}</p>
+    <span class="read-guide">Read guide <span aria-hidden="true">→</span></span>
+  </div>
+</a>

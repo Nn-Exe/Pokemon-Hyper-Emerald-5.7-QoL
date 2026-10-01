@@ -1,0 +1,137 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import ContextLinks from '../../components/ContextLinks.astro';
+import { staticEncounters, spritePos, REGIONS, type Region } from '../../lib/data';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Scripted Encounters' }];
+const description =
+  'Every fixed wild battle found by scanning the map scripts of Hyper Emerald v5.7: legendaries, Totem Pokémon, hidden starters and the strong Pokémon that guard some areas.';
+// level-5-and-under rows are the hidden starters and gift-like battles; keep them, they are what players look for
+const rows = staticEncounters;
+---
+
+<Base title={`Scripted Encounters - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Scripted Encounters" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <aside class="callout plain">
+      <strong class="callout-title">What this list is</strong>
+      <p>
+        One row per battle a script starts, with the level and held item the script sets. It says where the battle
+        is, not how to trigger it: for that, see the guides below. Battles started by the game’s native code rather
+        than a map script are not listed.
+      </p>
+    </aside>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search encounters</span>
+        <input type="search" placeholder="Pokémon or place" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Region</span>
+        <select data-region>
+          <option value="">All regions</option>
+          {(Object.keys(REGIONS) as Region[]).map((r) => <option value={r}>{REGIONS[r]}</option>)}
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{rows.length} encounters</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No scripted encounters match those filters.</p>
+
+    <div class="table-shell" tabindex="0" role="region" aria-label="Scripted encounters">
+      <table class="encounter-table stack-table" data-table>
+        <thead>
+          <tr>
+            <th scope="col">Pokémon</th>
+            <th scope="col" class="numeric">Level</th>
+            <th scope="col">Held item</th>
+            <th scope="col">Map</th>
+            <th scope="col">Region</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((s) => (
+              <tr data-region={s.region} data-search={`${s.species} ${s.map}`.toLowerCase()}>
+                <th scope="row">
+                  <span class="mon">
+                    <span class="spr spr-mon" style={spritePos('mon', s.sid)} aria-hidden="true" />
+                    <span>{s.species}</span>
+                  </span>
+                </th>
+                <td data-label="Level" class="numeric">{s.level}</td>
+                <td data-label="Held item">
+                  {s.item ? (
+                    <span class="item-ref">
+                      <span class="spr spr-item" style={spritePos('item', s.itemId!)} aria-hidden="true" />
+                      <span>{s.item}</span>
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </td>
+                <td data-label="Map">{s.map}</td>
+                <td data-label="Region">
+                  <span class="chip is-quiet">{REGIONS[s.region]}</span>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <ContextLinks
+      title="How to reach them"
+      links={[
+        { href: '/guides/legendaries/', label: 'Legendary Locations' },
+        { href: '/guides/side-content/', label: 'Side Content & Gift Pokémon' },
+        { href: '/guides/mega-stones-key-items/#z-crystals', label: 'Totem Pokémon & Z-Crystals' },
+      ]}
+    />
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const region = form.querySelector<HTMLSelectElement>('[data-region]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-table] tbody tr')];
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const row of rows) {
+      const ok = (!region.value || row.dataset.region === region.value) && (!term || row.dataset.search!.includes(term));
+      row.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    count.textContent = `${shown} ${shown === 1 ? 'encounter' : 'encounters'}`;
+  }
+
+  q.addEventListener('input', apply);
+  region.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    region.value = '';
+    apply();
+  });
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+</script>

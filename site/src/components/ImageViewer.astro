@@ -1,0 +1,67 @@
+---
+// One shared <dialog> for every screenshot on the page; arrows walk through them in page order.
+---
+
+<dialog class="image-viewer" data-image-viewer aria-labelledby="image-viewer-title">
+  <div class="image-viewer-bar">
+    <strong id="image-viewer-title" data-image-viewer-title>Image preview</strong>
+    <button class="image-viewer-close" type="button" data-image-viewer-close aria-label="Close image viewer">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="image-viewer-media"><img data-image-viewer-image alt="" width="480" height="320" /></div>
+  <div class="image-viewer-nav" data-image-viewer-nav hidden>
+    <button class="btn btn-secondary" type="button" data-image-viewer-prev aria-label="View previous image">← Previous</button>
+    <span class="image-viewer-count" data-image-viewer-count aria-live="polite"></span>
+    <button class="btn btn-secondary" type="button" data-image-viewer-next aria-label="View next image">Next →</button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-image-viewer]');
+  const triggers = [...document.querySelectorAll<HTMLButtonElement>('[data-lightbox]')];
+  if (dialog && triggers.length) {
+    const image = dialog.querySelector<HTMLImageElement>('[data-image-viewer-image]')!;
+    const title = dialog.querySelector<HTMLElement>('[data-image-viewer-title]')!;
+    const nav = dialog.querySelector<HTMLElement>('[data-image-viewer-nav]')!;
+    const count = dialog.querySelector<HTMLElement>('[data-image-viewer-count]')!;
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + triggers.length) % triggers.length;
+      const t = triggers[index];
+      const thumb = t.querySelector('img');
+      image.src = t.dataset.src!;
+      image.alt = t.dataset.alt || '';
+      // screenshots are 240x160 or 480x320: scale them up in half steps so the pixels stay even
+      const w = Number(thumb?.getAttribute('width')) || 480;
+      const h = Number(thumb?.getAttribute('height')) || 320;
+      const room = Math.min(1040, window.innerWidth * 0.9);
+      const fit = Math.min(room / w, (window.innerHeight * 0.94 - 210) / h);
+      const scale = fit >= 1 ? Math.floor(fit * 2) / 2 : fit;
+      image.width = w * scale;
+      image.height = h * scale;
+      title.textContent = t.dataset.title || 'Image preview';
+      nav.hidden = triggers.length < 2;
+      count.textContent = `${index + 1} / ${triggers.length}`;
+    };
+
+    triggers.forEach((t, i) =>
+      t.addEventListener('click', () => {
+        show(i);
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector('[data-image-viewer-close]')!.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-image-viewer-prev]')!.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('[data-image-viewer-next]')!.addEventListener('click', () => show(index + 1));
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'ArrowRight') show(index + 1);
+    });
+    dialog.addEventListener('close', () => triggers[index]?.focus());
+  }
+</script>

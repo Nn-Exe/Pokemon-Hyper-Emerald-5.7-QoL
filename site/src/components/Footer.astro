@@ -1,0 +1,49 @@
+---
+import { FOOTER, TAGLINE, GAME_VERSION, PATCH_VERSION } from '../consts';
+import { url } from '../lib/url';
+---
+
+<footer class="site-footer">
+  <div class="footer-shell">
+    <div class="footer-intro">
+      <a class="brand" href={url('/')}>
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M3 12h5.5m7 0H21"></path>
+            <circle cx="12" cy="12" r="3.2" fill="#fff" stroke="none"></circle>
+          </svg>
+        </span>
+        <span class="brand-text">Hyper <strong>Emerald</strong><small>Guide</small></span>
+      </a>
+      <p>{TAGLINE}</p>
+      <p class="micro">Game {GAME_VERSION} · English + QoL patch {PATCH_VERSION}</p>
+    </div>
+    {
+      FOOTER.map((group) => (
+        <div class="footer-group">
+          <h2>{group.title}</h2>
+          <ul>
+            {group.links.map((l) => (
+              <li>
+                {'external' in l && l.external ? (
+                  <a href={l.href} target="_blank" rel="noopener noreferrer">
+                    {l.label} <span aria-hidden="true">↗</span>
+                  </a>
+                ) : (
+                  <a href={url(l.href)}>{l.label}</a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+  <div class="footer-bottom">
+    <p>
+      Unofficial fan guide. Not affiliated with Nintendo, Game Freak, The Pokémon Company or the authors of Hyper
+      Emerald. Pokémon and related trademarks belong to their respective owners. No ROMs are hosted or linked here.
+    </p>
+  </div>
+</footer>

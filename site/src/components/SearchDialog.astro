@@ -1,0 +1,188 @@
+---
+// Site-wide search over pages, guide sections, Pokémon, locations, trainers and Journal objectives.
+// The index (src/pages/search.json.ts) is fetched the first time the dialog opens.
+---
+
+<dialog class="search-dialog" data-search-dialog aria-label="Search the guide">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
+    <input
+      type="search"
+      placeholder="Pokémon, places, trainers, guides…"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Search the guide"
+      aria-controls="search-results"
+      data-search-input
+    />
+    <button type="button" data-search-close>Esc</button>
+  </div>
+  <div id="search-results" class="search-results" role="listbox" data-search-results>
+    <p class="search-empty">Type a Pokémon, a route, a Gym Leader or a question.</p>
+  </div>
+  <div class="search-foot"><span>↑↓ to move</span><span>Enter to open</span></div>
+</dialog>
+
+<script>
+  type Entry = { t: string; n: string; s: string; u: string; i?: number; k?: string };
+  type Indexed = Entry & { hay: string; name: string };
+  const dialog = document.querySelector<HTMLDialogElement>('[data-search-dialog]')!;
+  const input = dialog.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const results = dialog.querySelector<HTMLElement>('[data-search-results]')!;
+  const base = document.body.dataset.base || '/';
+  const HINT = 'Type a Pokémon, a route, a Gym Leader or a question.';
+  let index: Indexed[] | null = null;
+  let active = -1;
+
+  // things with a page of their own come before the prose that mentions them
+  const RANK: Record<string, number> = {
+    Pokémon: 0,
+    Legendary: 0,
+    Trainer: 0,
+    Location: 0,
+    Page: 1,
+    Encounter: 2,
+    Guide: 3,
+    Feature: 4,
+    FAQ: 4,
+    Journal: 5,
+  };
+  const fold = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '');
+
+  async function load() {
+    if (index) return;
+    try {
+      const data: Entry[] = await (await fetch(base + 'search.json')).json();
+      index = data.map((e) => ({ ...e, name: fold(e.n), hay: fold(`${e.n} ${e.s} ${e.k || ''}`) }));
+    } catch {
+      index = [];
+    }
+  }
+
+  function search(q: string) {
+    const terms = fold(q).split(/\s+/).filter(Boolean);
+    if (!index || !terms.length) return [];
+    const out: { e: Entry; score: number }[] = [];
+    for (const e of index) {
+      let score = 0;
+      for (const term of terms) {
+        if (e.name === term) score += 60;
+        else if (e.name.startsWith(term)) score += 30;
+        else if (e.name.includes(' ' + term)) score += 22;
+        else if (e.name.includes(term)) score += 14;
+        else if (e.hay.includes(term)) score += 4;
+        else {
+          score = -1;
+          break;
+        }
+      }
+      if (score > 0) out.push({ e, score: score - (RANK[e.t] ?? 6) });
+    }
+    return out.sort((a, b) => b.score - a.score || a.e.n.length - b.e.n.length).slice(0, 40);
+  }
+
+  function message(text: string) {
+    const p = document.createElement('p');
+    p.className = 'search-empty';
+    p.textContent = text;
+    results.replaceChildren(p);
+  }
+
+  function icon(e: Entry) {
+    const box = document.createElement('span');
+    box.className = 'r-icon';
+    if (e.i && (e.t === 'Pokémon' || e.t === 'Legendary' || e.t === 'Encounter')) {
+      const s = document.createElement('span');
+      s.className = 'spr spr-mon';
+      s.style.cssText = `--x:${e.i % 40};--y:${Math.floor(e.i / 40)}`;
+      box.append(s);
+    } else if (e.i !== undefined && e.t === 'Trainer') {
+      const s = document.createElement('span');
+      s.className = 'spr spr-trainer';
+      s.style.cssText = `--x:${e.i % 16};--y:${Math.floor(e.i / 16)};--s:.62`;
+      box.append(s);
+    } else box.textContent = e.t.slice(0, 2).toUpperCase();
+    return box;
+  }
+
+  function render() {
+    const q = input.value.trim();
+    active = -1;
+    if (q.length < 2) return message(HINT);
+    const found = search(q);
+    if (!found.length) return message(`Nothing matches “${q}”.`);
+    results.replaceChildren(
+      ...found.map(({ e }) => {
+        const a = document.createElement('a');
+        a.href = base + e.u;
+        a.setAttribute('role', 'option');
+        const title = document.createElement('span');
+        title.className = 'r-title';
+        title.textContent = e.n;
+        const sub = document.createElement('span');
+        sub.className = 'r-sub';
+        sub.textContent = `${e.t} · ${e.s}`;
+        a.append(icon(e), title, sub);
+        // a link to an anchor on the current page does not reload, so close the dialog ourselves
+        a.addEventListener('click', () => dialog.close());
+        return a;
+      }),
+    );
+    setActive(0);
+  }
+
+  function setActive(i: number) {
+    const items = results.querySelectorAll('a');
+    if (!items.length) return;
+    active = (i + items.length) % items.length;
+    items.forEach((el, n) => el.classList.toggle('is-active', n === active));
+    items[active].scrollIntoView({ block: 'nearest' });
+  }
+
+  async function open() {
+    if (dialog.open) return;
+    dialog.showModal();
+    input.focus();
+    input.select();
+    await load();
+    render();
+  }
+
+  document.querySelectorAll('[data-search-open]').forEach((b) => b.addEventListener('click', open));
+  dialog.querySelector('[data-search-close]')!.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  let timer: number;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(render, 70);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(active + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(active - 1);
+    } else if (e.key === 'Enter') {
+      const el = results.querySelectorAll<HTMLAnchorElement>('a')[active];
+      if (el) {
+        e.preventDefault();
+        el.click();
+      }
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    const el = document.activeElement;
+    const typing = el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+    if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) {
+      e.preventDefault();
+      open();
+    }
+  });
+</script>

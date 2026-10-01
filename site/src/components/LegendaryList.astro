@@ -1,0 +1,116 @@
+---
+// The legendary guide's entries. <LegendaryList tools /> prints the search bar and jump index;
+// <LegendaryList group="hoenn" /> prints one group's entries.
+import Mon from './Mon.astro';
+import { LEGEND_GROUPS, LEGEND_COUNT } from '../data/legendaries';
+import { slugify } from '../lib/url';
+
+interface Props {
+  group?: string;
+  tools?: boolean;
+}
+const { group, tools = false } = Astro.props;
+const legends = group ? LEGEND_GROUPS.find((g) => g.key === group)?.legends : undefined;
+if (!tools && !legends) throw new Error(`LegendaryList: unknown group "${group}"`);
+const all = LEGEND_GROUPS.flatMap((g) => g.legends);
+---
+
+{
+  tools && (
+    <div class="legend-tools">
+      <form class="wiki-filter" role="search" data-legend-filter onsubmit="return false">
+        <label>
+          <span>Search legendary Pokémon</span>
+          <input type="search" placeholder="Pokémon or place" autocomplete="off" data-legend-search />
+        </label>
+        <label>
+          <span>Source</span>
+          <select data-legend-source>
+            <option value="">All entries</option>
+            <option value="rom">Found in the ROM’s scripts</option>
+            <option value="community">Community guides</option>
+          </select>
+        </label>
+        <div class="wiki-filter-status">
+          <p role="status" aria-live="polite" data-legend-count>
+            {LEGEND_COUNT} entries
+          </p>
+          <button type="button" data-legend-reset>
+            Reset
+          </button>
+        </div>
+      </form>
+      <details class="faq-item">
+        <summary>Jump to a Pokémon</summary>
+        <div class="faq-answer">
+          <div class="feature-index-links">
+            {all.map((l) => (
+              <a href={`#${slugify(l.name)}`}>{l.name}</a>
+            ))}
+          </div>
+        </div>
+      </details>
+      <p class="wiki-empty" hidden data-legend-empty>
+        No legendary entries match those filters.
+      </p>
+    </div>
+  )
+}
+
+{
+  legends && (
+    <div class="entry-list">
+      {legends.map((l) => (
+        <section
+          class="entry"
+          id={slugify(l.name)}
+          data-legend
+          data-source={l.source}
+          data-search={`${l.name} ${l.mons.join(' ')} ${l.where}`.toLowerCase()}
+        >
+          <div class="entry-icons" aria-hidden="true">
+            {l.mons.map((m) => (
+              <Mon name={m} bare size={l.mons.length > 4 ? undefined : 'x15'} />
+            ))}
+          </div>
+          <div>
+            <div class="entry-head">
+              <h3>{l.name}</h3>
+              <span class="chip">{/^\d/.test(l.level) ? `Lv ${l.level}` : l.level === '—' ? 'Level unknown' : l.level}</span>
+              {l.source === 'rom' ? <span class="tag accent">ROM</span> : <span class="tag warn">community</span>}
+            </div>
+            <p>{l.where}</p>
+          </div>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+<script>
+  const search = document.querySelector<HTMLInputElement>('[data-legend-search]');
+  const source = document.querySelector<HTMLSelectElement>('[data-legend-source]');
+  if (search && source) {
+    const count = document.querySelector<HTMLElement>('[data-legend-count]')!;
+    const empty = document.querySelector<HTMLElement>('[data-legend-empty]')!;
+    const entries = [...document.querySelectorAll<HTMLElement>('[data-legend]')];
+    const apply = () => {
+      const q = search.value.trim().toLowerCase();
+      let shown = 0;
+      for (const el of entries) {
+        const ok = (!q || el.dataset.search!.includes(q)) && (!source.value || el.dataset.source === source.value);
+        el.hidden = !ok;
+        if (ok) shown++;
+      }
+      count.textContent = `${shown} ${shown === 1 ? 'entry' : 'entries'}`;
+      empty.hidden = shown > 0;
+    };
+    search.addEventListener('input', apply);
+    source.addEventListener('change', apply);
+    document.querySelector('[data-legend-reset]')!.addEventListener('click', () => {
+      search.value = '';
+      source.value = '';
+      apply();
+    });
+  }
+</script>

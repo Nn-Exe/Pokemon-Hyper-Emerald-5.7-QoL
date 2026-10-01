@@ -1,0 +1,72 @@
+---
+// A boss team read from the ROM's trainer table: <Team id={265} /> in a guide, or a trainer object on the wiki.
+import { bossTrainer, spritePos, trainerTitle, levelRange, type Trainer } from '../lib/data';
+
+interface Props {
+  id?: number;
+  trainer?: Trainer;
+  /** heading text, when the table's own class and name are not what a player calls the fight */
+  label?: string;
+  /** on the wiki the summary row already names the trainer */
+  headless?: boolean;
+}
+const { id, trainer, label, headless = false } = Astro.props;
+const t = trainer ?? bossTrainer(id!);
+if (!t) throw new Error(`Trainer ${id} is not in src/data/trainers.json (boss groups)`);
+const title = label || trainerTitle(t);
+---
+
+<article class="team">
+  {
+    !headless && (
+      <header class="team-head">
+        <span class="team-portrait">
+          <span class="spr spr-trainer" style={spritePos('trainer', t.pic)} aria-hidden="true" />
+        </span>
+        <div class="team-head-copy">
+          <strong>{title}</strong>
+          {t.where && <span class="team-where">{t.where}</span>}
+          <div class="team-chips">
+            {t.lv && <span class="chip">Lv {levelRange(t.lv[0], t.lv[1])}</span>}
+            {t.double && <span class="chip">Double Battle</span>}
+            {t.party.length > 0 && <span class="chip is-quiet">{t.party.length} Pokémon</span>}
+          </div>
+        </div>
+      </header>
+    )
+  }
+  {
+    t.party.length > 0 && (
+      <div class="party">
+        {t.party.map((p) => (
+          <div class="party-mon">
+            <span class="spr spr-mon x15" style={spritePos('mon', p.sid)} aria-hidden="true" />
+            <header>
+              <h4>{p.species}</h4>
+              <span class="lv">Lv {p.level}</span>
+            </header>
+            <div class="party-item">
+              {p.item ? (
+                <>
+                  <span class="spr spr-item" style={spritePos('item', p.itemId!)} aria-hidden="true" />
+                  {p.item}
+                </>
+              ) : (
+                <span>No item</span>
+              )}
+            </div>
+            {p.moves && p.moves.length > 0 && (
+              <ul class="party-moves">
+                {p.moves.map((m) => (
+                  <li>{m}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+  {t.tip && <p class="team-tip">{t.tip}</p>}
+  <slot />
+</article>

@@ -1,0 +1,53 @@
+---
+title: Journal Objectives
+category: Story checklist
+description: Every objective the Journal key item gives, in the order the game gives them, from Prof. Birch to Cogita. Built from the same table as the in-game Journal.
+group: reference
+order: 4
+clip: questlog-story
+heroAlt: The Quest Log listing post-game objectives with a portrait and location panel
+wide: true
+related: [walkthrough-hoenn, walkthrough-postgame, lost-artifacts]
+---
+
+The **Journal** is a key item the patch hands you automatically. Use it from the Bag (or register it to SELECT)
+and its Quest Log lists these objectives by chapter, with the titles below, and marks the first one you have not
+done. From the Start menu, <Key>R</Key> opens it too.
+
+<Callout type="plain" title="How the Journal picks one">
+  It finds the last objective you finished that can only happen in order, then shows the first unfinished one after
+  it. Objectives tagged <Tag type="warn">any order</Tag> can be done early or skipped for a while; doing one early
+  never makes the Journal jump ahead. For groups (badges, Tapu trials, Plates) it also shows your progress and what
+  is still missing.
+</Callout>
+
+<div class="shot-grid cols-3">
+  <Shot src="journal.png" alt="The Journal's next-objective message in the field" caption="Using the Journal names your next objective." />
+  <Clip slug="questlog-next-objective" />
+  <Clip slug="questlog-step-detail" />
+</div>
+
+## Hoenn
+
+<JournalList chapter="hoenn" />
+
+## Post-game
+
+<JournalList chapter="post-game" />
+
+## Sinnoh
+
+<JournalList chapter="sinnoh" />
+
+## Lost Artifacts
+
+<JournalList chapter="lost-artifacts" />
+
+## When everything is done
+
+<JournalList final />
+
+<p class="src">
+  Generated from `patches/journal/steps.py`, the table the ROM's Journal is built from, so this page always matches
+  the game.
+</p>

@@ -1,0 +1,220 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import GuideCard from '../../components/GuideCard.astro';
+import Callout from '../../components/Callout.astro';
+import Clip from '../../components/Clip.astro';
+import Item from '../../components/Item.astro';
+import Key from '../../components/Key.astro';
+import Mon from '../../components/Mon.astro';
+import Shot from '../../components/Shot.astro';
+import Stage from '../../components/Stage.astro';
+import Tag from '../../components/Tag.astro';
+import Team from '../../components/Team.astro';
+import LegendaryList from '../../components/LegendaryList.astro';
+import JournalList from '../../components/JournalList.astro';
+import SideContent from '../../components/SideContent.astro';
+import { allGuides, guideHref, guidePoster, type Guide } from '../../lib/guides';
+import { url, showcase } from '../../lib/url';
+import { clip } from '../../lib/media';
+import { SITE_NAME, UPDATED, formatDate } from '../../consts';
+
+export async function getStaticPaths() {
+  const guides = await allGuides();
+  return guides.map((guide, i) => ({
+    params: { slug: guide.id },
+    props: { guide, prev: guides[i - 1], next: guides[i + 1], guides },
+  }));
+}
+
+interface Props {
+  guide: Guide;
+  prev?: Guide;
+  next?: Guide;
+  guides: Guide[];
+}
+const { guide, prev, next, guides } = Astro.props;
+const { Content, headings } = await render(guide);
+const d = guide.data;
+const hero = clip(d.clip);
+const toc = headings.filter((h) => h.depth === 2 || (h.depth === 3 && d.group !== 'walkthrough'));
+const updated = d.updated || UPDATED;
+
+const bySlug = new Map(guides.map((g) => [g.id, g]));
+const related = (
+  d.related.length
+    ? d.related.map((slug) => {
+        const g = bySlug.get(slug);
+        if (!g) throw new Error(`${guide.id}: related guide "${slug}" does not exist`);
+        return g;
+      })
+    : guides.filter((g) => g.id !== guide.id && g.id !== next?.id)
+).slice(0, 3);
+
+const crumbs = [{ name: 'Guides', href: '/guides/' }, { name: d.title }];
+---
+
+<Base
+  title={`${d.title} - ${SITE_NAME}`}
+  description={d.description}
+  image={`/showcase/${guidePoster(guide)}`}
+  imageAlt={d.heroAlt}
+  crumbs={crumbs}
+  updated={updated}
+  pageType="Article"
+>
+  <section class="guide-hero">
+    <div class="container guide-hero-grid">
+      <div class="guide-hero-copy">
+        <Breadcrumbs crumbs={crumbs} />
+        <p class="eyebrow">{d.category}</p>
+        <h1>{d.title}</h1>
+        <p class="lede">{d.description}</p>
+        <p class="page-updated">
+          Last updated <time datetime={updated}>{formatDate(updated)}</time>
+        </p>
+        <a class="guide-hero-back" href={url('/guides/')}><span aria-hidden="true">←</span> Back to all Guides</a>
+      </div>
+      <div class="guide-hero-media clip" data-clip>
+        <video
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster={showcase(guidePoster(guide))}
+          width={hero.width}
+          height={hero.height}
+          aria-label={d.heroAlt}
+        >
+          <source src={showcase(`clips/${d.clip}.mp4`)} type="video/mp4" />
+        </video>
+        <button class="clip-toggle" type="button" data-clip-toggle aria-label="Play or pause this clip">
+          <svg class="icon-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h4v12H3zm6 0h4v12H9z"></path></svg>
+          <svg class="icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class:list={['container', 'guide-shell', `guide-${d.group}`, `guide-kind-${guide.id}`]}>
+    <div class="guide-detail-grid">
+      <aside class="guide-utility" aria-label="Guide navigation">
+        {
+          toc.length > 1 && (
+            <details class="guide-toc" open data-toc-box>
+              <summary id="guide-toc-title">On this guide</summary>
+              <nav class="guide-toc-links" aria-labelledby="guide-toc-title" data-toc>
+                {toc.map((h) => (
+                  <a href={`#${h.slug}`} class={`depth-${h.depth}`}>
+                    {h.text}
+                  </a>
+                ))}
+              </nav>
+            </details>
+          )
+        }
+        <script is:inline>
+          // on a phone the contents list starts closed, so the guide itself is on the first screen
+          if (matchMedia('(max-width: 900px)').matches) document.querySelector('[data-toc-box]')?.removeAttribute('open');
+        </script>
+        <a class="guide-back-link" href={url('/guides/')}><span aria-hidden="true">←</span> Back to all Guides</a>
+      </aside>
+
+      <article class="guide-article">
+        <div class:list={['prose', { wide: d.wide }]}>
+          <Content
+            components={{
+              Callout,
+              Clip,
+              Item,
+              Key,
+              Mon,
+              Shot,
+              Stage,
+              Tag,
+              Team,
+              LegendaryList,
+              JournalList,
+              SideContent,
+            }}
+          />
+        </div>
+
+        <nav class="guide-pager" aria-label="Previous and next guide">
+          {
+            prev && (
+              <a href={url(guideHref(prev))}>
+                <span>Previous</span>
+                {prev.data.title}
+              </a>
+            )
+          }
+          {
+            next && (
+              <a class="next" href={url(guideHref(next))}>
+                <span>Next</span>
+                {next.data.title}
+              </a>
+            )
+          }
+        </nav>
+      </article>
+    </div>
+
+    <section class="guide-related" aria-labelledby="more-guides-title">
+      <div class="guide-section-heading">
+        <div>
+          <p class="eyebrow">Keep exploring</p>
+          <h2 id="more-guides-title">More Guides</h2>
+        </div>
+        <a href={url('/guides/')}>View all Guides <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="guide-grid cols-3">
+        {
+          related.map((g) => (
+            <GuideCard
+              href={guideHref(g)}
+              category={g.data.category}
+              title={g.data.title}
+              blurb={g.data.description}
+              image={guidePoster(g)}
+              imageAlt={g.data.heroAlt}
+              stacked
+            />
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  // highlight the section being read in the table of contents
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc] a')];
+  const targets = links
+    .map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))
+    .filter((el): el is HTMLElement => Boolean(el));
+  if (targets.length) {
+    const setCurrent = () => {
+      const line = window.scrollY + 140;
+      let current = targets[0];
+      for (const t of targets) if (t.getBoundingClientRect().top + window.scrollY <= line) current = t;
+      links.forEach((a) => a.classList.toggle('is-current', a.hash === '#' + current.id));
+    };
+    let queued = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          setCurrent();
+        });
+      },
+      { passive: true },
+    );
+    setCurrent();
+  }
+</script>

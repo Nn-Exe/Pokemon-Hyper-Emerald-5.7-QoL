@@ -1,0 +1,685 @@
+{
+ "count": 84,
+ "chapters": [
+  {
+   "key": "hoenn",
+   "title": "Hoenn",
+   "blurb": "From Littleroot Town to the Champion.",
+   "steps": [
+    {
+     "n": 1,
+     "title": "Help Prof. Birch",
+     "text": "Go north of Littleroot Town to Route 101 and help Prof. Birch. You will get your first Pokémon.",
+     "anyOrder": false
+    },
+    {
+     "n": 2,
+     "title": "Get the Pokédex",
+     "text": "Find Birch's kid on Route 103, north of Oldale Town, then return to the lab in Littleroot for your Pokédex.",
+     "anyOrder": false
+    },
+    {
+     "n": 3,
+     "title": "Beat Roxanne",
+     "text": "Go through Petalburg Woods to Rustboro City and beat Roxanne, the Gym Leader.",
+     "anyOrder": false
+    },
+    {
+     "n": 4,
+     "title": "Chase the Aqua grunt",
+     "text": "A Team Aqua grunt stole the Devon Goods! Chase him east of Rustboro into Rusturf Tunnel and get them back.",
+     "anyOrder": false
+    },
+    {
+     "n": 5,
+     "title": "Back to Devon Corp.",
+     "text": "Take the Devon Goods back to Devon Corp. in Rustboro. The President has a letter and a delivery for you.",
+     "anyOrder": false
+    },
+    {
+     "n": 6,
+     "title": "A letter for Steven",
+     "text": "Ask Mr. Briney, in his cottage on Route 104, to sail you to Dewford Town. Deliver the letter to Steven deep in Granite Cave.",
+     "anyOrder": false
+    },
+    {
+     "n": 7,
+     "title": "Beat Brawly",
+     "text": "Beat Brawly, the Gym Leader of Dewford Town.",
+     "anyOrder": false
+    },
+    {
+     "n": 8,
+     "title": "Deliver the Devon Goods",
+     "text": "Sail on to Slateport City and deliver the Devon Goods to Capt. Stern at the Oceanic Museum.",
+     "anyOrder": false
+    },
+    {
+     "n": 9,
+     "title": "Beat Wattson",
+     "text": "Go north along Route 110 to Mauville City and beat Wattson, the Gym Leader.",
+     "anyOrder": false
+    },
+    {
+     "n": 10,
+     "title": "Chase Team Magma",
+     "text": "Chase Team Magma: from Route 111 go through the Fiery Path to Fallarbor Town and Meteor Falls, then ride the Route 112 cable car up Mt. Chimney.",
+     "anyOrder": false
+    },
+    {
+     "n": 11,
+     "title": "Beat Flannery",
+     "text": "Walk down Jagged Pass to Lavaridge Town and beat Flannery, the Gym Leader.",
+     "anyOrder": false
+    },
+    {
+     "n": 12,
+     "title": "Beat Norman",
+     "text": "Go home to Petalburg City and beat your father Norman, the Gym Leader.",
+     "anyOrder": false
+    },
+    {
+     "n": 13,
+     "title": "The Weather Institute",
+     "text": "Surf east from Route 118 and go north up Route 119: Team Aqua has taken over the Weather Institute.",
+     "anyOrder": false
+    },
+    {
+     "n": 14,
+     "title": "Beat Winona",
+     "text": "Beat Winona, the Gym Leader of Fortree City. If something invisible blocks the way, Steven's Devon Scope on Route 120 reveals it.",
+     "anyOrder": false
+    },
+    {
+     "n": 15,
+     "title": "Climb Mt. Pyre",
+     "text": "Head east toward Lilycove City. Teams Magma and Aqua are after the orbs on Mt. Pyre (Route 122): climb to the summit.",
+     "anyOrder": false
+    },
+    {
+     "n": 16,
+     "title": "Team Magma's hideout",
+     "text": "Take the Magma Emblem from Mt. Pyre to Jagged Pass. It opens Team Magma's hideout: stop Maxie inside.",
+     "anyOrder": false
+    },
+    {
+     "n": 17,
+     "title": "Team Aqua's hideout",
+     "text": "Raid Team Aqua's Hideout on the coast east of Lilycove City before Archie gets away.",
+     "anyOrder": false
+    },
+    {
+     "n": 18,
+     "title": "Team Plasma's blockade",
+     "text": "Team Plasma is blocking Mossdeep's Gym. Find them in the icy room of Shoal Cave, north of Mossdeep City, and drive them off.",
+     "anyOrder": true
+    },
+    {
+     "n": 19,
+     "title": "Beat Tate & Liza",
+     "text": "Beat Tate & Liza, the Gym Leaders of Mossdeep City.",
+     "anyOrder": false
+    },
+    {
+     "n": 20,
+     "title": "The Space Center",
+     "text": "Team Magma is attacking the Mossdeep Space Center! Stop them, then talk to Steven.",
+     "anyOrder": false
+    },
+    {
+     "n": 21,
+     "title": "The Seafloor Cavern",
+     "text": "Dive on Route 128 to reach the Seafloor Cavern and stop Team Aqua.",
+     "anyOrder": false
+    },
+    {
+     "n": 22,
+     "title": "Crisis in Sootopolis",
+     "text": "Groudon and Kyogre are clashing over Sootopolis City. Help Wallace: wake Rayquaza at the Sky Pillar (Route 131). He gives you HM Waterfall after.",
+     "anyOrder": false
+    },
+    {
+     "n": 23,
+     "title": "Beat Juan",
+     "text": "Beat Juan, the Gym Leader of Sootopolis City.",
+     "anyOrder": false
+    },
+    {
+     "n": 24,
+     "title": "The Pokémon League",
+     "text": "Surf to Ever Grande City, cross Victory Road and beat the Elite Four and the Champion.",
+     "anyOrder": false
+    }
+   ]
+  },
+  {
+   "key": "post-game",
+   "title": "Post-game",
+   "blurb": "Interpol, the Delta Episode, the Ultra Wormholes and the Tapus.",
+   "steps": [
+    {
+     "n": 25,
+     "title": "Interpol at home",
+     "text": "Go home to Littleroot Town: Interpol agents Nanu and Anabel are waiting for the new Champion.",
+     "anyOrder": false
+    },
+    {
+     "n": 26,
+     "title": "Steven's Island",
+     "text": "In Ever Grande City the guard now lets you through. Follow the passage to Steven's Island, where Interpol waits.",
+     "anyOrder": false
+    },
+    {
+     "n": 27,
+     "title": "Wally's Mega Bracelet",
+     "text": "Wally called from Petalburg City. Hurry: someone is trying to steal his Mega Bracelet!",
+     "anyOrder": false
+    },
+    {
+     "n": 28,
+     "title": "Emergency at Devon",
+     "text": "Steven called with an emergency. Go to Devon Corp. in Rustboro City.",
+     "anyOrder": false
+    },
+    {
+     "n": 29,
+     "title": "A meteorite fragment",
+     "text": "Find a meteorite fragment in Granite Cave, near Dewford Town. Zinnia is there too.",
+     "anyOrder": false
+    },
+    {
+     "n": 30,
+     "title": "Prof. Cozmo",
+     "text": "Bring the meteorite to Prof. Cozmo at the Mossdeep Space Center.",
+     "anyOrder": false
+    },
+    {
+     "n": 31,
+     "title": "The stolen bracelet",
+     "text": "Team Magma took your Mega Bracelet. Go to Meteor Falls and stop them.",
+     "anyOrder": false
+    },
+    {
+     "n": 32,
+     "title": "Face Zinnia",
+     "text": "Beat Zinnia in Meteor Falls to get your Mega Bracelet back.",
+     "anyOrder": false
+    },
+    {
+     "n": 33,
+     "title": "Climb the Sky Pillar",
+     "text": "Climb the Sky Pillar (Route 131) and face Rayquaza.",
+     "anyOrder": false
+    },
+    {
+     "n": 34,
+     "title": "Beyond the sky",
+     "text": "Ride Rayquaza into space to stop the meteor. Something is waiting beyond the sky.",
+     "anyOrder": false
+    },
+    {
+     "n": 35,
+     "title": "Wallace in Mossdeep",
+     "text": "Back on the ground, talk to Wallace in Mossdeep City.",
+     "anyOrder": false
+    },
+    {
+     "n": 36,
+     "title": "Trouble in Meteor Falls",
+     "text": "Return to Steven's Island. Anabel reports trouble deep inside Meteor Falls: find Steven there.",
+     "anyOrder": false
+    },
+    {
+     "n": 37,
+     "title": "The first wormhole",
+     "text": "Anabel found a new Ultra Wormhole near Pacifidlog Town. Go through it.",
+     "anyOrder": false
+    },
+    {
+     "n": 38,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 39,
+     "title": "The Totem Pokémon",
+     "text": "Gladion needs you at the Secret Base on Route 111: defeat the Totem Pokémon.",
+     "anyOrder": false
+    },
+    {
+     "n": 40,
+     "title": "The four trials",
+     "text": "Nanu found strange islands. Pass the four Tapus' trials with the Island Kahunas.",
+     "anyOrder": true,
+     "group": {
+      "label": "Tapus that know you",
+      "all": true,
+      "members": [
+       {
+        "text": "Tapu Bulu: talk to Nanu on Steven's Island.",
+        "twice": false
+       },
+       {
+        "text": "Tapu Koko: find Hala in Dewford Town.",
+        "twice": false
+       },
+       {
+        "text": "Tapu Fini: find Hapu in Slateport City.",
+        "twice": false
+       },
+       {
+        "text": "Tapu Lele: find Olivia in Mossdeep City.",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 41,
+     "title": "Report to Nanu",
+     "text": "All four Tapus recognise you. Report to Nanu on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 42,
+     "title": "News of Faba",
+     "text": "Talk to the Devon Scout on Steven's Island: he has news about Faba. The Ultra Wormhole Faba used will not let you in before his report.",
+     "anyOrder": false
+    },
+    {
+     "n": 43,
+     "title": "Chase Faba",
+     "text": "The Devon Scout tracked Faba to the Ultra Wormhole in the Scorched Slab (Route 120). Follow him, and bring a way past whirlpools.",
+     "anyOrder": false
+    },
+    {
+     "n": 44,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 45,
+     "title": "Train with Champions",
+     "text": "Anabel says Steven and the former Champions are waiting in the lobby. Train with them.",
+     "anyOrder": false
+    },
+    {
+     "n": 46,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 47,
+     "title": "The strange weather",
+     "text": "The Devon Scout says the Ultra Wormhole fluctuations follow abnormal weather. Find the drought (Terra Cave) or the downpour (Marine Cave).",
+     "anyOrder": false
+    },
+    {
+     "n": 48,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 49,
+     "title": "Mt. Pyre's wormhole",
+     "text": "The Devon Scout detected an Ultra Wormhole at the top of Mt. Pyre. Go through it.",
+     "anyOrder": false
+    },
+    {
+     "n": 50,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 51,
+     "title": "Shoal Cave's wormhole",
+     "text": "Next fluctuation: the icy room of Shoal Cave, where Team Plasma was. Go through the Ultra Wormhole there.",
+     "anyOrder": false
+    },
+    {
+     "n": 52,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 53,
+     "title": "Route 116's wormhole",
+     "text": "Next fluctuation: the Ultra Wormhole on Route 116.",
+     "anyOrder": false
+    },
+    {
+     "n": 54,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 55,
+     "title": "Catch Faba",
+     "text": "Faba was seen alone near the Mirage Tower in the Route 111 desert. Go and catch him.",
+     "anyOrder": false
+    },
+    {
+     "n": 56,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 57,
+     "title": "Find Red",
+     "text": "Find Red. The last Ultra Wormholes are deep in Meteor Falls and Granite Cave.",
+     "anyOrder": false
+    },
+    {
+     "n": 58,
+     "title": "Report to Anabel",
+     "text": "Report to Anabel on Steven's Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 59,
+     "title": "The 18 Z-Crystals",
+     "text": "Collect all 18 Z-Crystals, then go to Pacifidlog Town. The crystals open the way to Team Rainbow Rocket's castle.",
+     "anyOrder": false
+    },
+    {
+     "n": 60,
+     "title": "Storm the castle",
+     "text": "Storm Team Rainbow Rocket's castle and defeat them at the Mountain Top.",
+     "anyOrder": false
+    },
+    {
+     "n": 61,
+     "title": "Steven is waiting",
+     "text": "Return to Steven's Island: Steven is waiting.",
+     "anyOrder": false
+    },
+    {
+     "n": 62,
+     "title": "A Silver Symbol",
+     "text": "Earn a Silver Symbol at the Battle Frontier - for one, beat Salon Maiden Anabel, the 35th battle of a Battle Tower Singles streak. Then see Scott in his Frontier house for a ferry ticket to the World Championships.",
+     "anyOrder": true
+    },
+    {
+     "n": 63,
+     "title": "To Champion Island",
+     "text": "Take the ferry from Lilycove City to Champion Island for the World Championships. Familiar faces are waiting.",
+     "anyOrder": true
+    }
+   ]
+  },
+  {
+   "key": "sinnoh",
+   "title": "Sinnoh",
+   "blurb": "The eight Sinnoh gyms and the League.",
+   "steps": [
+    {
+     "n": 64,
+     "title": "Sail to Sinnoh",
+     "text": "Show Waji's boat ticket to the sailor at Lilycove City's harbor and sail to Canalave City in Sinnoh.",
+     "anyOrder": true
+    },
+    {
+     "n": 65,
+     "title": "The Sinnoh Badges",
+     "text": "Earn the eight Sinnoh Gym Badges. Still to beat:",
+     "anyOrder": false,
+     "group": {
+      "label": "Sinnoh Badges",
+      "all": true,
+      "members": [
+       {
+        "text": "Roark - Oreburgh City",
+        "twice": false
+       },
+       {
+        "text": "Gardenia - Eterna City",
+        "twice": false
+       },
+       {
+        "text": "Maylene - Veilstone City",
+        "twice": false
+       },
+       {
+        "text": "Crasher Wake - Pastoria City",
+        "twice": false
+       },
+       {
+        "text": "Fantina - Hearthome City",
+        "twice": false
+       },
+       {
+        "text": "Byron - Canalave City",
+        "twice": false
+       },
+       {
+        "text": "Candice - Snowpoint City",
+        "twice": false
+       },
+       {
+        "text": "Volkner - Sunyshore City",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 66,
+     "title": "The Sinnoh League",
+     "text": "Take Victory Road to the Sinnoh League and beat the Elite Four and Cynthia.",
+     "anyOrder": false
+    }
+   ]
+  },
+  {
+   "key": "lost-artifacts",
+   "title": "Lost Artifacts",
+   "blurb": "Waji, the Plates, Giratina, Arceus and Volo.",
+   "steps": [
+    {
+     "n": 67,
+     "title": "The 17 Plates",
+     "text": "Collect the 17 Plates hidden in Hoenn and Sinnoh. Waji, at the Spear Pillar on top of Mt. Coronet, gives hints.",
+     "anyOrder": false,
+     "group": {
+      "label": "Plates found",
+      "all": false,
+      "members": [
+       {
+        "text": "Fist Plate: the Sealed Chamber, the ruin under the sea of Route 134 (Dive).",
+        "twice": false
+       },
+       {
+        "text": "Sky Plate: the house full of Wingull on Route 119.",
+        "twice": false
+       },
+       {
+        "text": "Toxic Plate: a little hill in the marsh on Route 212, toward Pastoria City.",
+        "twice": false
+       },
+       {
+        "text": "Earth Plate: Granite Cave near Dewford, in the room at the back of the first floor.",
+        "twice": false
+       },
+       {
+        "text": "Stone Plate: Oreburgh Mine, next to Oreburgh City.",
+        "twice": false
+       },
+       {
+        "text": "Insect Plate: the Solaceon Ruins, in one of the large chambers.",
+        "twice": false
+       },
+       {
+        "text": "Spooky Plate: the Lost Tower on Route 209, near the Solaceon Ruins.",
+        "twice": false
+       },
+       {
+        "text": "Iron and Dread Plates: the Team Rocket hideout under the Mauville Game Corner.",
+        "twice": true
+       },
+       {
+        "text": "Flame Plate: the summit of Mt. Chimney.",
+        "twice": false
+       },
+       {
+        "text": "Splash Plate: underwater on Route 126, around Sootopolis (Dive).",
+        "twice": false
+       },
+       {
+        "text": "Meadow Plate: in the shade of the trees on rainy Route 120.",
+        "twice": false
+       },
+       {
+        "text": "Zap Plate: a hidden corner of New Mauville.",
+        "twice": false
+       },
+       {
+        "text": "Mind Plate: the Solaceon Ruins, away from the Insect Plate.",
+        "twice": false
+       },
+       {
+        "text": "Icicle Plate: the mountain man's hut on snowy Route 217. He gives it to you.",
+        "twice": false
+       },
+       {
+        "text": "Draco Plate: the Meteor Temple, reached from Meteor Falls.",
+        "twice": false
+       },
+       {
+        "text": "Pixie Plate: deep inside Mt. Coronet.",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 68,
+     "title": "The Spear Pillar altar",
+     "text": "Step onto the altar at the Spear Pillar with all 17 Plates. The rift that opens will test everything you have.",
+     "anyOrder": true
+    },
+    {
+     "n": 69,
+     "title": "A way through",
+     "text": "Waji senses the rift's energy in Celestic Town. Visit its ruins with Dialga and Palkia both caught to open a way into the Distortion World, or go in from the islet on Route 129.",
+     "anyOrder": true
+    },
+    {
+     "n": 70,
+     "title": "The reverse world",
+     "text": "Enter the Distortion World and face the ruler of the reverse world. Ways in: the new passage at the Spear Pillar or Sendoff Spring, or the islet on Route 129 in Hoenn.",
+     "anyOrder": true
+    },
+    {
+     "n": 71,
+     "title": "The Plates' owner",
+     "text": "Keep all 17 Plates in your Bag and return to the Mountain Top above Team Rainbow Rocket's castle. The Plates' true owner is waiting.",
+     "anyOrder": false
+    },
+    {
+     "n": 72,
+     "title": "Cogita in Hearthome",
+     "text": "Arceus sent you to Hearthome City. Find Cogita in a house on the west side of town, with all 17 Plates in your Bag.",
+     "anyOrder": false
+    },
+    {
+     "n": 73,
+     "title": "Through the rift",
+     "text": "Step through the space-time rift in Cogita's house. It leads to the Hisui region.",
+     "anyOrder": false
+    },
+    {
+     "n": 74,
+     "title": "Find Cogita in Hisui",
+     "text": "Find Cogita in Hisui. Rei (Mingyao) at the Deertrack Heights base camp flies you around: look on Firespit Island.",
+     "anyOrder": false
+    },
+    {
+     "n": 75,
+     "title": "The clan leaders",
+     "text": "Visit the clan leaders at the hot spring in the Alabaster Icelands.",
+     "anyOrder": false,
+     "group": {
+      "label": "Clan leaders met",
+      "all": true,
+      "members": [
+       {
+        "text": "Adaman, Diamond Clan",
+        "twice": false
+       },
+       {
+        "text": "Irida, Pearl Clan",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 76,
+     "title": "The Primeval Cave",
+     "text": "Diamond and Pearl point to the foot of Mt. Coronet. Enter the Primeval Cave: whoever is behind the rifts is inside.",
+     "anyOrder": false
+    },
+    {
+     "n": 77,
+     "title": "Back to base camp",
+     "text": "Volo is beaten. Return to base camp in Hisui: Rei and Cogita have news.",
+     "anyOrder": false
+    },
+    {
+     "n": 78,
+     "title": "A sleeping woman",
+     "text": "In Solaceon Town in Sinnoh, a woman has slept in a nightmare since her offerings at the Lost Tower. Hear her husband out.",
+     "anyOrder": true
+    },
+    {
+     "n": 79,
+     "title": "Wake the sleeper",
+     "text": "Bring the Lunar Wing to the sleeping woman in Solaceon Town and wake her.",
+     "anyOrder": true
+    },
+    {
+     "n": 80,
+     "title": "The Lost Tower",
+     "text": "The oppressive presence in the Lost Tower has lifted. Something pitch-black stirs deep inside: face the phantom of nightmares.",
+     "anyOrder": true
+    },
+    {
+     "n": 81,
+     "title": "One more legend",
+     "text": "Catch Tornadus, Thundurus and Landorus, then show Cogita on Firespit Island in Hisui. She has one more legend to tell.",
+     "anyOrder": false
+    },
+    {
+     "n": 82,
+     "title": "Kitty's dried fish",
+     "text": "Kitty in the three-floor house on Steven's Island wants dried fish. Find the Dried Fish on Prelude Beach in Hisui and bring it to her for a nameless stone.",
+     "anyOrder": true
+    },
+    {
+     "n": 83,
+     "title": "The summit",
+     "text": "With Kitty's nameless stone in your Bag, climb toward the Sacred Temple in Hisui's highlands. A dread of unknown origin hangs over the summit.",
+     "anyOrder": true
+    },
+    {
+     "n": 84,
+     "title": "Cogita's invitation",
+     "text": "Cogita waits on Champion Island with more to tell.",
+     "anyOrder": true
+    }
+   ]
+  }
+ ],
+ "final": {
+  "title": "Beyond the story",
+  "text": "Every story objective is complete! Still out there: a trial of six battles at Cogita's retreat off Sootopolis, and Adaman and Irida's clan treasures for a trainer who brings Dialga or Palkia."
+ }
+}

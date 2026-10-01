@@ -1,0 +1,172 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource/silkscreen/400.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ImageViewer from '../components/ImageViewer.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, UPDATED } from '../consts';
+import { url, absolute } from '../lib/url';
+import { publicHash } from '../lib/media';
+
+interface Crumb {
+  name: string;
+  href?: string;
+}
+interface Props {
+  title: string;
+  description: string;
+  /** Root-relative social image; defaults to the site card. */
+  image?: string;
+  imageAlt?: string;
+  crumbs?: Crumb[];
+  updated?: string;
+  /** schema.org type of the page itself */
+  pageType?: 'WebPage' | 'CollectionPage' | 'Article' | 'FAQPage' | 'AboutPage';
+  /** extra JSON-LD objects */
+  schema?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = '/images/og.png',
+  imageAlt = `${GAME} ${GAME_VERSION} guide`,
+  crumbs = [],
+  updated = UPDATED,
+  pageType = 'WebPage',
+  schema = [],
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const home = absolute('/');
+const website = { '@type': 'WebSite', name: SITE_NAME, url: home };
+const jsonLd = [
+  { '@context': 'https://schema.org', ...website, inLanguage: 'en' },
+  {
+    '@context': 'https://schema.org',
+    '@type': pageType,
+    name: title,
+    description,
+    url: canonical,
+    inLanguage: 'en',
+    dateModified: updated,
+    isPartOf: website,
+  },
+  ...(crumbs.length
+    ? [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [{ name: 'Home', href: '/' }, ...crumbs].map((c, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: c.name,
+            item: c.href ? absolute(c.href) : canonical,
+          })),
+        },
+      ]
+    : []),
+  ...schema.map((s) => ({ '@context': 'https://schema.org', ...s })),
+];
+
+const sprite = (file: string) => `url("${url('/sprites/' + file)}?v=${publicHash('sprites/' + file)}")`;
+const spriteVars = `:root{--spr-mon:${sprite('mon.png')};--spr-trainer:${sprite('trainer.png')};--spr-item:${sprite('item.png')}}`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow,max-image-preview:large'} />
+    <meta name="theme-color" content="#1a7a52" />
+    <meta property="og:type" content={pageType === 'Article' ? 'article' : 'website'} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={absolute(image)} />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absolute(image)} />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={url('/favicon-32.png')} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} sizes="180x180" />
+    <link rel="manifest" href={url('/site.webmanifest')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    <script is:inline>
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem('he-theme');
+        } catch (e) {}
+        if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <style is:inline set:html={spriteVars}></style>
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body data-base={url('/')} data-version={`${GAME_VERSION} · QoL ${PATCH_VERSION}`}>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+    <ImageViewer />
+    <SearchDialog />
+  </body>
+</html>
+
+<script>
+  // Clips play only while they are on screen, and never for someone who asked for less motion.
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clips = document.querySelectorAll<HTMLElement>('[data-clip]');
+  if (clips.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const box = e.target as HTMLElement;
+          const video = box.querySelector('video')!;
+          if (e.isIntersecting && !reduce && box.dataset.userPaused !== '1') {
+            video.play().then(
+              () => box.classList.remove('is-paused'),
+              () => box.classList.add('is-paused'),
+            );
+          } else {
+            video.pause();
+            box.classList.add('is-paused');
+          }
+        }
+      },
+      { rootMargin: '80px 0px', threshold: 0.25 },
+    );
+    clips.forEach((box) => {
+      box.classList.add('is-paused');
+      io.observe(box);
+      box.querySelector('[data-clip-toggle]')?.addEventListener('click', () => {
+        const video = box.querySelector('video')!;
+        if (video.paused) {
+          box.dataset.userPaused = '0';
+          video.play().then(() => box.classList.remove('is-paused'));
+        } else {
+          box.dataset.userPaused = '1';
+          video.pause();
+          box.classList.add('is-paused');
+        }
+      });
+    });
+  }
+</script>

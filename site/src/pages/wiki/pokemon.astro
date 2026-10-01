@@ -1,0 +1,167 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import { url } from '../../lib/url';
+import { wildSpecies, stats, spritePos, levelRange, REGIONS, METHODS, METHOD_SHORT, type Region, type Method } from '../../lib/data';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Pokémon Finder' }];
+const description = `Where to find the ${stats.wildBase} species and ${stats.wildForms} regional forms that appear as wild encounters in Hyper Emerald v5.7: every location, method, level range and encounter rate.`;
+const SHOWN = 5;
+const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
+---
+
+<Base title={`Pokémon Finder - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Pokémon Finder" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <aside class="callout plain">
+      <strong class="callout-title">Why {wildSpecies.length} and not the whole Pokédex</strong>
+      <p>
+        The game’s Pokédex has 960 entries. This page lists only what can be met as a wild encounter: {stats.wildBase}
+        species, plus {stats.wildForms} regional forms (Alolan, Galarian, Hisuian…) that have their own encounters and
+        are counted separately. The rest are starters, evolutions, gifts and trades, or scripted battles: see
+        <a href={url('/wiki/scripted-encounters/')}>Scripted Encounters</a>,
+        <a href={url('/guides/legendaries/')}>Legendary Locations</a> and
+        <a href={url('/guides/side-content/')}>Side Content & Gift Pokémon</a>.
+      </p>
+    </aside>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search Pokémon</span>
+        <input type="search" placeholder="Pokémon or location" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Region</span>
+        <select data-region>
+          <option value="">All regions</option>
+          {(Object.keys(REGIONS) as Region[]).map((r) => <option value={r}>{REGIONS[r]}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Method</span>
+        <select data-method>
+          <option value="">All methods</option>
+          {(Object.keys(METHODS) as Method[]).map((m) => <option value={m}>{METHODS[m]}</option>)}
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{wildSpecies.length} Pokémon</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>
+      No wild Pokémon match. Legendaries and gifts are in
+      <a href={url('/wiki/scripted-encounters/')}>Scripted Encounters</a>.
+    </p>
+
+    <div class="finder-grid">
+      {
+        wildSpecies.map((sp) => {
+          const sightings = [...sp.sightings].sort((a, b) => b.pct - a.pct);
+          const regions = [...new Set(sightings.map((s) => s.area.region))];
+          const methods = [...new Set(sightings.map((s) => s.method))];
+          const line = (s: (typeof sightings)[number]) => (
+            <li data-r={s.area.region} data-m={s.method}>
+              <a href={url(`/wiki/encounters/#${s.area.id}`)}>
+                {s.area.map}
+                {s.area.note && <small> · {s.area.note.replace(/ of \d+$/, '').toLowerCase()}</small>}
+              </a>
+              <span>
+                {METHOD_SHORT[s.method]} · Lv {levelRange(s.min, s.max)} · {pct(s.pct)}
+              </span>
+            </li>
+          );
+          return (
+            <article
+              class="finder-card"
+              id={sp.id}
+              data-species
+              data-name={sp.name.toLowerCase()}
+              data-places={[...new Set(sightings.map((s) => s.area.map.toLowerCase()))].join('|')}
+              data-regions={regions.join(' ')}
+              data-methods={methods.join(' ')}
+            >
+              <header>
+                <span class="spr spr-mon" style={spritePos('mon', sp.sid)} aria-hidden="true" />
+                <h3>{sp.name}</h3>
+                <span class="chip is-quiet">
+                  {sightings.length} {sightings.length === 1 ? 'place' : 'places'}
+                </span>
+              </header>
+              <ul>{sightings.slice(0, SHOWN).map(line)}</ul>
+              {sightings.length > SHOWN && (
+                <details class="finder-more">
+                  <summary>{sightings.length - SHOWN} more</summary>
+                  <ul>{sightings.slice(SHOWN).map(line)}</ul>
+                </details>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const region = form.querySelector<HTMLSelectElement>('[data-region]')!;
+  const method = form.querySelector<HTMLSelectElement>('[data-method]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-species]')];
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const card of cards) {
+      const ok =
+        (!term || card.dataset.name!.includes(term) || card.dataset.places!.includes(term)) &&
+        (!region.value || card.dataset.regions!.split(' ').includes(region.value)) &&
+        (!method.value || card.dataset.methods!.split(' ').includes(method.value));
+      card.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    count.textContent = `${shown} Pokémon`;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 90);
+  });
+  region.addEventListener('change', apply);
+  method.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    region.value = '';
+    method.value = '';
+    apply();
+  });
+
+  // #ralts from an encounter table or the search box: make sure the card is visible and flag it
+  function focusHash() {
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (el?.matches('[data-species]')) {
+      el.hidden = false;
+      el.scrollIntoView({ block: 'center' });
+      el.style.borderColor = 'var(--accent)';
+      el.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+    }
+  }
+  window.addEventListener('hashchange', focusHash);
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+  focusHash();
+</script>

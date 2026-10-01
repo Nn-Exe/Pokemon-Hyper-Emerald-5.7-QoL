@@ -1,0 +1,30 @@
+---
+import { url } from '../lib/url';
+
+const LINKS = [
+  { href: '/wiki/encounters/', label: 'Encounters' },
+  { href: '/wiki/pokemon/', label: 'Pokémon Finder' },
+  { href: '/wiki/trainers/', label: 'Boss Teams' },
+  { href: '/wiki/trainers/all/', label: 'Every Trainer' },
+  { href: '/wiki/scripted-encounters/', label: 'Scripted Encounters' },
+];
+const here = Astro.url.pathname;
+---
+
+<div class="wiki-local-navigation">
+  <h2 id="wiki-local-navigation-title" class="sr-only">Browse the Wiki</h2>
+  <nav class="wiki-nav" aria-labelledby="wiki-local-navigation-title">
+    <a href={url('/wiki/')}>Wiki home</a>
+    {
+      LINKS.map((l) => (
+        <a
+          href={url(l.href)}
+          class:list={[{ 'is-active': here === url(l.href) }]}
+          aria-current={here === url(l.href) ? 'page' : undefined}
+        >
+          {l.label}
+        </a>
+      ))
+    }
+  </nav>
+</div>

@@ -1,0 +1,133 @@
+---
+title: Game Mechanics
+category: Getting started
+description: Difficulty modes, level caps, the 24 starters, Mega Evolution, Z-Moves, Dynamax and the other rules Hyper Emerald changes under the hood.
+group: start
+order: 3
+clip: giovanni-mewtwo
+heroAlt: Team Rainbow Rocket's Giovanni sends out Mewtwo and Indeedee in a Double Battle
+related: [walkthrough-hoenn, mega-stones-key-items, controls]
+---
+
+The hack changes a lot under the hood. These are the rules you need to know before you pick a starter, and the
+systems you will keep running into.
+
+<Callout type="warn" title="Decide your difficulty before you leave the bedroom">
+  The difficulty is chosen at the **wall clock in your bedroom** at the start of the game and cannot be changed
+  afterwards.
+</Callout>
+
+## Difficulty modes
+
+Four modes exist. The fourth is hidden: interact with the **notebook next to the PC in your bedroom** and pick the
+red "Not Ready" option ten times, then use the clock.
+
+| Mode | Level cap | Items in battle | Other rules |
+| --- | --- | --- | --- |
+| **Easy** (养生) | None | Allowed | Plays like an official game. Legendaries allowed everywhere. |
+| **Standard** (标准) | Tied to badges (about Lv 18 before Gym 1, Lv 23 after) | Allowed in the field; formal battles ban them | Gyms and leagues: no duplicate species or held items, no box legendaries or mythicals. |
+| **Challenge** (挑战) | As Standard | Banned in trainer battles | The AI sometimes predicts your move. |
+| **Lunatic** (疯子, hidden) | As Standard | Banned | Every trainer has perfect IVs and full EVs; the AI predicts most moves. |
+
+<p class="src">
+  From community guides for v5.5 (17173 and the Portuguese v5.5 guide); the exact cap numbers may differ slightly in
+  v5.7. The Option screen's title names your mode: "Ultra Emerald v5.7 +QoL1.7 (Standard)".
+</p>
+
+## Level caps and obedience
+
+- In every mode except Easy, Pokémon **stop gaining experience at the current cap**. The cap rises with each badge
+  and league win.
+- Pokémon above the cap **disobey**, and you cannot catch Pokémon that are too strong for your current badge count.
+  An NPC in Sinnoh puts it plainly: "Since I've only got one Gym Badge, it sometimes ignores my orders."
+- Gym and league battles follow tournament rules. Status moves are unreliable there: "In battles against Gym
+  Leaders and the Hoenn League's Elite Four, moves that inflict status conditions and the like have no effect."
+- Shops unlock stock by badge count (Revives, for example).
+- Consumable items used in trainer battles are given back afterwards.
+
+## Starters and early gifts
+
+- On the starter screen press <Key>▶</Key> to page through **all 24 starters** from Kanto to Galar. Hisuian lines
+  appear as <Mon name="Cyndaquil" />, <Mon name="Oshawott" /> and <Mon name="Rowlet" />; picking one of those gets
+  you a second starter from Professor Birch after you beat your rival.
+- The Hoenn trio can be caught later in a pen at the lab once you have the Running Shoes, with three perfect IVs.
+- Your PC starts with a <Item name="Shiny Charm" />, an <Item name="EV-IV Display" /> and Power items.
+- Petalburg Woods: Professor Oak offers a <Mon name="Let's Go Pikachu" /> or <Mon name="Let's Go Eevee" /> (they
+  do not evolve; a tutor in Fortree teaches their partner moves).
+- Route 104: an NPC gives a <Mon name="Wimpod" />. Rustboro, house top-right of the gym: trade for a
+  <Mon name="Zorua" />; the same NPC swaps Zorua between its Unovan and Hisuian forms.
+
+More gifts, trades and hidden one-off battles are listed in [Side Content & Gift Pokémon](/guides/side-content/).
+
+## Battle systems added by the hack
+
+### Mega Evolution
+
+Needs the <Item name="Mega Bracelet" />: after beating Norman, talk to your mother in Littleroot. Her line: "This
+is a gift that the president of Devon asked your father to pass along… Your father thought it was still too early
+for you to receive such a precious band, so he left it with me!" Mega Stones are hidden items and rewards; see
+[Mega Stones, Z-Crystals & Key Items](/guides/mega-stones-key-items/#mega-stones).
+
+### Z-Moves
+
+Needs the <Item name="Z-Power Ring" label="Z-Ring" />, won from the trainer behind the Fortree City Pokémon
+Center. Z-Crystals come from the 18 Totem Pokémon hidden around Hoenn; collecting all 18 is also a story gate in
+the post-game.
+
+### Dynamax and Gigantamax
+
+Opens in the post-game on World Championship Island, where Leon (or Sonia, if you missed him) hands you the
+<Item name="Dynamax Band" />. Dynamax is only possible at Power Spots (the Championship battles, Leon's rematches,
+some story fights). Gigantamax forms come from <Item name="Max Mushroom" label="Max Mushrooms" /> and a Max Soup
+NPC on the island, who treats the first Pokémon in your party.
+
+### Other combat changes
+
+- Moves, abilities and items through Generation 8; turn order is recalculated mid-turn as in Sword and Shield.
+- Trainer AI is stronger across the board; the higher modes let it read your move.
+- Formal battles (gyms, leagues, the World Championships) use tournament rules: exactly six Pokémon brought, pick
+  three or four, doubles for the Sinnoh League and Championships.
+
+## Training and quality of life
+
+| What | How |
+| --- | --- |
+| Exp. Share | Built in: full experience to battlers, half to the bench. "It works just by sitting in your Bag." With the patch, using it from the Bag switches it off and on. |
+| EVs / IVs | The whole team gets EVs. An EV checker and an IV judge stand at the Solaceon Day Care; the starting PC has the EV-IV Display. Hyper Training on Champion Island shows 31 for a trained stat. |
+| TMs and HMs | Reusable. With the HM in the Bag and its badge, field moves work even if nobody can learn them (Flash from the party menu in a dark cave). Every TM can be bought on World Championship Island after the Sinnoh League. |
+| Nature change | Trainer's School in Rustboro: the Unova Gym Leader hands out Mints. The hack hides them behind a true/false quiz; the patch opens the Mint offer straight away, and the summary shows the new nature. |
+| Ability change | <Item name="Ability Pill" /> (regular abilities) and <Item name="Ability Patch" /> (hidden ability) drop as held items from <Mon name="Zigzagoon" /> on Route 101. Professor Sycamore also sells them for Zygarde Cells. |
+| Trade evolutions | Talk to the boy in the house east of Fallarbor and answer "No" (counts as a trade); an NPC in the Fortree Pokémon Center does the same. Hold the required item first. |
+| Move relearner | The patch adds a *Moves* option in the party menu (no Heart Scale). The hack's own tutors want Heart Scales; farm them from <Mon name="Luvdisc" /> with the Old Rod. |
+| Egg moves | Inherited as in Sword and Shield, from either parent. With the <Item name="Oval Charm" /> (Day-Care Man on Route 117, after the Hoenn League) Eggs appear about twice as often. |
+| Bikes | Mach and Acro Bikes from the house right of the Mauville Pokémon Center. With the patch you hold both at once. The Sky Pillar needs the Mach Bike. |
+| Repels | The hack asks "use another?" when a repel ends; the patch adds <Key>L</Key> to start one. |
+| Headbutt trees | Ram big trees with a Pokémon for tree encounters ("Pokémon live up in the trees. A Headbutt can get their attention."). |
+| Evolution stones | Thief from wild Pokémon on Mt. Pyre's Route 122 side (<Mon name="Vulpix" />: Fire Stone, <Mon name="Murkrow" />: Dusk Stone, <Mon name="Litwick" />: Dawn Stone, all 1%). An Eevee fan in Sinnoh trades stones for coloured shards. |
+| Rematches | Post-game rematches against gym leaders and story characters happen on the second floor of your house in Littleroot. |
+
+## Getting around
+
+- **Hoenn**: as vanilla, plus a ride device and the <Item name="News Tracker" /> that reports where roaming Pokémon
+  are. Steven's Island, Champion Island, Strange Island and Southern Island each get a red square on the Fly map
+  once you can fly there.
+- **Sinnoh**: every town has **Ride Pokémon** that fly you between towns you have visited. The summoning device is
+  in the Team Galactic warehouse in Veilstone. The patch's <Item name="Sinnoh Map" /> does the same from a map:
+  move the box, press <Key>A</Key>. <Mon name="Bibarel" /> climbs rock walls with the ride gear; Route 206 requires
+  a rented bike from the Eterna bike shop (pass the assistant's exam first).
+- **Hisui**: Rei is the fast-travel NPC between the safe zones, and his Rotom PC gives you box access. The Sinnoh
+  Map shows Hisui there and flies you with Braviary.
+
+<div class="shot-grid cols-3">
+  <Clip slug="sinnoh-map-fly" />
+  <Clip slug="hisui-map" />
+  <Clip slug="hoenn-fly-spots" />
+</div>
+
+## Things closed or cosmetic
+
+- The Global Terminal, Trade Hall, Veilstone Game Corner and Seven Stars Restaurant in Sinnoh are decorative.
+- The World Championship tournament itself is a placeholder in v5.7 ("The World Championships will officially open
+  in the future"); the island hosts cameo battles and Dynamax Power Spots.
+- Sprites occasionally glitch after warps. An NPC explains it: "If this happens, just switch screens and it will go
+  back to normal."

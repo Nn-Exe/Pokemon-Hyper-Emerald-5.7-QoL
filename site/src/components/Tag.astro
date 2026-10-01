@@ -1,0 +1,8 @@
+---
+interface Props {
+  type?: 'accent' | 'warn' | 'info' | 'danger';
+}
+const { type } = Astro.props;
+---
+
+<span class:list={['tag', type]}><slot /></span>

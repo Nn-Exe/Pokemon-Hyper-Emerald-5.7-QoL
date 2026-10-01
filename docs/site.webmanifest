@@ -1,0 +1,14 @@
+{
+  "name": "Hyper Emerald Guide",
+  "short_name": "HE Guide",
+  "description": "Player's guide for Pokémon Hyper Emerald: Lost Artifacts v5.7 and its English + QoL patch.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "browser",
+  "background_color": "#f3f6f0",
+  "theme_color": "#1a7a52",
+  "icons": [
+    { "src": "favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

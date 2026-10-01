@@ -1,0 +1,131 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import GuideCard from '../../components/GuideCard.astro';
+import ContextLinks from '../../components/ContextLinks.astro';
+import { allGuides, guideHref, guidePoster } from '../../lib/guides';
+import { absolute } from '../../lib/url';
+import { SITE_NAME } from '../../consts';
+
+const guides = await allGuides();
+const featured = guides.find((g) => g.id === 'walkthrough-hoenn')!;
+const shelf = (group: string) => guides.filter((g) => g.data.group === group && g.id !== featured.id);
+const crumbs = [{ name: 'Guides' }];
+const description =
+  'Practical help for Hyper Emerald: the full walkthrough from Littleroot to Volo, legendary locations, Mega Stones and everything the game never explains.';
+---
+
+<Base
+  title={`Hyper Emerald Guides - ${SITE_NAME}`}
+  description={description}
+  crumbs={crumbs}
+  pageType="CollectionPage"
+  schema={[
+    {
+      '@type': 'ItemList',
+      itemListElement: guides.map((g, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: g.data.title,
+        url: absolute(guideHref(g)),
+      })),
+    },
+  ]}
+>
+  <div class="container hub-page">
+    <header class="hub-opening">
+      <Breadcrumbs crumbs={crumbs} />
+      <p class="eyebrow">Guides</p>
+      <h1>Hyper Emerald Guides</h1>
+      <p class="lede">{description}</p>
+    </header>
+
+    <section class="hub-section" aria-labelledby="featured">
+      <h2 id="featured">Start here</h2>
+      <GuideCard
+        feature
+        eager
+        href={guideHref(featured)}
+        category={featured.data.category}
+        title={featured.data.title}
+        blurb={featured.data.description}
+        image={guidePoster(featured)}
+        imageAlt={featured.data.heroAlt}
+      />
+    </section>
+
+    <section class="hub-section" aria-labelledby="walkthrough">
+      <div class="hub-section-heading">
+        <h2 id="walkthrough">The rest of the walkthrough</h2>
+        <span>After the Hall of Fame</span>
+      </div>
+      <div class="guide-grid">
+        {
+          shelf('walkthrough').map((g) => (
+            <GuideCard
+              href={guideHref(g)}
+              category={g.data.category}
+              title={g.data.title}
+              blurb={g.data.description}
+              image={guidePoster(g)}
+              imageAlt={g.data.heroAlt}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="hub-section" aria-labelledby="start">
+      <div class="hub-section-heading">
+        <h2 id="start">Getting started</h2>
+        <span>Before you press New Game</span>
+      </div>
+      <div class="guide-grid">
+        {
+          shelf('start').map((g) => (
+            <GuideCard
+              href={guideHref(g)}
+              category={g.data.category}
+              title={g.data.title}
+              blurb={g.data.description}
+              image={guidePoster(g)}
+              imageAlt={g.data.heroAlt}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="hub-section" aria-labelledby="reference">
+      <div class="hub-section-heading">
+        <h2 id="reference">Reference guides</h2>
+        <span>Where things are</span>
+      </div>
+      <div class="guide-grid">
+        {
+          shelf('reference').map((g) => (
+            <GuideCard
+              href={guideHref(g)}
+              category={g.data.category}
+              title={g.data.title}
+              blurb={g.data.description}
+              image={guidePoster(g)}
+              imageAlt={g.data.heroAlt}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <ContextLinks
+      title="Wiki Reference"
+      links={[
+        { href: '/wiki/encounters/', label: 'Wild Encounters' },
+        { href: '/wiki/pokemon/', label: 'Pokémon Finder' },
+        { href: '/wiki/trainers/', label: 'Trainer Battles' },
+        { href: '/wiki/scripted-encounters/', label: 'Scripted Encounters' },
+        { href: '/wiki/', label: 'Browse the full Wiki' },
+      ]}
+    />
+  </div>
+</Base>

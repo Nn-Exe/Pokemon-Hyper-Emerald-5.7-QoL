@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Clip from '../components/Clip.astro';
+import Shot from '../components/Shot.astro';
+import ContextLinks from '../components/ContextLinks.astro';
+import { FEATURES, FEATURE_STATS } from '../data/features';
+import { url } from '../lib/url';
+import { SITE_NAME, PATCH_VERSION, UPDATED } from '../consts';
+
+const crumbs = [{ name: 'Features' }];
+const title = 'What the English + QoL Patch Adds';
+const description =
+  'A structured look at everything the patch adds to Hyper Emerald v5.7: the full English translation, the Bag and key-item ring, DexNav, the Sinnoh Map, the Journal and Quest Log, battle information and fixes.';
+---
+
+<Base title={`${title} - ${SITE_NAME}`} description={description} crumbs={crumbs} image="/showcase/clips/dexnav-screen.png">
+  <PageHero eyebrow="Patch features" title={title} lede={description} crumbs={crumbs} updated={UPDATED} />
+
+  <section class="section-tight" style="padding-top:0">
+    <div class="container">
+      <nav class="feature-index" aria-label="Feature categories">
+        <strong>Jump to</strong>
+        <div class="feature-index-links">
+          {FEATURES.map((s) => <a href={`#${s.id}`}>{s.nav}</a>)}
+        </div>
+      </nav>
+      <div class="feature-stat-grid" aria-label="The patch in numbers">
+        {
+          FEATURE_STATS.map((s) => (
+            <div class="stat">
+              <strong>{s.value}</strong>
+              <span>{s.label}</span>
+              <small>{s.note}</small>
+            </div>
+          ))
+        }
+      </div>
+      <p class="micro">
+        Current release: QoL {PATCH_VERSION}. Everything here works on existing saves.{' '}
+        <a class="text-link" href={url('/guides/controls/')}>See every button on one page →</a>
+      </p>
+    </div>
+  </section>
+
+  {
+    FEATURES.map((s, i) => (
+      <section id={s.id} class:list={['feature-section', { 'section-surface': i % 2 === 1 }]}>
+        <div class="container">
+          <header class="feature-head">
+            <p class="eyebrow">{s.eyebrow}</p>
+            <h2>{s.title}</h2>
+            <p>{s.intro}</p>
+          </header>
+          <div class="feature-layout">
+            <div class="mechanic-grid">
+              {s.cards.map((c) => (
+                <article class="mechanic-card">
+                  <h3>{c.title}</h3>
+                  <p>{c.text}</p>
+                  {c.how && <span class="how">{c.how}</span>}
+                </article>
+              ))}
+            </div>
+            <div class="feature-media-grid">
+              {s.media.map((m) =>
+                'clip' in m ? <Clip slug={m.clip} /> : <Shot src={m.shot} alt={m.alt} caption={m.caption} />,
+              )}
+            </div>
+          </div>
+          <ContextLinks title="Related" links={s.links} />
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section">
+    <div class="container cta-panel">
+      <p class="eyebrow">Left out on purpose</p>
+      <h2>What was investigated and declined</h2>
+      <p>
+        Bigger PC storage (it conflicts with the save format), a Rare Candy shop (the hack’s shop code soft-resets on
+        any list it does not know) and a 999-candy NPC, which made levelling pointless and was taken back out. An
+        in-party nature changer and a PC item sort are written but not verified in game, so they are not in the
+        release.
+      </p>
+      <div class="button-row">
+        <a class="btn btn-primary" href={url('/guides/install/')}>Install & play</a>
+        <a class="btn btn-secondary" href={url('/changelog/')}>Read the changelog</a>
+        <a class="btn btn-secondary" href={url('/gallery/')}>Open the gallery</a>
+      </div>
+    </div>
+  </section>
+</Base>

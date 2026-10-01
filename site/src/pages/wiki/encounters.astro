@@ -1,0 +1,228 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import { url } from '../../lib/url';
+import {
+  areas,
+  wildEntry,
+  spritePos,
+  levelRange,
+  REGIONS,
+  METHODS,
+  METHOD_SHORT,
+  type Region,
+  type Method,
+} from '../../lib/data';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Wild Encounters' }];
+const description =
+  'Find wild Pokémon in Hyper Emerald v5.7 by location, encounter method, level and rate, for every route, cave and sea area in Hoenn, Sinnoh and Hisui.';
+const regions = Object.keys(REGIONS) as Region[];
+const totalRows = areas.reduce((n, a) => n + a.rows.length, 0);
+const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
+---
+
+<Base title={`Wild Encounters - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Wild Encounters" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <aside class="callout plain">
+      <strong class="callout-title">How to read the odds</strong>
+      <p>
+        Rates are the Emerald engine’s fixed slot odds, added up per species. Fishing rows are grouped by rod. The
+        in-game DexNav (<kbd class="key">R</kbd>) shows the same table for the map you are standing on. Static
+        encounters, gifts and legendaries are in <a href={url('/wiki/scripted-encounters/')}>Scripted Encounters</a>.
+      </p>
+    </aside>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search encounters</span>
+        <input type="search" placeholder="Pokémon or location" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Region</span>
+        <select data-region>
+          <option value="">All regions</option>
+          {regions.map((r) => <option value={r}>{REGIONS[r]}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Method</span>
+        <select data-method>
+          <option value="">All methods</option>
+          {(Object.keys(METHODS) as Method[]).map((m) => <option value={m}>{METHODS[m]}</option>)}
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>
+          {areas.length} areas · {totalRows.toLocaleString('en-US')} encounter entries
+        </p>
+        <span>
+          <button type="button" data-expand>Expand all</button>
+          <button type="button" data-clear>Reset</button>
+        </span>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No encounters match those filters.</p>
+
+    {
+      regions.map((region) => {
+        const list = areas.filter((a) => a.region === region);
+        return (
+          <section data-region-block={region}>
+            <div class="region-heading">
+              <h2 id={region}>{REGIONS[region]}</h2>
+              <span>{list.length} areas</span>
+            </div>
+            {list.map((a) => (
+              <details class="record" id={a.id} data-area data-name={a.map.toLowerCase()} data-region={a.region}>
+                <summary>
+                  <span class="record-title">{a.map}</span>
+                  {a.note && <span class="record-note">{a.note}</span>}
+                  <span class="record-meta">
+                    <span class="chip is-quiet">{a.rows.length} entries</span>
+                    {a.methods.map((m) => (
+                      <span class={`chip m-${m}`}>{METHOD_SHORT[m]}</span>
+                    ))}
+                  </span>
+                  <span class="record-chevron" aria-hidden="true">›</span>
+                </summary>
+                <div class="table-shell" tabindex="0" role="region" aria-label={`${a.map} encounter table`}>
+                  <table class="encounter-table stack-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Pokémon</th>
+                        <th scope="col">Method</th>
+                        <th scope="col" class="numeric">Level</th>
+                        <th scope="col" class="numeric">Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {a.rows.map((r) => {
+                        const entry = wildEntry(r.sid);
+                        return (
+                          <tr data-n={r.species.toLowerCase()} data-m={r.method}>
+                            <th scope="row">
+                              <a class="mon" href={url(`/wiki/pokemon/#${entry?.id}`)}>
+                                <span class="spr spr-mon" style={spritePos('mon', r.sid)} aria-hidden="true" />
+                                <span>{r.species}</span>
+                              </a>
+                            </th>
+                            <td data-label="Method">
+                              <span class={`chip m-${r.method}`}>{METHODS[r.method]}</span>
+                            </td>
+                            <td data-label="Level" class="numeric">
+                              {levelRange(r.min, r.max)}
+                            </td>
+                            <td data-label="Rate" class="numeric">
+                              <span class="rate-bar" aria-hidden="true">
+                                <i style={`width:${Math.min(100, r.pct)}%`} />
+                              </span>
+                              {pct(r.pct)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            ))}
+          </section>
+        );
+      })
+    }
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const region = form.querySelector<HTMLSelectElement>('[data-region]')!;
+  const method = form.querySelector<HTMLSelectElement>('[data-method]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const blocks = [...document.querySelectorAll<HTMLElement>('[data-region-block]')];
+  const areas = [...document.querySelectorAll<HTMLDetailsElement>('[data-area]')].map((el) => ({
+    el,
+    rows: [...el.querySelectorAll<HTMLElement>('tbody tr')],
+  }));
+  const initial = count.textContent;
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    const filtering = Boolean(term || method.value);
+    let shownAreas = 0;
+    let shownRows = 0;
+    for (const { el, rows } of areas) {
+      let visible = 0;
+      if (!region.value || el.dataset.region === region.value) {
+        const whole = !term || el.dataset.name!.includes(term);
+        for (const row of rows) {
+          const ok = (!method.value || row.dataset.m === method.value) && (whole || row.dataset.n!.includes(term));
+          row.hidden = !ok;
+          if (ok) visible++;
+        }
+      }
+      el.hidden = visible === 0;
+      if (visible) {
+        shownAreas++;
+        shownRows += visible;
+        if (filtering) el.open = shownAreas <= 40;
+      }
+    }
+    for (const b of blocks) b.hidden = !b.querySelector('[data-area]:not([hidden])');
+    empty.hidden = shownAreas > 0;
+    count.textContent =
+      filtering || region.value
+        ? `${shownAreas} ${shownAreas === 1 ? 'area' : 'areas'} · ${shownRows.toLocaleString('en-US')} encounter entries`
+        : initial;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 90);
+  });
+  region.addEventListener('change', apply);
+  method.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    region.value = '';
+    method.value = '';
+    areas.forEach(({ el }) => (el.open = false));
+    apply();
+  });
+  const expand = form.querySelector<HTMLButtonElement>('[data-expand]')!;
+  expand.addEventListener('click', () => {
+    const open = expand.textContent === 'Expand all';
+    areas.forEach(({ el }) => {
+      if (!el.hidden) el.open = open;
+    });
+    expand.textContent = open ? 'Collapse all' : 'Expand all';
+  });
+
+  // a link to #route-102 (from the Pokémon finder or search) opens that area
+  function openFromHash() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const el = id ? document.getElementById(id) : null;
+    if (el instanceof HTMLDetailsElement) {
+      el.hidden = false;
+      el.open = true;
+      el.scrollIntoView({ block: 'start' });
+    }
+  }
+  window.addEventListener('hashchange', openFromHash);
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+  openFromHash();
+</script>

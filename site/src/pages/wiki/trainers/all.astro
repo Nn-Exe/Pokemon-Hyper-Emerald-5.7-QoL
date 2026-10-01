@@ -1,0 +1,134 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import WikiNav from '../../../components/WikiNav.astro';
+import { url } from '../../../lib/url';
+import { allTrainers, spritePos, className } from '../../../lib/data';
+import { SITE_NAME } from '../../../consts';
+
+const crumbs = [
+  { name: 'Wiki', href: '/wiki/' },
+  { name: 'Trainer Battles', href: '/wiki/trainers/' },
+  { name: 'Every Trainer' },
+];
+const description = `The complete trainer table of Hyper Emerald v5.7: all ${allTrainers.length.toLocaleString('en-US')} trainers with a party, where they are fought and what they send out.`;
+const classes = [...new Set(allTrainers.map((t) => className(t.cls)))].sort();
+---
+
+<Base title={`Every Trainer - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Every Trainer" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <aside class="callout plain">
+      <p>
+        For anyone checking a specific route battle. Boss teams with items and moves are on
+        <a href={url('/wiki/trainers/')}>Trainer Battles</a>. About 200 route trainers, mostly in Sinnoh, still have
+        Chinese names in the ROM and show as “(untranslated name)”; a location is listed where the map scripts name
+        the battle.
+      </p>
+    </aside>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search trainers</span>
+        <input type="search" placeholder="Trainer, location or Pokémon" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Class</span>
+        <select data-class>
+          <option value="">All classes</option>
+          {classes.map((c) => <option value={c}>{c}</option>)}
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{allTrainers.length.toLocaleString('en-US')} trainers</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No trainers match those filters.</p>
+
+    <div class="table-shell" tabindex="0" role="region" aria-label="Every trainer">
+      <table class="roster-table stack-table">
+        <thead>
+          <tr>
+            <th scope="col">Trainer</th>
+            <th scope="col">Where</th>
+            <th scope="col">Party</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            allTrainers.map((t) => {
+              const cls = className(t.cls);
+              return (
+                <tr
+                  data-class={cls}
+                  data-search={`${cls} ${t.name} ${t.where} ${t.party.map((p) => p.species).join(' ')}`.toLowerCase()}
+                >
+                  <th scope="row">
+                    {cls} {t.name}
+                    {t.double && <span class="chip is-quiet">Double</span>}
+                  </th>
+                  <td data-label="Where">{t.where || '—'}</td>
+                  <td data-label="Party">
+                    <div class="roster-party">
+                      {t.party.map((p) => (
+                        <span class="mon">
+                          <span class="spr spr-mon" style={spritePos('mon', p.sid)} aria-hidden="true" />
+                          <span>
+                            {p.species} <small>Lv{p.level}</small>
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const cls = form.querySelector<HTMLSelectElement>('[data-class]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const rows = [...document.querySelectorAll<HTMLElement>('.roster-table tbody tr')];
+
+  function apply() {
+    const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const row of rows) {
+      const ok = (!cls.value || row.dataset.class === cls.value) && terms.every((t) => row.dataset.search!.includes(t));
+      row.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    count.textContent = `${shown.toLocaleString('en-US')} ${shown === 1 ? 'trainer' : 'trainers'}`;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 120);
+  });
+  cls.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    cls.value = '';
+    apply();
+  });
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+</script>

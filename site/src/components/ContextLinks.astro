@@ -1,0 +1,24 @@
+---
+import { url } from '../lib/url';
+
+interface Props {
+  title: string;
+  links: { href: string; label: string }[];
+}
+const { title, links } = Astro.props;
+const id = 'context-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+---
+
+<section class="context-links" aria-labelledby={id}>
+  <h2 id={id}>{title}</h2>
+  <div>
+    {
+      links.map((l) => (
+        <a href={url(l.href)}>
+          <strong>{l.label}</strong>
+          <b aria-hidden="true">→</b>
+        </a>
+      ))
+    }
+  </div>
+</section>

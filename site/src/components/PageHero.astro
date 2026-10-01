@@ -1,0 +1,32 @@
+---
+import Breadcrumbs from './Breadcrumbs.astro';
+import { formatDate } from '../consts';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  lede: string;
+  crumbs: { name: string; href?: string }[];
+  updated?: string;
+}
+const { eyebrow, title, lede, crumbs, updated } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="container">
+    <div class="prose-width">
+      <Breadcrumbs crumbs={crumbs} />
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p class="lede">{lede}</p>
+      {
+        updated && (
+          <p class="page-updated">
+            Last updated <time datetime={updated}>{formatDate(updated)}</time>
+          </p>
+        )
+      }
+      <slot />
+    </div>
+  </div>
+</section>

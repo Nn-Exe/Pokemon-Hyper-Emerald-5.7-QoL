@@ -1,0 +1,147 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ContextLinks from '../../components/ContextLinks.astro';
+import Mon from '../../components/Mon.astro';
+import { url } from '../../lib/url';
+import { stats, spritePos } from '../../lib/data';
+import { LEGEND_COUNT } from '../../data/legendaries';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki' }];
+const description =
+  'Wild encounters, where to find every Pokémon, boss teams and scripted battles in Hyper Emerald v5.7, read straight from the game’s own data tables.';
+const n = (x: number) => x.toLocaleString('en-US');
+---
+
+<Base title={`Hyper Emerald Wiki - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <div class="container hub-page">
+    <header class="hub-opening">
+      <Breadcrumbs crumbs={crumbs} />
+      <p class="eyebrow">Wiki</p>
+      <h1>Hyper Emerald Wiki</h1>
+      <p class="lede">{description}</p>
+      <button class="hub-search" type="button" data-search-open>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
+        <span>Search Pokémon, places and trainers…</span>
+      </button>
+    </header>
+
+    <section class="hub-section" aria-labelledby="browse-wiki">
+      <div class="hub-section-heading">
+        <h2 id="browse-wiki">Browse the Wiki</h2>
+        <span>Game reference</span>
+      </div>
+      <div class="reference-grid">
+        <a class="reference-card" href={url('/wiki/encounters/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{n(stats.areas)} encounter areas</span>
+            <h3>Wild Encounters</h3>
+            <p>Every grass, cave, surfing, Rock Smash and fishing table, with levels and odds.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <Mon name="Ralts" bare size="x15" />
+            <Mon name="Shinx" bare size="x15" />
+            <Mon name="Riolu" bare size="x15" />
+            <Mon name="Rookidee" bare size="x15" />
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/pokemon/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{n(stats.wildBase)} species + {stats.wildForms} forms in the wild</span>
+            <h3>Pokémon Finder</h3>
+            <p>Pick a Pokémon and see every place it appears, by method, level and rate.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <Mon name="Treecko" bare size="x15" />
+            <Mon name="Torchic" bare size="x15" />
+            <Mon name="Mudkip" bare size="x15" />
+            <Mon name="Eevee" bare size="x15" />
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/trainers/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{n(stats.bosses)} boss teams</span>
+            <h3>Trainer Battles</h3>
+            <p>Gym Leaders, the Elite Four, rivals, villains and Champions with levels, items and moves.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <span class="spr spr-trainer" style={spritePos('trainer', 40)}></span>
+            <span class="spr spr-trainer" style={spritePos('trainer', 72)}></span>
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/trainers/all/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{n(stats.trainers)} trainers</span>
+            <h3>Every Trainer</h3>
+            <p>The complete trainer table for checking a specific route battle.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <span class="spr spr-trainer" style={spritePos('trainer', 36)}></span>
+            <span class="spr spr-trainer" style={spritePos('trainer', 9)}></span>
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/scripted-encounters/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{n(stats.scripted)} fixed battles</span>
+            <h3>Scripted Encounters</h3>
+            <p>Every wild battle a script starts: legendaries, Totems, guardians and hidden starters.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <Mon name="Rayquaza" bare size="x15" />
+            <Mon name="Giratina" bare size="x15" />
+            <Mon name="Arceus" bare size="x15" />
+            <Mon name="Zeraora" bare size="x15" />
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/guides/legendaries/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{LEGEND_COUNT} entries</span>
+            <h3>Legendary Locations</h3>
+            <p>Where each Legendary and Mythical Pokémon is and what you need first.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <Mon name="Dialga" bare size="x15" />
+            <Mon name="Palkia" bare size="x15" />
+            <Mon name="Mew" bare size="x15" />
+            <Mon name="Jirachi" bare size="x15" />
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <ContextLinks
+      title="Player Guides"
+      links={[
+        { href: '/guides/walkthrough-hoenn/', label: 'Hoenn Walkthrough' },
+        { href: '/guides/mega-stones-key-items/', label: 'Mega Stones & Key Items' },
+        { href: '/guides/side-content/', label: 'Side Content & Gift Pokémon' },
+        { href: '/guides/', label: 'View all Guides' },
+      ]}
+    />
+
+    <ContextLinks
+      title="Playing Hyper Emerald"
+      links={[
+        { href: '/guides/install/', label: 'Install & play' },
+        { href: '/faq/', label: 'Player FAQ' },
+      ]}
+    />
+
+    <p class="src">
+      The tables on these pages are read from the patched ROM with the scripts in the repository’s
+      <code>tools/romdata/</code> folder, so they are exact for v5.7 bugfix 2. Sprites are the game’s own icons.
+    </p>
+  </div>
+</Base>

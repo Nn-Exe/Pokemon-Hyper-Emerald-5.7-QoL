@@ -1,0 +1,20 @@
+{
+ "mon": {
+  "file": "mon.png",
+  "cell": 32,
+  "cols": 40,
+  "count": 1200
+ },
+ "trainer": {
+  "file": "trainer.png",
+  "cell": 64,
+  "cols": 16,
+  "count": 250
+ },
+ "item": {
+  "file": "item.png",
+  "cell": 24,
+  "cols": 32,
+  "count": 769
+ }
+}

@@ -1,0 +1,71 @@
+---
+// One chapter of the Journal's objectives (src/data/journal.json, from patches/journal/steps.py).
+import journal from '../data/journal.json';
+
+interface Props {
+  chapter?: string;
+  /** print the closing message instead of a chapter */
+  final?: boolean;
+}
+const { chapter, final = false } = Astro.props;
+const c = journal.chapters.find((x) => x.key === chapter);
+if (!final && !c) throw new Error(`JournalList: unknown chapter "${chapter}"`);
+---
+
+{
+  c && (
+    <>
+      <p>
+        {c.blurb} <span class="src">{c.steps.length} objectives.</span>
+      </p>
+      <ol class="journal-list">
+        {c.steps.map((s: any) => (
+          <li class="journal-step" id={`step-${s.n}`}>
+            <span class="journal-num">{s.n}</span>
+            <div>
+              <strong>
+                {s.title}{' '}
+                {s.anyOrder && (
+                  <span
+                    class="tag warn"
+                    title="Can be done early or out of order; the Journal never skips ahead because of it"
+                  >
+                    any order
+                  </span>
+                )}
+              </strong>
+              <p>{s.text}</p>
+              {s.group && (
+                <>
+                  <p>
+                    <strong>{s.group.label}</strong>{' '}
+                    <span class="src">
+                      ({s.group.all ? 'all of these' : 'in this order: the Journal shows the first one you are missing'})
+                    </span>
+                  </p>
+                  <ul>
+                    {s.group.members.map((m: any) => (
+                      <li>
+                        {m.text}
+                        {m.twice && <span class="src"> (counts twice)</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
+  )
+}
+
+{
+  final && (
+    <aside class="callout plain">
+      <strong class="callout-title">{journal.final.title}</strong>
+      <p>{journal.final.text}</p>
+    </aside>
+  )
+}

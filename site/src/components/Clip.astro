@@ -1,0 +1,36 @@
+---
+// A short gameplay clip (tools/build_clips.py). Plays muted while on screen; the poster is a real frame.
+import { showcase } from '../lib/url';
+import { clip } from '../lib/media';
+
+interface Props {
+  slug: string;
+  caption?: string | false;
+  eager?: boolean;
+}
+const { slug, caption, eager = false } = Astro.props;
+const c = clip(slug);
+const text = caption === false ? '' : caption || c.caption;
+---
+
+<figure class="shot">
+  <div class="shot-frame clip" data-clip>
+    <video
+      muted
+      loop
+      playsinline
+      preload={eager ? 'metadata' : 'none'}
+      poster={showcase(`clips/${slug}.png`)}
+      width={c.width}
+      height={c.height}
+      aria-label={c.caption}
+    >
+      <source src={showcase(`clips/${slug}.mp4`)} type="video/mp4" />
+    </video>
+    <button class="clip-toggle" type="button" data-clip-toggle aria-label="Play or pause this clip">
+      <svg class="icon-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h4v12H3zm6 0h4v12H9z"></path></svg>
+      <svg class="icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"></path></svg>
+    </button>
+  </div>
+  {text && <figcaption>{text}</figcaption>}
+</figure>

@@ -27,6 +27,7 @@ patches/<feature>/<feature>.s          Thumb source, assembled at a fixed BASE
 patches/<feature>/<feature>_patch.py   asserts the ROM matches, assembles, writes, repoints
 patches/<feature>/test_*.lua           mGBA Lua that drives the game and checks the feature
 tools/                                 ROM mining and asset conversion (region maps, encounter tables…)
+site/                                  the guide website's source (Astro); `npm run build` writes it into docs/
 docs/NOTES.md                          engineering record: every feature, every gotcha, all addresses
 docs/DEXNAV-PROGRESS.md                the newest feature in detail — start here if you are continuing it
 cheats/                                mGBA / RetroArch cheat files

@@ -1,0 +1,39 @@
+---
+// A screenshot from docs/showcase that opens in the image viewer.
+import { showcase } from '../lib/url';
+import { imageSize } from '../lib/media';
+
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  /** title shown in the viewer; defaults to the caption or alt text */
+  title?: string;
+  eager?: boolean;
+}
+const { src, alt, caption, title, eager = false } = Astro.props;
+const { width, height } = imageSize(src);
+const label = title || caption || alt;
+---
+
+<figure class="shot">
+  <button
+    class="lightbox-trigger"
+    type="button"
+    data-lightbox
+    data-src={showcase(src)}
+    data-alt={alt}
+    data-title={label}
+    aria-label={`Enlarge: ${label}`}
+  >
+    <img
+      src={showcase(src)}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  </button>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

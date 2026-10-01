@@ -1,0 +1,37 @@
+---
+// A Pokémon name with its menu icon. Links to the Pokémon finder when the species can be found in the wild.
+import { url } from '../lib/url';
+import { speciesId, spritePos, wildEntry } from '../lib/data';
+
+interface Props {
+  name?: string;
+  sid?: number;
+  /** text to print instead of the species name */
+  label?: string;
+  link?: boolean;
+  /** icon only */
+  bare?: boolean;
+  size?: 'x15' | 'x2';
+}
+const { name, sid: given, label, link = true, bare = false, size } = Astro.props;
+const sid = given ?? speciesId(name!);
+const text = label ?? name ?? '';
+const entry = link ? wildEntry(sid) : undefined;
+const icon = ['spr', 'spr-mon', size];
+---
+
+{
+  bare ? (
+    <span class:list={icon} style={spritePos('mon', sid)} role="img" aria-label={text || undefined} />
+  ) : entry ? (
+    <a class="mon" href={url(`/wiki/pokemon/#${entry.id}`)} title={`Where to find ${entry.name}`}>
+      <span class:list={icon} style={spritePos('mon', sid)} aria-hidden="true" />
+      <span>{text}</span>
+    </a>
+  ) : (
+    <span class="mon">
+      <span class:list={icon} style={spritePos('mon', sid)} aria-hidden="true" />
+      <span>{text}</span>
+    </span>
+  )
+}

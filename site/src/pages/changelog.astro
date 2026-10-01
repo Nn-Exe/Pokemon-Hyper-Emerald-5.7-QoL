@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ContextLinks from '../components/ContextLinks.astro';
+import { RELEASES, type Kind } from '../data/releases';
+import { SITE_NAME, REPO, formatDate } from '../consts';
+
+const crumbs = [{ name: 'Changelog' }];
+const title = 'Patch Changelog';
+const description =
+  'Every release of the English + QoL patch for Hyper Emerald v5.7, newest first: what was added, changed and fixed in each version.';
+const kindClass: Record<Kind, string> = { Added: 'accent', Changed: 'info', Fixed: 'warn', Removed: 'danger' };
+const current = RELEASES[0];
+---
+
+<Base title={`${title} - ${SITE_NAME}`} description={description} crumbs={crumbs} updated={current.date}>
+  <PageHero eyebrow="Version history" title={title} lede={description} crumbs={crumbs} updated={current.date} />
+
+  <section class="section-tight" style="padding-top:0">
+    <div class="container">
+      <div class="reading-column">
+      {
+        RELEASES.map((r, i) => (
+          <details class:list={['card', 'release-card', { 'release-current': i === 0 }]} id={r.version} open={i === 0}>
+            <summary>
+              <div>
+                <span class:list={['tag', { current: i === 0 }]}>{i === 0 ? 'Current release' : 'Previous release'}</span>
+                <h2>{r.version}</h2>
+              </div>
+              <time datetime={r.date}>{formatDate(r.date)}</time>
+            </summary>
+            <div class="release-body">
+              <p>{r.summary}</p>
+              <ul>
+                {r.changes.map(([kind, text]) => (
+                  <li>
+                    <span class:list={['tag', 'release-kind', kindClass[kind]]}>{kind}</span>
+                    {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        ))
+      }
+
+      <p class="src" style="margin-top:1.4rem">
+        This is the player’s summary. The line-by-line engineering changelog, with the patch folder behind each change,
+        is <a href={`${REPO}/blob/main/CHANGELOG.md`} target="_blank" rel="noopener noreferrer">CHANGELOG.md</a> in the
+        repository. Saves carry over between every version.
+      </p>
+
+      <ContextLinks
+        title="Related"
+        links={[
+          { href: '/features/', label: 'All features' },
+          { href: '/guides/install/', label: 'Install & play' },
+          { href: '/faq/', label: 'FAQ' },
+        ]}
+      />
+      </div>
+    </div>
+  </section>
+</Base>

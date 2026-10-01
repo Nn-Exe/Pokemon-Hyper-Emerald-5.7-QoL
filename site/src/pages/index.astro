@@ -1,0 +1,303 @@
+---
+import Base from '../layouts/Base.astro';
+import Clip from '../components/Clip.astro';
+import Team from '../components/Team.astro';
+import { url, showcase } from '../lib/url';
+import { clip } from '../lib/media';
+import { areas, stats, wildEntry, spritePos, levelRange, METHODS } from '../lib/data';
+import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, UPDATED, formatDate } from '../consts';
+
+const title = `${SITE_NAME} - ${GAME} ${GAME_VERSION} Walkthrough & Wiki`;
+const description =
+  'The complete player’s guide to Pokémon Hyper Emerald: Lost Artifacts v5.7 and its English + QoL patch: a full walkthrough of Hoenn, Sinnoh and the Lost Artifacts, boss teams, wild encounters and legendary locations read from the ROM.';
+const hero = clip('opening-legends');
+const n = (x: number) => x.toLocaleString('en-US');
+const route = areas.find((a) => a.map === 'Route 102')!;
+const routeRows = route.rows.filter((r) => r.method === 'land').slice(0, 6);
+const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
+---
+
+<Base
+  title={title}
+  description={description}
+  schema={[
+    {
+      '@type': 'VideoGame',
+      name: GAME,
+      gamePlatform: 'Game Boy Advance',
+      genre: ['Role-playing', 'Monster catching'],
+      description:
+        'A ROM hack of Pokémon Emerald with Hoenn and Sinnoh, sixteen gyms, every species through Generation 8, Mega Evolution, Z-Moves and Dynamax.',
+      version: GAME_VERSION.replace('v', ''),
+    },
+  ]}
+>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <div class="status-line">
+          <span class="tag current">Complete guide</span>
+          <span class="tag">Game {GAME_VERSION}</span>
+          <span class="tag">English + QoL {PATCH_VERSION}</span>
+        </div>
+        <p class="eyebrow">Unofficial player’s guide</p>
+        <h1>Two regions. Sixteen gyms. <span class="accent">One guide for all of it.</span></h1>
+        <p class="lede">
+          Pokémon Hyper Emerald: Lost Artifacts is an Emerald hack with all of Hoenn and Sinnoh, every Pokémon through
+          Generation 8, and a post-game longer than the main story.
+        </p>
+        <p class="hero-support">
+          This guide covers the English + quality-of-life patch, a walkthrough from Littleroot Town to the last battle
+          in Hisui, and reference tables read straight from the game’s own data.
+        </p>
+        <div class="button-row">
+          <a class="btn btn-primary" href={url('/guides/walkthrough-hoenn/')}>Start the walkthrough</a>
+          <a class="btn btn-secondary" href={url('/wiki/')}>Browse the Wiki</a>
+        </div>
+        <p class="micro">
+          Game {GAME_VERSION} · Patch {PATCH_VERSION} · Updated {formatDate(UPDATED)} · No ROM hosted here
+        </p>
+      </div>
+      <div class="hero-media">
+        <div class="hero-frame clip" data-clip>
+          <video
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster={showcase('clips/opening-legends.png')}
+            width={hero.width}
+            height={hero.height}
+            aria-label="The opening scene: Dialga, Palkia and Giratina on the mountain"
+          >
+            <source src={showcase('clips/opening-legends.mp4')} type="video/mp4" />
+          </video>
+          <button class="clip-toggle" type="button" data-clip-toggle aria-label="Play or pause this clip">
+            <svg class="icon-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h4v12H3zm6 0h4v12H9z"></path></svg>
+            <svg class="icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"></path></svg>
+          </button>
+          <div class="hero-caption">
+            <span>Opening: the legends on the mountain</span>
+            <span>GBA · 240×160</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight" style="padding-top:0">
+    <div class="container">
+      <div class="stat-strip" aria-label="Hyper Emerald in numbers">
+        <div class="stat"><strong>2</strong><span>regions</span><small>Hoenn and Sinnoh, plus Hisui</small></div>
+        <div class="stat"><strong>16</strong><span>gyms</span><small>and three leagues</small></div>
+        <div class="stat">
+          <strong>{n(stats.species)}</strong><span>wild Pokémon</span><small>{stats.wildBase} species + {stats.wildForms} forms</small>
+        </div>
+        <div class="stat">
+          <strong>{n(stats.trainers)}</strong><span>trainers</span><small>{stats.bosses} boss teams in full</small>
+        </div>
+        <div class="stat"><strong>84</strong><span>story objectives</span><small>tracked by the Journal</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-surface">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">The walkthrough</p>
+        <h2>From Littleroot Town to the last Plate.</h2>
+        <p>
+          Three parts, in the order the game runs them. Steps that match vanilla Emerald take a line; everything the
+          hack adds gets its own paragraph, with the real team for every boss.
+        </p>
+      </div>
+      <div class="card-trio">
+        <article class="feature-card">
+          <Clip slug="sky-pillar-rayquaza" caption={false} />
+          <h3>Part 1 · Hoenn</h3>
+          <p>Eight gyms with level caps, the Rocket hideout under Mauville, and an Elite Four fought in Double Battles.</p>
+          <a class="text-link" href={url('/guides/walkthrough-hoenn/')}>Littleroot to Champion →</a>
+        </article>
+        <article class="feature-card">
+          <Clip slug="giovanni-mewtwo" caption={false} />
+          <h3>Part 2 · Post-game & Sinnoh</h3>
+          <p>The Delta Episode, the Ultra Wormholes, Team Rainbow Rocket, Champion Island and eight more gyms.</p>
+          <a class="text-link" href={url('/guides/walkthrough-postgame/')}>Sinnoh & beyond →</a>
+        </article>
+        <article class="feature-card">
+          <Clip slug="arceus" caption={false} />
+          <h3>Part 3 · Lost Artifacts</h3>
+          <p>Seventeen Plates, the Space-Time Rift, Giratina, Arceus, and Volo waiting in ancient Hisui.</p>
+          <a class="text-link" href={url('/guides/lost-artifacts/')}>The Lost Artifacts questline →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container feature-editorial">
+      <div class="feature-copy">
+        <p class="eyebrow">Boss teams</p>
+        <h2>Know the team before you walk in.</h2>
+        <p class="lede">
+          Every Gym Leader, Elite Four member, rival, villain and Champion, with levels, held items and moves, read
+          from the ROM’s trainer table. Roxanne opens with six Pokémon and three kinds of entry hazard.
+        </p>
+        <div class="button-row">
+          <a class="text-link" href={url('/wiki/trainers/')}>Browse {stats.bosses} boss teams →</a>
+          <a class="text-link" href={url('/wiki/trainers/all/')}>Every trainer in the game →</a>
+        </div>
+      </div>
+      <div class="feature-media">
+        <Team id={265} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-surface">
+    <div class="container feature-editorial reverse">
+      <div class="feature-copy">
+        <p class="eyebrow">Wild Pokémon</p>
+        <h2>Find anything, anywhere.</h2>
+        <p class="lede">
+          Grass, cave, surfing, Rock Smash and fishing tables for all {stats.areas} areas, with levels and odds. Search
+          by place, or pick a Pokémon and see everywhere it appears.
+        </p>
+        <div class="button-row">
+          <a class="text-link" href={url('/wiki/encounters/')}>Wild encounters →</a>
+          <a class="text-link" href={url('/wiki/pokemon/')}>Pokémon finder →</a>
+          <a class="text-link" href={url('/guides/legendaries/')}>Legendary locations →</a>
+        </div>
+      </div>
+      <div class="feature-media">
+        <div class="record" style="margin:0">
+          <div class="team-head">
+            <div class="team-head-copy">
+              <strong>{route.map}</strong>
+              <span class="team-where">Hoenn · {METHODS.land}</span>
+            </div>
+          </div>
+          <div class="table-shell">
+            <table class="encounter-table">
+              <thead>
+                <tr>
+                  <th scope="col">Pokémon</th>
+                  <th scope="col" class="numeric">Level</th>
+                  <th scope="col" class="numeric">Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  routeRows.map((r) => (
+                    <tr>
+                      <th scope="row">
+                        <a class="mon" href={url(`/wiki/pokemon/#${wildEntry(r.sid)?.id}`)}>
+                          <span class="spr spr-mon" style={spritePos('mon', r.sid)} aria-hidden="true" />
+                          <span>{r.species}</span>
+                        </a>
+                      </th>
+                      <td class="numeric">{levelRange(r.min, r.max)}</td>
+                      <td class="numeric">
+                        <span class="rate-bar" aria-hidden="true">
+                          <i style={`width:${Math.min(100, r.pct)}%`} />
+                        </span>
+                        {pct(r.pct)}
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container feature-editorial">
+      <div class="feature-copy">
+        <p class="eyebrow">The English + QoL patch</p>
+        <h2>The whole game in English, with the rough edges filed off.</h2>
+        <p class="lede">
+          About 6,000 strings translated, a DexNav, a Journal that names your next objective, a map of Sinnoh you can
+          fly from, a key-item ring with the PC in the middle, and a Bag that holds 200 items.
+        </p>
+        <div class="button-row">
+          <a class="btn btn-secondary" href={url('/features/')}>Explore all features</a>
+          <a class="text-link" href={url('/guides/controls/')}>Controls at a glance →</a>
+        </div>
+      </div>
+      <div class="feature-media media-duo">
+        <Clip slug="dexnav-screen" caption={false} />
+        <Clip slug="key-ring" caption={false} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-surface">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">More along the way</p>
+        <h2>Legendaries, Mega Stones and what the Journal does not tell you.</h2>
+        <p>The post-game hides most of its content. These guides say where it is and what gates it.</p>
+      </div>
+      <div class="card-trio">
+        <article class="feature-card">
+          <Clip slug="n-reshiram-zekrom" caption={false} />
+          <h3>Legendary locations</h3>
+          <p>Every Legendary and Mythical Pokémon, the level its script uses, and what you need first.</p>
+          <a class="text-link" href={url('/guides/legendaries/')}>Legendary Locations guide →</a>
+        </article>
+        <article class="feature-card">
+          <Clip slug="bag-200-slots" caption={false} />
+          <h3>Mega Stones & Z-Crystals</h3>
+          <p>Stone locations, the eighteen Totem Pokémon, the Plates and the key items that unlock mechanics.</p>
+          <a class="text-link" href={url('/guides/mega-stones-key-items/')}>Items guide →</a>
+        </article>
+        <article class="feature-card">
+          <Clip slug="questlog-side-content" caption={false} />
+          <h3>Side content & gifts</h3>
+          <p>The Hisuian trades, gift Pokémon, hidden starters and secret trials outside the story.</p>
+          <a class="text-link" href={url('/guides/side-content/')}>Side Content guide →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">See it in game</p>
+        <h2>Fifty-four clips, straight from the emulator.</h2>
+        <p>Story moments, boss battles, the DexNav, the Quest Log, maps and menus, each a few seconds long.</p>
+      </div>
+      <div class="shot-grid cols-3">
+        <Clip slug="volo-hoopa-eternatus" />
+        <Clip slug="sinnoh-map-fly" />
+        <Clip slug="questlog-legends" />
+      </div>
+      <div class="button-row" style="margin-top:1.4rem">
+        <a class="btn btn-secondary" href={url('/gallery/')}>Open the gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container cta-panel">
+      <p class="eyebrow">Current release · QoL {PATCH_VERSION}</p>
+      <h2>Ready to begin?</h2>
+      <p>
+        Patch your own copy of Hyper Emerald: Lost Artifacts {GAME_VERSION} in one command, pick your difficulty at the
+        bedroom clock, and start in Littleroot Town. Existing saves keep working.
+      </p>
+      <div class="button-row">
+        <a class="btn btn-primary" href={url('/guides/install/')}>Install & play</a>
+        <a class="btn btn-secondary" href={url('/guides/')}>Browse Guides</a>
+        <a class="btn btn-secondary" href={url('/wiki/')}>Explore the Wiki</a>
+        <a class="btn btn-secondary" href={url('/faq/')}>FAQ</a>
+        <a class="btn btn-secondary" href={url('/changelog/')}>Read the changelog</a>
+      </div>
+    </div>
+  </section>
+</Base>

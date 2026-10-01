@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ContextLinks from '../components/ContextLinks.astro';
+import { slugify } from '../lib/url';
+import { FAQ_GROUPS as GROUPS } from '../data/faq';
+import { SITE_NAME, UPDATED } from '../consts';
+
+const crumbs = [{ name: 'FAQ' }];
+const title = 'Hyper Emerald FAQ';
+const description =
+  'Straight answers about patching Hyper Emerald v5.7, saves, the new controls, and the hack’s own known issues. Check here before assuming your ROM is broken.';
+const strip = (html: string) => html.replace(/<[^>]+>/g, '');
+const schema = [
+  {
+    '@type': 'FAQPage',
+    mainEntity: GROUPS.flatMap((g) =>
+      g.items.map((i) => ({
+        '@type': 'Question',
+        name: i.q,
+        acceptedAnswer: { '@type': 'Answer', text: strip(i.a) },
+      })),
+    ),
+  },
+];
+---
+
+<Base title={`${title} - ${SITE_NAME}`} description={description} crumbs={crumbs} schema={schema}>
+  <PageHero eyebrow="Help" title={title} lede={description} crumbs={crumbs} updated={UPDATED} />
+
+  <section class="section-tight" style="padding-top:0">
+    <div class="container">
+      <div class="reading-column">
+      {
+        GROUPS.map((g) => (
+          <section class="faq-group">
+            <h2 id={slugify(g.title)}>{g.title}</h2>
+            {g.items.map((i) => (
+              <details class="faq-item" id={slugify(i.q)}>
+                <summary>{i.q}</summary>
+                <div class="faq-answer" set:html={`<p>${i.a}</p>`} />
+              </details>
+            ))}
+          </section>
+        ))
+      }
+
+      <ContextLinks
+        title="Still stuck?"
+        links={[
+          { href: '/guides/install/', label: 'Install & play' },
+          { href: '/guides/controls/', label: 'Controls at a glance' },
+          { href: '/guides/journal/', label: 'What do I do next?' },
+          { href: '/changelog/', label: 'Changelog' },
+        ]}
+      />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // a link to #question opens it
+  function openFromHash() {
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (el instanceof HTMLDetailsElement) {
+      el.open = true;
+      el.scrollIntoView({ block: 'center' });
+    }
+  }
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
+</script>

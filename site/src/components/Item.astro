@@ -1,0 +1,25 @@
+---
+// An item name with its Bag icon.
+import { itemId, spritePos } from '../lib/data';
+
+interface Props {
+  name?: string;
+  id?: number;
+  label?: string;
+  bare?: boolean;
+}
+const { name, id: given, label, bare = false } = Astro.props;
+const id = given ?? itemId(name!);
+const text = label ?? name ?? '';
+---
+
+{
+  bare ? (
+    <span class="spr spr-item" style={spritePos('item', id)} role="img" aria-label={text || undefined} />
+  ) : (
+    <span class="item-ref">
+      <span class="spr spr-item" style={spritePos('item', id)} aria-hidden="true" />
+      <span>{text}</span>
+    </span>
+  )
+}

@@ -6,7 +6,8 @@
 *.nro
 __pycache__/
 *.png
-!docs/showcase/*.png
+!docs/**/*.png
+!site/public/**/*.png
 !patches/questlog/badges/sinnoh.png
 *_log.txt
 *_done.txt
@@ -16,3 +17,8 @@ tools/romdata/out/
 tools/romdata/__pycache__/
 lz_blobs.json
 .DS_Store
+
+# Guide site (Astro): the source is site/, the build is copied into docs/ (site/scripts/publish.mjs)
+site/node_modules/
+site/dist/
+site/.astro/

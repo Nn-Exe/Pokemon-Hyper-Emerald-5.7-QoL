@@ -1,0 +1,139 @@
+---
+import { NAV, NAV_MORE, REPO } from '../consts';
+import { url } from '../lib/url';
+
+const here = Astro.url.pathname;
+const isActive = (href: string) => {
+  const target = url(href);
+  return href === '/' ? here === target : here.startsWith(target);
+};
+const moreActive = NAV_MORE.some((l) => isActive(l.href));
+---
+
+<header class="site-header" data-header>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="nav-shell">
+    <a class="brand" href={url('/')} aria-label="Hyper Emerald Guide home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M3 12h5.5m7 0H21"></path>
+          <circle cx="12" cy="12" r="3.2" fill="#fff" stroke="none"></circle>
+        </svg>
+      </span>
+      <span class="brand-text">Hyper <strong>Emerald</strong><small>Guide</small></span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      {
+        NAV.map((l) => (
+          <a
+            href={url(l.href)}
+            class:list={['nav-link', { 'is-active': isActive(l.href) }]}
+            aria-current={isActive(l.href) ? 'page' : undefined}
+          >
+            {l.label}
+          </a>
+        ))
+      }
+      <div class="more-menu">
+        <button
+          class:list={['nav-link', 'more-trigger', { 'is-active': moreActive }]}
+          type="button"
+          aria-expanded="false"
+          aria-haspopup="true"
+          aria-controls="more-navigation"
+          data-more-trigger
+        >
+          More <span aria-hidden="true">▾</span>
+        </button>
+        <div id="more-navigation" class="more-panel" data-more-panel>
+          {
+            NAV_MORE.map((l) => (
+              <a href={url(l.href)} class:list={[{ 'is-active': isActive(l.href) }]}>
+                {l.label}
+              </a>
+            ))
+          }
+          <a href={REPO} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn search-trigger" type="button" data-search-open aria-label="Search the guide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
+        <span>Search</span>
+        <kbd aria-hidden="true">/</kbd>
+      </button>
+      <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Switch theme" title="Switch theme">
+        <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path></svg>
+        <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+      <button
+        class="icon-btn mobile-menu-button"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-navigation"
+        data-mobile-trigger
+      >
+        <span class="sr-only" data-mobile-label>Open menu</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-navigation" class="mobile-nav" aria-label="Mobile navigation" hidden data-mobile-nav>
+    {
+      [...NAV, ...NAV_MORE].map((l) => (
+        <a
+          href={url(l.href)}
+          class:list={[{ 'is-active': isActive(l.href) }]}
+          aria-current={isActive(l.href) ? 'page' : undefined}
+        >
+          {l.label}
+        </a>
+      ))
+    }
+    <a href={REPO} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+  </nav>
+</header>
+
+<script>
+  const root = document.documentElement;
+  document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('he-theme', next);
+    } catch {}
+  });
+
+  const moreTrigger = document.querySelector<HTMLButtonElement>('[data-more-trigger]');
+  const morePanel = document.querySelector<HTMLElement>('[data-more-panel]');
+  const setMore = (open: boolean) => {
+    morePanel?.classList.toggle('is-open', open);
+    moreTrigger?.setAttribute('aria-expanded', String(open));
+  };
+  moreTrigger?.addEventListener('click', () => setMore(!morePanel?.classList.contains('is-open')));
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('.more-menu')) setMore(false);
+  });
+
+  const mobileTrigger = document.querySelector<HTMLButtonElement>('[data-mobile-trigger]');
+  const mobileNav = document.querySelector<HTMLElement>('[data-mobile-nav]');
+  const mobileLabel = document.querySelector<HTMLElement>('[data-mobile-label]');
+  const setMobile = (open: boolean) => {
+    if (!mobileNav) return;
+    mobileNav.hidden = !open;
+    mobileTrigger?.setAttribute('aria-expanded', String(open));
+    if (mobileLabel) mobileLabel.textContent = open ? 'Close menu' : 'Open menu';
+  };
+  mobileTrigger?.addEventListener('click', () => setMobile(Boolean(mobileNav?.hidden)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      setMore(false);
+      setMobile(false);
+    }
+  });
+</script>

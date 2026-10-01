@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import Mon from '../components/Mon.astro';
+import { url } from '../lib/url';
+import { SITE_NAME } from '../consts';
+---
+
+<Base
+  title={`Page not found - ${SITE_NAME}`}
+  description="That page is not in the guide. Search for a Pokémon, a place or a trainer, or start from the guides."
+  noindex
+>
+  <section class="container not-found">
+    <div>
+      <Mon name="Kecleon" bare size="x2" />
+      <p class="eyebrow" style="margin-top:1rem">Error 404</p>
+      <h1>Something invisible is blocking the way</h1>
+      <p class="lede" style="margin-inline:auto">
+        That page is not in the guide. It may have moved when the site was rebuilt: search for it, or start from one
+        of these.
+      </p>
+      <div class="button-row" style="justify-content:center;margin-top:1.6rem">
+        <button class="btn btn-primary" type="button" data-search-open>Search the guide</button>
+        <a class="btn btn-secondary" href={url('/guides/')}>Browse Guides</a>
+        <a class="btn btn-secondary" href={url('/wiki/')}>Explore the Wiki</a>
+        <a class="btn btn-secondary" href={url('/')}>Home</a>
+      </div>
+    </div>
+  </section>
+</Base>
