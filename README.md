@@ -11,8 +11,12 @@ Existing saves keep working.
 > bugs. Keep a backup of your `.sav`, and please report anything odd you run into.
 
 <p align="center">
-  <img src="docs/showcase/stat-colors.gif" width="320" alt="Coloured stat names">
-  <img src="docs/showcase/relearner.gif" width="320" alt="In-party move relearner">
+  <img src="docs/showcase/showcase-maps-travel.gif" width="720" alt="Maps, travel and field: the Sinnoh, Hisui and Hoenn maps, faster surfing, Auto Run, HMs without the Pokémon">
+  <img src="docs/showcase/showcase-bag-menus.gif" width="720" alt="Key items, Bag and menus: the key-item ring, PC anywhere, 200 item slots, Instant text">
+  <img src="docs/showcase/showcase-battle.gif" width="720" alt="Battle: type badges, move effectiveness, gold box on shinies, quick ball throw">
+  <img src="docs/showcase/showcase-dexnav.gif" width="720" alt="DexNav: the Unbound-style screen, shadows for unseen species, search and chain">
+  <img src="docs/showcase/showcase-questlog.gif" width="720" alt="Quest Log and Journal: Evolutions, legendaries, key items, side content, the Sinnoh badge case">
+  <img src="docs/showcase/showcase-story-bosses.gif" width="720" alt="Story: the opening battle, Rayquaza at the Sky Pillar, boss and legendary battles">
 </p>
 
 ## Features
