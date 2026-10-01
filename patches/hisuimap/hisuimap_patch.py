@@ -2,9 +2,11 @@
 usage: python hisuimap_patch.py <in.gba> <out.gba>
 
 Used anywhere in Hisui, the Sinnoh Map now shows a Hisui town map instead of saying there is no map: a
-marker on the area you are in, the D-pad hops between the six places, A on a red square flies you there
-with Mingyao's own Braviary script (the same one her menu runs), B leaves. Everywhere else it is the Sinnoh
-Map exactly as before.
+marker on the area you are in, A on a red square flies you there with Mingyao's own Braviary script (the same
+one her menu runs), B leaves. Everywhere else it is the Sinnoh Map as before.
+2026-09-30: on both maps a red box moves freely, a square at a time, as on the Hoenn map (it used to hop from
+place to place); the name box names the place the square belongs to, from a 30x20 grid per region worked out by
+grid.py; A flies from the box. The grids and the box sprite live at 0x08FF7800.
 
 The screen is patches/sinnohmap's, rebuilt as regionmap.s to draw from a region record instead of fixed
 addresses, and installed here as new code; the item's field-use pointer moves to it. Sinnoh's picture,
@@ -32,10 +34,16 @@ import json, os, struct, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "sinnohmap"))
+sys.path.insert(0, HERE)
 import sinnohmap_patch as SM                    # its text encoder, assembler check, marker tile and tables
+import grid as G                                # the per-square place grids for the free cursor
 
 FREE = 0x00FF3000                               # in the unreferenced 0xFF run 0x08FF2574..0x08FFD5A0
 BASE = 0x08000000 + FREE
+FAR, FAR_END = 0x00FF7800, 0x00FF80E0           # the grids and the cursor box: in the 0xFF run 0x08FF6600..0x08FFD5A0,
+                                                # between data words that happen to read 0x08FF7785 and 0x08FF80E8
+                                                # (NOT after 0x09FC0000: that run is reserved)
+CURSOR_TAG = 0x5EA0
 OLD = (0x08FDBC8C, 0x08FDE494)                  # the sinnohmap blob
 ITEM = SM.ITEMS + SM.TOWN_MAP * 44
 HISUI_SEC = 104
@@ -103,6 +111,40 @@ def build(inp, outp):
     for i, (ptr, _) in MINGYAO_FIX.items():
         assert u32(rom, MINGYAO_LIST + 8 * i) == ptr, "Mingyao's option %d is not the untranslated text" % i
 
+    # the free cursor's data, far away: two 30x20 grids, the box sprite (16x16, 1D) and its palette
+    far = bytearray(); fa = {}
+    def fput(name, b, align=4):
+        while len(far) % align: far.append(0)
+        fa[name] = 0x08000000 + FAR + len(far); far.extend(b)
+    sgrid, _ = G.sinnoh_grid(G.sinnoh_places())
+    hgrid, _ = G.hisui_grid({n: (x, y, name) for n, name, x, y, _ in PLACES})
+    fput("GRID_SINNOH", G.pack(sgrid))
+    fput("GRID_HISUI", G.pack(hgrid))
+    box = [[0] * 16 for _ in range(16)]
+    for y in range(16):
+        for x in range(16):
+            e = max(abs(x - 7.5), abs(y - 7.5))
+            corner = abs(x - 7.5) > 5 and abs(y - 7.5) > 5 and (abs(x - 7.5) - 5) ** 2 + (abs(y - 7.5) - 5) ** 2 > 4
+            if not corner and 4.5 <= e <= 7.5:
+                box[y][x] = 2 if e > 6.5 or e < 5 else 1
+    tiles = bytearray()
+    for ty in range(2):
+        for tx in range(2):
+            for y in range(8):
+                for x in range(0, 8, 2):
+                    tiles.append(box[ty * 8 + y][tx * 8 + x] | (box[ty * 8 + y][tx * 8 + x + 1] << 4))
+    fput("CURSOR_TILES", bytes(tiles))
+    fput("CURSOR_COLOURS", struct.pack("<16H", 0, 0x001F | (6 << 5) | (6 << 10), 0x000E, *([0] * 13)))
+    fput("CURSHEET", struct.pack("<IHH", fa["CURSOR_TILES"], 128, CURSOR_TAG))
+    fput("CURSPAL", struct.pack("<IHH", fa["CURSOR_COLOURS"], CURSOR_TAG, 0))
+    fput("CUROAM", bytes.fromhex("0000004000000000"))       # 16x16, priority 0
+    fput("CURTPL", struct.pack("<HHI4I", CURSOR_TAG, CURSOR_TAG, fa["CUROAM"], 0x082EC69C, 0, 0x082EC6A8, 0x08007429))
+    assert FAR + len(far) <= FAR_END and set(rom[FAR:FAR + len(far)]) == {0xFF}, "the far region is not free"
+    for k in range(0, len(rom), 4):
+        v = struct.unpack_from("<I", rom, k)[0]
+        assert not 0x08000000 + FAR <= v < 0x08000000 + FAR + len(far), "%08X points into the far region" % k
+    rom[FAR:FAR + len(far)] = far
+
     def data_blob(base):
         d = bytearray(); a = {}
         def put(name, b, align=1):
@@ -132,8 +174,9 @@ def build(inp, outp):
         put("H_LOC", b"".join(bytes((n, x, y)) for n, _, x, y, _ in PLACES) + b"\xFF")
         put("H_FLY", b"".join(struct.pack("<BBHI", n, 0, 0, blk) for n, _, _, _, blk in PLACES if blk) + b"\xFF", 4)
         put("H_NAMES", b"".join(struct.pack("<B3xI", n, a["NAME_%d" % n]) for n, *_ in PLACES) + b"\xFF", 4)
-        put("REGION_SINNOH", struct.pack("<6I", s_pal, s_tiles, s_map, s_loc, s_courier, 0), 4)
-        put("REGION_HISUI", struct.pack("<6I", a["H_PAL"], a["H_TILES"], a["H_MAP"], a["H_LOC"], a["H_FLY"], a["H_NAMES"]), 4)
+        put("REGION_SINNOH", struct.pack("<7I", s_pal, s_tiles, s_map, s_loc, s_courier, 0, fa["GRID_SINNOH"]), 4)
+        put("REGION_HISUI", struct.pack("<7I", a["H_PAL"], a["H_TILES"], a["H_MAP"], a["H_LOC"], a["H_FLY"], a["H_NAMES"],
+                                         fa["GRID_HISUI"]), 4)
         return bytes(d), a
 
     src = open(os.path.join(HERE, "regionmap.s"), encoding="ascii").read()
@@ -142,7 +185,7 @@ def build(inp, outp):
 
     def assemble(addrs):
         s = src
-        for k, v in sorted(addrs.items(), key=lambda kv: -len(kv[0])):     # longest first
+        for k, v in sorted(dict(addrs, **fa).items(), key=lambda kv: -len(kv[0])):     # longest first
             s = s.replace(k + "_ADDR", "0x%08X" % v)
         return SM.thumb(s, BASE)
 
@@ -153,10 +196,10 @@ def build(inp, outp):
     data, daddrs = data_blob(BASE + code_len)
     funcs = [i.address for i in dis if i.mnemonic == "push"]
     # item_use, wait_task, where, cur_slot, cb2_init, cb2_main, vblank, copy_words, task,
-    # snap, courier_for, fly_target, fly_cb, fly_task, slot_at, draw_name, print
+    # courier_for, fly_target, fly_cb, fly_task, key_at, cursor_moved, draw_name, print
     assert len(funcs) == 17, "unexpected function layout: %d pushes" % len(funcs)
     caddrs = {"CB2_INIT": funcs[4] | 1, "CB2_MAIN": funcs[5] | 1, "VBLANK": funcs[6] | 1, "TASK": funcs[8] | 1,
-              "WAIT_TASK": funcs[1] | 1, "FLY_CB": funcs[12] | 1, "FLY_TASK": funcs[13] | 1}
+              "WAIT_TASK": funcs[1] | 1, "FLY_CB": funcs[11] | 1, "FLY_TASK": funcs[12] | 1}
     item_use = funcs[0] | 1
     code, _ = assemble(dict(daddrs, **caddrs))
     assert (len(code) + 3) & ~3 == code_len
@@ -164,7 +207,7 @@ def build(inp, outp):
     blob = bytearray(code) + bytes(code_len - len(code)) + data
     while len(blob) % 4: blob.append(0)
     end = FREE + len(blob)
-    assert end <= 0x00FFD5A0 and set(rom[FREE:end]) == {0xFF}, "target region not free"
+    assert end <= 0x00FF5600 and set(rom[FREE:end]) == {0xFF}, "target region not free (ovalcharm starts at 0x08FF5600)"
     rom[FREE:end] = blob
 
     struct.pack_into("<I", rom, ITEM + 28, item_use)                  # the Sinnoh Map opens the new screen

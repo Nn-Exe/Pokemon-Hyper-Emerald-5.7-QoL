@@ -1,2 +1,2 @@
 original  Hyper EMR LA v5.7 bugfix 2.gba  size 33554432  sha1 f785bed9d9e82e8da13ea4a5ad747e3ea4ec7ba9
-result    Hyper Emerald v5.7 EN+QoL.gba          sha1 dba0ac1b47bb2eede6214c8ca2a814bbf3249222
+result    Hyper Emerald v5.7 EN+QoL.gba          sha1 603790cfe8b89be5da754996a54d9ebd64f7ea74

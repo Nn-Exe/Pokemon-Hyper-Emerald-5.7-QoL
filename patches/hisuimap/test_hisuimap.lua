@@ -1,3 +1,5 @@
+-- SUPERSEDED 2026-09-30: the map's cursor no longer hops between places, it moves a square at a time - see
+-- test_freecursor.lua. Kept for the record; its HOPS no longer land where its comments say.
 -- Hisui on the Sinnoh Map: warp into Hisui with a script from EWRAM, open the map screen, hop the marker
 -- around the six places, press A on one and check we land on that map, then show Mingyao's menu. Screenshots hm_*.png, log
 -- hisuimap_log.txt. Set DIR (where game.gba/game.sav and the output go) and HERE (this folder).

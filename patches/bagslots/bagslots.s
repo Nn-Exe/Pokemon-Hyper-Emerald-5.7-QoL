@@ -3,8 +3,11 @@
 @ SetBagItemsPointers) and saves them in the spare bytes at the end of each save sector (the "overflow stream",
 @ 0x0203CF64-0x0203DE00). Growing the Items pocket in place would move the other four pockets on every existing
 @ save, so the Items pocket moves instead: to NEW_ITEMS, 200 slots that end exactly where the stream ends.
-@ A save made before this patch still holds its Items in the old place; the first load copies them over and
-@ sets MARKER. A new game sets MARKER at once (ClearBag), so it is never taken for an old save.
+@ A save made before this patch still holds its Items in the old place; migrate copies them over once and sets
+@ MARKER - after the boot-time load, and also whenever the pocket table is set up, because an emulator save state
+@ from before this patch brings back the old memory without that load (the game re-runs the setup after a battle
+@ and on map loads; the Bag looked empty until a restart). A new game sets MARKER at once (ClearBag), so it is never
+@ taken for an old save.
 .thumb
 
 @ SetBagItemsPointers: the hack's layout first (every pocket where it was), then Items to the new place
@@ -17,49 +20,59 @@ set_ptrs:
     str r1, [r0]                @ gBagPockets[ITEMS].itemSlots
     movs r1, #NEW_COUNT
     strb r1, [r0, #4]           @ .capacity (u8; the Bag's row count is a u8 too, Cancel included)
-    pop {r4}
+    bl migrate                  @ a pre-patch save state skipped the boot-time load: migrate here (at boot the load
+    pop {r4}                    @ that follows rewrites MARKER and the Items from the save anyway)
     pop {r0}
     bx r0
 
 @ CopySaveSlotData(r0 = sector id, r1 = locations) - the hack's loader reads the whole slot and the stream;
 @ then an old save's Items are copied to the new place, once
 load_slot:
-    push {r4, r5, lr}
+    push {r4, lr}
     ldr r3, lit_orig_load
     bl callr3
     adds r4, r0, #0
     cmp r0, #1                  @ SAVE_STATUS_OK
     bne ls_ret
+    bl migrate
+ls_ret:
+    adds r0, r4, #0
+    pop {r4}
+    pop {r1}
+    bx r1
+
+@ migrate: unless MARKER is set, the old 100 slots into the new pocket, the other 100 emptied, MARKER set
+migrate:
+    push {r4, r5, lr}
     ldr r0, lit_marker
     ldr r1, [r0]
     ldr r2, lit_magic
     cmp r1, r2
-    beq ls_ret
+    beq mg_ret
     str r2, [r0]
     ldr r0, lit_old
     ldr r1, lit_new
     movs r2, #0
     movs r3, #OLD_COUNT
     lsls r3, r3, #2             @ bytes of the old pocket
-ls_copy:
+mg_copy:
     ldr r5, [r0, r2]            @ slot words as saved: id and the key-encrypted quantity together
     str r5, [r1, r2]
     adds r2, #4
     cmp r2, r3
-    blo ls_copy
+    blo mg_copy
     movs r3, #NEW_COUNT
     lsls r3, r3, #2
     movs r5, #0
-ls_zero:
+mg_zero:
     str r5, [r1, r2]            @ the slots the old pocket did not have
     adds r2, #4
     cmp r2, r3
-    blo ls_zero
-ls_ret:
-    adds r0, r4, #0
+    blo mg_zero
+mg_ret:
     pop {r4, r5}
-    pop {r1}
-    bx r1
+    pop {r0}
+    bx r0
 
 @ ClearBag (NewGameInitData only): the game's own loop over the five pockets, then the old Items area is
 @ emptied and MARKER set, so this game's save is never migrated

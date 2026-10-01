@@ -8,7 +8,7 @@ dofile((DIR or "./") .. "../dexnavchain/test_boot.lua")
 dofile((DIR or "./") .. "../journal/test_journal_cases.lua")
 
 local JOURNAL = 363
-local TASK = tonumber(TASK_FN or "0x08FEAA59")
+local TASK = tonumber(TASK_FN or "0x08FEAC8D")
 
 local function sb1() return emu:read32(0x03005D8C) end
 local function sb2() return emu:read32(0x03005D90) end
@@ -72,7 +72,7 @@ function TEST(f)
       for k = 0, 0x87 do st[#st + 1] = string.format("%d", emu:read8(v + 0x40 + k)) end
       w(string.format("CASE %d %s | cur %d page %d sel %d | %s", n, CASES[n].name, emu:read8(v + 6),
         emu:read8(v), emu:read8(v + 2), table.concat(st, "")))
-      if CASES[n].name == "badges 2/8" or CASES[n].name == "tapus 2/4" or (CASES[n].name:match("^cut 8[5-9]$") or CASES[n].name:match("^cut 9[0-5]$")) then
+      if CASES[n].name == "badges 2/8" or CASES[n].name == "tapus 2/4" or (CASES[n].name:match("^cut 8[5-9]$") or CASES[n].name:match("^cut 9[0-5]$")) or (SHOTNAMES and SHOTNAMES[CASES[n].name]) then
         shot("questlog_list_" .. n)
       end
       tap(K.A)
@@ -82,7 +82,7 @@ function TEST(f)
     if f == t0 + 20 then
       local v = state()
       w(string.format("DETAIL %d mode %d | %s", n, emu:read8(v + 3), detail_hex(v)))
-      if n == 1 or CASES[n].name == "badges 2/8" or CASES[n].name == "tapus 2/4" or (CASES[n].name:match("^cut 8[5-9]$") or CASES[n].name:match("^cut 9[0-5]$")) then
+      if n == 1 or CASES[n].name == "badges 2/8" or CASES[n].name == "tapus 2/4" or (CASES[n].name:match("^cut 8[5-9]$") or CASES[n].name:match("^cut 9[0-5]$")) or (SHOTNAMES and SHOTNAMES[CASES[n].name]) then
         shot("questlog_" .. n)
       end
       tap(K.B)                  -- detail -> list

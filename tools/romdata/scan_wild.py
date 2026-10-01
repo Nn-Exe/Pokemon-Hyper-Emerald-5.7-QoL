@@ -55,7 +55,8 @@ for o in entries:
     wild.append(rec)
 print('slot sanity failures', bad)
 save('wild.json', wild)
-# extra 7-entry table referenced from 0xB5398/0xB5628 (city land encounters)
+# 7-entry table referenced from 0xB5398/0xB5628: the Battle Pyramid's (gBattlePyramidWildMonHeaders), read only on
+# the Pyramid floor layout (0x169) and indexed by the challenge number; its map fields (0/1..0/7) are leftovers, not cities
 xb=0x553894; extra=[]
 k=0
 while not (rom[xb+20*k]==0xFF and rom[xb+20*k+1]==0xFF):

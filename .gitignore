@@ -15,3 +15,4 @@ __pycache__/
 tools/romdata/out/
 tools/romdata/__pycache__/
 lz_blobs.json
+.DS_Store

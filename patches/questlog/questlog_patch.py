@@ -25,6 +25,7 @@ from keyitems import KEYITEMS
 from sidecontent import SIDE, SHINY, ALSO, BADGES
 import portraits as P
 import badgecase
+import evolutions as EV
 
 FREE = 0x00FEA000                       # in the unreferenced 0xFF run 0x08FE9074..0x08FF0000
 BASE = 0x08000000 + FREE
@@ -36,6 +37,7 @@ STEP_TABLE = 0x0009F8B8                 # InitStartMenuStep's jump table; entry 
 SIDE_FREE = 0x01F9C000                  # the Side Content chapter's table and texts, after the Key Items'
 KEY_FREE = 0x01F9A000                   # the Key Items chapter's table and texts, after the Legends' 40 KB
 CASE_FREE = 0x01FB0000                  # the badge case: Sinnoh's 8 badges' art, silhouettes, palettes, texts
+GRID_FREE = 0x01FB8000                  # the chapter grid's background, 240 x 144 4bpp (0x4380 bytes)
 LEG_FREE = 0x01F90000                   # the Legends chapter's names and texts: in the 0xFF run at the ROM's
                                         # end (0x09F82519..), well clear of 0x09FE0000, which code points at
 
@@ -46,6 +48,11 @@ MONPALS, MONPALS_REF = 0x00F25520, 0x0006E758    # GetMonSpritePalFromSpeciesAnd
 TRPICS, TRPICS_REF = 0x0101BE90, 0x0005DF78      # DecompressTrainerFrontPic: trainer pic -> {LZ77 64x64}
 TRPALS, TRPALS_REF = 0x0101C660, 0x0005DF80      # ... and its palettes
 NPAGES = 8                              # the four Journal chapters, Legends, Key Items, Side Content, Badges
+NCARDS = 9                              # the grid: those, then Evolutions (its regions are chapters 8..)
+NBADGES = 7                             # the Badges card opens the case
+EVOFIRST = 8                            # the first Evolutions region chapter
+EVO_FREE = 0x01F82600                   # the Evolutions chapter (~31 KB), in the 0xFF run before the Legends'
+                                        # (not the ROM's end: 0x09FC0000.. is reserved)
 
 # the Legends chapter's first row: "???" and a dim Master Ball until every legend is caught, then ticked, in
 # purple, with the Master Ball in colour. A reads the hint before, the "where" text after. Not counted.
@@ -88,6 +95,34 @@ COLORS = [(1, 2, 3), (4, 2, 3), (1, 7, 3), (4, 7, 3), (1, 5, 12), (4, 5, 12), (8
 CHARS = {".": 0, "B": 11, "G": 6, "R": 7, "D": 5, "W": 9, "K": 2, "S": 8, "P": 15, "Y": 14, "N": 11,
          "V": 10, "L": 12}
 
+# The chapter grid has its own palette 15 (loaded by draw_grid, the lists' PAL put back when a chapter or the
+# badge case opens), styled after the DexNav and the key-item ring: blue diagonal stripes, white cards framed in
+# navy with a coloured name tab, black title and hint bars, a red frame on the selected card. Colour 0 is never
+# drawn (transparent on a background).
+GPAL = [0] * 16
+GPAL[0] = rgb(72, 136, 224)             # (unused: transparent)
+GPAL[1] = rgb(104, 168, 240)            # stripe, light; the Sinnoh tab
+GPAL[2] = rgb(48, 48, 64)               # dark text; the Side Quests tab
+GPAL[3] = rgb(72, 136, 224)             # stripe, dark
+GPAL[4] = rgb(232, 40, 40)              # the selected card's frame (grid_pulse cycles it)
+GPAL[5] = rgb(152, 152, 168)            # grey
+GPAL[6] = rgb(48, 168, 72)              # green: Hoenn, a complete count
+GPAL[7] = rgb(216, 56, 48)              # red: Post-game
+GPAL[8] = rgb(24, 24, 32)               # title and hint bars
+GPAL[9] = rgb(248, 248, 248)            # white: cards, names
+GPAL[10] = rgb(24, 32, 64)              # the names' shadow
+GPAL[11] = rgb(136, 96, 56)             # brown: Key Items
+GPAL[12] = rgb(240, 128, 40)            # orange: Badges
+GPAL[13] = rgb(40, 72, 160)             # navy: the card frames, the Sinnoh mountain
+GPAL[14] = rgb(240, 184, 40)            # gold: Legends
+GPAL[15] = rgb(152, 96, 208)            # purple: Artifacts
+# the grid icons' letters in GPAL (the Sinnoh mountain navy with grey snow - white would vanish on the card -
+# and the Side Quests bubble grey)
+GCHARS = dict(CHARS, S=13, L=5)
+GCHARS_SINNOH = dict(GCHARS, W=5)
+# card geometry (draw_grid / card_border): x = 3 + column * 79, y = 3 + row * 42, 76 x 39, a 2 px frame outside
+GRID_W, GRID_H, TAB_H = 240, 144, 16
+
 # the chapter grid: a label, an accent colour and a 16x16 icon per chapter
 GRID = [
     ("Hoenn", 6, """
@@ -124,7 +159,7 @@ RRRRRRRWRRRRRRR.
 ................
 ................
 ................"""),
-    ("Sinnoh", 8, """
+    ("Sinnoh", 1, """
 ................
 ................
 .....W..........
@@ -192,7 +227,7 @@ SSSSSSSSSSSSSSSS
 ................
 ................
 ................"""),
-    ("Side Quests", 12, """
+    ("Side Quests", 2, """
 ..LLLLLLLLLLLL..
 .LLLLLLLLLLLLLL.
 .LLLLLLVVLLLLLL.
@@ -209,7 +244,7 @@ SSSSSSSSSSSSSSSS
 ................
 ................
 ................"""),
-    ("Badges", 14, """
+    ("Badges", 12, """
 ................
 ......YYYY......
 ....YYYYYYYY....
@@ -225,6 +260,23 @@ SSSSSSSSSSSSSSSS
 .....RR..RR.....
 ....RR....RR....
 ...RR......RR...
+................"""),
+    ("Evolutions", 3, """
+..........Y.....
+.....KKKK.Y.....
+...KKRRRRKYYY...
+..KRRWRRRRKY....
+..KRWRRRRRRK....
+.KRRRRRRRRRRK.Y.
+.KRRRRKKKRRRK.Y.
+.KKKKKWWWKKKKYYY
+.KWWWKWWWKWWWKY.
+.KWWWWKKKWWWWK..
+..KWWWWWWWWWK...
+..KWWWWWWWWWK...
+...KKWWWWWKK....
+.....KKKK.......
+................
 ................"""),
 ]
 
@@ -396,9 +448,30 @@ LEFT = """
 """
 
 
-def grid(art):
+def grid(art, chars=CHARS):
     rows = [r for r in art.strip("\n").split("\n")]
-    return [[CHARS[c] for c in r] for r in rows]
+    return [[chars[c] for c in r] for r in rows]
+
+
+def grid_bg():
+    """The chapter grid's window (240 x 144, GPAL): diagonal stripes, and per chapter a white card in a 2 px
+    navy frame (exactly card_border's rects, so moving the cursor recolours it cleanly) with a coloured tab
+    across its top (TAB_H rows, a slanted right end) for the name. The footer covers the last 16 rows."""
+    g = [[1 if ((x + y) // 4) % 2 else 3 for x in range(GRID_W)] for y in range(GRID_H)]
+    for k, (_, accent, _) in enumerate(GRID):
+        x0, y0 = 3 + (k % 3) * 79, 3 + (k // 3) * 42
+        for y in range(y0 - 2, y0 + 41):
+            for x in range(x0 - 2, x0 + 78):
+                g[y][x] = 13
+        for dy in range(39):
+            for dx in range(76):
+                if dy < TAB_H:
+                    g[y0 + dy][x0 + dx] = accent if dx < 62 + (TAB_H - 1 - dy) // 2 else 13
+                else:
+                    g[y0 + dy][x0 + dx] = 9
+        for cx, cy in ((x0, y0), (x0 + 75, y0), (x0, y0 + 38), (x0 + 75, y0 + 38)):
+            g[cy][cx] = 13                                            # corners() paints these
+    return g
 
 
 def tiles(g):
@@ -480,7 +553,8 @@ def data_blob(base, sym, table, rom):
     order = ("???", "Done", "Active", "Side", "???", "???", "Seen", "???", "To do", "Done")
     put("TAGS", struct.pack("<10I", *(tags[w] for w in order)))
     put("COLGOLD", bytes((13, 14, 10, 0)))
-    put("GCOL", bytes((13, 9, 10, 0, 13, 5, 10, 0, 13, 6, 10, 0)))  # the grid's cards: name, count, complete count
+    put("GCOL", bytes((13, 9, 10, 0, 9, 2, 9, 0, 9, 6, 9, 0)))  # the grid's cards: (name: V+0xF0), count, complete count
+    put("GPAL", struct.pack("<16H", *GPAL))
     put("COLWHITE", bytes((13, 9, 10, 0)))
     put("LOCLABEL", s("Location:"), 1)
     put("SILPAL", struct.pack("<16H", 0, *([rgb(40, 40, 56)] * 15)))
@@ -534,8 +608,23 @@ def data_blob(base, sym, table, rom):
     put("NAME_Badges", s("Badges"), 1)
     # also type 3: the same row table, starting after Side Content's rows
     rows += struct.pack("<BBBBI", len(SIDE), len(BADGES), len(BADGES), 3, a["NAME_Badges"])
-    assert len(rows) // 8 == NPAGES and NPAGES <= 9, "the grid has 9 tiles"
+    assert len(rows) // 8 == NPAGES
+    # type 4: Evolutions, a chapter per region (rows, top and cursor are bytes: each region under 256 rows)
+    for name, n in evo_pages(rom):               # one chapter (the grid card's); the pages count it in 16 bits
+        put("NAME_EVO", s(name), 1)
+        rows += struct.pack("<BBBBI", 0, min(n, 255), min(n, 255), 4, a["NAME_EVO"])
+        a["EVOCOUNT"] = n
     put("PAGES", rows)
+    put("METHLABEL", s("How it evolves"), 1)
+    # the Evolutions pages: a Poke Ball (8x8, GPAL: 8 outline, 7 red, 9 white, 2 the band), text colours, strings
+    ball = ["..8888..", ".877778.", "87777778", "88899888", "89999998", "89999998", ".899998.", "..8888.."]
+    put("EVOBALL", tiles([[0 if c == "." else int(c) for c in r] for r in ball]))
+    put("COLEVO", bytes((9, 2, 5, 0)))
+    put("COLEVOSEL", bytes((1, 2, 5, 0)))
+    put("NOTSEEN", s("Not seen yet."), 1)
+    put("HINTEVO", bytes((0x79, 0x7A)) + s(" Family   L/R Page   B Back"), 1)
+    put("EVOTITLE", s("Evolutions"), 1)
+    put("HIDDENNAME", s("?????"), 1)
 
     ptrs = []
     for t in list(S.TITLES) + [S.FINAL_TITLE]:
@@ -546,13 +635,13 @@ def data_blob(base, sym, table, rom):
     put("HINTLIST", s("A: Read   B: Back   L/R: Chapter"), 1)
     put("HINTGRID", s("A: Open   B: Close"), 1)
     put("QLTITLE", s("Quest Log"), 1)
-    assert len(GRID) == NPAGES
+    assert len(GRID) == NCARDS
     put("ACCENT", bytes(c for _, c, _ in GRID), 1)
-    # the selected card's flashing border: gold to deep orange and back, 16 steps (never close to the card)
-    gold, white = (248, 200, 56), (232, 96, 24)
+    # the selected card's flashing frame: red to a light red and back, 16 steps (the DexNav's red cursor)
+    gold, white = (232, 40, 40), (255, 150, 150)
     steps = [abs(8 - k) / 8.0 for k in range(16)]              # 1 .. 0 .. 1
     put("PULSE", struct.pack("<16H", *(rgb(*[int(w + (g - w) * t) for g, w in zip(gold, white)]) for t in steps)))
-    put("GICONS", b"".join(tiles(grid(art)) for _, _, art in GRID))
+    put("GICONS", b"".join(tiles(grid(art, GCHARS_SINNOH if label == "Sinnoh" else GCHARS)) for label, _, art in GRID))
     gnames = []
     for label, _, _ in GRID:
         put("GN", s(label), 1)
@@ -583,7 +672,21 @@ def data_blob(base, sym, table, rom):
     put("HINTCASE", s("B: Back"), 1)
     put("COLDIM", bytes((13, 5, 10, 0)))
     a["CASE"] = 0x08000000 + CASE_FREE
+    a["EVOEXT"] = 0x08000000 + EVO_FREE                                 # EV.blob: the table's pointer first
+    a["EVOALL"] = 0x08000000 + EVO_FREE
+    a["EVOPANE"] = 0x08000000 + EVO_FREE                                # (unused: the pages replaced the panel)
+    a["GRIDBG"] = 0x08000000 + GRID_FREE
     return bytes(d), a
+
+
+_EVO_PAGES = {}
+
+
+def evo_pages(rom):
+    """[(chapter name, rows)] of the Evolutions regions (EV.rows, computed once per ROM)."""
+    if id(rom) not in _EVO_PAGES:
+        _EVO_PAGES[id(rom)] = [("Evolutions", len(EV.all_families(rom)))]
+    return _EVO_PAGES[id(rom)]
 
 
 def pane(text):
@@ -604,6 +707,37 @@ def icon_pixels(rom, species):
                 b = rom[p + t * 32 + y * 4 + x // 2]
                 px[(t // 4) * 8 + y][(t % 4) * 8 + x] = (b >> 4) if x & 1 else (b & 15)
     return px
+
+
+ICON_PALIDX = 0x00F2B2E0                # species -> its menu icon's palette (0-5), CreateMonIcon's table
+ICON_PALS = 0x0057C540                  # gMonIconPaletteTable: {palette pointer, tag} x 6
+GMAX_CHARIZARD = 252                    # the Evolutions card's picture
+
+
+def card_icon(rom, species):
+    """A menu icon for a grid card: cropped to the Pokemon, shrunk to 16x16 (nearest), every colour the nearest of
+    GPAL's (not 0, the stripes 1 / 3, or 4 - grid_pulse cycles it)."""
+    px = icon_pixels(rom, species)
+    pal_ptr = struct.unpack_from("<I", rom, ICON_PALS + 8 * rom[ICON_PALIDX + species])[0] - 0x08000000
+    pal = struct.unpack_from("<16H", rom, pal_ptr)
+    rgbof = lambda c: ((c & 31) << 3, ((c >> 5) & 31) << 3, ((c >> 10) & 31) << 3)
+    cand = [i for i in range(16) if i not in (0, 1, 3, 4)]
+    near = {}
+    for i in range(1, 16):
+        r, g, b = rgbof(pal[i])
+        near[i] = min(cand, key=lambda k: sum((a - c) ** 2 for a, c in zip((r, g, b), rgbof(GPAL[k]))))
+    pts = [(x, y) for y in range(32) for x in range(32) if px[y][x]]
+    x0, x1 = min(x for x, _ in pts), max(x for x, _ in pts)
+    y0, y1 = min(y for _, y in pts), max(y for _, y in pts)
+    size = max(x1 - x0 + 1, y1 - y0 + 1)
+    out = [[0] * 16 for _ in range(16)]
+    ox, oy = (size - (x1 - x0 + 1)) // 2, size - (y1 - y0 + 1)          # centred, sitting on the bottom
+    for y in range(16):
+        for x in range(16):
+            sx, sy = x0 - ox + x * size // 16, y0 - oy + y * size // 16
+            if 0 <= sx < 32 and 0 <= sy < 32 and px[sy][sx]:
+                out[y][x] = near[px[sy][sx]]
+    return out
 
 
 def silhouette(px, colour):
@@ -885,8 +1019,10 @@ def build(inp, outp):
     src = open(os.path.join(HERE, "questlog.s"), encoding="ascii").read()
 
     def assemble(addrs):
-        t = src.replace("#NPAGES", "#%d" % NPAGES).replace("#NLAST", "#%d" % (NPAGES - 1))
+        t = src.replace("#NPAGES", "#%d" % NCARDS).replace("#NLAST", "#%d" % (NCARDS - 1))
         t = t.replace("#NLISTLAST", "#%d" % (NPAGES - 2))            # lists turn up to Side Content
+        t = t.replace("#NBADGES", "#%d" % NBADGES).replace("#EVOFIRST", "#%d" % EVOFIRST)
+        t = t.replace("#EVOLAST", "#%d" % (EVOFIRST + len(evo_pages(rom)) - 1))
         t = t.replace("#LROWS - 1", "#%d" % (LROWS - 1)).replace("#LROWS", "#%d" % LROWS).replace(
             "#NLEG", "#%d" % len(LEGENDS))
         for k, v in sorted(addrs.items(), key=lambda kv: -len(kv[0])):   # longest first
@@ -900,10 +1036,11 @@ def build(inp, outp):
     data, daddrs = data_blob(BASE + code_len, sym, table, rom)
 
     order = ("item_use", "wait_task", "cb2_init", "cb2_main", "vblank", "se_select", "compute", "page_sel",
-             "print", "show", "draw_list", "draw_pane", "portrait", "draw_header", "draw_footer", "open_detail", "draw_detail", "task",
+             "print", "show", "draw_list", "draw_row", "list_tail", "draw_pane", "portrait", "list_move", "draw_header", "draw_footer", "open_detail", "draw_detail", "task",
              "hsi", "menu_cb", "case3", "has_journal", "show_widget", "widget_remove", "row_status", "row_title", "ext_entry", "legend_all",
              "draw_grid", "grid_count", "rect", "corners", "card_border", "grid_input", "grid_pulse",
-             "case_open", "case_draw", "case_show", "case_frame", "case_text", "case_input")
+             "case_open", "case_draw", "case_show", "case_frame", "case_text", "case_input",
+             "evo_open", "evo_draw", "evo_icons", "evo_free", "evo_input", "print_s", "evo_seen")
     funcs = [i.address for i in dis if i.mnemonic == "push"]
     assert len(funcs) == len(order), "unexpected function layout: %d pushes, expected %d" % (len(funcs), len(order))
     f = dict(zip(order, funcs))
@@ -948,6 +1085,21 @@ def build(inp, outp):
     assert set(rom[CASE_FREE:CASE_FREE + len(case)]) == {0xFF}, "badge case region not free"
     assert CASE_FREE + len(case) <= 0x01FE0000, "the badge case outgrew 0x09FB0000..0x09FE0000"
     rom[CASE_FREE:CASE_FREE + len(case)] = case
+    methw = PANE_TEXT_W - px(rom, "How it evolves") - 3
+    evo, nevo, _ = EV.blob(0x08000000 + EVO_FREE, rom, wrap_px, pane, methw)
+    assert nevo == len(evo_pages(rom))
+    assert set(rom[EVO_FREE:EVO_FREE + len(evo)]) == {0xFF}, "Evolutions region not free"
+    assert EVO_FREE + len(evo) <= LEG_FREE, "the Evolutions data runs into the Legends'"
+    for name, rs in EV.rows(rom):                # every picture must decompress to at most 0x2000 bytes
+        for r in rs:
+            pic = struct.unpack_from("<I", rom, MONPICS + 8 * r["pic"])[0] - 0x08000000
+            assert rom[pic] == 0x10 and struct.unpack_from("<I", rom, pic)[0] >> 8 <= 0x2000, "picture %d" % r["pic"]
+    rom[EVO_FREE:EVO_FREE + len(evo)] = evo
+    bg = tiles(grid_bg())
+    assert CASE_FREE + len(case) <= GRID_FREE, "the badge case runs into the grid's background"
+    assert GRID_FREE + len(bg) <= 0x01FBF800, "the grid's background runs into the next patch's space"
+    assert set(rom[GRID_FREE:GRID_FREE + len(bg)]) == {0xFF}, "grid background region not free"
+    rom[GRID_FREE:GRID_FREE + len(bg)] = bg
     struct.pack_into("<I", rom, e + 0x1C, f["item_use"] | 1)
     rom[HSI:HSI + 4] = bytes.fromhex("004b1847")                   # ldr r3,[pc,#0]; bx r3
     struct.pack_into("<I", rom, HSI + 4, f["hsi"] | 1)

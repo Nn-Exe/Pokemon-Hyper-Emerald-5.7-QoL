@@ -37,7 +37,7 @@ Two checks in that template matter more than they look:
    `0x08FEFE00..0x08FEFE74`, the Quest Log at `0x08FEA000..0x08FECB3C`, leaguefly at `0x08FEFF00..0x08FEFF0E` and
    leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FECB3C` to `0x08FEFF00`
    and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
-   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
+   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`; `0x09FBF800..` and `0x09FC0000..` are reserved - group 37 is full: a warp's map number is a signed byte and 127 is MAP_DYNAMIC). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
    naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into

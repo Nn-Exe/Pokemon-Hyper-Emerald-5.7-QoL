@@ -15,7 +15,7 @@ from capstone import Cs, CS_ARCH_ARM, CS_MODE_THUMB
 HERE = os.path.dirname(os.path.abspath(__file__))
 FREE = 0x00FEFE00                       # just below leaguefly (0x08FEFF00), clear of the Journal and the Quest Log,
                                         # which both grow with their text. Was 0x08FE8400 until 2026-09-22 and
-                                        # 0x08FE9000 until 2026-09-26.
+                                        # 0x08FE9000 until 2026-09-26 (more Journal rows).
 BASE = 0x08000000 + FREE
 GSTRINGVAR1 = 0x02021CC4
 HACK_SITE = 0x00FD5E32                  # subs r1,#0x84; movs r3,#2; movs r2,#2; ldr r0,[pc,#0x8c]; ldr r6,[pc,#0x90]

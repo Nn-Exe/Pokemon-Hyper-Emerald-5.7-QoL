@@ -55,6 +55,7 @@ JOURNAL = [
     ("Route 111", ("t", 139)),                           # 39 Gladion
     ("Strange Island", ("t", 157)),                      # 40 the Kahunas (Hala)
     ("Steven's Island", NANU),                           # 41
+    ("Steven's Island", ("t", 31)),                      # 41b the Devon Scout (a Scientist): his report opens the wormhole
     ("Scorched Slab", FABA),                             # 42
     ("Steven's Island", ANABEL),                         # 43
     ("Steven's Island", STEVEN),                         # 44 train with the Champions

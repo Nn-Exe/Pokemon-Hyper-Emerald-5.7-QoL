@@ -10,7 +10,15 @@
 @
 @ Region record: +0 palettes, +4 tiles (LZ77), +8 tilemap (LZ77), +12 location table {key, x, y}...0xFF,
 @ +16 fly table {key, pad, flag, script block}...0xFF (flag 0 = always), +20 names {key, pad[3], text}...0xFF
-@ or 0 to name places by their map section.
+@ or 0 to name places by their map section, +24 a 30x20 grid: the key of the place each square belongs to, or
+@ 0xFF (grid.py works it out from the picture).
+@
+@ The CURSOR moves freely, a square at a time (and on while a direction is held), as on the Hoenn map: a red box
+@ sprite, the name box naming the place its square belongs to, A flying there when the courier would. The blinking
+@ marker stays on where you are. Task data: [0] blink timer, [1] the marker's cell, [2] what the map draws there,
+@ [3] state, [4..5] the text tilemap buffer, [6] the name box on screen (0 top, 1 bottom), [7] the cursor's cell
+@ (row * 32 + column), [8] its sprite, [9] the place the name box shows, [10] frames to the next step while a
+@ direction is held (a step on the press, 12 frames' pause, then one every 4 - the game's own key repeat waits 40).
 .thumb
 
 @ ---- the item --------------------------------------------------------------------------------------
@@ -230,6 +238,12 @@ cb2_init:
     movs r2, #0x20
     ldr r3, litC_loadpalette
     bl callr3
+    ldr r0, litC_cursheet       @ the red box that moves over the map
+    ldr r3, litC_loadsheet
+    bl callr3
+    ldr r0, litC_curspal
+    ldr r3, litC_loadspritepal
+    bl callr3
     @ the map itself, decompressed straight into video memory
     ldr r0, [r6, #4]
     ldr r1, litC_vram_tiles
@@ -315,7 +329,22 @@ ci_havebox:
     strh r0, [r6, #10]
     ldr r0, [sp, #0xC]
     strh r0, [r6, #12]          @ data[6] = which name box is on screen
+    ldr r0, [sp, #0x10]         @ the cursor starts on the marker, or mid-map when you are off it
+    ldr r1, litC_offscreen
+    cmp r0, r1
+    bne ci_curset
+    ldr r0, litC_midcell
+ci_curset:
+    strh r0, [r6, #14]          @ data[7] = the cursor's cell
+    ldr r0, litC_curtpl
+    movs r1, #0
+    movs r2, #0
+    movs r3, #0
+    ldr r5, litC_createsprite
+    bl callr5
+    strh r0, [r6, #16]          @ data[8] = its sprite
     adds r4, r6, #0
+    bl place_cursor
     bl draw_name
     movs r0, #1
     rsbs r0, r0, #0
@@ -346,7 +375,7 @@ litC_createtask:      .word 0x080A8FB1
 litC_curpal:          .word CURPAL_ADDR
 litC_curtile:         .word CURTILE_ADDR
 litC_deactprinters:   .word 0x080045B1
-litC_dispcnt:         .word 0x00000040    @ 1D sprite mapping; ShowBg adds the background bits
+litC_dispcnt:         .word 0x00001040    @ sprites on, 1D mapping; ShowBg adds the background bits
 litC_freespritepals:  .word 0x0800870D
 litC_initbgs:         .word 0x080017E9
 litC_initwindows:     .word 0x080031C1
@@ -369,6 +398,13 @@ litC_vram_cursor:     .word CURSOR_VRAM
 litC_vram_map:        .word 0x0600E000    @ BG1 screen base 28
 litC_vram_tiles:      .word 0x06004000    @ BG1 character base 1
 litC_wintemplates:    .word WINTEMPLATES_ADDR
+litC_cursheet:        .word CURSHEET_ADDR
+litC_curspal:         .word CURSPAL_ADDR
+litC_curtpl:          .word CURTPL_ADDR
+litC_loadsheet:       .word 0x080084F9    @ LoadSpriteSheet
+litC_loadspritepal:   .word 0x08008745    @ LoadSpritePalette
+litC_createsprite:    .word 0x08006DF5
+litC_midcell:         .word 335           @ row 10, column 15
 
 cb2_main:
     push {lr}
@@ -454,52 +490,62 @@ tk_write:
     cmp r0, #0
     bne tk_leave
     ldr r0, lit_gmain
-    ldrh r6, [r0, #0x30]        @ newAndRepeatedKeys, so holding a direction keeps going
-    movs r7, #0
+    ldrh r6, [r0, #0x2C]        @ heldKeys
+    ldrh r1, [r0, #0x2E]        @ newKeys
+    movs r0, #0xF0
+    ands r6, r0                 @ the directions held
+    beq tk_input
+    ands r1, r0
+    bne tk_first                @ just pressed: a step now, then a pause before it runs on
+    ldrh r0, [r4, #20]          @ data[10]: frames to the next step while held
+    subs r0, #1
+    strh r0, [r4, #20]
+    bgt tk_input
+    movs r0, #4                 @ held: a square every 4 frames
+    b tk_count
+tk_first:
+    movs r0, #12
+tk_count:
+    strh r0, [r4, #20]
+    ldrh r0, [r4, #14]          @ data[7] = the cursor's cell
+    movs r1, #31
+    ands r1, r0                 @ column
+    lsrs r2, r0, #5             @ row
     movs r0, #0x10              @ RIGHT
     tst r0, r6
     beq tk_kleft
-    movs r7, #1
+    cmp r1, #29
+    bhs tk_kleft
+    adds r1, #1
 tk_kleft:
-    movs r0, #0x20
+    movs r0, #0x20              @ LEFT
     tst r0, r6
     beq tk_kup
-    movs r7, #2
+    cmp r1, #0
+    beq tk_kup
+    subs r1, #1
 tk_kup:
-    movs r0, #0x40
+    movs r0, #0x40              @ UP
     tst r0, r6
     beq tk_kdown
-    movs r7, #3
+    cmp r2, #0
+    beq tk_kdown
+    subs r2, #1
 tk_kdown:
-    movs r0, #0x80
+    movs r0, #0x80              @ DOWN
     tst r0, r6
     beq tk_move
-    movs r7, #4
+    cmp r2, #19
+    bhs tk_move
+    adds r2, #1
 tk_move:
-    cmp r7, #0
-    beq tk_input
-    adds r0, r7, #0
-    ldrh r1, [r4, #2]
-    bl snap                     @ r0 = the next place that way, or where we already are
-    ldrh r1, [r4, #2]
+    lsls r2, r2, #5
+    adds r1, r1, r2             @ the new cell
+    ldrh r0, [r4, #14]
     cmp r0, r1
     beq tk_input
-    adds r7, r0, #0
-    ldrh r0, [r4, #4]           @ put the old square back the way the map draws it
-    lsls r2, r1, #1
-    ldr r3, lit_vram_map
-    adds r2, r2, r3
-    strh r0, [r2]
-    strh r7, [r4, #2]           @ and remember the new one
-    lsls r0, r7, #1
-    ldr r2, lit_vram_map
-    adds r0, r0, r2
-    ldrh r0, [r0]
-    strh r0, [r4, #4]
-    bl draw_name
-    movs r0, #5                 @ SE_SELECT
-    ldr r3, lit_playse
-    bl callr3
+    strh r1, [r4, #14]
+    bl cursor_moved
 tk_input:
     ldr r0, lit_gmain
     ldrh r6, [r0, #0x2E]        @ newKeys
@@ -569,89 +615,6 @@ tk_ret:
     add sp, #4
     pop {r4, r5, r6, r7, pc}
 
-@ snap(r0 = direction 1 right / 2 left / 3 up / 4 down, r1 = cell) -> r0 = the nearest place that way.
-@ Hopping between places keeps a name on screen at every step: a point per area, not a per-tile map.
-snap:
-    push {r4, r5, r6, r7, lr}
-    sub sp, #8
-    str r1, [sp]                @ best so far = where we are
-    movs r2, #0x7F
-    lsls r2, r2, #8
-    str r2, [sp, #4]            @ best score
-    adds r7, r0, #0             @ direction
-    movs r5, #31
-    ands r5, r1                 @ column
-    lsrs r6, r1, #5             @ row
-    bl where
-    ldr r4, [r0, #12]           @ this region's places
-sn_loop:
-    ldrb r0, [r4]
-    cmp r0, #0xFF
-    beq sn_done
-    ldrb r2, [r4, #1]           @ x
-    ldrb r3, [r4, #2]           @ y
-    subs r0, r2, r5             @ dx
-    subs r1, r3, r6             @ dy
-    cmp r7, #1
-    beq sn_right
-    cmp r7, #2
-    beq sn_left
-    cmp r7, #3
-    beq sn_up
-    b sn_down
-sn_right:
-    cmp r0, #0
-    ble sn_next
-    b sn_scorex
-sn_left:
-    cmp r0, #0
-    bge sn_next
-    rsbs r0, r0, #0
-    b sn_scorex
-sn_up:
-    cmp r1, #0
-    bge sn_next
-    rsbs r1, r1, #0
-    b sn_scorey
-sn_down:
-    cmp r1, #0
-    ble sn_next
-    b sn_scorey
-sn_scorex:                      @ along the press, then how far off the line
-    cmp r1, #0
-    bge sn_sx2
-    rsbs r1, r1, #0
-sn_sx2:
-    lsls r0, r0, #2
-    adds r0, r0, r1
-    lsls r0, r0, #1
-    adds r0, r0, r1             @ favour staying on the same row
-    b sn_test
-sn_scorey:
-    cmp r0, #0
-    bge sn_sy2
-    rsbs r0, r0, #0
-sn_sy2:
-    lsls r1, r1, #2
-    adds r1, r1, r0
-    lsls r1, r1, #1
-    adds r0, r1, r0
-sn_test:
-    ldr r1, [sp, #4]
-    cmp r0, r1
-    bhs sn_next
-    str r0, [sp, #4]
-    lsls r0, r3, #5
-    adds r0, r0, r2
-    str r0, [sp]
-sn_next:
-    adds r4, #3
-    b sn_loop
-sn_done:
-    ldr r0, [sp]
-    add sp, #8
-    pop {r4, r5, r6, r7, pc}
-
 @ courier_for(r0 = key) -> r0 = this region's fly entry {key u8, pad, flag u16, block u32}, or 0
 courier_for:
     push {r4, r5, lr}
@@ -673,21 +636,14 @@ cf_found:
     adds r0, r4, #0
     pop {r4, r5, pc}
 
-@ fly_target(r4 = task data) -> r0 = the script block for the marked place when it would take you there
+@ fly_target(r4 = task data) -> r0 = the script block for the place under the cursor when it would take you there
 @ (no flag, or its "visited" flag is set), else 0. Same flag, same block: nothing the courier would refuse.
 fly_target:
     push {r4, r5, lr}
-    ldrh r0, [r4, #2]
-    movs r1, #31
-    ands r1, r0
-    lsrs r0, r0, #5
-    adds r5, r0, #0
-    adds r0, r1, #0
-    adds r1, r5, #0
-    bl slot_at
-    cmp r0, #0
+    ldrh r0, [r4, #14]          @ the cursor's square
+    bl key_at
+    cmp r0, #0xFF
     beq ft_none
-    ldrb r0, [r0]               @ key
     bl courier_for
     cmp r0, #0
     beq ft_none
@@ -739,34 +695,85 @@ fl_ret:
     pop {r0}
     bx r0
 
-@ slot_at(r0 = column, r1 = row) -> r0 = this region's {key, x, y} entry there, or 0
-slot_at:
-    push {r4, r5, lr}
-    adds r4, r0, #0
-    adds r5, r1, #0
+@ key_at(r0 = cell) -> r0 = the key of the place that square belongs to in this region's grid, or 0xFF
+key_at:
+    push {r4, lr}
+    movs r1, #31
+    ands r1, r0                 @ column
+    lsrs r0, r0, #5             @ row
+    cmp r1, #30
+    bhs ka_none
+    cmp r0, #20
+    bhs ka_none
+    movs r2, #30
+    muls r0, r2, r0
+    adds r4, r0, r1
     bl where
-    ldr r2, [r0, #12]
-sa_loop:
-    ldrb r0, [r2]
-    cmp r0, #0xFF
-    beq sa_none
-    ldrb r0, [r2, #1]
-    cmp r0, r4
-    bne sa_next
-    ldrb r0, [r2, #2]
-    cmp r0, r5
-    beq sa_found
-sa_next:
-    adds r2, #3
-    b sa_loop
-sa_none:
-    movs r0, #0
-    pop {r4, r5, pc}
-sa_found:
-    adds r0, r2, #0
+    ldr r0, [r0, #24]           @ the grid, 30 x 20
+    ldrb r0, [r0, r4]
+    pop {r4, pc}
+ka_none:
+    movs r0, #0xFF
+    pop {r4, pc}
+
+@ cursor_moved(r4 = task data): the box on its new cell, the name box out of its way (top rows -> bottom box,
+@ bottom rows -> top box), the name redrawn when the square belongs to another place
+cursor_moved:
+    push {r4, r5, lr}
+    bl place_cursor
+    ldrh r0, [r4, #14]
+    lsrs r0, r0, #5             @ row
+    ldrh r5, [r4, #12]          @ the box on screen: 0 top, 1 bottom
+    cmp r5, #0
+    bne cm_bottom
+    cmp r0, #3
+    bhs cm_name
+    b cm_swap
+cm_bottom:
+    cmp r0, #16
+    bls cm_name
+cm_swap:
+    adds r0, r5, #0
+    ldr r3, lit_clearwintilemap
+    bl callr3
+    movs r0, #1
+    eors r5, r0
+    strh r5, [r4, #12]
+    b cm_draw
+cm_name:
+    ldrh r0, [r4, #14]
+    bl key_at
+    ldrh r1, [r4, #18]          @ data[9] = the place the box shows
+    cmp r0, r1
+    beq cm_ret
+cm_draw:
+    bl draw_name
+cm_ret:
     pop {r4, r5, pc}
 
-@ draw_name(r4 = &gTasks[].data[0]): name whatever the marker is sitting on
+@ place_cursor(r4 = task data): the box sprite centred on the cursor's 8x8 square
+place_cursor:
+    ldrh r0, [r4, #16]          @ data[8] = the sprite
+    cmp r0, #64
+    bhs pc_ret
+    movs r1, #0x44
+    muls r0, r1, r0
+    ldr r1, lit_gsprites
+    adds r0, r0, r1
+    ldrh r1, [r4, #14]
+    movs r2, #31
+    ands r2, r1
+    lsls r2, r2, #3
+    adds r2, #4
+    strh r2, [r0, #0x20]
+    lsrs r1, r1, #5
+    lsls r1, r1, #3
+    adds r1, #4
+    strh r1, [r0, #0x22]
+pc_ret:
+    bx lr
+
+@ draw_name(r4 = &gTasks[].data[0]): name the place the cursor's square belongs to
 draw_name:
     push {r4, r5, r6, r7, lr}
     ldrh r5, [r4, #12]          @ window
@@ -774,17 +781,12 @@ draw_name:
     movs r1, #0x11
     ldr r3, lit_fillwindowB
     bl callr3
-    ldrh r0, [r4, #2]
-    movs r1, #31
-    ands r1, r0
-    lsrs r0, r0, #5
-    adds r6, r0, #0
-    adds r0, r1, #0
-    adds r1, r6, #0
-    bl slot_at
-    cmp r0, #0
+    ldrh r0, [r4, #14]          @ the cursor's square
+    bl key_at
+    strh r0, [r4, #18]          @ data[9]: the place the box shows now
+    cmp r0, #0xFF
     beq dn_show                 @ nothing there: an empty box
-    ldrb r6, [r0]               @ key
+    adds r6, r0, #0             @ key
     bl where
     ldr r7, [r0, #20]           @ the region's own names, if it has them
     cmp r7, #0
@@ -858,6 +860,8 @@ callr3:
     bx r3
 callr4:
     bx r4
+callr5:
+    bx r5
 
 .align 2
 lit_palfade:         .word 0x02037FD4
@@ -898,4 +902,6 @@ lit_returnnoscriptB: .word 0x080AF6D5
 lit_createtaskB:     .word 0x080A8FB1
 lit_destroytaskB:    .word 0x080A909D
 lit_palfadeC:        .word 0x02037FD4
+lit_gsprites:        .word 0x02020630
+lit_clearwintilemap: .word 0x080038A5    @ ClearWindowTilemap
 lit_setupscript:     .word 0x08098EF9    @ ScriptContext1_SetupScript

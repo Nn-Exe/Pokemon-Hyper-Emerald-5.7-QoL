@@ -10,8 +10,11 @@ EWRAM 0x0203CF64 onward in sector order (writer 0x092582FC, loader 0x09258444, H
 
 * Items moves to NEW (200 slots = 800 bytes, ending exactly at the stream's end, in sector 13's spare bytes):
   set_ptrs runs the hack's layout, then points gBagPockets[0] there. The other pockets do not move.
-* load_slot (CopySaveSlotData's word 0x08152E14) copies an old save's 100 slots over once, when MARKER is not
-  set, and zeroes the other 100. The old copy stays where it was (an older build would still see it).
+* migrate copies an old save's 100 slots over once, when MARKER is not set, and zeroes the other 100; the old copy
+  stays where it was (an older build would still see it). load_slot (CopySaveSlotData's word 0x08152E14) runs it
+  after the boot-time load, and set_ptrs every time the pocket table is set up - an emulator save state from before
+  this patch restores the old memory without that load, and the game re-runs the setup after battles and on map
+  loads (0x08036762, 0x080867CE -> MoveSaveBlocks_ResetHeap), which had left the Bag empty until a restart.
 * clear_bag (ClearBag, called only by NewGameInitData) is the game's loop plus: empty the old area, set MARKER.
 * The Bag's list buffers (the hack's allocator 0x08FD7F38) grow from ~150 rows to 202 / 202 names.
 Limits: the pocket's capacity and the Bag's row count (Cancel included) are u8, so 254 is the ceiling.
@@ -104,8 +107,8 @@ def build(inp, outp):
     src = src.replace("#NEW_COUNT", "#%d" % NEW_COUNT).replace("#OLD_COUNT", "#%d" % OLD_COUNT)
     code, dis = SM.thumb(src, BASE)
     funcs = [i.address for i in dis if i.mnemonic == "push"]
-    assert len(funcs) == 3, "expected set_ptrs, load_slot and clear_bag, found %d functions" % len(funcs)
-    set_ptrs, load_slot, clear_bag = (f | 1 for f in funcs)
+    assert len(funcs) == 4, "expected set_ptrs, load_slot, migrate and clear_bag, found %d functions" % len(funcs)
+    set_ptrs, load_slot, migrate, clear_bag = (f | 1 for f in funcs)
     end = FREE + len(code)
     assert end <= FREE_END and set(rom[FREE:end]) == {0xFF}, "target region not free"
     rom[FREE:end] = code
@@ -116,9 +119,9 @@ def build(inp, outp):
     rom[o(ALLOC)] = rows
     struct.pack_into("<I", rom, o(ALLOC_NAMES_LIT), names)
     open(outp, "wb").write(rom)
-    print("set_ptrs %08X, load_slot %08X, clear_bag %08X, end %08X; Items %d slots at %08X, marker %08X; "
+    print("set_ptrs %08X, load_slot %08X, migrate %08X, clear_bag %08X, end %08X; Items %d slots at %08X, marker %08X; "
           "list buffers %d rows / %d bytes of names"
-          % (set_ptrs, load_slot, clear_bag, 0x08000000 + end, NEW_COUNT, NEW, MARKER, rows, names))
+          % (set_ptrs, load_slot, migrate, clear_bag, 0x08000000 + end, NEW_COUNT, NEW, MARKER, rows, names))
 
 
 if __name__ == "__main__":

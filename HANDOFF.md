@@ -65,7 +65,7 @@ These are not style preferences; each one is a bug that already happened.
 Applied to the working ROM and verified in mGBA (on a real late-game save, Sinnoh post-game):
 
 - everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-23**;
-- the last published release is **v1.5** (2026-09-23), which added, on top of v1.4 (DexNav, Sinnoh map + fly,
+- the last published release is **v1.7** (2026-10-01; see CHANGELOG for v1.6 and v1.7); v1.5 (2026-09-23) added, on top of v1.4 (DexNav, Sinnoh map + fly,
   R button, News Tracker fix):
   * gold healthbox on your own shinies too (`patches/shinybox/`);
   * the **Journal** key item: next story objective from Prof. Birch to Cogita, 84 steps traced in the game's
@@ -82,13 +82,14 @@ Applied to the working ROM and verified in mGBA (on a real late-game save, Sinno
 - the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
   (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
 
-Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots`.
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots` -> `itemdesc` -> `textfix` -> `hmfree` -> `instanttext` -> `fastsurf` -> `dexnavseen` -> `dexnavscan` -> `dexnavui` -> `keyring` -> `repelfix` -> `nocandynpc`
+(takes `candynpc`'s NPC back out at the end of the chain - NOTES, *Rare Candy NPC removed*).
 After pulling a change to any patch that is not last, rebuild the whole chain from the v1.4 archive + the shinybox
 edit - see NOTES, *Working ROM rebuilt*. `bagslots` changes the save: see NOTES, *Items pocket 100 -> 200 slots*.
-`questlog_patch.py` needs numpy. Tests: `make_tests.py` (93 cases); `test_journal.lua` on the chain's Journal-only
+`questlog_patch.py` needs numpy. Tests: `make_tests.py` (94 cases); `test_journal.lua` on the chain's Journal-only
 stage (after `journal`, before `questlog`) and `test_questlog.lua` on the end, with their check_*.py;
 `test_hypertrain.lua`; `test_bagslots.lua` then `test_bagslots_reload.lua`, `test_bagslots_newgame.lua`,
-`test_bagslots_saves.lua`.
+`test_bagslots_saves.lua`, `test_bagslots_state.lua` (a pre-1.6 save state).
 
 (On a ROM that already has the old shinybox, "both sides" is the 2-byte edit at `0x08FDA136` in NOTES; the
 patcher itself only builds from a clean BattleMainCB2.)

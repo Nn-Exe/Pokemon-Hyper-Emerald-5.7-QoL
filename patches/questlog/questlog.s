@@ -255,7 +255,7 @@ ci_wintemplates:    .word WINTEMPLATES_ADDR
 ci_pal:             .word PAL_ADDR
 ci_mbpal:           .word MBPAL_ADDR
 ci_loadpalette:     .word 0x080A1939
-ci_dispcnt:         .word 0x00000040
+ci_dispcnt:         .word 0x00001040    @ OBJ on, 1D (the Evolutions pages' icons)
 ci_showbg:          .word 0x08001B31
 ci_pages:           .word PAGES_ADDR
 ci_task:            .word TASK_ADDR
@@ -281,14 +281,56 @@ cb2_main:
     pop {pc}
 
 vblank:
-    push {lr}
+    push {r4, lr}
+    ldr r0, cm_gtasks           @ our task's block -> V (V+0xF7: hold, V+0xF8: the DMA lock is ours)
+    ldr r1, cm_task
+    movs r2, #16
+vb_find:
+    ldr r3, [r0]
+    cmp r3, r1
+    beq vb_found
+    adds r0, #40
+    subs r2, #1
+    bne vb_find
+    b vb_run
+vb_found:
+    ldr r4, [r0, #8]
+    movs r0, #0x80
+    lsls r0, r0, #4
+    adds r4, r4, r0
+    adds r4, #0xF7
+    ldrb r0, [r4]
+    cmp r0, #0
+    beq vb_release
+    ldr r2, cm_dmalock          @ a screen is being queued: hold everything this VBlank. Lock the DMA manager so
+    ldrb r3, [r2]               @ VBlankIntr's own ProcessDma3Requests leaves the queue alone too (unless a request
+    cmp r3, #0                  @ is being added right now: then it is locked already)
+    bne vb_oam
+    movs r3, #1
+    strb r3, [r2]
+    strb r3, [r4, #1]
+    b vb_oam
+vb_release:
+    ldrb r0, [r4, #1]           @ our lock from a held VBlank: undo it
+    cmp r0, #0
+    beq vb_run
+    movs r0, #0
+    strb r0, [r4, #1]
+    ldr r2, cm_dmalock
+    strb r0, [r2]
+vb_run:
+    ldr r3, cm_dma3             @ the queued window copies first (ProcessDma3Requests - VBlankIntr runs it again
+    bl callr3                   @ after this callback, finding it empty), then the palette: a new screen's pixels
+    ldr r3, cm_dma3             @ and its colours reach the screen in the same VBlank. Twice: one call stops at
+    bl callr3                   @ 40 KB, and the badge case queues ~43 KB (ten windows, each with the tilemap)
+    ldr r3, cm_transferpltt
+    bl callr3
+vb_oam:
     ldr r3, cm_loadoam
     bl callr3
     ldr r3, cm_spritecopies
     bl callr3
-    ldr r3, cm_transferpltt
-    bl callr3
-    pop {pc}
+    pop {r4, pc}
 
 @ se_select: the menu click
 se_select:
@@ -307,6 +349,10 @@ cm_updatepalfade:   .word 0x080A1A1D
 cm_loadoam:         .word 0x08007189
 cm_spritecopies:    .word 0x0800742D
 cm_transferpltt:    .word 0x080A19C1
+cm_dma3:            .word 0x08000BF1    @ ProcessDma3Requests
+cm_gtasks:          .word 0x03005E00    @ gTasks
+cm_task:            .word TASK_ADDR
+cm_dmalock:         .word 0x03000810    @ gDma3ManagerLocked
 cm_playse:          .word 0x080A37A5
 
 @ ---- the rows' status ------------------------------------------------------------------------------
@@ -467,7 +513,7 @@ print:
     adds r3, r2, #0
     adds r2, r1, #0
     movs r1, #1
-    ldr r4, dr_addtext4
+    ldr r4, pr_addtext4
     bl callr4
     add sp, #0x14
     pop {r4, r5, pc}
@@ -476,42 +522,77 @@ print:
 show:
     push {r4, lr}
     adds r4, r0, #0
-    ldr r3, dr_putwin
+    ldr r3, pr_putwin
     bl callr3
     adds r0, r4, #0
     movs r1, #3
-    ldr r3, dr_copywin
+    ldr r3, pr_copywin
     bl callr3
     pop {r4, pc}
+
+.align 2
+pr_addtext4:        .word 0x08199EED    @ AddTextPrinterParameterized4 (a pool near print and show: the one after
+pr_putwin:          .word 0x0800378D    @ portrait is out of their reach)
+pr_copywin:         .word 0x08003659
 
 @ draw_list(r0 = V): the chapter as an Unbound-style mission log - four dark rows (a arrow on the selected one,
 @ the name, a coloured status tag on the right), a divider with scroll arrows, then the info panel for the
 @ selected row (draw_pane): a portrait, "Location:" and a short text. List-window coordinates: rows y 0-79 (five),
 @ the panel 80-143 with the portrait flush under the list and the scroll arrows in its top right corner. Frame: [sp] [sp+4] call args, +8 selected?, +12 row, +16 status, +20 name x.
 draw_list:
+    push {r4, r5, lr}
+    adds r4, r0, #0
+    adds r0, r4, #0             @ a full redraw always shows the panel (V+0xF6: panel put off, see list_move)
+    adds r0, #0xF6
+    movs r1, #0
+    strb r1, [r0]
+    movs r0, #1
+    movs r1, #0xDD              @ the dark backdrop
+    ldr r3, dl_fillwin
+    bl callr3
+    movs r5, #0
+dl_row:
+    cmp r5, #LROWS
+    beq dl_marks
+    adds r0, r4, #0
+    adds r1, r5, #0
+    bl draw_row
+    adds r5, #1
+    b dl_row
+dl_marks:
+    adds r0, r4, #0
+    bl list_tail
+    pop {r4, r5, pc}
+
+.align 2
+dl_fillwin:         .word 0x08003C49    @ FillWindowPixelBuffer
+
+@ draw_row(r0 = V, r1 = screen row 0..LROWS-1): one row of the list, its 16 px band cleared first (a row past the
+@ chapter's end stays empty). Frame as draw_list's used to be (dl_colours reads it): [sp] [sp+4] call args,
+@ +8 selected?, +12 row, +16 status, +20 name x.
+draw_row:
     push {r4, r5, r6, r7, lr}
     sub sp, #24
     adds r4, r0, #0
-    movs r0, #1
-    movs r1, #0xDD              @ the dark backdrop
-    ldr r7, dr_fillwin
-    bl callr7
+    adds r5, r1, #0
+    movs r0, #13                @ the band, dark
+    str r0, [sp]
+    movs r0, #0
+    lsls r1, r5, #4
+    movs r2, #240
+    movs r3, #16
+    bl rect
     ldrb r0, [r4]
     lsls r0, r0, #3
     ldr r6, dr_pages
     adds r6, r6, r0
-    movs r5, #0                 @ screen row
-dl_row:
-    cmp r5, #LROWS
-    bne dl_r1
-    b dl_marks
 dl_r1:
     ldrb r0, [r4, #1]
     adds r0, r0, r5             @ row in the chapter
     ldrb r1, [r6, #1]
     cmp r0, r1
     blo dl_r2
-    b dl_marks
+    b drw_ret
 dl_r2:
     str r0, [sp, #12]
     movs r2, #0
@@ -594,6 +675,17 @@ dl_tag:
     lsls r0, r0, #2
     ldr r1, dr_tags
     ldr r7, [r1, r0]
+    ldr r0, [sp, #16]           @ Evolutions, seen: the method where the other chapters show a status
+    cmp r0, #6
+    bne dl_tagw
+    ldrb r0, [r6, #3]
+    cmp r0, #4
+    bne dl_tagw
+    adds r0, r4, #0
+    ldr r1, [sp, #12]
+    bl pane_entry
+    ldr r7, [r0, #4]
+dl_tagw:
     movs r0, #1
     adds r1, r7, #0
     movs r2, #0
@@ -612,9 +704,19 @@ dl_tag:
     lsls r2, r5, #4
     adds r3, r7, #0
     bl print
-    adds r5, #1
-    b dl_row
-dl_marks:
+drw_ret:
+    add sp, #24
+    pop {r4, r5, r6, r7, pc}
+
+@ list_tail(r0 = V): the info panel for the selected row, the scroll arrows in its corner, then both windows out
+list_tail:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #8
+    adds r4, r0, #0
+    ldrb r0, [r4]
+    lsls r0, r0, #3
+    ldr r6, dr_pages
+    adds r6, r6, r0
     adds r0, r4, #0             @ the panel first: the arrows sit in its top right corner
     bl draw_pane
     ldrb r0, [r4, #1]
@@ -645,11 +747,24 @@ dl_nou:
     ldr r7, dr_blit
     bl callr7
 dl_nod:
+    adds r3, r4, #0             @ hold: nothing goes to the screen until the palette is loaded too (vblank)
+    adds r3, #0xF7
+    movs r0, #1
+    strb r0, [r3]
     movs r0, #1
     bl show
     movs r0, #3                 @ the portrait on top of the panel
     bl show
-    add sp, #24
+    ldr r0, dr_pal              @ the lists' palette (the grid loads its own), right after the windows are queued:
+    movs r1, #0xF0              @ the list and its colours reach the screen at the same VBlank
+    movs r2, #0x20
+    ldr r3, dr_loadpal
+    bl callr3
+    adds r3, r4, #0             @ release: the next VBlank sends the windows, then the palette
+    adds r3, #0xF7
+    movs r0, #0
+    strb r0, [r3]
+    add sp, #8
     pop {r4, r5, r6, r7, pc}
 
 @ dl_colours(r1 = foreground colour; [sp+12+8] of draw_list = selected?) -> r0 = a colour triple in scratch:
@@ -696,6 +811,18 @@ draw_pane:
     movs r2, #66
     movs r3, #65
     bl rect
+    adds r0, r4, #0             @ put off while Up/Down is held: an empty panel, no picture
+    adds r0, #0xF6
+    ldrb r0, [r0]
+    cmp r0, #0
+    beq dp_full
+    movs r0, #0
+    movs r1, #0
+    movs r2, #0
+    adds r3, r4, #0
+    bl portrait
+    b dp_ret
+dp_full:
     adds r0, r4, #0
     ldrb r1, [r4, #2]
     bl row_status
@@ -733,7 +860,10 @@ dp_pic:
     adds r0, r0, r1
     ldrb r0, [r0, #3]
     cmp r0, #1
+    beq dp_unseen
+    cmp r0, #4                  @ Evolutions too: a family not seen yet shows no steps
     bne dp_text
+dp_unseen:
     adds r0, r4, #0
     ldrb r1, [r4, #2]
     bl row_status
@@ -751,15 +881,26 @@ dp_hidden:
     ldr r7, dp_qqq
     ldr r6, dp_qqq
 dp_text:
-    ldr r0, dp_colgold          @ "Location:" in gold, the place in white
+    ldr r0, dp_loclabel         @ the label: "Location:", or "Method:" in Evolutions
+    ldrb r1, [r4]
+    lsls r1, r1, #3
+    ldr r2, dp_pages
+    adds r1, r1, r2
+    ldrb r1, [r1, #3]
+    cmp r1, #4
+    bne dp_lab
+    ldr r0, dp_methlabel
+dp_lab:
+    str r0, [sp, #12]
+    ldr r0, dp_colgold          @ the label in gold, the place / method in white
     str r0, [sp]
     movs r0, #1
     movs r1, #80
     movs r2, #81
-    ldr r3, dp_loclabel
+    ldr r3, [sp, #12]
     bl print
     movs r0, #1
-    ldr r1, dp_loclabel
+    ldr r1, [sp, #12]
     movs r2, #0
     ldr r3, dp_strwidth
     bl callr3
@@ -779,6 +920,7 @@ dp_text:
     movs r2, #97
     adds r3, r6, #0
     bl print
+dp_ret:
     add sp, #16
     pop {r4, r5, r6, r7, pc}
 
@@ -791,6 +933,8 @@ pane_entry:
     ldr r3, dp_pages
     adds r2, r2, r3
     ldrb r3, [r2, #3]
+    cmp r3, #4
+    beq pe_evo
     lsls r3, r3, #2
     ldr r0, dp_panes
     ldr r0, [r0, r3]            @ PANES[type]
@@ -800,6 +944,13 @@ pe_row:
     lsls r1, r1, #4
     adds r0, r0, r1
     bx lr
+pe_evo:                         @ Evolutions: EVOPANE[chapter - EVOFIRST]
+    ldrb r2, [r0]
+    subs r2, #EVOFIRST
+    lsls r2, r2, #2
+    ldr r0, dp_evopane
+    ldr r0, [r0, r2]
+    b pe_row
 
 @ portrait(r0 = kind 0 none / 1 Pokemon / 2 trainer / 3 item, r1 = id, r2 = silhouette?, r3 = V): the picture
 @ into window 3 (8x8 tiles, BG palette 13), from the LZ77 data the game's own tables point at: decompressed into
@@ -908,10 +1059,14 @@ dp_qqq:             .word QQQ_ADDR
 dp_colgold:         .word COLGOLD_ADDR
 dp_colwhite:        .word COLWHITE_ADDR
 dp_loclabel:        .word LOCLABEL_ADDR
+dp_methlabel:       .word METHLABEL_ADDR
+dp_evopane:         .word EVOPANE_ADDR
 dp_strwidth:        .word 0x08005ED9
 
 .align 2
 dr_addtext4:        .word 0x08199EED    @ AddTextPrinterParameterized4
+dr_pal:             .word PAL_ADDR
+dr_loadpal:         .word 0x080A1939    @ LoadPalette
 dr_putwin:          .word 0x0800378D
 dr_copywin:         .word 0x08003659
 dr_fillwin:         .word 0x08003C49    @ FillWindowPixelBuffer
@@ -926,6 +1081,133 @@ dr_tagfg:           .word TAGFG_ADDR
 dr_tags:            .word TAGS_ADDR
 dr_strwidth:        .word 0x08005ED9    @ GetStringWidth
 dr_star:            .word STAR_ADDR
+
+@ list_move(r0 = V): after Up/Down, redraw only what changed - the row the cursor left and the one it reached - with
+@ the rows moved by one in the window's own pixels first when the list scrolled by one (V+0xF4 / V+0xF5 hold the
+@ top row and the cursor from before). Anything else redraws the whole list. Then the panel, as always.
+list_move:
+    push {r4, r5, r6, r7, lr}
+    adds r4, r0, #0
+    ldrb r5, [r4, #1]           @ top now
+    adds r0, r4, #0
+    adds r0, #0xF4
+    ldrb r6, [r0]               @ top before
+    cmp r5, r6
+    beq lm_rows
+    adds r0, r6, #1
+    cmp r5, r0
+    beq lm_up
+    subs r0, r6, #1
+    cmp r5, r0
+    beq lm_down
+    movs r6, #0                 @ a bigger jump (held Up/Down): every row, then the panel as below
+lm_all:
+    adds r0, r4, #0
+    adds r1, r6, #0
+    bl draw_row
+    adds r6, #1
+    cmp r6, #LROWS
+    bne lm_all
+    b lm_tail
+lm_up:                          @ scrolled down one: rows 1-4 (y 16-79) move up to rows 0-3
+    ldr r0, lm_win1
+    ldr r0, [r0]
+    ldr r1, lm_tilerows2
+    adds r1, r0, r1
+    ldr r2, lm_words
+lm_upl:
+    ldr r3, [r1]
+    str r3, [r0]
+    adds r0, #4
+    adds r1, #4
+    subs r2, #1
+    bne lm_upl
+    b lm_rows
+lm_down:                        @ scrolled up one: rows 0-3 move down to rows 1-4, copied from the end
+    ldr r0, lm_win1
+    ldr r0, [r0]
+    ldr r1, lm_tilerows8
+    adds r1, r0, r1
+    ldr r2, lm_tilerows2
+    adds r0, r1, r2
+    ldr r2, lm_words
+lm_downl:
+    subs r0, #4
+    subs r1, #4
+    ldr r3, [r1]
+    str r3, [r0]
+    subs r2, #1
+    bne lm_downl
+lm_rows:
+    adds r0, r4, #0             @ the row the cursor left, if it is on screen
+    adds r0, #0xF5
+    ldrb r1, [r0]
+    subs r1, r1, r5
+    cmp r1, #LROWS
+    bhs lm_new
+    adds r0, r4, #0
+    bl draw_row
+lm_new:
+    ldrb r1, [r4, #2]           @ the row it reached
+    subs r1, r1, r5
+    cmp r1, #LROWS
+    bhs lm_tail
+    adds r0, r4, #0
+    bl draw_row
+lm_tail:
+    ldr r1, lm_gmain            @ a step from holding Up/Down (repeat, not a fresh press): the panel stays empty
+    ldrh r1, [r1, #0x2E]        @ until the key is let go (tk_list) - its text was most of each step's cost
+    movs r2, #0xC0
+    ands r1, r2
+    movs r2, #0
+    cmp r1, #0
+    bne lm_t2
+    movs r2, #1
+lm_t2:
+    adds r0, r4, #0
+    adds r0, #0xF6
+    strb r2, [r0]
+    adds r0, r4, #0
+    bl list_tail
+lm_ret:
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+lm_win1:            .word 0x02020018    @ gWindows[1].tileData
+lm_tilerows2:       .word 1920          @ 16 pixel rows of a 30-tile window (2 tile rows x 30 x 32)
+lm_tilerows8:       .word 7680
+lm_words:           .word 1920          @ 7680 bytes as words
+lm_gmain:           .word 0x030022C0    @ gMain
+
+@ step_size(r0 = V) -> r0 = rows to move for this Up/Down: 1, or LROWS once the key has auto-repeated 4 times
+@ (about 0.7 s held). V+0xF9 counts the repeats; a fresh press starts again.
+step_size:
+    adds r0, #0xF9
+    ldr r1, ss_gmain
+    ldrh r1, [r1, #0x2E]        @ newKeys
+    movs r2, #0xC0
+    tst r1, r2
+    beq ss_rep
+    movs r1, #0
+    strb r1, [r0]
+    movs r0, #1
+    bx lr
+ss_rep:
+    ldrb r1, [r0]
+    cmp r1, #200
+    bhs ss_keep
+    adds r1, #1
+    strb r1, [r0]
+ss_keep:
+    movs r0, #1
+    cmp r1, #4
+    blo ss_ret
+    movs r0, #LROWS
+ss_ret:
+    bx lr
+
+.align 2
+ss_gmain:           .word 0x030022C0    @ gMain
 
 @ draw_header(r0 = V): the chapter with arrows to the others and done/total, or in the detail view the
 @ objective's title and which page of it this is
@@ -959,6 +1241,8 @@ dh_list:
     adds r6, r6, r0
     cmp r5, #0
     beq dh_noleft
+    cmp r5, #EVOFIRST
+    beq dh_noleft
     movs r0, #8
     str r0, [sp]
     str r0, [sp, #4]
@@ -978,6 +1262,8 @@ dh_noleft:
     bl print
     cmp r5, #NLISTLAST
     beq dh_noright
+    cmp r5, #EVOLAST
+    beq dh_noright
     movs r0, #1
     ldr r1, [r6, #4]
     movs r2, #0
@@ -995,6 +1281,13 @@ dh_noleft:
     bl callr7
 dh_noright:
     ldrb r7, [r6, #1]           @ every row: only status 1 counts, which the closing rows never have
+    ldrb r0, [r6, #3]           @ (Evolutions count the rows seen, status 6)
+    movs r1, #1
+    cmp r0, #4
+    bne dh_st
+    movs r1, #6
+dh_st:
+    str r1, [sp, #4]
     movs r5, #0                 @ done
     movs r6, #0
 dh_cnt:
@@ -1003,7 +1296,8 @@ dh_cnt:
     adds r0, r4, #0
     adds r1, r6, #0
     bl row_status
-    cmp r0, #1
+    ldr r1, [sp, #4]
+    cmp r0, r1
     bne dh_cn
     adds r5, #1
 dh_cn:
@@ -1105,6 +1399,9 @@ draw_footer:
     ldr r3, df_hintgrid
     ldrb r0, [r4, #3]
     cmp r0, #3
+    beq df_p
+    ldr r3, df_hintevo
+    cmp r0, #5
     beq df_p
     ldr r3, df_hintlist
     cmp r0, #1
@@ -1276,6 +1573,7 @@ draw_detail:
 df_fillwin:         .word 0x08003C49
 df_hintlist:        .word HINTLIST_ADDR
 df_hintgrid:        .word HINTGRID_ADDR
+df_hintevo:         .word HINTEVO_ADDR
 df_hintmore:        .word HINTMORE_ADDR
 df_hintlast:        .word HINTLAST_ADDR
 df_colfoot:         .word COLHEAD_ADDR
@@ -1338,6 +1636,14 @@ tk_2:
     bl case_input
     b tk_ret
 tk_nocase:
+    cmp r0, #5                  @ the Evolutions pages
+    bne tk_nc2
+    adds r0, r4, #0
+    adds r1, r6, #0
+    adds r2, r7, #0
+    bl evo_input
+    b tk_ret
+tk_nc2:
     cmp r0, #3
     bne tk_notgrid
     adds r0, r4, #0
@@ -1380,13 +1686,40 @@ tk_back:
     bl draw_footer
     b tk_ret
 tk_list:
+    adds r0, r4, #0             @ the panel was put off while Up/Down repeated: draw it once both are let go
+    adds r0, #0xF6
+    ldrb r1, [r0]
+    cmp r1, #0
+    beq tk_l1
+    ldr r1, tk_gmain
+    ldrh r1, [r1, #0x2C]        @ heldKeys
+    movs r2, #0xC0
+    tst r1, r2
+    bne tk_l1
+    movs r1, #0
+    strb r1, [r0]
+    adds r0, r4, #0
+    bl list_tail
+tk_l1:
+    adds r1, r4, #0             @ V+0xF4 / V+0xF5: the top row and the cursor before this move (list_move)
+    adds r1, #0xF4
+    ldrb r0, [r4, #1]
+    strb r0, [r1]
+    ldrb r0, [r4, #2]
+    strb r0, [r1, #1]
     movs r0, #0x40              @ Up
     tst r0, r7
     beq tk_down
     ldrb r0, [r4, #2]
     cmp r0, #0
     beq tk_ret1
-    subs r0, #1
+    adds r0, r4, #0             @ one row, or a page once the key has been held a while
+    bl step_size
+    ldrb r1, [r4, #2]
+    subs r0, r1, r0
+    bpl tk_upok
+    movs r0, #0
+tk_upok:
     strb r0, [r4, #2]
     ldrb r1, [r4, #1]
     cmp r0, r1
@@ -1395,7 +1728,7 @@ tk_list:
 tk_moved:
     bl se_select
     adds r0, r4, #0
-    bl draw_list
+    bl list_move
 tk_ret1:
     b tk_ret
 tk_down:
@@ -1411,6 +1744,15 @@ tk_down:
     adds r0, #1
     cmp r0, r1
     bhs tk_ret1
+    adds r5, r1, #0             @ rows (r5, the task id, is not needed again)
+    adds r0, r4, #0             @ one row, or a page once the key has been held a while
+    bl step_size
+    ldrb r1, [r4, #2]
+    adds r0, r1, r0
+    cmp r0, r5
+    blo tk_dnok
+    subs r0, r5, #1
+tk_dnok:
     strb r0, [r4, #2]
     ldrb r1, [r4, #1]
     adds r1, #LROWS
@@ -1426,6 +1768,8 @@ tk_page:
     ldrb r0, [r4]
     cmp r0, #0
     beq tk_ret1
+    cmp r0, #EVOFIRST
+    beq tk_ret1
     subs r0, #1
     b tk_newpage
 tk_right:
@@ -1434,6 +1778,8 @@ tk_right:
     beq tk_a
     ldrb r0, [r4]
     cmp r0, #NLISTLAST          @ Badges is a case, not a list: R stops at Side Content
+    beq tk_ret1
+    cmp r0, #EVOLAST            @ and at the last Evolutions region
     beq tk_ret1
     adds r0, #1
 tk_newpage:
@@ -1468,10 +1814,14 @@ tk_b:
     tst r0, r6
     beq tk_ret
     bl se_select
-    movs r0, #3
-    strb r0, [r4, #3]
-    adds r0, r4, #0
-    bl grid_count
+    movs r0, #3                 @ (the counts from opening still hold: nothing changes while the log is open, and
+    strb r0, [r4, #3]           @ recounting every chapter took ~22 frames on the way back)
+    ldrb r0, [r4]               @ from any Evolutions region the grid's cursor goes back to the Evolutions card
+    cmp r0, #EVOFIRST           @ (a region's chapter number is past the last card: the cursor stuck off the grid)
+    blo tk_bcard
+    movs r0, #EVOFIRST
+    strb r0, [r4]
+tk_bcard:
     adds r0, r4, #0
     bl draw_header
     adds r0, r4, #0
@@ -1753,6 +2103,8 @@ rs_legend:
     beq rs_key
     cmp r3, #3
     beq rs_side
+    cmp r3, #4
+    beq rs_evo
     cmp r1, #0                  @ the first row, "Gotta catch 'em all!": 9 once every legend is caught, else 7
     beq rs_all
     lsls r1, r1, #4
@@ -1826,6 +2178,16 @@ rs_side:                        @ Side Content and Badges: its script's own flag
     lsls r0, r0, #24
     bne rs_have
     b rs_nothave
+rs_evo:                         @ Evolutions: shown once the Pokemon that evolves has been seen (6), else ??? (7)
+    bl ext_entry                @ (r0 = V, r1 = row: untouched so far)
+    ldrh r0, [r0]               @ its National Dex number
+    movs r1, #0                 @ FLAG_GET_SEEN
+    ldr r3, rs_dexflag
+    bl callr3
+    lsls r0, r0, #24
+    beq rs_unseen
+    movs r0, #6
+    pop {r4, pc}
 
 @ row_title(r0 = V, r1 = row in the chapter) -> r0 = what the row says: its title, or "???"
 row_title:
@@ -1868,6 +2230,8 @@ ext_entry:
     ldr r3, rs_pages
     adds r2, r2, r3
     ldrb r3, [r2, #3]
+    cmp r3, #4
+    beq ee_evo
     ldrb r2, [r2]               @ the chapter's first row: 0, except Badges (after Side Content in one table)
     adds r1, r1, r2
     lsls r1, r1, #4
@@ -1882,6 +2246,14 @@ ee_ret:
     adds r0, r0, r1
     pop {r1}
     bx r1
+ee_evo:                         @ Evolutions: EVOEXT[chapter - EVOFIRST] + row * 16
+    ldrb r2, [r0]
+    subs r2, #EVOFIRST
+    lsls r2, r2, #2
+    ldr r0, rs_evoext
+    ldr r0, [r0, r2]
+    lsls r1, r1, #4
+    b ee_ret
 
 @ legend_all() -> r0 = 1 when the Pokemon of every Legends row (1..NLEG; row 0 is this one) is caught, else 0
 legend_all:
@@ -1914,22 +2286,31 @@ rs_dexflag:         .word 0x080C0665    @ GetSetPokedexFlag (a trampoline into t
 rt_stshow:          .word STSHOW_ADDR
 rt_titles:          .word TITLES_ADDR
 rt_qqqs:            .word QQQ_ADDR
+rs_evoext:          .word EVOEXT_ADDR
 
 @ ---- the chapter grid ------------------------------------------------------------------------------
-@ draw_grid(r0 = V): a card per chapter on a dark backdrop, three across: a colour stripe and an icon in the
-@ chapter's colour, its name, and done/total at the top right (green once complete), from the counts
-@ grid_count saved. The selected card gets a gold border. V+0 is the cursor.
-@ Frame: [sp] [sp+4] call args, +8 x, +12 y, +16 cursor, +20 done, +24 rows, +28 accent colour
+@ draw_grid(r0 = V): the chapter grid, styled like the DexNav: its own palette (GPAL), a pre-drawn background
+@ (stripes, and per chapter a white card in a navy frame with a coloured tab - one blit, grid_bg in the patcher),
+@ then per card the name on its tab, the icon and done/total (green once complete), from the counts grid_count
+@ saved. The selected card's frame turns red (colour 4, which grid_pulse cycles). V+0 is the cursor.
+@ Frame: [sp] [sp+4] call args, +8 x, +12 y, +16 cursor, +20 done, +24 rows, +28 tab colour
 draw_grid:
     push {r4, r5, r6, r7, lr}
     sub sp, #32
     adds r4, r0, #0
     ldrb r0, [r4]
     str r0, [sp, #16]
-    movs r0, #1
-    movs r1, #0xAA              @ the backdrop, colour 10 (the darkest navy)
-    ldr r7, dg_fillwin
-    bl callr7
+    ldr r0, dg_win1             @ the background, the whole window: copied straight into its pixel buffer (the same
+    ldr r0, [r0]                @ 30-tile layout). BlitBitmapToWindow goes pixel by pixel and took ~20 frames.
+    ldr r1, dg_gridbg
+    ldr r2, dg_bgwords
+dg_bg:
+    ldr r3, [r1]
+    str r3, [r0]
+    adds r0, #4
+    adds r1, #4
+    subs r2, #1
+    bne dg_bg
     movs r5, #0
 dg_loop:
     cmp r5, #NPAGES
@@ -1956,44 +2337,7 @@ dg_divd:
     ldr r0, dg_accent
     ldrb r0, [r0, r5]
     str r0, [sp, #28]
-    ldr r0, [sp, #16]
-    cmp r0, r5
-    bne dg_card
-    movs r0, #4                 @ selected: a border two pixels wide in colour 4, which grid_pulse cycles
-    str r0, [sp]
-    ldr r0, [sp, #8]
-    subs r0, #2
-    ldr r1, [sp, #12]
-    subs r1, #2
-    movs r2, #80
-    movs r3, #43
-    bl rect
-dg_card:
-    movs r0, #13                @ the card, dark navy like the list
-    str r0, [sp]
-    ldr r0, [sp, #8]
-    ldr r1, [sp, #12]
-    movs r2, #76
-    movs r3, #39
-    bl rect
-    movs r2, #10                @ round it: the corners take the colour behind the card
-    ldr r0, [sp, #16]
-    cmp r0, r5
-    bne dg_round
-    movs r2, #4
-dg_round:
-    ldr r0, [sp, #8]
-    ldr r1, [sp, #12]
-    bl corners
-    ldr r0, [sp, #28]           @ the colour stripe down the left
-    str r0, [sp]
-    ldr r0, [sp, #8]
-    ldr r1, [sp, #12]
-    adds r1, #3
-    movs r2, #3
-    movs r3, #33
-    bl rect
-    movs r0, #16                @ the icon
+    movs r0, #16                @ the icon, in the card's white body
     str r0, [sp]
     str r0, [sp, #4]
     lsls r1, r5, #7
@@ -2001,22 +2345,34 @@ dg_round:
     adds r1, r1, r0
     movs r0, #1
     ldr r2, [sp, #8]
-    adds r2, #7
+    adds r2, #5
     ldr r3, [sp, #12]
-    adds r3, #3
+    adds r3, #20
     ldr r7, dg_blit
     bl callr7
-    ldr r0, dg_gcol             @ the name, white
+    adds r0, r4, #0             @ the name on the tab: {tab colour, white, navy shadow} at V+0xF0
+    adds r0, #0xF0
+    ldr r1, [sp, #28]
+    strb r1, [r0]
+    movs r1, #9
+    strb r1, [r0, #1]
+    movs r1, #10
+    strb r1, [r0, #2]
     str r0, [sp]
     lsls r3, r5, #2
     ldr r0, dg_gnames
     ldr r3, [r0, r3]
     movs r0, #1
     ldr r1, [sp, #8]
-    adds r1, #7
+    adds r1, #4
     ldr r2, [sp, #12]
-    adds r2, #17
     bl print
+    lsls r0, r5, #3             @ the Evolutions card: no count (a reference, nothing to tick)
+    ldr r1, dg_pages
+    adds r0, r0, r1
+    ldrb r0, [r0, #3]
+    cmp r0, #4
+    beq dg_nocount
     lsls r0, r5, #3             @ rows, and the done count grid_count saved
     ldr r1, dg_pages
     adds r0, r0, r1
@@ -2057,25 +2413,43 @@ dg_cntcol:
     str r0, [sp]
     movs r0, #1
     ldr r1, [sp, #8]
-    adds r1, #72
+    adds r1, #71
     subs r1, r1, r6
     ldr r2, [sp, #12]
-    adds r2, #3
+    adds r2, #21
     adds r3, r4, #0
     adds r3, #0xE0
     bl print
+dg_nocount:
     adds r5, #1
     b dg_loop
 dg_done:
+    adds r0, r4, #0             @ the selected card's frame, red
+    ldr r1, [sp, #16]
+    movs r2, #4
+    bl card_border
+    adds r3, r4, #0             @ hold: nothing goes to the screen until the palette is loaded too (vblank)
+    adds r3, #0xF7
+    movs r0, #1
+    strb r0, [r3]
     movs r0, #1
     bl show
+    ldr r0, dg_gpal             @ palette 15: the grid's colours - only now, with the grid queued, so its pixels and
+    movs r1, #0xF0              @ colours reach the screen at the same VBlank (vblank runs the DMA queue first)
+    movs r2, #0x20
+    ldr r3, dg_loadpal
+    bl callr3
+    adds r3, r4, #0             @ release: the next VBlank sends the windows, then the palette
+    adds r3, #0xF7
+    movs r0, #0
+    strb r0, [r3]
     movs r0, #2                 @ the footer sits on the list window's last two rows: back on top
     bl show
     add sp, #32
     pop {r4, r5, r6, r7, pc}
 
-@ grid_count(r0 = V): count every chapter's done rows once, into V+0xC8.., when the grid is entered - moving
-@ the cursor only redraws. Borrows V+0 (row_status reads the chapter from it) and puts it back.
+@ grid_count(r0 = V): count every chapter's done rows once, into V+0xC8.., when the Quest Log opens - coming back
+@ from a list or the case and moving the cursor only redraw. Borrows V+0 (row_status reads the chapter from it) and puts it back.
 grid_count:
     push {r4, r5, r6, r7, lr}
     sub sp, #8
@@ -2119,22 +2493,78 @@ gc2_done:
     add sp, #8
     pop {r4, r5, r6, r7, pc}
 
-@ rect(r0 = x, r1 = y, r2 = w, r3 = h; [sp] = colour 0-15): fill a rectangle of the list window
+@ rect(r0 = x, r1 = y, r2 = w, r3 = h; [sp] = colour 0-15): fill a rectangle of the list window (window 1),
+@ written straight into its pixel buffer a tile row (8 pixels, one word) at a time - FillWindowPixelRect goes pixel by
+@ pixel and cost the list ~7 frames a redraw. The buffer: 30 tiles across, 32 bytes a tile, 4 bytes a pixel row.
 rect:
-    push {r4, r5, lr}
-    ldr r4, [sp, #12]
-    sub sp, #8
-    str r2, [sp]
-    str r3, [sp, #4]
-    adds r3, r1, #0
-    adds r2, r0, #0
-    lsls r1, r4, #4
-    orrs r1, r4
-    movs r0, #1
-    ldr r4, rc_fillrect
-    bl callr4
-    add sp, #8
-    pop {r4, r5, pc}
+    push {r4, r5, r6, r7, lr}
+    ldr r4, [sp, #20]
+    movs r5, #0x11              @ the colour in all eight nibbles
+    lsls r6, r5, #8
+    orrs r5, r6
+    lsls r6, r5, #16
+    orrs r5, r6
+    muls r5, r4
+    adds r2, r0, r2             @ x end
+    adds r3, r1, r3             @ y end
+    sub sp, #16
+    str r0, [sp]
+    str r2, [sp, #4]
+    str r3, [sp, #8]
+    ldr r6, rc_win1
+    ldr r6, [r6]
+    str r6, [sp, #12]
+rr_row:
+    ldr r0, [sp, #8]
+    cmp r1, r0
+    bhs rr_done
+    lsrs r2, r1, #3             @ the pixel row's start: buffer + (y / 8) * 960 + (y % 8) * 4
+    movs r3, #15
+    lsls r3, r3, #6
+    muls r2, r3
+    movs r3, #7
+    ands r3, r1
+    lsls r3, r3, #2
+    adds r2, r2, r3
+    ldr r3, [sp, #12]
+    adds r7, r2, r3
+    ldr r0, [sp]
+rr_px:
+    ldr r2, [sp, #4]
+    cmp r0, r2
+    bhs rr_next
+    lsrs r3, r0, #3             @ this tile's first pixel
+    lsls r3, r3, #3
+    subs r2, r2, r3             @ pixels to the end, at most 8
+    cmp r2, #8
+    bls rr_b
+    movs r2, #8
+rr_b:
+    subs r4, r0, r3             @ first pixel in the tile
+    subs r2, r2, r4             @ how many
+    adds r0, r0, r2
+    lsls r2, r2, #2             @ mask: that many nibbles, from the first
+    movs r6, #32
+    subs r6, r6, r2
+    movs r2, #0
+    mvns r2, r2
+    lsrs r2, r6
+    lsls r4, r4, #2
+    lsls r2, r4
+    lsls r3, r3, #2             @ the tile's word for this pixel row: row start + tile * 32
+    adds r3, r7, r3
+    ldr r4, [r3]
+    bics r4, r2
+    ands r2, r5
+    orrs r4, r2
+    str r4, [r3]
+    b rr_px
+rr_next:
+    adds r1, #1
+    b rr_row
+rr_done:
+    add sp, #16
+    pop {r4, r5, r6, r7, pc}
 
 @ corners(r0 = x, r1 = y, r2 = colour): round a 76 x 39 card by painting its corner pixels
 corners:
@@ -2172,6 +2602,7 @@ corners:
 
 .align 2
 rc_fillrect:        .word 0x08003B65    @ FillWindowPixelRect
+rc_win1:            .word 0x02020018    @ gWindows[1].tileData
 
 @ card_border(r0 = V, r1 = card, r2 = colour): the 2 px frame around one card and its rounded corners - all
 @ that changes when the cursor moves. Redrawing every card took 12 frames (FillWindowPixelRect is per pixel);
@@ -2287,19 +2718,20 @@ gi_a:
     tst r1, r5
     beq gi_b
     ldrb r0, [r4]
-    cmp r0, #NLAST              @ the last card, Badges: the badge case instead of a list
+    cmp r0, #EVOFIRST           @ the Evolutions card: its family pages
+    beq gi_evo
+    cmp r0, #NBADGES            @ the Badges card: the badge case instead of a list
     bne gi_list
     bl se_select
     adds r0, r4, #0
     bl case_open
     b gi_ret
+gi_evo:
+    bl se_select
+    adds r0, r4, #0
+    bl evo_open
+    b gi_ret
 gi_list:
-    ldr r0, gp_pal              @ colour 4 back to the lists' selection bar
-    adds r0, #8
-    movs r1, #0xF4
-    movs r2, #2
-    ldr r3, gp_loadpal
-    bl callr3
     bl se_select
     adds r0, r4, #0
     bl page_sel
@@ -2341,6 +2773,11 @@ dg_beginfade:       .word 0x080A1AD5
 dg_accent:          .word ACCENT_ADDR
 dg_icons:           .word GICONS_ADDR
 dg_gnames:          .word GNAMES_ADDR
+dg_gpal:            .word GPAL_ADDR
+dg_gridbg:          .word GRIDBG_ADDR
+dg_win1:            .word 0x02020018    @ gWindows[1].tileData
+dg_bgwords:         .word 4320          @ 240 x 144 4bpp as words
+dg_loadpal:         .word 0x080A1939    @ LoadPalette
 dg_blit:            .word 0x080039A5
 dg_strwidth:        .word 0x08005ED9
 
@@ -2560,6 +2997,10 @@ cd_copy:
     bl case_frame
     adds r0, r4, #0
     bl case_text
+    adds r3, r4, #0             @ hold: nothing goes to the screen until the palette is loaded too (vblank)
+    adds r3, #0xF7
+    movs r0, #1
+    strb r0, [r3]
     adds r0, r4, #0
     bl case_show
     movs r0, #2                 @ footer
@@ -2575,6 +3016,15 @@ cd_copy:
     bl print
     movs r0, #2
     bl show
+    ldr r0, bc_pal              @ the lists' palette (the grid has its own), right after the case is queued
+    movs r1, #0xF0
+    movs r2, #0x20
+    ldr r3, bc_loadpal
+    bl callr3
+    adds r3, r4, #0             @ release: the next VBlank sends the windows, then the palette
+    adds r3, #0xF7
+    movs r0, #0
+    strb r0, [r3]
     add sp, #16
     pop {r4, r5, r6, r7, pc}
 
@@ -2590,6 +3040,7 @@ bc_flagget:         .word 0x0809D791    @ FlagGet
 bc_u8dec:           .word U8DEC_ADDR
 bc_gwindows:        .word 0x02020004
 bc_loadpal:         .word 0x080A1939    @ LoadPalette
+bc_pal:             .word PAL_ADDR
 bc_hint:            .word HINTCASE_ADDR
 
 @ case_show(r0 = V): window 1, then the badge windows and the footer on top of it (they share the tilemap of
@@ -2789,10 +3240,8 @@ bi_rm:
     adds r5, #1
     cmp r5, #8
     bne bi_rm
-    movs r0, #3
+    movs r0, #3                 @ back to the grid: the counts from opening still hold
     strb r0, [r4, #3]
-    adds r0, r4, #0
-    bl grid_count
     adds r0, r4, #0
     bl draw_header
     adds r0, r4, #0
@@ -2810,3 +3259,599 @@ bi_colgold:         .word COLGOLD_ADDR
 bi_coldim:          .word COLDIM_ADDR
 bi_colwhite:        .word COLWHITE_ADDR
 bi_removewin:       .word 0x08003575    @ RemoveWindow
+
+@ ---- the Evolutions pages (mode 5) ---------------------------------------------------------------------------
+@ One list of every evolution family (evolutions.py, National Dex order), SoulGold style: the family's icons across
+@ the top, a Pokedex-style list on the left ("004 Charmander", a blue band, a scroll bar), every line of the family
+@ on the right in the small font. A family not seen yet: its icons as black shadows, "?????" on each step.
+@ V+0xFC the selected family and V+0xFE the list's top row (16 bits: there are more than 255), V+0x14 how many are
+@ seen, V+8..V+17 the icon sprites (0xFF: none). EVOALL + 16 * family = {dex, 0, list name, hint, record}; record =
+@ {icons, lines, x0, dx, species x 10, 9 lines {x, y, ball, 0, text}}.
+
+@ evo_open(r0 = V): from the grid's Evolutions card
+evo_open:
+    push {r4, r5, r6, lr}
+    adds r4, r0, #0
+    ldr r3, eo_loadiconpals
+    bl callr3
+    ldr r0, eo_silpal           @ OBJ palette 15: every colour dark, for the shadows
+    ldr r1, eo_objpal15
+    movs r2, #0x20
+    ldr r3, eo_loadpal
+    bl callr3
+    movs r0, #5
+    strb r0, [r4, #3]
+    movs r0, #EVOFIRST
+    strb r0, [r4]
+    adds r1, r4, #0
+    adds r1, #0xFC
+    movs r0, #0
+    strh r0, [r1]
+    strh r0, [r1, #2]
+    movs r0, #0xFF
+    movs r1, #8
+eo_clr:
+    strb r0, [r4, r1]
+    adds r1, #1
+    cmp r1, #18
+    bne eo_clr
+    movs r5, #0                 @ how many are seen, once
+    movs r6, #0
+eo_cnt:
+    ldr r0, eo_count
+    cmp r6, r0
+    bhs eo_cntd
+    adds r0, r6, #0
+    bl evo_seen
+    adds r5, r5, r0
+    adds r6, #1
+    b eo_cnt
+eo_cntd:
+    strh r5, [r4, #0x14]
+    adds r0, r4, #0             @ the hint bar once: evo_draw only puts it back on top
+    bl draw_footer
+    adds r0, r4, #0
+    bl evo_draw
+    pop {r4, r5, r6, pc}
+
+.align 2
+eo_loadiconpals:    .word 0x080D2F05    @ LoadMonIconPalettes
+eo_silpal:          .word SILPAL_ADDR
+eo_objpal15:        .word 0x000001F0    @ OBJ palette 15 (LoadPalette's offset in colours)
+eo_loadpal:         .word 0x080A1939
+eo_count:           .word EVOCOUNT_ADDR
+
+@ evo_draw(r0 = V): the whole page
+evo_draw:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #16
+    adds r4, r0, #0
+    bl evo_free                 @ the previous family's icons
+    movs r0, #0                 @ the header: "Evolutions", seen/all at the right
+    movs r1, #0x88
+    ldr r3, ed_fillwin
+    bl callr3
+    ldr r0, ed_colhead
+    str r0, [sp]
+    movs r0, #0
+    movs r1, #8
+    movs r2, #0
+    ldr r3, ed_title
+    bl print
+    adds r0, r4, #0
+    adds r0, #0xE0
+    ldrh r1, [r4, #0x14]
+    bl u16dec
+    movs r1, #0xBA              @ '/'
+    strb r1, [r0]
+    adds r0, #1
+    ldr r1, ed_count
+    bl u16dec
+    movs r0, #1
+    adds r1, r4, #0
+    adds r1, #0xE0
+    movs r2, #0
+    ldr r3, ed_strwidth
+    bl callr3
+    movs r1, #232
+    subs r1, r1, r0
+    ldr r0, ed_colhead
+    str r0, [sp]
+    movs r0, #0
+    movs r2, #0
+    adds r3, r4, #0
+    adds r3, #0xE0
+    bl print
+    movs r0, #0
+    bl show
+    movs r0, #3                 @ the backdrop, blue
+    str r0, [sp]
+    movs r0, #0
+    movs r1, #0
+    movs r2, #240
+    movs r3, #144
+    bl rect
+    movs r0, #13                @ the icons' box
+    str r0, [sp]
+    movs r0, #2
+    movs r1, #0
+    movs r2, #236
+    movs r3, #33
+    bl rect
+    movs r0, #9
+    str r0, [sp]
+    movs r0, #3
+    movs r1, #1
+    movs r2, #234
+    movs r3, #31
+    bl rect
+    movs r0, #13                @ the list's box
+    str r0, [sp]
+    movs r0, #2
+    movs r1, #34
+    movs r2, #76
+    movs r3, #94
+    bl rect
+    movs r0, #9
+    str r0, [sp]
+    movs r0, #3
+    movs r1, #35
+    movs r2, #74
+    movs r3, #92
+    bl rect
+    movs r0, #13                @ the lines' box
+    str r0, [sp]
+    movs r0, #80
+    movs r1, #34
+    movs r2, #158
+    movs r3, #94
+    bl rect
+    movs r0, #9
+    str r0, [sp]
+    movs r0, #81
+    movs r1, #35
+    movs r2, #156
+    movs r3, #92
+    bl rect
+    movs r5, #9                 @ the list: 9 rows from the top row, drawn bottom up (a row's text cell is 12 px on a
+ed_row:                         @ 10 px pitch: each covers only the empty top of the row below, not its letters)
+    cmp r5, #0
+    beq ed_bar
+    subs r5, #1
+    adds r0, r4, #0
+    adds r0, #0xFE
+    ldrh r6, [r0]
+    adds r6, r6, r5             @ the family on this row
+    ldr r0, ed_count
+    cmp r6, r0
+    bhs ed_row
+    ldr r7, ed_col
+    adds r0, r4, #0
+    adds r0, #0xFC
+    ldrh r0, [r0]
+    cmp r0, r6
+    bne ed_rtext
+    movs r0, #1                 @ the selected one: a light blue band
+    str r0, [sp]
+    movs r0, #3
+    movs r1, #10
+    muls r1, r5
+    adds r1, #37
+    movs r2, #70
+    movs r3, #10
+    bl rect
+    ldr r7, ed_colsel
+ed_rtext:
+    adds r0, r6, #0
+    bl evo_seen
+    ldr r3, ed_qqq
+    cmp r0, #0
+    beq ed_rname
+    lsls r0, r6, #4
+    ldr r1, ed_all
+    ldr r1, [r1]
+    adds r0, r0, r1
+    ldr r3, [r0, #4]
+ed_rname:
+    str r7, [sp]
+    movs r0, #1
+    movs r1, #5
+    movs r2, #10
+    muls r2, r5
+    adds r2, #35
+    bl print_s
+    b ed_row
+ed_bar:
+    movs r0, #5                 @ the scroll bar's track
+    str r0, [sp]
+    movs r0, #74
+    movs r1, #36
+    movs r2, #2
+    movs r3, #89
+    bl rect
+    adds r0, r4, #0             @ the thumb: y = 36 + selected * 81 / (families - 1)
+    adds r0, #0xFC
+    ldrh r0, [r0]
+    movs r1, #81
+    muls r0, r1
+    ldr r1, ed_count
+    subs r1, #1
+    svc #6
+    adds r1, r0, #0
+    adds r1, #36
+    movs r0, #13
+    str r0, [sp]
+    movs r0, #74
+    movs r2, #2
+    movs r3, #8
+    bl rect
+    adds r0, r4, #0             @ the selected family
+    adds r0, #0xFC
+    ldrh r6, [r0]
+    adds r0, r6, #0
+    bl evo_seen
+    str r0, [sp, #12]           @ seen? (0: shadows and ?????)
+    lsls r0, r6, #4
+    ldr r1, ed_all
+    ldr r1, [r1]
+    adds r0, r0, r1
+    ldr r5, [r0, #12]           @ its record
+    adds r0, r4, #0
+    adds r1, r5, #0
+    ldr r2, [sp, #12]
+    bl evo_icons
+    ldrb r7, [r5, #1]           @ its lines, drawn last first (as the list)
+ed_line:
+    cmp r7, #0
+    beq ed_out
+    subs r7, #1
+    lsls r6, r7, #3
+    adds r6, r5, r6
+    adds r6, #24
+    ldrb r0, [r6, #2]           @ a Poke Ball first?
+    cmp r0, #0
+    bne ed_ball1
+    ldr r0, [sp, #12]           @ (not seen: a wrapped line's second half is left out)
+    cmp r0, #0
+    beq ed_line
+    b ed_text
+ed_ball1:
+    movs r0, #8
+    str r0, [sp]
+    str r0, [sp, #4]
+    movs r0, #1
+    ldr r1, ed_ball
+    ldrb r2, [r6]
+    ldrb r3, [r6, #1]
+    adds r3, #3
+    str r7, [sp, #8]            @ (r7, the line counter, across the call)
+    ldr r7, ed_blit
+    bl callr7
+    ldr r7, [sp, #8]
+ed_text:
+    ldr r0, ed_col
+    str r0, [sp]
+    ldrb r1, [r6]
+    ldrb r0, [r6, #2]
+    cmp r0, #0
+    beq ed_x
+    adds r1, #10
+ed_x:
+    ldr r3, [r6, #4]
+    ldr r0, [sp, #12]
+    cmp r0, #0
+    bne ed_print
+    ldr r3, ed_hidden
+ed_print:
+    movs r0, #1
+    ldrb r2, [r6, #1]
+    bl print_s
+    b ed_line
+ed_out:
+    adds r3, r4, #0             @ hold: the page and its colours go out at the same VBlank
+    adds r3, #0xF7
+    movs r0, #1
+    strb r0, [r3]
+    movs r0, #1
+    bl show
+    movs r0, #2                 @ the hint bar back on top: window 1's tilemap covers its rows (a frame of blue
+    bl show                     @ showed there when a VBlank fell between the two) - both inside the hold now
+    ldr r0, ed_gpal
+    movs r1, #0xF0
+    movs r2, #0x20
+    ldr r3, ed_loadpal
+    bl callr3
+    adds r3, r4, #0
+    adds r3, #0xF7
+    movs r0, #0
+    strb r0, [r3]
+    add sp, #16
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+ed_col:             .word COLEVO_ADDR
+ed_colsel:          .word COLEVOSEL_ADDR
+ed_colhead:         .word COLHEAD_ADDR
+ed_title:           .word EVOTITLE_ADDR
+ed_hidden:          .word HIDDENNAME_ADDR
+ed_qqq:             .word QQQ_ADDR
+ed_all:             .word EVOALL_ADDR
+ed_count:           .word EVOCOUNT_ADDR
+ed_ball:            .word EVOBALL_ADDR
+ed_blit:            .word 0x080039A5    @ BlitBitmapToWindow
+ed_fillwin:         .word 0x08003C49    @ FillWindowPixelBuffer
+ed_strwidth:        .word 0x08005ED9    @ GetStringWidth
+ed_gpal:            .word GPAL_ADDR
+ed_loadpal:         .word 0x080A1939    @ LoadPalette
+
+@ evo_icons(r0 = V, r1 = the family's record, r2 = seen?): one animated menu icon per species along the top box;
+@ not seen: black (OBJ palette 15, evo_open's shadow palette)
+evo_icons:
+    push {r4, r5, r6, r7, lr}
+    sub sp, #24
+    str r0, [sp, #12]
+    str r2, [sp, #16]
+    adds r5, r1, #0
+    ldrb r6, [r5]               @ how many
+    movs r7, #0
+ei_loop:
+    cmp r7, r6
+    bhs ei_ret
+    movs r0, #0                 @ CreateMonIcon(species, callback, x, y, subpriority, personality, handleDeoxys)
+    str r0, [sp]
+    str r0, [sp, #4]
+    movs r0, #1
+    str r0, [sp, #8]
+    ldrb r2, [r5, #3]           @ x = x0 + dx * i
+    muls r2, r7
+    ldrb r3, [r5, #2]
+    adds r2, r2, r3
+    lsls r0, r7, #1
+    adds r0, r5, r0
+    ldrh r0, [r0, #4]
+    ldr r1, ei_cb
+    movs r3, #32
+    ldr r4, ei_create
+    bl callr4
+    ldr r1, [sp, #12]           @ V+8 + i: its sprite
+    adds r1, r1, r7
+    strb r0, [r1, #8]
+    movs r1, #0x44              @ priority 0, so the icon shows over the box (BG0 is priority 0 too)
+    muls r1, r0
+    ldr r2, ei_sprites
+    adds r1, r1, r2
+    ldrb r2, [r1, #5]
+    movs r3, #0x0C
+    bics r2, r3
+    ldr r3, [sp, #16]
+    cmp r3, #0
+    bne ei_pal
+    movs r3, #0xF0              @ not seen: palette 15, all dark
+    orrs r2, r3
+ei_pal:
+    strb r2, [r1, #5]
+    adds r7, #1
+    b ei_loop
+ei_ret:
+    add sp, #24
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+ei_cb:              .word 0x080D3015    @ SpriteCB_MonIcon: the icon's two-frame animation
+ei_create:          .word 0x080D2CC5    @ CreateMonIcon
+ei_sprites:         .word 0x02020630    @ gSprites (0x44 bytes each)
+
+@ evo_free(r0 = V): the icons go
+evo_free:
+    push {r4, r5, lr}
+    adds r4, r0, #0
+    movs r5, #8
+ef_loop:
+    ldrb r0, [r4, r5]
+    cmp r0, #0xFF
+    beq ef_next
+    movs r1, #0x44
+    muls r0, r1
+    ldr r1, ef_sprites
+    adds r0, r0, r1
+    ldr r3, ef_destroy
+    bl callr3
+    movs r0, #0xFF
+    strb r0, [r4, r5]
+ef_next:
+    adds r5, #1
+    cmp r5, #18
+    bne ef_loop
+    pop {r4, r5, pc}
+
+.align 2
+ef_sprites:         .word 0x02020630
+ef_destroy:         .word 0x080D2EF9    @ FreeAndDestroyMonIconSprite
+
+@ evo_input(r0 = V, r1 = newKeys, r2 = newAndRepeatedKeys)
+evo_input:
+    push {r4, r5, r6, r7, lr}
+    adds r4, r0, #0
+    adds r5, r1, #0
+    adds r6, r2, #0
+    adds r7, r4, #0             @ r7 = &selected (V+0xFC)
+    adds r7, #0xFC
+    movs r0, #0x40              @ Up: the family before (a list page of them once held)
+    tst r0, r6
+    beq ev_down
+    ldrh r0, [r7]
+    cmp r0, #0
+    beq ev_ret
+    adds r0, r4, #0
+    bl step_size
+    ldrh r1, [r7]
+    subs r0, r1, r0
+    bpl ev_set
+    movs r0, #0
+    b ev_set
+ev_down:
+    movs r0, #0x80              @ Down: the next one
+    tst r0, r6
+    beq ev_lr
+    ldrh r0, [r7]
+    adds r0, #1
+    ldr r1, ev_count
+    cmp r0, r1
+    bhs ev_ret
+    adds r0, r4, #0
+    bl step_size
+    ldrh r1, [r7]
+    adds r0, r1, r0
+    b ev_clamp
+ev_lr:
+    ldr r0, ev_keysleft         @ L / Left: a list page up
+    tst r0, r5
+    beq ev_r
+    ldrh r0, [r7]
+    cmp r0, #0
+    beq ev_ret
+    subs r0, #9
+    bpl ev_set
+    movs r0, #0
+    b ev_set
+ev_r:
+    ldr r0, ev_keysright        @ R / Right: a list page down
+    tst r0, r5
+    beq ev_b
+    ldrh r0, [r7]
+    adds r0, #1
+    ldr r1, ev_count
+    cmp r0, r1
+    bhs ev_ret
+    adds r0, #8
+ev_clamp:
+    ldr r1, ev_count
+    cmp r0, r1
+    blo ev_set
+    subs r0, r1, #1
+ev_set:
+    strh r0, [r7]
+    ldrh r1, [r7, #2]           @ the list follows: the selected family between the top row and 8 below
+    cmp r0, r1
+    bhs ev_top1
+    strh r0, [r7, #2]
+    b ev_draw
+ev_top1:
+    adds r1, #8
+    cmp r0, r1
+    bls ev_draw
+    subs r0, #8
+    strh r0, [r7, #2]
+ev_draw:
+    bl se_select
+    adds r0, r4, #0
+    bl evo_draw
+    b ev_ret
+ev_b:
+    movs r0, #2                 @ B: back to the grid, the cursor on Evolutions
+    tst r0, r5
+    beq ev_ret
+    bl se_select
+    adds r0, r4, #0
+    bl evo_free
+    ldr r3, ev_freepals
+    bl callr3
+    movs r0, #3
+    strb r0, [r4, #3]
+    movs r0, #EVOFIRST
+    strb r0, [r4]
+    adds r0, r4, #0
+    bl draw_header
+    adds r0, r4, #0
+    bl draw_grid
+    adds r0, r4, #0
+    bl draw_footer
+ev_ret:
+    pop {r4, r5, r6, r7, pc}
+
+.align 2
+ev_count:           .word EVOCOUNT_ADDR
+ev_keysleft:        .word 0x00000220    @ Left | L
+ev_keysright:       .word 0x00000110    @ Right | R
+ev_freepals:        .word 0x080D2F9D    @ FreeMonIconPalettes
+
+@ print_s(r0 = window, r1 = x, r2 = y, r3 = string; [sp] = colours): like print, in the small narrow font (8)
+print_s:
+    push {r4, r5, lr}
+    ldr r4, [sp, #12]
+    sub sp, #0x14
+    movs r5, #0
+    str r5, [sp]
+    str r5, [sp, #4]
+    str r4, [sp, #8]
+    movs r5, #0xFF              @ TEXT_SKIP_DRAW
+    str r5, [sp, #0xC]
+    str r3, [sp, #0x10]
+    adds r3, r2, #0
+    adds r2, r1, #0
+    movs r1, #8                 @ FONT_SMALL_NARROW (its widths: evolutions.SMALLW)
+    ldr r4, ps_addtext4
+    bl callr4
+    add sp, #0x14
+    pop {r4, r5, pc}
+
+.align 2
+ps_addtext4:        .word 0x08199EED    @ AddTextPrinterParameterized4
+
+@ evo_seen(r0 = family) -> r0 = 1 once its first Pokemon has been seen (the Pokedex's own flag), else 0
+evo_seen:
+    push {lr}
+    lsls r0, r0, #4
+    ldr r1, es_all
+    ldr r1, [r1]
+    adds r0, r0, r1
+    ldrh r0, [r0]               @ National Dex number
+    movs r1, #0                 @ FLAG_GET_SEEN
+    ldr r3, es_dexflag
+    bl callr3
+    lsls r0, r0, #24
+    lsrs r0, r0, #24
+    beq es_ret
+    movs r0, #1
+es_ret:
+    pop {pc}
+
+.align 2
+es_all:             .word EVOALL_ADDR
+es_dexflag:         .word 0x080C0665    @ GetSetPokedexFlag
+
+@ u16dec(r0 = out, r1 = value 0-999) -> r0 = the end (0xFF written there): no leading zeros. A leaf (no push);
+@ the BIOS divide (swi 6) keeps r2.
+u16dec:
+    adds r2, r0, #0
+    adds r0, r1, #0
+    movs r1, #100
+    svc #6
+    mov r12, r1
+    cmp r0, #0
+    beq ud_tens0
+    adds r0, #0xA1
+    strb r0, [r2]
+    adds r2, #1
+    mov r0, r12
+    movs r1, #10
+    svc #6
+    b ud_tens
+ud_tens0:
+    mov r0, r12
+    movs r1, #10
+    svc #6
+    cmp r0, #0
+    beq ud_ones
+ud_tens:
+    adds r0, #0xA1
+    strb r0, [r2]
+    adds r2, #1
+ud_ones:
+    adds r1, #0xA1
+    strb r1, [r2]
+    adds r2, #1
+    movs r0, #0xFF
+    strb r0, [r2]
+    adds r0, r2, #0
+    bx lr

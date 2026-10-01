@@ -67,8 +67,9 @@
   ended… Use another?" callstd 5 yes/no; Yes -> goto 0x083D7760 = callnative 0x083D7781 = CreateTask(ItemUseOutOfBattle_
   Repel 0x080FE0BC, 0x50); end) ; then call 0x082A4B2A ("Repel's effect wore off…" sign); release; end.
   Wild-encounter repel check 0x080B58CC also masks the low byte. Verified in mGBA (`patches/repel-prompt/test_repel_prompt.lua`):
-  prompt -> Yes -> "Jude used the Max Repel!" -> count 44->43, steps 250, countdown resumes. Answering No shows the
-  vanilla wore-off sign afterwards (slightly redundant, left as-is).
+  prompt -> Yes -> "Jude used the Max Repel!" -> count 44->43, steps 250, countdown resumes. (Correction 2026-10-01:
+  answering No does NOT show the sign - the No path `end`s inside the subroutine, skipping the parent's sign and
+  `release`; see REPEL PROMPTS: NO RELEASES, YES APPLIES AT ONCE.)
 - Script var mapping confirmed vanilla: 0x800D = VAR_RESULT, 0x800E = gSpecialVar_ItemId (0x0203CE7C).
   callnative (0x23) handler 0x0809934C works. callstd table @0x081DC2A0 (0=dead obtain-item, 3 sign, 4 default, 5 yes/no).
 
@@ -352,8 +353,8 @@ the registered Mach Bike.
   - DPE-style table pointers in the ROM header: 0x144 -> gSpeciesNames (11 bytes/entry, 960 species),
     0x1BC -> gBaseStats (28 bytes/entry), 0x1C0 -> gAbilityNames (13 bytes/entry). Bulbasaur = 45/49/49/45/65/65.
   - Wild encounter headers moved to 0x08E17D50 (254 map headers, vanilla 20-byte format; vanilla 0x08552D48 is
-    zeroed). GetCurrentMapWildMonHeaderId 0x080B4CF8 already points there. Extra 7-entry city table @0x08553894
-    (see tools/romdata/scan_wild.py).
+    zeroed). GetCurrentMapWildMonHeaderId 0x080B4CF8 already points there. Extra 7-entry table @0x08553894
+    (see tools/romdata/scan_wild.py) - the Battle Pyramid's, not cities (2026-09-30).
   - Trampolined into hack code (call through them, never reimplement): GetSetPokedexFlag -> 0x09257951,
     SetMonData -> 0x094A32BF, CreateWildMon 0x080B4E68, CalculateMonStats 0x08068D0C.
   - Raw 0xFF runs >= 32 KB (unreferenced check still required before use): 0x0839F4CD (36K), 0x08FB9920 (36K),
@@ -383,7 +384,8 @@ the registered Mach Bike.
   pool word like 0xFFFF stops Capstone's linear sweep dead (which is also why a single "count the pushes"
   pass found 6 of 12 functions).
 - Data: main headers 0x08E17D50 and the seven-city extra table 0x08553894 are both scanned (Mossdeep shows
-  the extra table's Land rows next to the main table's Water/Fish). Species names via the header pointer
+  the extra table's Land rows next to the main table's Water/Fish). WRONG, fixed 2026-09-30: 0x08553894 is the
+  Battle Pyramid's table - see *DEXNAV LISTS THE GAME'S OWN TABLE*. Species names via the header pointer
   at 0x144 (11 bytes/entry). Scratch = gStringVar2. Tested: Route 127 (10 rows, 2 pages, wrap) and Mossdeep.
 - Safari Zone menu (2026-09-18, same day): BuildSafariZoneStartMenu's tail @0x0809F55E has the identical
   movs r0,#7 / bl / pop shape, so the same stub serves it; the Safari menu becomes 8 entries. The patcher now
@@ -1577,3 +1579,565 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
 - Saves that already went through the bug keep whatever species the byte holds: not repairable in general (the
   original species is gone). A player with a fused Necrozma who used the EV-IV screen or a judge on v1.5 should
   check the Pokemon they get back.
+
+## WORDING RULE: NO BUG IS PINNED ON THE EARLIER COMMUNITY TRANSLATION — 2026-09-29
+- The earlier community translation's team (credited in the README) says the bugs people meet are not from them.
+  The user does not want trouble: docs, site, changelog, commit messages and release notes must not say a bug came
+  from their version. Removed / reworded: the FAQ's row on a Volo / Arceus cutscene freeze (gone); the new-game crash and the garbled Rustboro graphics are described as what they were, our own
+  translation passes (translation/patch_conv, patch_story, patch_remaining) overwriting movement scripts and LZ
+  graphics; "older versions" lines on the site now name the hack's own earlier releases. The site credits dropped
+  Li Yun, as the README already had at his request. README and the site's home page carry a "may still contain
+  glitches or bugs - keep a .sav backup" notice. The release notes of v1.1 and v1.2 say "our translation pass".
+- Old commit messages (315fead movefix, 8230d7a gfxfix: "the text passes overwrote") mean our passes; history is not
+  rewritten (that needs a force push of both repos).
+
+## ITEMS LOOKED GONE AFTER SWITCHING TO v1.6 (SAVE STATES) — 2026-09-29
+- Reported: after switching to v1.6 all the items were gone; after restarting the ROM they came back.
+- Cause: bagslots migrated only in load_slot, i.e. when the game boots and reads the battery save. An emulator save
+  state from an older version (loaded by hand, or restored by the emulator on launch) brings back the old memory -
+  gBagPockets[0] at 0x0203D030 x100, no MARKER - and skips that load. The Bag works from the old slots until the
+  game re-runs SetSaveBlocksPointers -> SetBagItemsPointers, which MoveSaveBlocks_ResetHeap does after battles and on
+  map loads (callers 0x08036762, 0x080867CE); set_ptrs then pointed Items at the new area, still empty. A restart
+  loaded the save and migrated. Reproduced on the v1.6 release ROM (test_bagslots_state.lua: the old layout put back
+  in memory, then a warp): 63 items -> 0 after the warp.
+- Fix: the copy is its own routine, migrate (unless MARKER: old 100 slots -> new, 100 zeroed, MARKER set), called
+  by load_slot after the loader and by set_ptrs after every pocket setup. At boot set_ptrs runs before the load and
+  may "migrate" whatever is in memory, but the loader then rewrites the stream (MARKER and both areas) from the save,
+  so load_slot's check is what counts; with no save, New Game's clear_bag empties everything and sets MARKER.
+  Nothing in the save format changes. 198 bytes at 0x08FF6000..0x08FF60C8 (load_slot 0x08FF601D, migrate
+  0x08FF6037, clear_bag 0x08FF606D).
+- Tested on the fixed full chain: test_bagslots_state 2/2 (63 items after the warp and after a battle, 200-slot
+  pocket, MARKER set), test_bagslots 19/19, reload 4/4, newgame 5/5, saves full_junk 4/4 and already 4/4.
+- For players on v1.6: restart the game after patching (a real restart, not a save state); a save made while the
+  Bag looked empty still holds the items in the old slots, and the next real start moves them - but items picked up
+  in that session went into the new pocket and are overwritten by that move.
+
+## TM75: LOW SWEEP WITH BOUNCE'S DESCRIPTION — 2026-09-30
+- Reported: TM75's name is Low Sweep but its description is Bounce's. The move is right: the TM table 0x09E0FE80
+  (TM n = entry n-1, TM01 = item 378) gives TM75 (item 452) move 490 Low Sweep, and every reader uses that table -
+  the Bag's name (0x08FD7BDC via 0x08FD7D3C), the party menu's can-learn / teach (0x081B6D10, 0x081B6D30), 0x08FF1C24.
+  The item's description pointer (item + 20 = 0x08FC7A40) was 0x08583197, the same text as TM52 (item 429), which
+  does teach Bounce (move 340).
+- (2026-10-01: TM75 was the only text naming the wrong move, but the shared ones confused players and five other
+  texts were wrong or had typos - see TM DESCRIPTIONS, ALL 128 READ.)
+- All 128 TMs checked (move vs description): TM75 is the only mismatch; the other shared descriptions are moves with
+  the same effect (Hyper Beam / Giga Impact, Solar Beam / Solar Blade, the draining moves, the high-crit moves, the
+  switching moves).
+- patches/itemdesc: new text at 0x08FF6400 (50 bytes), the game's own Low Sweep line from the summary's move
+  descriptions (table 0x09D2AD00, indexed move - 1; Low Sweep 0x09D2CD1E) rewrapped for the Bag: "The user hits the /
+  foe's legs, lowering / its Speed." (90 / 101 / 52 px; item-description lines run up to ~105 px, the summary's two
+  lines are 120 / 126). Applied last. Screenshot on the fixed build: the TM pocket shows "No75 Low Sweep" with it.
+
+## SKY PILLAR: ZINNIA AND RAYQUAZA, VERIFIED — 2026-09-30
+- Asked: make sure the Sky Pillar / Zinnia scripting works perfectly.
+- The pieces (all the hack's own): 24/79 (entrance) trigger (3,9) 0x098C04BE (needs 0x40C6, not 0x1C0: "make sure
+  you have a free slot" yes/no; No = step back, Yes = VAR 0x400F 1) and trigger (10,2) 0x0981FA9C (without the 3rd
+  Meteorite, item 690, and while 0x50 is clear: "doesn't have the meteorite fragment", step back). 24/85 (summit):
+  trigger (12,11) 0x0982040B (VAR 0x4001 == 0; needs 0x40C6, not 0x1C0) -> Zinnia's scene 0x0981FB04 -> the
+  Rayquaza object's script 0x08239722 -> battle 0x09824068 (setwildbattle 406 Lv50, callasm 0x08FFF201 - real code,
+  special 0x13A, GetBattleOutcome): won (1) or player teleported (5) -> givemon 406 (party / PC / nothing if both are
+  full - hence the entrance prompt) and VAR 0x4001 = 406; ran (4) -> "must face Rayquaza!" and the battle again;
+  anything else (caught 7) -> on. Then 0x09820501 sets 0x1C0 and 0x098205D1: removeitem 690, giveitem 648 (Final
+  Meteor), Mega Rayquaza, removeobject 2-5, setflag 0x50. Summit objects: Rayquaza (local 2), Zinnia (3, main 166),
+  local 4, all hidden by 0x50; the map's ON_TRANSITION clears 0x50 while VAR 0x40CA >= 2 and 0x1C0 is clear.
+- Static: every script byte in these ranges equals the original Chinese ROM (text was translated in place, pointers
+  unchanged); all 21 movement scripts identical and valid; command table entries unchanged; text lines <= 215 px
+  with a worst-case 7-letter name (box 216). An oddity from the original: showcoinsbox 1,21 before showmonpic,
+  never hidden - off-screen, and the battle right after resets the windows; nothing visible in the tests.
+- In mGBA on the user's save (0x1C0 cleared, the 3rd Meteorite in the Items pocket - it is not a Key Item),
+  tests/skypillar: test_skypillar.lua MODE catch / ko / run: PASS each (Rayquaza +1 - into the PC with a full party
+  -, item 690 -1, item 648 +1, 0x1C0 and 0x50 set, control back); MODE lose: blackout to 36/9 with 0x1C0 and 0x50
+  clear, VAR 0x4001 0, 0x8C1 clear, items untouched - the event can be done again. test_entrance.lua: No / Yes / no
+  second prompt / the door check. Screens reviewed: every message fits its box.
+- Text: "emmited" -> "emitted" (patches/textfix, same length, in place). "Key Stones" / "Keystones" both appear
+  (left; a longer word would need the text moved).
+
+## HMS WITHOUT THE POKEMON — 2026-09-29 — `patches/hmfree/` (PR #2, @anibalribeiro)
+- Asked for: use HMs without a party Pokemon that has the move. Decided: the HM item in the Bag plus the badge the
+  game already asks for; Fly and Flash from every Pokemon's party menu; Rock Climb left as it is.
+- How the hack gates field moves. Every obstacle script starts with a vanilla `goto` into hack script: Cut
+  (0x082906BB -> 0x09864016), Rock Smash (0x082907A6), Strength (0x082908BA), Surf (0x08271EA0 -> 0x09864066),
+  Waterfall (0x08290A49), Dive (0x08290B0F, 0x08290B5A), plus Rock Smash at 0x098A44D0 / 0x098B91CE and four Rock
+  Climb scripts at 0x098C346C.. (map events, no badge check anywhere). Each does `setvar VAR_0x8004, move;
+  callasm 0x08FF1BA1; compare VAR_0x8004, 6`. That routine looks the move up in the TM/HM list 0x09E0FE80
+  (TM01-120 then HM01-08 = Cut, Fly, Surf, Strength, Flash, Rock Smash, Waterfall, Dive; items 498-505) and
+  then in 0x08FD80B8, and returns the first non-egg party slot whose species is *compatible* (bit tables
+  0x0806E0B0 / 0x081B2390) - so the hack already asks for "can learn", not "knows". The badge checks come first:
+  Cut 0x867, Rock Smash 0x869, Strength 0x86A in the scripts; Surf 0x86B in the field code at 0x0809C7F2 (whose
+  PartyHasMonWithSurf result, 0x0808BE00, the hack no longer branches on); Waterfall and Dive in the field code.
+  Vanilla `checkpartymove` (0x0809B3DC, "knows the move") is still used by Headbutt, Whirlpool (TM36 here) and
+  Secret Power; untouched.
+- Obstacles: 8-byte trampoline over 0x08FF1BA0 (push {r4-r7,lr}; ldr r5; ldrh r5; ldr r7 - 4-aligned) to fm_entry,
+  which saves the move, calls fm_orig (those four instructions replayed, then `bx` to 0x08FF1BA9), and only on 6
+  looks the move up in its own 8-entry HM table: HM in the Bag (CheckBagHasItem 0x080D6724) -> VAR_0x8004 = the
+  first party slot with a species that is not an egg.
+- Party menu: pm_hook is the new head of the builder chain (0x081B351C: pm_hook -> partyedit 0x08F53901 ->
+  relearner in the PR; pm_hook -> relearner here). Fly = action 24 (0x13 + FIELD_MOVE_FLY 5), Flash = 20
+  (0x13 + 1), appended when numActions < 7, not already listed (a Pokemon that knows the move has it from the
+  game), badge set and HM owned; Flash also needs gMapHeader.cave (0x02037318 + 0x15) == 1 and FLAG_SYS_USE_FLASH
+  (0x888) clear. They go before Edit and Moves, so in the PR a Pokemon with two field moves and Switch can lose
+  Edit (here there is no Edit). Choosing one is the game's own field-move
+  path (badge message, "can't use that here", the Fly map).
+- 344 bytes of code + the 8 moves at 0x08F54500..0x08F54668. The ROM differs from its input only there, at
+  the trampoline and at the builder word.
+- Tested (`test_hmfree.lua`, the party's Chimchar turned into a Magikarp, which can learn no HM): unit - each of
+  the eight moves answers 6 without its HM and 0 with it; on the tmshop build (control) 6 both ways; Rock Climb 6;
+  a Chimchar with Cut compatibility still gets 0 without HM01. surf - Petalburg (19,7): the prompt, "used Surf",
+  on the pond (19,6), avatar surfing bit; without HM03 nothing. cut - Route 102 (10,7): "Chimchar used Cut"
+  (nickname), Magikarp in the popup, tree flag 0x12 set; without HM01 the plain "can be Cut down!" line. party -
+  Petalburg: {Summary, Item, Fly, Edit, Moves, Cancel}, Fly opens "Fly to where?", A lands at (19,16); without
+  HM02 no Fly; with Fly known it is listed once, in the game's own place. flash - Granite Cave 34/71 (cave 1):
+  Flash listed, chosen, flag 0x888 set and the light circle drawn; without HM05 not listed; not listed outdoors.
+  partyedit's entry/e2e/scratch tests unchanged on the final ROM.
+- Not tested: an egg in the first slot (first_mon skips eggs by GetMonData isEgg), Waterfall, Dive, Strength and
+  Rock Smash end to end (the unit test covers their routine answer; their scripts use it the same way as Cut/Surf).
+- Harness gotchas: gBagPockets (0x02039DD8) is in vanilla pocket order (Items, Balls, TMs, Berries, Key), not the
+  hack's EWRAM order; a control run with the same screenshot names overwrites the real run's pictures.
+- Taken into this repo on its own (2026-09-30): the user wanted only this of PR #2's three features, not the party
+  editor or the TM shop. The patcher asserted that the builder chain started at partyedit's hook (0x08F53901) and
+  chained to it; it now reads the trampoline's current word and chains to it, accepting the relearner's hook
+  (0x08FD9B01, this build) or partyedit's. Code, addresses and FREE 0x08F54500 unchanged (tmshop's list would sit at
+  0x08F54400..0x08F544E6, still free here). Applied last, after textfix.
+- 2026-09-30, later: Fly taken out of the party menu at the user's request ("every Pokemon has FLY"; the ride pager
+  and the map fly you). pm_hook now only offers Flash; the four Fly lines and lit_hm02 / lit_badge6 went, and a
+  `mov r8, r8` before the pool keeps it word-aligned (10 bytes fewer left keystone padding with 00 bf, which the
+  patcher rejects). The ROM changed only inside the hmfree block and its trampoline word 0x08FF1BA4 (fm_entry
+  moved). Re-tested: party with HM02 + badge 6 -> {Summary, Item, Moves, Cancel}; a Pokemon that knows Fly -> Fly
+  once (the game's own) and it flies; Flash in Granite Cave offered and lights it; unit, surf, cut unchanged.
+- test_hmfree.lua made save-independent: the party becomes one Magikarp (slots 2-6 emptied - on the user's save the
+  other five could learn Surf / Cut themselves and the NOHM controls "passed" through them), the Start menu cursor
+  is put on POKEMON from the menu's own list, and Fly / Flash are picked by their row in the action list (the user's
+  save has Switch and Fly rows the fixed DOWNs did not expect).
+- Results on this build with the user's save: unit - every HM move 6 without its HM and 0 with it, Rock Climb 6,
+  Chimchar control 0; surf / cut with the HM work, without it nothing; party - {0,3,24,33,2} (Summary, Item, Fly,
+  Moves, Cancel: the relearner's Moves still follows), Fly opens the map and lands at (19,16), without HM02 no Fly;
+  flash - Granite Cave 34/71: Flash listed and chosen, flag 0x888 set; without HM05 not listed.
+
+## INSTANT TEXT — 2026-09-30 — `patches/instanttext/`
+- Asked for: an instant text speed, chosen in the Option menu. Decided (the user's pick of three mock-ups): a 4th
+  word on the Text Speed row, all four visible - Slow / Mid / Fast / Instant, the selected one red.
+- optionsTextSpeed is the low 3 bits of SaveBlock2+0x14; Instant = 3, so the save format does not change. Readers,
+  found by scanning for `ldrb [.., #0x14]; lsls #29; lsrs #29`, the BLs to GetPlayerTextSpeed / Delay and the
+  literal pools of their tables (all vanilla in this ROM):
+  - GetPlayerTextSpeedDelay 0x08197990: reset anything > Fast to Mid (`cmp r0, #2` at 0x0819799C -> #3) and
+    read sTextSpeedFrameDelays {8, 4, 1} (literal 0x081979C0) - now {8, 4, 1, 1}. The byte after the vanilla
+    table is 0: a printer started at speed 0 is drawn whole inside AddTextPrinter, waits and all, so Instant
+    must not return 0.
+  - RenderText's scroll 0x08005CF6 (GetPlayerTextSpeed -> {1, 2, 4} at 0x082E9D10, literal 0x08005D1C) and the
+    braille font's 0x081BA5D4 (the option -> {1, 2, 4} at 0x08616124, literal 0x081BA5FC). Both tables are
+    followed by a 0: a "\l" scroll at Instant would move 0 px a frame forever. Both literals -> {1, 2, 4, 8}.
+  - Berry Crush's SetNamesAndTextSpeed 0x08020FC4 switches 0/1/2 -> 8/4/1 and leaves other values unset: `beq`
+    at 0x08021036 -> `bge`. Link-only, not tested.
+  - InitOptionMenu 0x080BA792 and Task_OptionMenuSave copy it as is. The recorded-battle copy (0x08185CBA, bits 1-3
+    of the record) indexes sRecordedBattleTextSpeeds {8, 4, 1, 0} at 0x085CD668, which has a 4th entry already;
+    the other `ldrb [.., #0x14]` readers near gSaveBlock2Ptr are the window frame (`lsrs #3`).
+- Printing: RunTextPrinters 0x08004778 -> 8-byte trampoline -> run_printers (0x08FF6901): the game's loop over the
+  32 printers (RenderFont 0x08004818: 0 PRINT, 1 FINISH, 3 UPDATE; CopyWindowToVram 0x08003659 on PRINT; callback
+  at +0x10 on PRINT and UPDATE; active +0x1B, textSpeed +0x1D), plus: when GetPlayerTextSpeed says 3 (it says Mid
+  while gTextFlags.forceMidTextSpeed is set) and the printer's textSpeed is 0, it keeps calling RenderFont while
+  it returns PRINT (max 1024 glyphs a frame). Any wait - {PAUSE}, the button arrow, "\l", "\p", the end - returns
+  UPDATE or FINISH and ends the burst. The window is copied to VRAM once after the burst, not per glyph (one
+  RequestDma3Copy each would flood the DMA queue). Printers started with an explicit slower speed keep it.
+- Option menu: TextSpeed_ProcessInput 0x080BABDC wraps at 3 (`cmp r3, #1` at 0x080BABEE -> #2; `movs r3, #2` at
+  0x080BAC24 -> #3). TextSpeed_DrawChoices 0x080BAC38 -> trampoline -> draw_speed (0x08FF69B3): DrawOptionMenuChoice
+  0x080BAB68 for each word at x 76 / 106 / 130 / 162 (the font's widths 22 / 16 / 24 / 42, 8 px apart, from just
+  after the "Text Speed" label, which ends at 65, to 204; the window is 208 wide). Four full words do not fit the
+  other rows' column (104..198, 94 px for 104 px of text). "Instant" is new text with Slow's colour prefix
+  FC 01 06 FC 03 07; DrawOptionMenuChoice copies at most 15 bytes and it is 13.
+- ROM: code + data 0x08FF6900..0x08FF6A32 (in the unreferenced 0xFF run 0x08FF6600..0x08FFD5A0, between the words
+  that happen to read 0x08FF67FF and 0x08FF7703); the two trampolines; five single bytes; three literals.
+- Tested (`test_instanttext.lua`, on the user's save): menu - from Fast, RIGHT Instant, RIGHT wraps to Slow, LEFT
+  Instant, LEFT Fast, Mid, Slow, LEFT wraps to Instant; B saves 3; reopened it shows Instant. text - a scripted
+  message of two lines, a "\l" scroll and a "\p" page: frames until the first page waits for A - Slow 502, Mid 250,
+  Fast 61 on both the patched and the unpatched ROM, Instant 4 (the box itself takes 2 at every speed); the
+  scroll and the second page 6 and 2 frames at Instant. battle - wild Magikarp, B through the intro, Run: the
+  action menu, "What will Blaziken do?", "Got away safely!", back on the field (Fast 884 frames, Instant 824 -
+  the battle's own fixed pauses dominate).
+- Seen while testing: a page of ~70 glyphs takes a little more than one frame to draw, so a probe at VBlank can
+  catch the printer mid-burst (37, then 69 characters). The screen still shows the page at once - the window is
+  copied after the burst and the DMA lands at the next VBlank, which is also why a screenshot taken on the frame the
+  printer starts waiting still shows the old contents.
+- Not tested in the game: braille text (the Sealed Chamber) and Berry Crush (link only); both are a table / a
+  branch that now covers the 4th value.
+
+## FASTER SURFING — 2026-09-30 — `patches/fastsurf/`
+- Asked for: faster surfing, "like holding B". Decided: B while surfing = PlayerWalkFaster 0x0808B768 (4 px a frame,
+  4 frames a tile: the Mach Bike's top speed) instead of the game's PlayerWalkFast 0x0808B738 (8 frames a tile, the
+  running speed). Same rule as auto-run's run decision: B held XOR Auto Run (optionsButtonMode 0x13 of SaveBlock2,
+  0 / 4), so with Auto Run on fast is the default and B gives the old speed. No running-shoes or map check (the
+  game's surf speed never had one).
+- Site: PlayerNotOnBikeMoving 0x0808AF00. After the collision checks (ledge, getting off onto land, ...), `ldrb
+  gPlayerAvatar.flags; tst #8 (SURFING)` and the branch at 0x0808AF5A `adds r0, r5, #0; bl PlayerWalkFast; b
+  0x0808AFB6`. 8 bytes at a 2-aligned address, too short for a trampoline: it becomes `ldr r0, [pc, #0x18]; bx r0`
+  (4 bytes; the other 4 are dead), and the literal goes into 0x0808AF74 - the first of the 0x38 bytes of nops auto-run
+  left dead after its own `ldr r0, =run_hook; bx r0` at 0x0808AF70 (its pool word is at 0x0808AFAC). surf_hook
+  (0x08FF6A80..0x08FF6AB4) is entered like run_hook - r4 = &gPlayerAvatar, r5 = direction, r6 = heldKeys - and
+  leaves through the function's epilogue 0x0808AFB6 (pop {r4-r6}; pop {r0}; bx r0).
+- Animations: both surfing sprites (gfx 2 Brendan, 92 May: sPlayerAvatarGfxIds 0x084974F8 [state 3]) use
+  sAnimTable_Surfing 0x08509388, 24 entries; WalkFaster plays GO_FASTER (12-15), which are there. The surf blob
+  follows the player's sprite, so it keeps up; checked on screen.
+- Tested (`test_fastsurf.lua`, Route 109 (3,48) eastwards, a warp onto water starts the player surfing; 64 frames
+  of RIGHT): Auto Run off 8 tiles, off + B 16, on 16, on + B 8; the unpatched ROM 8 with or without B. land: B +
+  RIGHT across 24 tiles at 4 frames each to the sandbar at x 27 - the game's own jump off, on foot, control back.
+- GOTCHA in the test: a PokeNav Match Call rolls every 10 steps (UpdateMatchCallStepCounter 0x08195F40,
+  sMatchCallState 0x0203CD80, counter at +6) and twice stopped a run at x 13, waiting for A while the test held
+  B. The test now zeroes the counter every 4 frames.
+- ROM: 0x0808AF5A (4 bytes), 0x0808AF74 (the literal), 0x08FF6A80..0x08FF6AB3. Nothing else.
+
+## DEXNAV: UNSEEN SPECIES ARE SHADOWS — 2026-09-30 — `patches/dexnavseen/`
+- Asked for: on the DexNav, a Pokemon not seen before is a shadow and cannot be registered until seen once.
+  Done: black silhouette icon, name "?????", header hint "Not seen yet" (instead of "A: Register"), A plays
+  SE_FAILURE (32) and the screen stays open. Level range, habitat and paging unchanged.
+- Seen = GetSetPokedexFlag(SpeciesToNationalPokedexNum(species), 0). GetSetPokedexFlag 0x080C0664 is a trampoline
+  to the hack's 0x09257950: flag n is bit n&7 (mask table 0x0832A328) of byte n>>3, seen at SaveBlock1+0x560, caught
+  at +0x5D8 (0x78 bytes each, 960 dex numbers); SpeciesToNationalPokedexNum 0x0806D4A4 reads the hack's table at
+  0x08F50370. Confirmed in the game: a scripted wild Ralts battle set dex 280's bit, and the DexNav showed it next
+  time. A species with dex number 0 is treated as seen.
+- The DexNav code is in the v1.4 base ROM, so this is four `bl`s into it (each asserted: bytes around it and its
+  current target), code at 0x08FF6B00..0x08FF6C46:
+  - 0x08FDA610 draw_page's `bl callr4` (r4 = CreateMonIcon) -> icon_hook: copies the three stack arguments below
+    its own frame, calls CreateMonIcon, and for an unseen species LoadSpritePalette (0x08008744) of an all-black
+    palette (colour 0 transparent) under tag 0x5E64 and writes the slot into gSprites[id].oam's palette bits (byte
+    +5, bits 4-7). draw_page frees all sprite palettes and loads the six mon-icon ones on every page, so the
+    shadow palette is reloaded with them (the 7th slot).
+  - 0x08FDA628 draw_page's `bl print` for the name -> name_hook: r6 is draw_page's scratch (0x02021DC4, [0] =
+    the row's species); "?????" replaces the name pointer, then print (0x08FDA6AA).
+  - 0x08FDE7F8 draw_hint's `ldr r2, =state; ldrb r3, [r2, #9]` -> hint_pick (r4 = task data at that point):
+    cur_index (0x08FDE738) + find (0x08FDA790) for the cursor row; unseen and not the species being hunted ->
+    r5 = "Not seen yet", r3 = 0, so draw_hint jumps straight to drawing; else the two instructions replayed.
+  - 0x08FDE708 dt_arm's `bl arm_search` -> arm_hook: seen -> arm_search (0x08FDE89A) and on to the leaving fade;
+    unseen -> buzz, drop its own frame and jump to dn_task's exit 0x08FDE734 (add sp, #4; pop {r4-r6, pc}), so no
+    fade and no registration. Unregistering (A on the hunted species) is decided before this call, unchanged.
+- On a map with no Pokemon (find finds no row) hint_pick sets an empty hint: draw_hint used to put "A: Register"
+  over "No wild Pokemon on this map" (seen in Mauville once dexnavscan removed its fake rows).
+- Tested (`test_dexnavseen.lua`, Route 102 on the user's save, Ralts and Sentret made unseen, Lotad seen): shadows
+  and "?????" on rows 1 and 3, "Not seen yet" on them and "A: Register" on Lotad, A on both unseen rows leaves the
+  hunt flags untouched and the DexNav open; B out; a wild Ralts (Run) sets its seen bit; the DexNav then shows
+  Ralts in colour and A registers it (flags 09, species 392) and returns to the field.
+
+## DEXNAV LISTS THE GAME'S OWN TABLE — 2026-09-30 — `patches/dexnavscan/`
+- Reported: the DexNav in Lilycove. Found: the DexNav's find_header (0x08FDA760) matched the current map by
+  group/number in two tables - the hack's encounter table 0x08E17D50 and 0x08553894, which the DexNav notes of
+  2026-09-18 took for "a seven-city extra table". It is gBattlePyramidWildMonHeaders: StandardWildEncounter
+  (0x080B5352) and SweetScentWildEncounter read it only when gMapHeader.mapLayoutId is 0x169 (the Pyramid floor),
+  indexed by frontier.curChallengeBattleNum (SaveBlock2+0xCB2); the Pike's (0x08553A14) likewise for layout 0x166.
+  Its seven entries carry leftover map numbers 0/1..0/7, so Slateport, Mauville, Rustboro, Fortree, Lilycove,
+  Mossdeep and Sootopolis showed a Land list of the Bulbasaur / Charmander / Squirtle lines at Lv 5. The game never
+  gives those there, but a DexNav search could (Mauville: 25 grass tiles, no encounter table at all).
+- Also found: GetCurrentMapWildMonHeaderId (0x080B4CF8, vanilla) adds VarGet(0x403E) (0..8) to the index in Altering
+  Cave (location word 0x6A18 = 24/106, nine headers in a row); find_header always took the first. A script at
+  0x086756F8 does compare / setvar on 0x403E, so the set can change.
+- Fix: find's only call to find_header (0x08FDA7A2; no other bl to it in the ROM) -> map_header (0x08FF6C80): table
+  index 0 -> GetCurrentMapWildMonHeaderId, 0xFFFF -> none, else 0x08E17D50 + 20 * id (the base read from the
+  function's own literal 0x080B4D48); index 1 -> none. So the DexNav shows exactly the header every wild encounter,
+  Sweet Scent, fishing and Rock Smash use on this map.
+- Audit of all 35 TOWN/CITY maps (mapType 1/2; tools/romdata/out/maps.json) against the main table and the tiles
+  (behaviour bits 0x08486EFC: bit 0 encounters, bit 1 surfable; Rock Smash = objects with 0x082907A6 / 0x098A44D0
+  / 0x098B91CE): apart from the seven Pyramid ghosts, every listed section has tiles to meet it on, and every town
+  with no table (Oldale, Mauville, Littleroot, the Sinnoh towns, ...) has no encounters in the game either - the
+  DexNav says "No wild Pokemon on this map". The only duplicate map ids in the main table are Altering Cave's sets.
+  The guide site's location data was never built from 0x08553894 (checked); tools/romdata/scan_wild.py and
+  SUMMARY.md now describe it as the Pyramid's.
+- Tested (`test_dexnavscan.lua`, before / after, the user's save): Lilycove - page 2 was Starmie + Charmeleon,
+  Charizard and two shadows, now Starmie only; Mauville - four fake rows, now "No wild Pokemon on this map";
+  Mossdeep - the fake Land rows gone; Petalburg unchanged; Altering Cave with VAR 0x403E = 0 the form list both
+  times, = 3 the form list before and Houndour Lv 12-22 after. test_dexnavseen passes on the same build.
+
+## DEXNAV SCREEN, UNBOUND STYLE — 2026-09-30 — `patches/dexnavui/`
+- Asked for: the DexNav screen reorganised like Pokemon Unbound's (the user's screenshot: habitat boxes of icons,
+  X for empty slots, an info panel, a SEARCH button). Decided with the user: two screens - Water (5) over Land (6x2),
+  Rock Smash (5) over Fishing (5x2), L/R to switch - and the panel's fourth row is the level range (no hidden
+  abilities here). An encounter header has 12 / 5 / 5 / 10 slots, so the boxes can never overflow; checked on all
+  254 headers: the most unique species per habitat is exactly 12 / 5 / 5 / 10 (Route 101 / 102 / Safari Zone / Route
+  210), the most on one map 28 (Route 208). build_lists still caps each list at its box.
+- Entry: the old screen's menu callback (0x08FDA238; the START menu entry and R both go through it) sets its CB2 from
+  one literal, 0x08FDA514 (was the old init 0x08FDA267, no other reference). It now points at ui_init (0x09FD8001).
+  The old list screen, and dexnavseen's hooks inside it and inside dexnavchain's dn_task, stay in the ROM unused.
+- Reused, by address (each asserted): find 0x08FDA790 (the map's own header via dexnavscan - the patcher refuses to
+  run without it), arm_search 0x08FDE89A / chain_break 0x08FDE5CC (register / stop, exactly what dn_task did),
+  sl_get 0x08FDF10A (Search Level from flash), cb2_return 0x08FDE884, state 0x0203A660 (+2 species, +4 chain,
+  +9 flags; bit 7 = leave to the field). Own copies of is_seen and the black shadow palette (tag 0x5E64).
+- Layers: BG1 = the art (char base 2, map 30, priority 2), 60 tiles for both screens (art.py draws both 240x160
+  images and dedups with flips) + one 32x32 map per screen, one 16-colour palette; entries 5-7 / 8-10 are reloaded per
+  screen with the two habitats' colours, 13-15 with the button's (green / red STOP / grey). BG0 = one 30x20 window
+  (map 31, priority 0, palette 15, transparent) for every word, number and the 16x16 X (BlitBitmapRectToWindow).
+  Sprites: the icons (CreateMonIcon; unseen ones get the shadow palette), a 32x32 red ring (tag 0x5E65), and two
+  type labels from the summary screen: LoadCompressedSpriteSheet(0x0861CFBC), LoadCompressedPalette(0x08D97B84,
+  OBJ 13-15), CreateSprite(0x0861CFC4), StartSpriteAnim(type), palette = 0x09D381A4[type]; Fairy is type 23.
+- ui block from AllocZeroed(0xD0) (layout at the top of dexnavui.s), its address in the task's data[0..1]; freed
+  with the BG0 tilemap buffer and the windows on the way out. Leaving: bit 7 -> cb2_return, else
+  CB2_ReturnToFieldWithOpenMenu (0x08086195), as dn_task did.
+- Code + data 0x09FD8000..0x09FDA7BC, in the 0xFF run 0x09FD29F1..0x0A000000 - the window 0x09FD8000..0x09FDD000 is
+  the one 20 KB stretch of it with no word in the ROM pointing inside (the run has chance matches elsewhere).
+- GOTCHAS: (1) the art showed 40 px too high: InitBgsFromTemplates does not write the scroll registers, and the field
+  leaves BG1's; ChangeBgX / ChangeBgY (0x08001D04 / 0x08001E7C) to 0 for BG0 and BG1 at init. (2) Thumb-1 `adds rd,
+  rn, #imm` takes 0-7 only - keystone quietly emitted adds.w for #12; conditional branches past 256 bytes likewise
+  became bne.w. The patcher's Thumb check caught both. (3) keystone pads `.align` with `00 bf` (a Thumb-2 hint):
+  harmless after a return, never executed.
+- Tested (`test_dexnavui.lua` on the user's save, and three more maps by hand-written stops): R and START open it;
+  ring moves (RIGHT/DOWN/LEFT/UP, rows skipped when empty, shorter rows clamp the column); L/R switch; A on a seen
+  species registers (flags 11, species 79 = Slowpoke, water) and the field bar shows it; reopening shows "Hunting:
+  Slowpoke" and a red STOP, A stops it; A on the unseen Ralts changes nothing and stays; START-menu DexNav + B goes
+  back to the menu; Lilycove (Water + Fishing only), Petalburg, Oldale (nothing: all X, grey button), Route 208 (the
+  busiest: Water 5 + Land 12, Rock Smash 4 + Fishing 7), Route 114. The user tried the test ROM themselves and chose
+  to keep it.
+- Space audit of the day (every byte changed since "(before hmfree)"): six new blocks, 11,275 bytes, each all 0xFF
+  with no pointer into it before; 19 hooks of 1-8 bytes (12 in the game's code, 1 in the hack's field-move routine,
+  6 in our own DexNav code). Nothing in the save or in permanent RAM.
+
+## SELECT: THE KEY ITEMS AS A RING — 2026-09-30 — `patches/keyring/`
+- Asked for: the SELECT popup (keyreg's list, redrawn by pcanywhere with "A PC") as Brilliant Diamond / Shining
+  Pearl's ring - item pictures around the player, the PC in the middle where BDSP has its L icon. Kept by the user
+  after screenshots and a test ROM.
+- Hooks (2 words, both in our own keyreg code): its `bl draw_popup` at 0x08FD8EF6 (was pcanywhere's new_draw
+  0x08FD9DE8) -> ring_open 0x08FF6D00, and its popup task literal 0x08FD9134 (was new_task 0x08FD9E7F) ->
+  ring_task 0x08FF6FD0. ring_open returns into the task's data[0] either 0x100 | the centre sprite's id, or the text
+  window's id from new_draw (the fallback); ring_task hands a text popup to new_task. The actions are pcanywhere's:
+  use_item 0x08FD9F36, the PC script copy 0x08FD9FFC (SetupScript 0x08098EF9), ScriptUnfreezeObjectEvents +
+  UnlockPlayerFieldControls to cancel. Code 0x08FF6D00..0x08FF7120 (bl range of keyreg), art and tables
+  0x09FDA800..0x09FDB498 (after dexnavui, in the same pointer-free window).
+- Sprites: per direction a 32x32 box (grey "empty" sheet when nothing is registered) at (120,34) (162,74) (120,114)
+  (78,74) - keyreg's order up/right/down/left - and the item's icon from AddItemIconSprite (0x081AFE70; the hack's
+  GetItemIconPicOrPalette 0x081AFFFC reads its own table 0x08FCBFF4 with the item-count check removed), moved +4,+4
+  (the 24x24 picture sits top-left in its 32x32) and raised to priority 0 (the template's is 1); a 64x64 centre at
+  (120,74) (the player's body; the player is at x 112-126, y 66-86): the PC in a box, four arrows, an A badge.
+  All ours at OAM priority 0: above the map, the people and BG0.
+- PALETTES, the hard part: on the field gReservedSpritePaletteCount (0x0300301C) is 12 - slots 0-11 belong to the
+  map's people (tags 0x1103.. in 4-7 on Route 102; 0-3 untagged but used by the player) - and of 12-15 the weather
+  (0x1200/0x1201) and field effects (0x1005) take two or three. Measured: 1-2 slots free for LoadSpritePalette on
+  every map tried, the ring needs 1 + one per item. So, the field being frozen while it is up, ring_open marks the
+  palette of every sprite in use (gSprites +0x3E bit 0, palette = byte 5 >> 4), takes free slots from 15 down,
+  saves each one's tag (sSpritePaletteTags 0x03000CF0) and its 32 bytes in both gPlttBufferUnfaded (+0x200 =
+  0x02037914) and gPlttBufferFaded (0x02037D14), tags it 0x5E90+k and loads the ring's / the icon's colours
+  (LoadPalette / LoadCompressedPalette). AddItemIconSprite's LoadCompressedSpritePalette then finds the tag and
+  loads nothing - IndexOfSpritePaletteTag only searches from the reserved count, so that count is 0 while the
+  sprites are made and put back after. ring_close destroys the sprites, frees the sheets by tag (0x5E80..0x5E86)
+  and writes back the tags and both buffers. Too few free slots, or no sprite for the centre: the text popup.
+- Tested (`test_keyring.lua`, the user's save, Journal / Mach Bike / Pokeblock Case / Itemfinder registered):
+  Route 102 with four and with two (grey boxes), Lilycove, Route 119 in the rain, a Pokemon Center - each time 9
+  (or 7) sprites more while open, the same count after, and every palette tag and colour of both buffers
+  byte-identical to before; A -> "Which PC should be accessed?" -> log off, controls back; UP -> the Journal; RIGHT
+  -> the Mach Bike (avatar flags 0x22). Fallback: a test copy asking for 17 palettes opened the old text list,
+  identical to the unpatched ROM's, and closed cleanly.
+- GOTCHA for tests: marking unused gSprites entries in use from Lua (to fake a crowded map) hangs the game within a
+  frame, with or without this patch - fake the shortage in the ROM copy instead (movs r5, #1 at 0x08FF6D02 -> #17).
+
+## QUEST LOG: THE DEVON SCOUT BEFORE FABA — 2026-10-01 — `patches/journal/steps.py`
+- Reported: "Chase Faba" (done by 0x40A0) named the Scorched Slab as soon as Nanu's step (0x41BC) was done, and
+  players went there first. The wormhole (Scorched Slab 24/73, object 2 at 7,2, script 0x098BF3C5) only lets you in
+  with flag 0x41D6 set ("The passage has stabilized"; else "extremely chaotic… dangerous"), and 0x41D6 is set only by
+  the Devon Scout on Steven's Island (35/37 object 1, script 0x0983A24A, path: 0x41BC set, 0x41CD and 0x41D6 clear)
+  - `tools/romdata/prereq.py 0x41D6`. 0x40A0 itself is set at Whirl Islands (35/72, trigger 11,19).
+- New step ANY(0x41D6) "News of Faba" between "Report to Nanu" and "Chase Faba", portrait trainer pic 31 (a
+  Scientist), location Steven's Island; "Chase Faba" reworded. Post-game now 39 steps; make_tests.py -> 94 cases.
+  test_questlog.lua: 94/94 (SHOTNAMES = {["cut 41"]=true} shoots a case). test_journal.lua no longer applies: the
+  Journal opens the Quest Log now, so it logs nothing.
+
+## SELECT RING: NO PC IN SOME AREAS — 2026-10-01 — `patches/keyring/`
+- Asked for: no PC from the key-item ring in Rainbow Castle, Allearth Forest, Giant Chasm, Spear Pillar, the
+  Distortion World and Mt. Silver, for balance, with a red cross on the ring; always (the user chose that over
+  story flags), and a PC that is part of the map must still work.
+- The check is the map section, not a map list: `blocked()` (a leaf, no push) reads gMapHeader.regionMapSectionId
+  (0x02037318 + 0x14) and looks it up in NOPC (64 Rainbow Castle, 115 Allearth Forest, 110 Giant Chasm, 133 Spear
+  Pillar, 119 Distortion World, 66 Mt. Silver; 0xFF-terminated, in the data). Every map of those sections (14 + 4 +
+  2 + 3 + 2 + 9), and only those: their warps were walked and lead only to maps of the same section or to other
+  places (Mt. Coronet, Sendoff Spring, Ultra Space, Temple of the End, EV Training Cave...). Allearth Lake (116),
+  Mountain Top and Temple of the End are not blocked.
+- build: the centre sheet is CENTREXSHEET (the same tag 0x5E82, the PC with a red cross from art.centre(blocked))
+  when blocked. ring_task: A on the ring when blocked plays SE_FAILURE (32) and leaves the ring up; on the text
+  fallback, A when blocked buzzes before pcanywhere's task sees it. A real PC is a metatile/map script and never
+  reaches this code.
+- Addresses: code 0x08FF6D00..0x08FF717C (ring_task now 0x08FF7000), data 0x09FDA800..0x09FDBCA7. The code grew
+  past 0x08FF7140, where repelfix's use_repel was: repelfix moved to 0x08FF7200 (its only pointer is the
+  callnative at 0x083D7761, which its patcher writes).
+- Tested (`test_keyring_nopc.lua`, the user's save, warped to warp 0 of 34/82, 34/35, 34/9, 35/11, 34/13, 34/53):
+  each shows the crossed-out PC, A leaves the ring up (sprite count unchanged), B closes it with every palette tag
+  and colour restored and the lock 0; Route 102 (control) A opens "Which PC should be accessed?". test_keyring.lua
+  and test_repelfix.lua (yes, lyes) pass as before. Test GOTCHA: test_repelfix yes sometimes shows a second
+  lock at step 10 (no script, closes with B) on the old ROM as well - it depends on the clock (RTC), not the build.
+
+## REGION MAP: A FREE CURSOR — 2026-09-30 — `patches/hisuimap/` (regionmap.s, grid.py)
+- Asked for: move around the Sinnoh map freely with a red box, like the Hoenn map when flying, instead of the marker
+  hopping from place to place (slow to reach anything). Done for both regions: a 16x16 sprite box (tag 0x5EA0,
+  priority 0) centred on the cursor's 8x8 square; D-pad = one square, and while held a step every 4 frames after a
+  12-frame pause (own timer in task data[10] over heldKeys - the game's key repeat waits 40 frames); the blinking
+  marker stays on where you are. DISPCNT gains OBJ (0x1040; the screen had sprites off).
+- Naming any square needs a per-square map, which the screen never had (one point per place). grid.py works it out
+  from each region's own picture and place table, 30x20 bytes of keys (0xFF = none), region record +24:
+  Sinnoh - each square classed by colour (town red (200,88,112) >= 12 px, road oranges r=248 g 150-210 b <= 115 >= 16
+  px, lake cyan >= 16 px, else nothing); every connected block of town squares goes to the nearest City/Town/League
+  point (within 2); then all places spread along road and lake squares at once (multi-source BFS), so a road square
+  belongs to the nearest place along the roads. 172 squares, all 46 places. Hisui - every land square (not the
+  picture's blues) to the nearest place, the Temple of Sinnoh only its own square. `python grid.py` draws both.
+- Code: the task's hop (snap) and slot_at are gone; key_at (cell -> grid key), cursor_moved (sprite, name box
+  top/bottom swap with ClearWindowTilemap 0x080038A4 when the box reaches rows 0-2 / 17-19, redraw only when the
+  key changes - data[9]), place_cursor. draw_name and fly_target read the key under the cursor, so greying and the
+  couriers' flags work as before (leaguefly's section-97 entry included). Task data [7] cursor cell, [8] sprite.
+- Space: the code grew 28 bytes; the blob (0x08FF3000..0x08FF54E4) still ends before ovalcharm (0x08FF5600, now
+  asserted). The grids and the box sprite are at 0x08FF7800..0x08FF7D80 (between chance words reading 0x08FF7785
+  and 0x08FF80E8). NOT at 0x09FDB500 as first tried: 0x09FC0000..end is reserved and must stay blank. Outside pointers into the blob: the item's field-use
+  (unchanged) and Mingyao's two texts (rewritten by the patch); 19 other matches are chance values in graphics,
+  identical before and after.
+- Tested (`test_freecursor.lua`, the user's save): Oreburgh opens with the box on the marker (place 92); RIGHT
+  steps; 60 frames held = 13 squares and back; LEFT x3 = Jubilife City (91), A -> landed 36/2 (the user has
+  visited it); reopened, the marker is on Jubilife; 14 x UP -> Snowpoint rows, the name box moved to the bottom;
+  the top-left corner stops the box. Hisui: Coronet Highlands on open, DOWN/LEFT -> Prelude Beach, UP -> Snowfall
+  Hot Spring. test_hisuimap.lua (hops) is marked superseded.
+
+## QUEST LOG GRID RESTYLED (DEXNAV LOOK) — 2026-09-30
+- Asked for: the chapter grid in the DexNav / key-ring style. Only the grid changes; the lists, the detail page and the
+  badge case keep the dark theme.
+- Own palette: GPAL (questlog_patch.py) is loaded into palette 15 at the start of draw_grid - every way into the grid
+  goes through it (opening, B from a list, B from the badge case). Leaving the grid puts the lists' PAL back: gi_list
+  loads all 16 colours (it used to reload only colour 4), and the Badges branch does the same before case_open.
+  Colour 0 is never used (transparent on a BG); the stripes are 1 and 3.
+- Background: grid_bg() draws the whole window (240 x 144, 0x4380 bytes 4bpp) - stripes, and per card a 2 px navy
+  ring exactly where card_border draws, a white body and a TAB_H = 16 row tab in the chapter's colour (ACCENT) with a
+  slanted end. One BlitBitmapToWindow; the 0 colour key never applies since no pixel is 0. At GRID_FREE 0x09FB8000
+  (after the badge case, before the reserved data at 0x09FBF800 - asserted; a pointer scan of the
+  full-chain ROM found only chance matches into 0x09FB4000..0x09FBF800).
+- Per card, drawn on top: the name on the tab with colours {tab, white, navy} written to V+0xF0 (text fills its cells
+  with the background colour, so each card needs its own), the icon (GCHARS: the Sinnoh mountain navy with grey snow,
+  the Side Quests bubble grey) and done/total in dark text, green when complete (GCOL +4 / +8). The selected card's
+  ring is card_border in colour 4; moving erases with 13, the ring's own navy, so the stripes never need redrawing.
+  PULSE is now red to light red (grid_pulse also drives the badge case's frame).
+- Tested (mGBA, the user's save, full chain): test_questlog_grid.lua (grid, cursor moves, Key Items list in its own
+  colours, back to the grid, Side Content, field) and test_questlog_badges.lua (the case in its dark colours with a
+  red frame, back to the grid).
+
+## QUEST LOG: SCREEN SWITCHES AND SCROLLING SPEED — 2026-09-30
+- Reported: a frame or two of wrong colours when switching sections; the Legends list painfully slow to scroll.
+- Colours: the grid has its own palette (above). Measured frame by frame (a screenshot every frame after each key): the
+  old build showed the previous screen in the new palette ~12 frames (grid -> list) and ~22 (list -> grid). Three layers
+  of fix, each needed:
+  1. load the new palette only after the new screen's windows are queued (draw_grid, list_tail, case_draw);
+  2. the Quest Log's VBlank callback runs ProcessDma3Requests (0x08000BF1) itself before TransferPlttBuffer - twice,
+     since one call stops at 40 KB and the badge case queues ~43 KB (ten windows, each re-sending the BG0 tilemap);
+     VBlankIntr's own call after the callback then finds the queue empty;
+  3. a hold flag (V+0xF7) set around "queue windows ... load palette": a VBlank that falls inside it sends nothing
+     (and sets gDma3ManagerLocked 0x03000810 so VBlankIntr's run skips the queue too; V+0xF8 marks the lock as ours
+     and the next unheld VBlank undoes it). The callback finds V through gTasks (func == TASK_ADDR, data +8, +0x800).
+     Tried first and dropped: IME = 0 around the same code - the VBlank IRQ then fires late, mid-frame, and tears.
+- Scrolling (hold Down 300 frames in Legends, rows passed): 16 in every build back to v1.5. Timed with parts stubbed
+  out (bx lr patched into a copy): no FillWindowPixelRect 26, no text as well 45, the portrait ~nothing. Now:
+  - rect writes window 1's buffer directly (gWindows 0x02020004, 12 bytes each, tileData +8; 30 tiles across,
+    32 bytes a tile, 4 bytes a pixel row), a word per tile row with a nibble mask - FillWindowPixelRect is per pixel;
+  - draw_list = draw_row x LROWS + list_tail (panel, arrows, show); list_move (Up/Down) redraws only the row left and
+    the row reached, first moving rows 0-3 <-> 1-4 inside the pixel buffer when the list scrolled by one (V+0xF4 /
+    V+0xF5: top and cursor before the move); anything else falls back to draw_list;
+  - on an auto-repeat step (the key in heldKeys but not newKeys) the panel is put off (V+0xF6): draw_pane draws the
+    empty panel only, and tk_list draws the real one once Up/Down are released. A fresh press draws it at once.
+  Result 35 rows / 300 frames. 57 screenshots of spaced presses (Legends, Hoenn, Side Content: down, scroll, up)
+  are pixel-identical to the old full-redraw build.
+- Back to the grid took ~25 frames: BlitBitmapToWindow of the 240 x 144 background is per pixel (colour key) - now a
+  word copy into the buffer; and grid_count ran on every return - now only when the log opens (nothing changes
+  while it is open). ~8 frames now.
+- test_questlog.lua's fixed timings (B at +40 then +60) lost the closing B while the grid took 25 frames; with the
+  faster return it passes: 93/93 with check_questlog.py (TASK_FN is now 0x08FEABD9).
+
+## QUEST LOG: EVOLUTIONS (SOULGOLD-STYLE FAMILY PAGES) - 2026-09-30
+- Asked for: a page of every evolution line in the ninth grid slot, reference only (no ticks), spoiler-light; then
+  SoulGold's evolution page (icons on top, "Ivysaur: Lv^16." lines), then a Pokedex-style list on the left, one list
+  for all regions, every line on one screen, shadows for families not seen.
+- The data (patches/questlog/evolutions.py, all from the ROM):
+  - the evolution table 0x08F387C0: 40 bytes a species, five {method u16, param u16, target u16, extra u16}. The
+    method's low byte is the method; a high byte 0x3F / 0xFF marks a baby whose Egg needs the incense in `extra`
+    (another high byte, 0x18 on Glaceon's, is not that). 250 Ultra Burst, 251 Mega (item; item 702 Wishing Piece =
+    Gigantamax), 252 Rayquaza's (a move), 253 Primal (an orb), 255 a form's way back to its base (the Gigantamax
+    slots 252-276, National Dex 0) - skipped. Eevee's ten are in a table of their own at 0x09F0B4A0
+    (GetEvolutionTargetSpecies, 0x09F0534C via the trampoline at 0x0806D098, reads it for species 133).
+  - method 6 (trade holding an item) really needs a trade (the case checks trade mode); the Hisuian Pill (753) is
+    described as the Verdanturf seller does: held at the usual evolution level. 17 / 33 are places (mapsections.json),
+    29 a type (Sylveon: Fairy is type 23 in this hack), 25 a species in the party.
+  - families: the evolution graph plus form changes, merged by the first Pokemon's National Dex number (regional
+    forms join their base's family). Forms that share a name are labelled Alolan / Galarian / Hisuian (a list of dex
+    numbers; Meowth told by type) or by type ("Wormadam (Bug/Steel)"). 323 families.
+  - one record per family: {icons, lines, x0, dx, species x 10, 9 lines {x, y, ball, 0, text}}, laid out in the small
+    narrow font (font 8, widths 0x08633AE4 - measured against its rendering); a Pokemon reached two ways is one line
+    ("Leafeon: Petalburg Woods/Leaf Stone"). The build asserts every family fits nine lines.
+  - at 0x09F82600 (~34 KB) in the 0xFF run before the Legends' - not the ROM's end: 0x09FC0000..end is
+    reserved.
+- The screen (mode 5, questlog.s evo_*): icons are real sprites (CreateMonIcon 0x080D2CC4 with SpriteCB_MonIcon
+  0x080D3015, LoadMonIconPalettes 0x080D2F05, FreeAndDestroyMonIconSprite 0x080D2EF9, FreeMonIconPalettes
+  0x080D2F9D); DISPCNT now 0x1040 (OBJ on); each icon's OAM priority is set to 0 (BG0 is priority 0). Shadows: SILPAL
+  in OBJ palette 15 and the icon's palette number set to 15. The list and the lines are drawn bottom-up: the small
+  font's cell is 12 px on a 10 px pitch and its letters reach the cell's foot, so each line may only cover the empty
+  top of the one below. Positions are 16-bit (V+0xFC selected, V+0xFE top; 323 > 255), so this screen has its own
+  header with u16dec (the BIOS divide) - the Journal's u8dec prints two digits.
+- Also: holding Up/Down in the lists speeds up (step_size: a page after four repeats); the grid cursor fix for
+  returning from a region chapter; the hint bar is put back on top inside the hold (a frame of blue showed there).
+- Tested (mGBA, the user's save): the pages (first family, unseen families' shadows, Eevee's nine lines, a family past
+  255, holding, L/R pages, B), the grid's nine cards, test_questlog.lua 93/93 (TASK_FN 0x08FEAC8D).
+
+## REPEL PROMPTS: NO RELEASES, YES APPLIES AT ONCE — 2026-10-01 — `patches/repelfix/`
+- Report: after a repel ran out, "Use another?" kept coming back every few steps after answering No. NOT reproduced:
+  UpdateRepelCounter 0x080B5870 (only caller 0x0809C91E, the per-step check) returns when the low byte of 0x4021 is
+  0 and prompts only when a decrement takes it to 0; after expiry the var stays item<<8 (checked over 120 steps, a
+  wild battle, No by B and by DOWN+A). The only writers of 0x4021 are VarSet in UpdateRepelCounter and Task_UseRepel
+  0x080FE164 (the six 0x4021 literals: 0x080B58BC/0x080B5918 counter and encounter check, 0x080FE0E0/0x080FE1C4 the
+  bag's repel, 0x08FD9AA4 lrepel's VarGet, 0x08B0D544 a data table); no script setvar/addvar/copyvar on it, no patch
+  writes newKeys. The L quick repel ("Use the Max Repel?", a different text) fires on a real L press only.
+- Two real flaws found on the way, fixed:
+  * No: 0x083D7720 is `loadword; callstd 5; closemessage; compare RESULT,1; goto_if_eq 0x083D7760; end` - the `end`
+    stops the whole script, so the parent's `release` never runs and FreezeObjectEvents (from `lock`) stays: the
+    people on screen stood still until they left the screen (test: 1 of 1 frozen after No). 0x083D7734..35 = `6C 02`
+    (release; end) in the zero padding before the text at 0x083D7740.
+  * Yes: `callnative 0x083D7781` (CreateTask(ItemUseOutOfBattle_Repel 0x080FE0BD, 0x50)) then `end` - the script
+    ends and unlocks while the task waits 8 frames + SE_REPEL; Task_UseRepel then sets the var, RemoveUsedItem, and
+    DisplayCannotUseItemMessage 0x080FD164 with the task's PRIORITY byte (+7, 0x50 != 0) as "on the field" ->
+    DisplayItemMessageOnField + Lock. The player walked 4 steps with no repel in between (test). Now 0x083D7760 is a
+    17-byte script: `callnative use_repel; playse 0x2F; message 0x085E9080; waitmessage; waitse; release; end`.
+    use_repel 0x08FF7200..0x08FF723C (repelfix.s; was 0x08FF7140 until keyring grew): VarSet(0x4021, item<<8 | ItemId_GetHoldEffectParam 0x080D7501),
+    RemoveUsedItem 0x080FE059 (RemoveBagItem 1, name -> gStringVar2). gText_PlayerUsedVar2 ends in {PAUSE_UNTIL_PRESS}
+    (FC 09), so `message` + `waitmessage`, not callstd 4 (that would want a second press). lrepel's Yes
+    (0x08FD9AE8 `callnative 0x083D7781`) -> `goto 0x083D7760`; it leaves its yes/no box up, and `message` works
+    without a closemessage because the box is "hidden" once printing ends. 0x083D7781 is now unreferenced.
+- Tested (`test_repelfix.lua`, CASE=no/yes/lno/lyes, old ROM as control): No - 0 frozen (old 1), var 0x5400, one
+  prompt in 40 steps; Yes - the repel on after 0 steps (old 4), Max Repels 104 -> 103, var counts down from 250,
+  the box clears; L+No / L+Yes the same. Chain rebuild (… -> keyring -> repelfix) = installed ROM byte for byte.
+
+
+## RARE CANDY NPC REMOVED — 2026-10-01 — `patches/nocandynpc/`
+- Asked for: the NPC that gives 999 Rare Candies is too exploitable, take him out.
+- Done at the end of the chain, not by dropping `candynpc` from the middle: every later patch was built and tested
+  with its bytes there, and naturefix (0x08F54200), hypertrain (0x08F54300) and hmfree (0x08F54500) sit after its
+  block in the same free run. The only pointer into the block from outside it is the 8/6 events' object pointer
+  (0x0852F308; whole-ROM scan).
+- 8/6 keeps 5 objects on purpose. The hack saves object events in SaveBlock1, so a game saved inside the Mart
+  reloads with him on (5,6). Talking looks his template up by localId among the first objectEventCount entries
+  (the SB1 copy on the current map); with the count back at 4 that is NULL and the script pointer is read from
+  0x10 (BIOS open bus, 0xE3A02004 - the same value as the open Berries-pocket crash report) and garbage runs.
+  So object 5 stays, moved to (-100,-100) (never in view, never spawns), and its script at 0x08F53778 is a single
+  `end` (02). The rest of the script and the four texts, 0x08F53779..0x08F5382E, are 0xFF again (182 bytes).
+  Flag 0x433F is left as it is.
+- Tested (`test_nocandynpc.lua`, the user's save): MODE=gone - in the Mart the objects are 255,1-4 (no 5), the
+  player steps onto (5,6), candies 33 -> 33. MODE=save on the pre-patch ROM writes a state with him loaded, MODE=ghost
+  loads it on the patched ROM: object 5 is on (5,6), A on him does nothing (lock 0, still on the field, candies 33),
+  re-entering the Mart drops him. Control: the same state and A on the pre-patch ROM shows "Want 999 Rare Candies?".
+  The patcher refuses a second run. Working ROM = the tested ROM (sha1 95c53fb5…); backup "(before candy NPC removed)".
+
+## TM DESCRIPTIONS, ALL 128 READ — 2026-10-01 — `patches/itemdesc/`
+- Reported: TM08 and TM09 have the same description. They did (Hyper Beam / Giga Impact share 0x08582AFE), and so
+  did four other groups. Every TM/HM read against its move: TM table 0x09E0FE80 (TM01 = item 378, HM01 = 498), the
+  item's description pointer (item + 20; items table 0x08FC2C7C, 44 B), the move's names 0x09D30258 (13 B), the
+  summary's move texts 0x09D2AD00 (move - 1) and the battle data 0x09D86419 (12 B: effect +0, power +1, type +2,
+  accuracy +3, PP +4, effect chance +5). Every number a description gives matches (Fire/Ice/ThunderPunch 10%,
+  Snore / Bounce / Air Slash / Scorching Sands 30%, Razor Shell 50%, Hyper Beam & Giga Impact 150, Magical Leaf /
+  Swift / Smart Strike accuracy 0 = never miss). The widest line of the game's own texts is 102 px (Protect,
+  Attract, Waterfall), now the patch's MAX_PX.
+- Shared texts split (each move now says what it is): 0x08582AFE TM08/09, 0x085829B3 TM11/12, 0x08582CDF
+  TM28/63/87 (Draining Kiss heals 75%, not half), 0x095522AA TM56/80/103, 0x0955213B TM65/69.
+- Wrong or misleading: TM118 Misty Explosion "Has 150 base power if used in Misty Terrain" (no word of fainting),
+  TM31 Attract "Makes it tough to attack a foe of the opposite gender" (backwards), TM38 Will-O-Wisp "It always
+  burns" (85% accurate). Typos: TM50 "Hits/hits", TM54 "for 2 to 5 times", TM101 "type varies", TM40 "Star-shaped".
+  Left as they are: TM39 Facade "Raises Attack when poisoned, burned, or paralyzed" (Game Freak's own wording; the
+  same damage), and the hack's capitalised weather names.
+- 19 new texts, the item pointers moved, the old texts untouched: 0x08FF6432..0x08FF65DE (after TM75's, up to the
+  0x08FF6600 limit) and 0x08FF8900..0x08FF8B05 (the pointer-free stretch 0x08FF8800..0x08FF94FE of the 0xFF run;
+  data words read 0x08FF8100, 0x08FF839E, 0x08FF8776, 0x08FF87FE, 0x08FF8800). The patcher checks no word points
+  into either window before writing and asserts afterwards that all 128 TM/HM descriptions differ.
+- Tested (`test_tmdesc.lua`): the 20 rewritten TMs in the Bag's TM pocket, each shot with the cursor on it - every
+  text in its box, three lines, nothing cut. Chain rebuild (... -> repelfix -> nocandynpc) differs from the
+  previous working ROM in exactly the 19 pointers and the two text blocks; installed (sha1 141ec5fe...), backup
+  "(before TM descriptions)".
+

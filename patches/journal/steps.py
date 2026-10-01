@@ -117,8 +117,10 @@ STEPS = [
     ], done_any=(0x41BC,), list_all=True, anchor=False),
         "Nanu found strange islands. Pass the four Tapus' trials with the Island Kahunas."),
     (POST, ANY(0x41BC), "All four Tapus recognise you. Report to Nanu on Steven's Island."),
-    (POST, ANY(0x40A0), "The Devon Scout on Steven's Island tracked Faba to the Ultra Wormhole in the "
-                        "Scorched Slab (Route 120). Bring a way past whirlpools."),
+    (POST, ANY(0x41D6), "Talk to the Devon Scout on Steven's Island: he has news about Faba. The Ultra "
+                        "Wormhole Faba used will not let you in before his report."),
+    (POST, ANY(0x40A0), "The Devon Scout tracked Faba to the Ultra Wormhole in the Scorched Slab "
+                        "(Route 120). Follow him, and bring a way past whirlpools."),
     (POST, ANY(0x41CD), "Report to Anabel on Steven's Island."),
     (POST, ANY(0x41AF), "Anabel says Steven and the former Champions are waiting in the lobby. Train with "
                         "them."),
@@ -308,6 +310,7 @@ TITLES = [
     'The Totem Pokémon',
     'The four trials',
     'Report to Nanu',
+    'News of Faba',
     'Chase Faba',
     'Report to Anabel',
     'Train with Champions',
