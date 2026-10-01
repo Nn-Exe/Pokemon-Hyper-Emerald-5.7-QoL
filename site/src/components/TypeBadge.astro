@@ -1,0 +1,21 @@
+---
+// A type name on its colour. With `link`, it opens the Pokédex filtered to that type.
+import { url } from '../lib/url';
+import { typeClass } from '../lib/pokedex';
+
+interface Props {
+  type: string;
+  link?: boolean;
+}
+const { type, link = false } = Astro.props;
+---
+
+{
+  link ? (
+    <a class:list={['type-badge', typeClass(type)]} href={url(`/wiki/pokedex/?type=${type}`)} title={`${type}-type Pokémon`}>
+      {type}
+    </a>
+  ) : (
+    <span class:list={['type-badge', typeClass(type)]}>{type}</span>
+  )
+}

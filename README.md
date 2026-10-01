@@ -22,7 +22,7 @@ Existing saves keep working.
 
 | Feature | Controls | Showcase |
 |---|---|---|
-| **Full English text** — ~6,000 leftover Chinese strings translated over two passes: post-game and Lost Artifacts (Volo/Arceus) story, Sinnoh, every Pokédex entry (960 species), items, abilities, moves, Battle Frontier and trainer dialogue. | — | ![](docs/showcase/pokedex.gif) |
+| **Full English text** — ~6,000 leftover Chinese strings translated over two passes: post-game and Lost Artifacts (Volo/Arceus) story, Sinnoh, every Pokédex entry (905 species), items, abilities, moves, Battle Frontier and trainer dialogue. | — | ![](docs/showcase/pokedex.gif) |
 | **Bag sort** — cycles type → name → amount, with a message in the description box. | **START** in the bag | ![](docs/showcase/bag-sort.gif) |
 | **Bag stack cap 999** — every pocket holds up to 999 per item (was 99). | — | ![](docs/showcase/bag-999.png) |
 | **200 item slots** — the Items pocket holds 200 different items (was 100). An existing save keeps every item: the first load moves them over. The other pockets are unchanged. | — | |
@@ -53,12 +53,13 @@ Existing saves keep working.
 
 A full player's guide is published with GitHub Pages:
 **https://nn-exe.github.io/Pokemon-Hyper-Emerald-5.7-QoL/** — install steps, every QoL feature, a walkthrough of Hoenn,
-the post-game, Sinnoh and the Lost Artifacts questline, plus wild-encounter tables, boss teams and legendary locations
-read straight from the ROM, with the game's own Pokémon, trainer and item sprites.
+the post-game, Sinnoh and the Lost Artifacts questline, plus a full Pokédex (905 species and their forms: stats,
+abilities, evolutions, locations, learnsets), moves, abilities, wild-encounter tables, boss teams and legendary
+locations read straight from the ROM, with the game's own Pokémon, trainer and item sprites.
 
 The site is an [Astro](https://astro.build) project in [`site/`](site/); `npm run build` there writes the pages into
 [`docs/`](docs/), the folder GitHub Pages serves. Its data comes from `tools/romdata/`, `tools/build_site_data.py`,
-`tools/build_sprites.py` and `tools/build_site_content.py`. See [site/README.md](site/README.md).
+`tools/build_pokedex.py`, `tools/build_sprites.py` and `tools/build_site_content.py`. See [site/README.md](site/README.md).
 
 ## Install
 

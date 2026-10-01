@@ -1,0 +1,159 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import { moves, typeClass, TYPE_LIST } from '../../lib/pokedex';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Moves' }];
+const description = `The ${moves.length} moves Pokémon can learn in Hyper Emerald v5.7: type, category, power, accuracy, PP, what each one does, and which are TMs or HMs.`;
+const list = [...moves].sort((a, b) => a.name.localeCompare(b.name));
+// power 1 is the game's marker for "worked out in battle"; accuracy 0 never misses
+const dash = (n: number) => (n > 1 ? String(n) : '—');
+---
+
+<Base title={`Moves - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Moves" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search moves</span>
+        <input type="search" placeholder="Move name or effect" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Type</span>
+        <select data-type>
+          <option value="">All types</option>
+          {TYPE_LIST.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Category</span>
+        <select data-cat>
+          <option value="">All categories</option>
+          <option value="Physical">Physical</option>
+          <option value="Special">Special</option>
+          <option value="Status">Status</option>
+          <option value="tm">TMs and HMs only</option>
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{list.length} moves</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No moves match those filters.</p>
+
+    <div class="table-shell" tabindex="0" role="region" aria-label="Moves" data-shell>
+      <table class="move-table stack-table moves-index">
+        <thead>
+          <tr>
+            <th scope="col">Move</th>
+            <th scope="col">Type</th>
+            <th scope="col">Category</th>
+            <th scope="col" class="numeric">Power</th>
+            <th scope="col" class="numeric">Acc.</th>
+            <th scope="col" class="numeric">PP</th>
+            <th scope="col">TM</th>
+            <th scope="col">Effect</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            list.map((m) => (
+              <tr
+                id={m.slug}
+                data-move
+                data-name={m.name.toLowerCase()}
+                data-text={m.desc.toLowerCase()}
+                data-type={m.type}
+                data-cat={m.cat}
+                data-tm={m.tm ? '1' : undefined}
+              >
+                <th scope="row">{m.name}</th>
+                <td data-label="Type">
+                  <span class:list={['type-badge', typeClass(m.type)]}>{m.type}</span>
+                </td>
+                <td data-label="Category" class:list={['move-cat', 'c-' + m.cat.toLowerCase()]}>
+                  {m.cat}
+                </td>
+                <td data-label="Power" class="numeric">{dash(m.power)}</td>
+                <td data-label="Accuracy" class="numeric">{dash(m.acc)}</td>
+                <td data-label="PP" class="numeric">{m.pp}</td>
+                <td data-label="Machine">{m.tm ?? '—'}</td>
+                <td class="move-desc">{m.desc}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="src">
+      Read from the move table of v5.7 bugfix 2; only moves that some Pokémon can learn are listed. A dash under Power
+      means the move does no direct damage or works its power out in battle; under Accuracy, that it cannot miss.
+    </p>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const type = form.querySelector<HTMLSelectElement>('[data-type]')!;
+  const cat = form.querySelector<HTMLSelectElement>('[data-cat]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const shell = document.querySelector<HTMLElement>('[data-shell]')!;
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-move]')];
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const row of rows) {
+      const ok =
+        (!term || row.dataset.name!.includes(term) || row.dataset.text!.includes(term)) &&
+        (!type.value || row.dataset.type === type.value) &&
+        (!cat.value || (cat.value === 'tm' ? row.dataset.tm === '1' : row.dataset.cat === cat.value));
+      row.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    shell.hidden = shown === 0;
+    count.textContent = `${shown} ${shown === 1 ? 'move' : 'moves'}`;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 90);
+  });
+  type.addEventListener('change', apply);
+  cat.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    type.value = '';
+    cat.value = '';
+    apply();
+  });
+
+  // #flamethrower from a learnset: the row must be visible to be scrolled to
+  function focusHash() {
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (el?.matches('[data-move]')) {
+      el.hidden = false;
+      shell.hidden = false;
+      el.scrollIntoView({ block: 'center' });
+    }
+  }
+  window.addEventListener('hashchange', focusHash);
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+  focusHash();
+</script>

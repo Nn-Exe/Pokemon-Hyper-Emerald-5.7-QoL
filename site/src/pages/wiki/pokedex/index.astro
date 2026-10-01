@@ -1,0 +1,188 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import WikiNav from '../../../components/WikiNav.astro';
+import { url } from '../../../lib/url';
+import { species, dexStats, dexNo, bst, frontSprite, pokedexHref, typeClass, TYPE_LIST, STAT_LABELS } from '../../../lib/pokedex';
+import { SITE_NAME } from '../../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Pokédex' }];
+const n = (x: number) => x.toLocaleString('en-US');
+const description = `All ${dexStats.species} Pokémon in Hyper Emerald v5.7, Bulbasaur to Enamorus, plus ${dexStats.forms} Mega, Gigantamax, regional and alternate forms: types, base stats, abilities, evolutions, locations and learnsets.`;
+const FORM_LABELS = { Standard: 'Standard', Regional: 'Regional form', Mega: 'Mega / Primal', Gigantamax: 'Gigantamax', Form: 'Alternate form' };
+---
+
+<Base title={`Pokédex - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Pokédex" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <ul class="dex-totals">
+      <li><strong>{n(dexStats.species)}</strong> species</li>
+      <li><strong>{dexStats.forms}</strong> other forms</li>
+      <li><strong>{n(dexStats.total)}</strong> pages in all</li>
+      <li><strong>{dexStats.hidden}</strong> with a hidden ability</li>
+    </ul>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search the Pokédex</span>
+        <input type="search" placeholder="Name or number" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Type</span>
+        <select data-type>
+          <option value="">All types</option>
+          {TYPE_LIST.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Form</span>
+        <select data-form>
+          <option value="">All forms</option>
+          {Object.entries(FORM_LABELS).map(([k, label]) => <option value={k}>{label}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Sort by</span>
+        <select data-sort>
+          <option value="dex">Pokédex number</option>
+          <option value="name">Name</option>
+          <option value="bst">Base stat total</option>
+          {STAT_LABELS.map((s, i) => <option value={String(i)}>{s}</option>)}
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{n(species.length)} Pokémon</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No Pokémon match those filters.</p>
+
+    <div class="dex-grid" data-grid>
+      {
+        species.map((s, i) => (
+          <a
+            class="dex-card"
+            href={url(pokedexHref(s))}
+            data-i={i}
+            data-name={s.name.toLowerCase()}
+            data-dex={s.dex}
+            data-types={s.types.join(' ')}
+            data-form={s.form}
+            data-stats={s.stats.join(',')}
+          >
+            <img src={frontSprite(s.sid)} alt="" width="64" height="64" loading="lazy" decoding="async" />
+            <span class="dex-card-meta">
+              <span>{dexNo(s)}</span>
+              <span>BST {bst(s)}</span>
+            </span>
+            <strong>{s.name}</strong>
+            <span class="dex-card-types">
+              {s.types.map((t) => <span class:list={['type-badge', typeClass(t)]}>{t}</span>)}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    <p class="src">
+      Read from the game’s own species, ability, evolution and learnset tables in v5.7 bugfix 2: these are the
+      values this hack uses. Sprites are the game’s own.
+    </p>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const type = form.querySelector<HTMLSelectElement>('[data-type]')!;
+  const kind = form.querySelector<HTMLSelectElement>('[data-form]')!;
+  const sort = form.querySelector<HTMLSelectElement>('[data-sort]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const grid = document.querySelector<HTMLElement>('[data-grid]')!;
+  const cards = [...grid.querySelectorAll<HTMLElement>('.dex-card')];
+  const meta = cards.map((card) => ({
+    card,
+    i: Number(card.dataset.i),
+    name: card.dataset.name!,
+    dex: card.dataset.dex!,
+    types: card.dataset.types!.split(' '),
+    form: card.dataset.form!,
+    stats: card.dataset.stats!.split(',').map(Number),
+  }));
+  const total = (s: number[]) => s.reduce((a, b) => a + b, 0);
+
+  function apply() {
+    const term = q.value.trim().toLowerCase().replace(/^#/, '');
+    const number = /^\d+$/.test(term) ? String(Number(term)) : '';
+    let shown = 0;
+    for (const m of meta) {
+      const ok =
+        (!term || (number ? m.dex === number : m.name.includes(term))) &&
+        (!type.value || m.types.includes(type.value)) &&
+        (!kind.value || m.form === kind.value);
+      m.card.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    count.textContent = `${shown.toLocaleString('en-US')} Pokémon`;
+  }
+
+  let sortedBy = 'dex';
+  function order() {
+    const by = sort.value;
+    if (by === sortedBy) return;
+    sortedBy = by;
+    const list = [...meta];
+    if (by === 'name') list.sort((a, b) => a.name.localeCompare(b.name) || a.i - b.i);
+    else if (by === 'bst') list.sort((a, b) => total(b.stats) - total(a.stats) || a.i - b.i);
+    else if (by === 'dex') list.sort((a, b) => a.i - b.i);
+    else list.sort((a, b) => b.stats[Number(by)] - a.stats[Number(by)] || a.i - b.i);
+    grid.append(...list.map((m) => m.card));
+  }
+
+  // the filters live in the address, so a filtered Pokédex can be linked to and survives Back
+  function remember() {
+    const p = new URLSearchParams();
+    if (q.value.trim()) p.set('q', q.value.trim());
+    if (type.value) p.set('type', type.value);
+    if (kind.value) p.set('form', kind.value);
+    if (sort.value !== 'dex') p.set('sort', sort.value);
+    const text = p.toString();
+    history.replaceState(null, '', text ? `?${text}` : location.pathname);
+  }
+  function update() {
+    order();
+    apply();
+    remember();
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(update, 90);
+  });
+  for (const el of [type, kind, sort]) el.addEventListener('change', update);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    type.value = '';
+    kind.value = '';
+    sort.value = 'dex';
+    update();
+  });
+
+  const preset = new URLSearchParams(location.search);
+  const has = (el: HTMLSelectElement, v: string | null) => !!v && [...el.options].some((o) => o.value === v);
+  if (preset.get('q')) q.value = preset.get('q')!;
+  if (has(type, preset.get('type'))) type.value = preset.get('type')!;
+  if (has(kind, preset.get('form'))) kind.value = preset.get('form')!;
+  if (has(sort, preset.get('sort'))) sort.value = preset.get('sort')!;
+  if ([...preset.keys()].length) {
+    order();
+    apply();
+  }
+</script>

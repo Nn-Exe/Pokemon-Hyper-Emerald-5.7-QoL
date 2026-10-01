@@ -2,6 +2,9 @@
 import { url } from '../lib/url';
 
 const LINKS = [
+  { href: '/wiki/pokedex/', label: 'Pokédex' },
+  { href: '/wiki/moves/', label: 'Moves' },
+  { href: '/wiki/abilities/', label: 'Abilities' },
   { href: '/wiki/encounters/', label: 'Encounters' },
   { href: '/wiki/pokemon/', label: 'Pokémon Finder' },
   { href: '/wiki/trainers/', label: 'Boss Teams' },
@@ -28,3 +31,10 @@ const here = Astro.url.pathname;
     }
   </nav>
 </div>
+
+<script>
+  // on a phone the row scrolls sideways: bring the current page's link into view
+  const nav = document.querySelector<HTMLElement>('.wiki-nav');
+  const active = nav?.querySelector<HTMLElement>('.is-active');
+  if (nav && active) nav.scrollLeft = active.offsetLeft - nav.offsetLeft - 16;
+</script>

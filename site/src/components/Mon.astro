@@ -1,7 +1,7 @@
 ---
-// A Pokémon name with its menu icon. Links to the Pokémon finder when the species can be found in the wild.
-import { url } from '../lib/url';
-import { speciesId, spritePos, wildEntry } from '../lib/data';
+// A Pokémon name with its menu icon, linked to its Pokédex page.
+import { speciesId, spritePos } from '../lib/data';
+import { pokedexUrl, speciesBySid } from '../lib/pokedex';
 
 interface Props {
   name?: string;
@@ -16,15 +16,15 @@ interface Props {
 const { name, sid: given, label, link = true, bare = false, size } = Astro.props;
 const sid = given ?? speciesId(name!);
 const text = label ?? name ?? '';
-const entry = link ? wildEntry(sid) : undefined;
+const href = link ? pokedexUrl(sid) : undefined;
 const icon = ['spr', 'spr-mon', size];
 ---
 
 {
   bare ? (
     <span class:list={icon} style={spritePos('mon', sid)} role="img" aria-label={text || undefined} />
-  ) : entry ? (
-    <a class="mon" href={url(`/wiki/pokemon/#${entry.id}`)} title={`Where to find ${entry.name}`}>
+  ) : href ? (
+    <a class="mon" href={href} title={`${speciesBySid(sid)!.name} in the Pokédex`}>
       <span class:list={icon} style={spritePos('mon', sid)} aria-hidden="true" />
       <span>{text}</span>
     </a>

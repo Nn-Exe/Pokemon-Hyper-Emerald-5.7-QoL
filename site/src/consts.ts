@@ -4,7 +4,7 @@ export const SITE_NAME = 'Hyper Emerald Guide';
 export const GAME = 'Pokémon Hyper Emerald: Lost Artifacts';
 export const GAME_VERSION = 'v5.7';
 export const PATCH_VERSION = '1.7';
-export const UPDATED = '2026-10-01';
+export const UPDATED = '2026-10-02';
 export const TAGLINE =
   'The complete player’s guide to Pokémon Hyper Emerald: Lost Artifacts v5.7 and its English + quality-of-life patch.';
 
@@ -49,6 +49,7 @@ export const FOOTER = [
     title: 'Reference',
     links: [
       { href: '/wiki/', label: 'Wiki' },
+      { href: '/wiki/pokedex/', label: 'Pokédex' },
       { href: '/wiki/encounters/', label: 'Wild encounters' },
       { href: '/wiki/pokemon/', label: 'Pokémon finder' },
       { href: '/wiki/trainers/', label: 'Trainer battles' },

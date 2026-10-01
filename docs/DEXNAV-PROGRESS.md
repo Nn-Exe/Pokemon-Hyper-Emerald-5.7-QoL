@@ -25,7 +25,7 @@ Search Level raised by DexNav encounters only (the user's choice):
 | Perfect IVs (stars) | Unbound's table (0-3: 100/0/0/0, 86/13/1/0, 74/16/9/1, 61/16/16/7, 63/14/17/6, 57/7/24/12 %) rolled out of 200 instead of 100, so every star chance is halved; then capped by the chain: at most 1 star under No.10, 2 under No.20 (user's call: a 3-star at SL 10, No.0 felt too strong). Stars = guaranteed 31s. On top, a flat 1-in-500 roll (any SL, any chain, past the cap) sets stars to 4: all six IVs 31, drawn as three gold stars (palette 15 entry 12) |
 | Shiny | `1 + (6·min(SL,100) + 2·clamp(SL-100,0,100) + max(SL-200,0)) / 32` CreateWildMon rolls (27 at SL 255: with this hack's vanilla 1/8192 per try, ≈ 0.33%, 0.61% at SL 999), +5 on the chain's 50th encounter, +10 on the 100th; the Shiny Charm still works inside each roll, as 5 tries per roll, so it multiplies everything by 5 |
 | Level | `+ (chain mod 100) / 5` |
-| Hidden ability | none: this hack's base stats carry only two ability slots |
+| Hidden ability | not granted (the hack does have hidden abilities: three u16 per species at 0x097A0000) |
 
 The chain grows on a catch or a win. As in ORAS it ends, and tracking stops, when you run, lose, the Pokémon
 flees, you **leave the map**, you get into **any other battle** (a trainer, a scripted Pokémon), or you pick a
@@ -200,8 +200,9 @@ Nothing here is a known defect; these are decisions someone may want to revisit.
   from, via `lr`, and comparing it with the section the entry came from.
 - **No explicit "stop hunting".** Pick another species, or run from one encounter. A toggle on A would
   conflict with re-picking the same species to keep the chain.
-- **Hidden abilities do not exist in this hack** — base stats are the vanilla 28-byte struct with two ability
-  slots — so the chain grants the second ability at best. The egg move is granted silently; the bar does not
+- **Hidden abilities are not granted** — this was written believing the hack had none (the base stats carry
+  two ability bytes). It does: the game reads three u16 per species at 0x097A0000, the third being the hidden
+  ability (hook at 0x0806B694). The chain grants the second ability at best. The egg move is granted silently; the bar does not
   show it (deliberately, to match the requested layout: no direction arrow, no MOVE line).
 - **Safari Zone** catches were not tested; the Safari battle outcome may not be the value the scoring expects.
 - **The chain is RAM only.** Search levels are in flash; the chain could join them in the same sector.

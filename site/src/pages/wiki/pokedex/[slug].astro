@@ -1,0 +1,504 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import TypeBadge from '../../../components/TypeBadge.astro';
+import EvoNode from '../../../components/EvoNode.astro';
+import MoveTable from '../../../components/MoveTable.astro';
+import { url, slugify } from '../../../lib/url';
+import { spritePos, levelRange, METHODS, type Method } from '../../../lib/data';
+import {
+  species,
+  speciesBySid,
+  TMS,
+  STAT_LABELS,
+  ability,
+  abilityHref,
+  move,
+  bst,
+  dexNo,
+  frontSprite,
+  pokedexHref,
+  family,
+  familyMembers,
+  familyRoot,
+  otherForms,
+  baseForm,
+  lineage,
+  wildSightings,
+  scriptedBattles,
+  legendEntries,
+  obtainableDirectly,
+  genderText,
+  heightText,
+  weightText,
+  type Species,
+} from '../../../lib/pokedex';
+import { SITE_NAME, GAME_VERSION } from '../../../consts';
+
+export function getStaticPaths() {
+  return species.map((s, i) => ({ params: { slug: s.slug }, props: { index: i } }));
+}
+interface Props {
+  index: number;
+}
+const { index } = Astro.props;
+const s = species[index];
+const prev = species[index - 1];
+const next = species[index + 1];
+const total = bst(s);
+const temporary = s.form === 'Mega' || s.form === 'Gigantamax';
+const base = baseForm(s);
+
+const regular = s.abilities.map((a) => ability(a)!).filter(Boolean);
+const hidden = s.hidden ? ability(s.hidden) : undefined;
+
+const tree = family(s.sid);
+const inTree = familyMembers(tree);
+const siblings = otherForms(s).filter((o) => !inTree.has(o.sid));
+
+// where to get it: its own encounters first, otherwise the nearest earlier stage that has some
+const wild = wildSightings(s);
+const scripted = scriptedBattles(s);
+const legends = legendEntries(s);
+const direct = wild.length + scripted.length + legends.length > 0;
+const steps = lineage((base?.species ?? s).sid);
+let source: Species | undefined;
+if (!direct) {
+  const chain = [...(base ? [base.species] : []), ...steps.map((st) => st.from).reverse()];
+  source = chain.find(obtainableDirectly);
+}
+const firstStep = source ? steps.findIndex((st) => st.from.sid === source!.sid) : -1;
+const sourceSteps = firstStep >= 0 ? steps.slice(firstStep) : [];
+const trigger = base && !['Gigantamax', 'Mega Evolution'].includes(base.how) ? base.how : '';
+const sourceWild = source ? wildSightings(source) : [];
+const sourceScripted = source ? scriptedBattles(source) : [];
+const sourceLegends = source ? legendEntries(source) : [];
+const SHOWN = 12;
+const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
+
+// learnsets: a Mega or Gigantamax form fights with what its base species knows
+const learner = temporary && base ? base.species : s;
+const levelUp = learner.levelUp.map(([lv, m]) => ({ lead: lv === 0 ? 'Evolve' : String(lv), move: m }));
+const machines = learner.tm.map((i) => ({ lead: TMS[i].label, move: TMS[i].move })).filter((r) => move(r.move));
+const root = speciesBySid(familyRoot(s.sid));
+const eggFrom = learner.egg.length ? learner : root && root.egg.length ? root : undefined;
+const eggs = (eggFrom?.egg ?? []).map((m) => ({ move: m }));
+
+const facts = [
+  ['Catch rate', String(s.catch)],
+  ['Base Exp.', String(s.exp)],
+  ['EV yield', s.ev.join(', ') || 'None'],
+  ['Growth rate', s.growth],
+  ['Base friendship', String(s.friendship)],
+  ['Gender', genderText(s.gender)],
+  ['Egg Groups', s.eggGroups.join(' · ') || 'None'],
+  ['Egg cycles', String(s.eggCycles)],
+];
+
+const statTier = (v: number) => (v < 50 ? 'low' : v < 80 ? 'mid' : v < 110 ? 'good' : 'high');
+const abilityLine = [...regular.map((a) => a.name), ...(hidden ? [`${hidden.name} (hidden)`] : [])].join(', ');
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Pokédex', href: '/wiki/pokedex/' }, { name: s.name }];
+const description = `${s.name} in Hyper Emerald ${GAME_VERSION}: ${s.types.join('/')} type, base stat total ${total}. Abilities: ${abilityLine}. Evolution, where to find it and every move it learns.`;
+const sections = [
+  { id: 'stats', label: 'Stats' },
+  { id: 'abilities', label: 'Abilities' },
+  ...(temporary ? [] : [{ id: 'training', label: 'Training' }]),
+  ...(tree || siblings.length ? [{ id: 'evolution', label: 'Evolution' }] : []),
+  { id: 'locations', label: 'Where to find' },
+  { id: 'moves', label: 'Moves' },
+];
+---
+
+<Base title={`${s.name} - Pokédex - ${SITE_NAME}`} description={description} crumbs={crumbs}>
+  <div class="container wiki-shell dex-page">
+    <div class="dex-crumbs"><Breadcrumbs crumbs={crumbs} /></div>
+
+    <header class="dex-identity">
+      <div class="dex-stage">
+        <img
+          src={frontSprite(s.sid)}
+          alt={`${s.name} sprite`}
+          width="192"
+          height="192"
+          data-sprite
+          data-normal={frontSprite(s.sid)}
+          data-shiny={frontSprite(s.sid, true)}
+        />
+        <button type="button" class="dex-shiny" aria-pressed="false" data-shiny-toggle>
+          <span aria-hidden="true">✦</span> Shiny
+        </button>
+      </div>
+      <div class="dex-identity-copy">
+        <p class="eyebrow">Pokédex {dexNo(s)}</p>
+        <h1>{s.name}</h1>
+        <div class="dex-types">{s.types.map((t) => <TypeBadge type={t} link />)}</div>
+        <p class="dex-kind">
+          {s.category && <span>{s.category} Pokémon</span>}
+          {!temporary && s.height ? <span>{heightText(s.height)}</span> : null}
+          {!temporary && s.weight ? <span>{weightText(s.weight)}</span> : null}
+          {s.form !== 'Standard' && <span>{s.form === 'Form' ? 'Alternate form' : s.form === 'Regional' ? 'Regional form' : s.form}</span>}
+        </p>
+        {s.entry && <p class="dex-entry">{s.entry}</p>}
+      </div>
+      <nav class="dex-adjacent" aria-label="Neighbouring Pokédex entries">
+        {
+          prev ? (
+            <a href={url(pokedexHref(prev))} rel="prev">
+              <small>← {dexNo(prev)}</small>
+              <span>{prev.name}</span>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        <a class="dex-all" href={url('/wiki/pokedex/')}>All Pokémon</a>
+        {
+          next ? (
+            <a href={url(pokedexHref(next))} rel="next">
+              <small>{dexNo(next)} →</small>
+              <span>{next.name}</span>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+      </nav>
+    </header>
+
+    <nav class="dex-jump" aria-label="On this page">
+      {sections.map((x) => <a href={`#${x.id}`}>{x.label}</a>)}
+    </nav>
+
+    <div class="dex-core">
+      <section class="dex-panel" id="stats" aria-labelledby="stats-title">
+        <div class="dex-panel-title">
+          <h2 id="stats-title">Base Stats</h2>
+          <span class="dex-bst">Total <strong>{total}</strong></span>
+        </div>
+        <dl class="stat-bars">
+          {
+            s.stats.map((v, i) => (
+              <div class="stat-row">
+                <dt>{STAT_LABELS[i]}</dt>
+                <dd>
+                  <span class="stat-value">{v}</span>
+                  <span class="stat-track">
+                    <i class={statTier(v)} style={`width:${Math.min(100, (v / 200) * 100).toFixed(1)}%`} />
+                  </span>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <section class="dex-panel" id="abilities" aria-labelledby="abilities-title">
+        <div class="dex-panel-title">
+          <h2 id="abilities-title">Abilities</h2>
+        </div>
+        <ul class="ability-list">
+          {
+            regular.map((a) => (
+              <li>
+                <a href={url(abilityHref(a))}>{a.name}</a>
+                <p>{a.desc}</p>
+              </li>
+            ))
+          }
+          {
+            hidden && (
+              <li class="is-hidden">
+                <a href={url(abilityHref(hidden))}>{hidden.name}</a>
+                <span class="tag warn">Hidden ability</span>
+                <p>{hidden.desc}</p>
+              </li>
+            )
+          }
+        </ul>
+        {
+          !hidden && !temporary && (
+            <p class="dex-note">The game gives {s.name} no separate hidden ability.</p>
+          )
+        }
+      </section>
+    </div>
+
+    {
+      !temporary && (
+        <section class="dex-section" id="training" aria-labelledby="training-title">
+          <h2 id="training-title">Training & Breeding</h2>
+          <dl class="dex-facts">
+            {facts.map(([k, v]) => (
+              <div>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+            {s.items.length > 0 && (
+              <div class="is-wide">
+                <dt>Held by wild ones</dt>
+                <dd>
+                  {s.items.map((it) => (
+                    <span class="item-ref">
+                      <span class="spr spr-item" style={spritePos('item', it.id)} aria-hidden="true" />
+                      {it.name} <small>({it.rate})</small>
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      )
+    }
+
+    {
+      (tree || siblings.length > 0) && (
+        <section class="dex-section" id="evolution" aria-labelledby="evolution-title">
+          <h2 id="evolution-title">Evolution</h2>
+          {tree ? (
+            <div class="evo-family" tabindex="0" role="region" aria-label={`${s.name} evolution family`}>
+              <EvoNode node={tree} current={s.sid} />
+            </div>
+          ) : (
+            <p class="dex-note">{s.name} does not evolve.</p>
+          )}
+          {siblings.length > 0 && (
+            <>
+              <h3 class="dex-subhead">Other forms</h3>
+              <div class="dex-forms">
+                {siblings.map((o) => (
+                  <a class="evo-mon" href={url(pokedexHref(o))}>
+                    <img src={frontSprite(o.sid)} alt="" width="64" height="64" loading="lazy" decoding="async" />
+                    <span>{o.name}</span>
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      )
+    }
+
+    <section class="dex-section" id="locations" aria-labelledby="locations-title">
+      <h2 id="locations-title">Where to Find {s.name}</h2>
+
+      {
+        temporary && base && (
+          <p class="dex-note">
+            {s.name} is a battle-only form of <a href={url(pokedexHref(base.species))}>{base.species.name}</a>, so it
+            has no encounter of its own.
+            {trigger && <span> Trigger: {trigger}.</span>}
+            {s.form === 'Mega' && (
+              <span>
+                {' '}
+                See <a href={url('/guides/mega-stones-key-items/')}>Mega Stones & Key Items</a>.
+              </span>
+            )}
+          </p>
+        )
+      }
+
+      {
+        [
+          { who: s, wild, scripted, legends, show: direct },
+          { who: source, wild: sourceWild, scripted: sourceScripted, legends: sourceLegends, show: !!source },
+        ]
+          .filter((g) => g.show && g.who)
+          .map((g) => (
+            <div class="dex-source">
+              {g.who!.sid !== s.sid && (
+                <h3 class="dex-subhead">
+                  Start with <a href={url(pokedexHref(g.who!))}>{g.who!.name}</a>
+                </h3>
+              )}
+              {g.wild.length > 0 && (
+                <>
+                  <div class="table-shell" tabindex="0" role="region" aria-label={`Wild ${g.who!.name} locations`}>
+                    <table class="stack-table location-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Location</th>
+                          <th scope="col">Method</th>
+                          <th scope="col" class="numeric">Level</th>
+                          <th scope="col" class="numeric">Rate</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {g.wild.slice(0, SHOWN).map((w) => (
+                          <tr>
+                            <th scope="row">
+                              <a href={url(`/wiki/encounters/#${w.area.id}`)}>{w.area.map}</a>
+                              {w.area.note && <small> · {w.area.note.replace(/ of \d+$/, '').toLowerCase()}</small>}
+                            </th>
+                            <td data-label="Method">
+                              <span class={`chip m-${w.method}`}>{METHODS[w.method as Method]}</span>
+                            </td>
+                            <td class="numeric" data-label="Level">{levelRange(w.min, w.max)}</td>
+                            <td class="numeric" data-label="Rate">{pct(w.pct)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {g.wild.length > SHOWN && (
+                    <p class="dex-more">
+                      <a href={url(`/wiki/pokemon/?q=${encodeURIComponent(g.who!.name)}`)}>
+                        All {g.wild.length} places in the Pokémon Finder →
+                      </a>
+                    </p>
+                  )}
+                </>
+              )}
+              {g.scripted.length > 0 && (
+                <ul class="dex-battles">
+                  {g.scripted.map((b) => (
+                    <li>
+                      <span class="tag info">Scripted battle</span>
+                      <a href={url(`/wiki/scripted-encounters/?q=${encodeURIComponent(b.species)}`)}>{b.map}</a>
+                      <span>Lv {b.level}</span>
+                      {b.item && <span>holds {b.item}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {g.legends.map((l) => (
+                <aside class="callout plain">
+                  <strong class="callout-title">
+                    <a href={url(`/guides/legendaries/#${slugify(l.name)}`)}>Legendary Locations: {l.name}</a>
+                  </strong>
+                  <p>{l.where}</p>
+                </aside>
+              ))}
+            </div>
+          ))
+      }
+
+      {
+        source && sourceSteps.length > 0 && (
+          <ol class="dex-steps">
+            {sourceSteps.map((st) => (
+              <li>
+                Evolve <a href={url(pokedexHref(st.from))}>{st.from.name}</a> into{' '}
+                <a href={url(pokedexHref(st.to))}>{st.to.name}</a>: <span>{st.text}</span>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+
+      {
+        !direct && !source && !temporary && (
+          <p class="dex-note">
+            {s.name} has no wild encounter and no scripted battle in the game’s tables
+            {steps.length > 0 ? `, and neither do the stages before it` : ''}. Pokémon like this come from gifts,
+            in-game trades, eggs, events or shops: check
+            <a href={url('/guides/side-content/')}>Side Content & Gift Pokémon</a> and
+            <a href={url('/guides/legendaries/')}>Legendary Locations</a>.
+          </p>
+        )
+      }
+    </section>
+
+    <section class="dex-section" id="moves" aria-labelledby="moves-title">
+      <h2 id="moves-title">Moves {s.name} Learns</h2>
+      {
+        learner.sid !== s.sid && (
+          <p class="dex-note">
+            A battle-only form learns nothing of its own: these are the moves of
+            <a href={url(pokedexHref(learner))}>{learner.name}</a>.
+          </p>
+        )
+      }
+      <nav class="dex-jump is-inline" aria-label="Learnsets">
+        <a href="#level-up">Level up <small>{levelUp.length}</small></a>
+        <a href="#machines">TM / HM <small>{machines.length}</small></a>
+        <a href="#egg-moves">Egg <small>{eggs.length}</small></a>
+      </nav>
+
+      <details class="learnset" id="level-up" open>
+        <summary>
+          <span>Level up</span>
+          <small>{levelUp.length} moves</small>
+        </summary>
+        {
+          levelUp.length ? (
+            <MoveTable caption={`Moves ${s.name} learns by level`} lead="Level" rows={levelUp} />
+          ) : (
+            <p class="dex-note">No level-up moves.</p>
+          )
+        }
+      </details>
+
+      <details class="learnset" id="machines" open>
+        <summary>
+          <span>TM / HM</span>
+          <small>{machines.length} moves</small>
+        </summary>
+        {
+          machines.length ? (
+            <MoveTable caption={`TMs and HMs ${s.name} can use`} lead="No." rows={machines} />
+          ) : (
+            <p class="dex-note">{s.name} cannot use any TM or HM.</p>
+          )
+        }
+      </details>
+
+      <details class="learnset" id="egg-moves" open>
+        <summary>
+          <span>Egg moves</span>
+          <small>{eggs.length} moves</small>
+        </summary>
+        {
+          eggs.length ? (
+            <>
+              {eggFrom && eggFrom.sid !== learner.sid && (
+                <p class="dex-note">
+                  Passed down through <a href={url(pokedexHref(eggFrom))}>{eggFrom.name}</a>, the form that hatches.
+                </p>
+              )}
+              <MoveTable caption={`Egg moves for ${s.name}`} rows={eggs} />
+            </>
+          ) : (
+            <p class="dex-note">No egg moves.</p>
+          )
+        }
+      </details>
+    </section>
+
+    <nav class="dex-adjacent is-footer" aria-label="Neighbouring Pokédex entries">
+      {
+        prev ? (
+          <a href={url(pokedexHref(prev))} rel="prev">
+            <small>← {dexNo(prev)}</small>
+            <span>{prev.name}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      <a class="dex-all" href={url('/wiki/pokedex/')}>All Pokémon</a>
+      {
+        next ? (
+          <a href={url(pokedexHref(next))} rel="next">
+            <small>{dexNo(next)} →</small>
+            <span>{next.name}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+    </nav>
+  </div>
+</Base>
+
+<script>
+  const img = document.querySelector<HTMLImageElement>('[data-sprite]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-shiny-toggle]');
+  if (img && toggle)
+    toggle.addEventListener('click', () => {
+      const on = toggle.getAttribute('aria-pressed') !== 'true';
+      toggle.setAttribute('aria-pressed', String(on));
+      img.src = on ? img.dataset.shiny! : img.dataset.normal!;
+    });
+</script>

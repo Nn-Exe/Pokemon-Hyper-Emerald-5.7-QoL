@@ -15,7 +15,7 @@ export type FeatureSection = {
 
 export const FEATURE_STATS = [
   { value: '~6,000', label: 'strings translated', note: 'two passes over the whole game' },
-  { value: '960', label: 'Pokédex entries', note: 'every entry in the game, in English' },
+  { value: '905', label: 'Pokédex entries', note: 'every species in the game, in English' },
   { value: '84', label: 'Journal objectives', note: 'from Prof. Birch to Cogita' },
   { value: '200', label: 'item slots', note: 'and 999 of each' },
 ];
@@ -35,7 +35,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Every Pokédex entry',
-        text: 'All 960 species have an English entry, wrapped to fit the page. Thirty-five that ran into the frame were laid out again.',
+        text: 'All 905 species have an English entry, wrapped to fit the page. Thirty-five that ran into the frame were laid out again.',
       },
       {
         title: 'English trainer names',

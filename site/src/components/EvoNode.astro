@@ -1,0 +1,38 @@
+---
+// One member of an evolution family and, to its right, everything it turns into.
+import { url } from '../lib/url';
+import { frontSprite, pokedexHref, type FamilyNode } from '../lib/pokedex';
+
+interface Props {
+  node: FamilyNode;
+  /** the species whose page this is */
+  current: number;
+}
+const { node, current } = Astro.props;
+const s = node.species;
+const here = s.sid === current;
+// Eevee's nine branches would run down the whole page in one column
+const many = node.children.length > 4 && node.children.every((c) => c.children.length === 0);
+---
+
+<div class="evo-node">
+  <a class:list={['evo-mon', { 'is-current': here }]} href={url(pokedexHref(s))} aria-current={here ? 'page' : undefined}>
+    <img src={frontSprite(s.sid)} alt="" width="64" height="64" loading="lazy" decoding="async" />
+    <span>{s.name}</span>
+  </a>
+  {
+    node.children.length > 0 && (
+      <ul class:list={['evo-branches', { 'is-many': many }]}>
+        {node.children.map((child) => (
+          <li class:list={['evo-branch', { 'is-form': child.kind === 'form' }]}>
+            <div class="evo-how" title={child.text}>
+              <span class="evo-arrow" aria-hidden="true">→</span>
+              <span>{child.how}</span>
+            </div>
+            <Astro.self node={child} current={current} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>

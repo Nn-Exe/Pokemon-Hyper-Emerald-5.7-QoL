@@ -16,5 +16,10 @@
   "cell": 24,
   "cols": 32,
   "count": 769
+ },
+ "front": {
+  "dir": "front",
+  "cell": 64,
+  "count": 1170
  }
 }

@@ -4,7 +4,8 @@ import Clip from '../components/Clip.astro';
 import Team from '../components/Team.astro';
 import { url, showcase } from '../lib/url';
 import { clip } from '../lib/media';
-import { areas, stats, wildEntry, spritePos, levelRange, METHODS } from '../lib/data';
+import { areas, stats, spritePos, levelRange, METHODS } from '../lib/data';
+import { dexStats, pokedexUrl } from '../lib/pokedex';
 import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, UPDATED, formatDate } from '../consts';
 
 const title = `${SITE_NAME} - ${GAME} ${GAME_VERSION} Walkthrough & Wiki`;
@@ -91,7 +92,7 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
         <div class="stat"><strong>2</strong><span>regions</span><small>Hoenn and Sinnoh, plus Hisui</small></div>
         <div class="stat"><strong>16</strong><span>gyms</span><small>and three leagues</small></div>
         <div class="stat">
-          <strong>{n(stats.species)}</strong><span>wild Pokémon</span><small>{stats.wildBase} species + {stats.wildForms} forms</small>
+          <strong>{n(dexStats.species)}</strong><span>Pokémon</span><small>{n(stats.wildBase)} of them in the wild</small>
         </div>
         <div class="stat">
           <strong>{n(stats.trainers)}</strong><span>trainers</span><small>{stats.bosses} boss teams in full</small>
@@ -161,9 +162,11 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
         <h2>Find anything, anywhere.</h2>
         <p class="lede">
           Grass, cave, surfing, Rock Smash and fishing tables for all {stats.areas} areas, with levels and odds. Search
-          by place, or pick a Pokémon and see everywhere it appears.
+          by place, or open any of the {n(dexStats.species)} Pokémon in the Pokédex for its stats, abilities, moves and
+          everywhere it appears.
         </p>
         <div class="button-row">
+          <a class="text-link" href={url('/wiki/pokedex/')}>Pokédex →</a>
           <a class="text-link" href={url('/wiki/encounters/')}>Wild encounters →</a>
           <a class="text-link" href={url('/wiki/pokemon/')}>Pokémon finder →</a>
           <a class="text-link" href={url('/guides/legendaries/')}>Legendary locations →</a>
@@ -191,7 +194,7 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
                   routeRows.map((r) => (
                     <tr>
                       <th scope="row">
-                        <a class="mon" href={url(`/wiki/pokemon/#${wildEntry(r.sid)?.id}`)}>
+                        <a class="mon" href={pokedexUrl(r.sid)}>
                           <span class="spr spr-mon" style={spritePos('mon', r.sid)} aria-hidden="true" />
                           <span>{r.species}</span>
                         </a>

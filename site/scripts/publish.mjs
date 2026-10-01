@@ -47,7 +47,8 @@ if (!fs.existsSync(path.join(DOCS, 'showcase'))) {
 let removed = 0;
 for (const name of fs.readdirSync(DOCS)) {
   if (KEEP.has(name)) continue;
-  fs.rmSync(path.join(DOCS, name), { recursive: true, force: true });
+  // with a thousand pages, an indexer or virus scanner often still holds one: wait for it rather than fail
+  fs.rmSync(path.join(DOCS, name), { recursive: true, force: true, maxRetries: 20, retryDelay: 250 });
   removed++;
 }
 

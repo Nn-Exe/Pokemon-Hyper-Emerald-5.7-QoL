@@ -674,8 +674,10 @@ the registered Mach Bike.
   means at least four 31s, two means three, one means two, none means whatever the game rolled. The chance
   of three is 1 + chain/2 per cent (capped at 15), of two three times that, of one six times that.
 - Egg moves come from the table at 0x09D78128 (vanilla format, species + 20000 markers, terminator at
-  0x09D7973C); the move's PP comes from gBattleMoves at 0x09D86419 (12-byte stride, PP at +4). There is no
-  hidden ability to grant: base stats are the vanilla 28-byte struct with two ability slots.
+  0x09D7973C); the move's PP comes from gBattleMoves at 0x09D86419 (12-byte stride, PP at +4). No hidden
+  ability is granted. (Written believing the hack had none, from the two ability bytes in the base stats.
+  It does: the game reads abilities from three u16 per species at 0x097A0000, two regular and one hidden,
+  through the hook at 0x0806B694 -> 0x09D73A80. See tools/build_pokedex.py.)
 - gBattleOutcome is 0x0202433A, confirmed by watching it: 1 won, 4 ran, 6 the wild one fled, 7 caught, and
   0 while a battle is being set up.
 - THREE BUGS WORTH REMEMBERING, all found by testing rather than reading:

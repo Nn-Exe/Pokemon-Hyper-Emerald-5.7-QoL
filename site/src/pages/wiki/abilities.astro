@@ -1,0 +1,139 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import Mon from '../../components/Mon.astro';
+import { url } from '../../lib/url';
+import { abilities, abilityHolders, dexStats } from '../../lib/pokedex';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Abilities' }];
+const description = `The ${abilities.length} abilities in Hyper Emerald v5.7, what each one does and which Pokémon have it, hidden abilities included: ${dexStats.hidden} Pokémon and forms have one.`;
+const list = [...abilities].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<Base title={`Abilities - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Abilities" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search abilities</span>
+        <input type="search" placeholder="Ability, effect or Pokémon" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Show</span>
+        <select data-kind>
+          <option value="">All abilities</option>
+          <option value="hidden">Available as a hidden ability</option>
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{list.length} abilities</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No abilities match.</p>
+
+    <div class="ability-grid">
+      {
+        list.map((a) => {
+          const who = abilityHolders.get(a.id) ?? { regular: [], hidden: [] };
+          return (
+            <article
+              class="ability-card"
+              id={a.slug}
+              data-ability
+              data-name={a.name.toLowerCase()}
+              data-text={a.desc.toLowerCase()}
+              data-mons={[...who.regular, ...who.hidden].map((s) => s.name.toLowerCase()).join('|')}
+              data-hidden={who.hidden.length ? '1' : undefined}
+            >
+              <h3>{a.name}</h3>
+              <p>{a.desc}</p>
+              {who.regular.length > 0 && (
+                <div class="ability-holders">
+                  <b>Ability · {who.regular.length}</b>
+                  {who.regular.map((s) => (
+                    <Mon sid={s.sid} label={s.name} />
+                  ))}
+                </div>
+              )}
+              {who.hidden.length > 0 && (
+                <div class="ability-holders">
+                  <b>Hidden ability · {who.hidden.length}</b>
+                  {who.hidden.map((s) => (
+                    <Mon sid={s.sid} label={s.name} />
+                  ))}
+                </div>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <p class="src">
+      Read from the ability table the game itself looks up in v5.7 bugfix 2 (three slots a species: two regular, one
+      hidden). The items that change a Pokémon’s ability, the Ability Pill and the Ability Patch, are covered in
+      <a href={url('/guides/mechanics/')}>Game Mechanics</a>.
+    </p>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const kind = form.querySelector<HTMLSelectElement>('[data-kind]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-ability]')];
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const card of cards) {
+      const ok =
+        (!term ||
+          card.dataset.name!.includes(term) ||
+          card.dataset.text!.includes(term) ||
+          card.dataset.mons!.includes(term)) &&
+        (!kind.value || card.dataset.hidden === '1');
+      card.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    count.textContent = `${shown} ${shown === 1 ? 'ability' : 'abilities'}`;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 90);
+  });
+  kind.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    kind.value = '';
+    apply();
+  });
+
+  // #intimidate from a Pokédex page: the card must be visible to be scrolled to
+  function focusHash() {
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (el?.matches('[data-ability]')) {
+      el.hidden = false;
+      el.scrollIntoView({ block: 'center' });
+    }
+  }
+  window.addEventListener('hashchange', focusHash);
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+  focusHash();
+</script>

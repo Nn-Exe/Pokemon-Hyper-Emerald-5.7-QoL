@@ -4,6 +4,7 @@ import PageHero from '../../components/PageHero.astro';
 import WikiNav from '../../components/WikiNav.astro';
 import { url } from '../../lib/url';
 import { wildSpecies, stats, spritePos, levelRange, REGIONS, METHODS, METHOD_SHORT, type Region, type Method } from '../../lib/data';
+import { dexStats, pokedexUrl } from '../../lib/pokedex';
 import { SITE_NAME } from '../../consts';
 
 const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Pokémon Finder' }];
@@ -21,9 +22,10 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
     <aside class="callout plain">
       <strong class="callout-title">Why {wildSpecies.length} and not the whole Pokédex</strong>
       <p>
-        The game’s Pokédex has 960 entries. This page lists only what can be met as a wild encounter: {stats.wildBase}
-        species, plus {stats.wildForms} regional forms (Alolan, Galarian, Hisuian…) that have their own encounters and
-        are counted separately. The rest are starters, evolutions, gifts and trades, or scripted battles: see
+        The <a href={url('/wiki/pokedex/')}>Pokédex</a> has {dexStats.species} species. This page lists only what can
+        be met as a wild encounter: {stats.wildBase} of them, plus {stats.wildForms} regional forms (Alolan, Galarian,
+        Hisuian…) that have their own encounters and are counted separately. The rest are starters, evolutions, gifts
+        and trades, or scripted battles: see
         <a href={url('/wiki/scripted-encounters/')}>Scripted Encounters</a>,
         <a href={url('/guides/legendaries/')}>Legendary Locations</a> and
         <a href={url('/guides/side-content/')}>Side Content & Gift Pokémon</a>.
@@ -89,7 +91,11 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
             >
               <header>
                 <span class="spr spr-mon" style={spritePos('mon', sp.sid)} aria-hidden="true" />
-                <h3>{sp.name}</h3>
+                <h3>
+                  <a href={pokedexUrl(sp.sid)} title={`${sp.name} in the Pokédex`}>
+                    {sp.name}
+                  </a>
+                </h3>
                 <span class="chip is-quiet">
                   {sightings.length} {sightings.length === 1 ? 'place' : 'places'}
                 </span>

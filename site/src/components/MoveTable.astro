@@ -1,0 +1,54 @@
+---
+// A learnset: one row a move, with what the game's move table says about it.
+import { url } from '../lib/url';
+import { move, moveHref, typeClass } from '../lib/pokedex';
+
+interface Props {
+  caption: string;
+  /** what the first column holds: a level, a TM number, or nothing */
+  lead?: string;
+  rows: { lead?: string; move: number }[];
+}
+const { caption, lead, rows } = Astro.props;
+// power 1 is the game's marker for "worked out in battle" (Low Kick, Return); accuracy 0 never misses
+const dash = (n: number) => (n > 1 ? String(n) : '—');
+---
+
+<div class="table-shell" tabindex="0" role="region" aria-label={caption}>
+  <table class="move-table">
+    <caption class="sr-only">{caption}</caption>
+    <thead>
+      <tr>
+        {lead && <th scope="col">{lead}</th>}
+        <th scope="col">Move</th>
+        <th scope="col">Type</th>
+        <th scope="col">Category</th>
+        <th scope="col" class="numeric">Power</th>
+        <th scope="col" class="numeric">Acc.</th>
+        <th scope="col" class="numeric">PP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((r) => {
+          const m = move(r.move)!;
+          return (
+            <tr>
+              {lead && <td class="move-lead">{r.lead}</td>}
+              <th scope="row">
+                <a href={url(moveHref(m))}>{m.name}</a>
+              </th>
+              <td>
+                <span class:list={['type-badge', typeClass(m.type)]}>{m.type}</span>
+              </td>
+              <td class:list={['move-cat', 'c-' + m.cat.toLowerCase()]}>{m.cat}</td>
+              <td class="numeric">{dash(m.power)}</td>
+              <td class="numeric">{dash(m.acc)}</td>
+              <td class="numeric">{m.pp}</td>
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+</div>

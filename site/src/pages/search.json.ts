@@ -6,7 +6,6 @@ import { render } from 'astro:content';
 import { allGuides } from '../lib/guides';
 import {
   areas,
-  wildSpecies,
   trainerGroups,
   staticEncounters,
   trainerTitle,
@@ -16,6 +15,7 @@ import {
   METHOD_SHORT,
 } from '../lib/data';
 import { slugify } from '../lib/url';
+import { species, moves, abilities, wildSightings, dexNo, pokedexHref, moveHref, abilityHref } from '../lib/pokedex';
 import { LEGEND_GROUPS } from '../data/legendaries';
 import { FEATURES } from '../data/features';
 import { FAQ_GROUPS } from '../data/faq';
@@ -25,7 +25,10 @@ type Entry = { t: string; n: string; s: string; u: string; i?: number; k?: strin
 
 const PAGES: Entry[] = [
   { t: 'Page', n: 'Guides', s: 'Walkthrough, getting started and reference guides', u: 'guides/' },
-  { t: 'Page', n: 'Wiki', s: 'Encounters, Pokémon finder, trainers and scripted battles', u: 'wiki/' },
+  { t: 'Page', n: 'Wiki', s: 'Pokédex, moves, abilities, encounters, trainers and scripted battles', u: 'wiki/' },
+  { t: 'Page', n: 'Pokédex', s: 'Every Pokémon: stats, abilities, evolutions, locations and moves', u: 'wiki/pokedex/', k: 'pokedex dex species' },
+  { t: 'Page', n: 'Moves', s: 'Every move: type, power, accuracy, PP and effect', u: 'wiki/moves/', k: 'attacks tm hm' },
+  { t: 'Page', n: 'Abilities', s: 'Every ability and the Pokémon that have it', u: 'wiki/abilities/', k: 'hidden ability' },
   { t: 'Page', n: 'Wild Encounters', s: 'Every encounter table by location', u: 'wiki/encounters/' },
   { t: 'Page', n: 'Pokémon Finder', s: 'Where to find each wild Pokémon', u: 'wiki/pokemon/' },
   { t: 'Page', n: 'Trainer Battles', s: 'Boss teams with levels, items and moves', u: 'wiki/trainers/', k: 'gym leaders elite four champion' },
@@ -55,14 +58,29 @@ export const GET: APIRoute = async () => {
       entries.push({ t: 'Guide', n: h.text, s: g.data.title, u: `guides/${g.id}/#${h.slug}` });
   }
 
-  for (const sp of wildSpecies)
+  for (const sp of species) {
+    const places = wildSightings(sp).length;
     entries.push({
       t: 'Pokémon',
       n: sp.name,
-      s: `Found in ${sp.sightings.length} ${sp.sightings.length === 1 ? 'place' : 'places'}`,
-      u: `wiki/pokemon/#${sp.id}`,
+      s: [dexNo(sp), sp.types.join(' / '), places ? `found in ${places} ${places === 1 ? 'place' : 'places'}` : '']
+        .filter(Boolean)
+        .join(' · '),
+      u: pokedexHref(sp).slice(1),
       i: sp.sid,
     });
+  }
+
+  for (const m of moves)
+    entries.push({
+      t: 'Move',
+      n: m.name,
+      s: [m.type, m.cat, m.power > 1 ? `Power ${m.power}` : '', m.tm ?? ''].filter(Boolean).join(' · '),
+      u: moveHref(m).slice(1),
+      k: m.desc,
+    });
+
+  for (const a of abilities) entries.push({ t: 'Ability', n: a.name, s: a.desc, u: abilityHref(a).slice(1) });
 
   for (const a of areas)
     entries.push({

@@ -12,7 +12,8 @@ python tools/romdata/scan_wild.py
 python tools/romdata/scan_static.py
 python tools/romdata/make_key_trainers.py
 python tools/build_site_data.py tools/romdata/out      # -> site/src/data/{wild,trainers,static,species,items,forms}.json
-python tools/build_sprites.py                          # -> site/public/sprites/{mon,trainer,item}.png (needs Pillow)
+python tools/build_pokedex.py                          # -> site/src/data/{pokedex,moves,abilities}.json
+python tools/build_sprites.py                          # -> site/public/sprites/{mon,trainer,item}.png and front/ (needs Pillow)
 python tools/build_site_content.py                     # -> site/src/data/{journal,side-content}.json
 cd site && npm run build                               # -> docs/ (the published site)
 ```

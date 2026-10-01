@@ -1,7 +1,8 @@
 """Cut the guide site's sprite atlases out of the ROM: Pokémon menu icons, trainer front pictures, item icons.
 
 usage: HE_ROM=<patched rom> python tools/build_sprites.py
-writes site/public/sprites/{mon,trainer,item}.png and site/src/data/sprites.json
+writes site/public/sprites/{mon,trainer,item}.png, site/public/sprites/front/<species>.png (and <species>s.png,
+the shiny colours) and site/src/data/sprites.json
 
 One atlas per kind, one cell per table index (species id, trainer pic id, item id), so the site addresses a
 sprite as (id % cols, id // cols) and never needs a name lookup. Needs Pillow.
@@ -150,5 +151,37 @@ for item in range(N_ITEMS):
 size = save(atlas(cells, 24, 32), "item.png")
 meta["item"] = {"file": "item.png", "cell": 24, "cols": 32, "count": N_ITEMS}
 print("item icons: %d, %d bytes" % (sum(c is not None for c in cells), size))
+
+# ---- front pictures, normal and shiny: one small file a species, for the Pokédex ----
+# (64x64 with a palette of its own each, so a sheet could not share colours; a page shows one or two)
+FRONT_PICS = u32(0x128) - 0x08000000        # ROM header: {LZ77 64x64 4bpp, u16 size, u16 tag}
+FRONT_PALS = u32(0x130) - 0x08000000        # {LZ77 palette, u16 tag, pad}
+SHINY_PALS = u32(0x134) - 0x08000000
+front_dir = os.path.join(OUT_IMG, "front")
+os.makedirs(front_dir, exist_ok=True)
+dex_file = os.path.join(OUT_DATA, "pokedex.json")
+wanted = ([sp["sid"] for sp in json.load(open(dex_file, encoding="utf-8"))["species"]]
+          if os.path.exists(dex_file) else range(1, N_SPECIES))
+written = total = 0
+for sid in wanted:
+    try:
+        pixels = lz77(off(u32(FRONT_PICS + 8 * sid)))[:2048]
+        for suffix, table in (("", FRONT_PALS), ("s", SHINY_PALS)):
+            pal = palette(lz77(off(u32(table + 8 * sid))))
+            im = tiles(pixels, 64, 64, pal).convert("P", palette=Image.Palette.ADAPTIVE, colors=16)
+            # keep colour 0 see-through: rebuild as a palette image with index 0 transparent
+            rgba = tiles(pixels, 64, 64, pal)
+            flat = Image.new("P", (64, 64))
+            flat.putpalette([c for col in pal for c in col[:3]])
+            flat.putdata([pixels[(y // 8 * 8 + x // 8) * 32 + (y % 8) * 4 + (x % 8) // 2] >> (4 if x & 1 else 0) & 15
+                          for y in range(64) for x in range(64)])
+            path = os.path.join(front_dir, "%d%s.png" % (sid, suffix))
+            flat.save(path, optimize=True, transparency=0)
+            total += os.path.getsize(path)
+        written += 1
+    except (AssertionError, IndexError, struct.error):
+        continue
+meta["front"] = {"dir": "front", "cell": 64, "count": written}
+print("front pictures: %d species x 2 (normal, shiny), %d bytes" % (written, total))
 
 json.dump(meta, open(os.path.join(OUT_DATA, "sprites.json"), "w", encoding="utf-8"), indent=1)

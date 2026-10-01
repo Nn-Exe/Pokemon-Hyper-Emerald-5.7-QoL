@@ -54,6 +54,9 @@ MOVES = {
     "PoisonPowder": "Poison Powder", "ThunderShock": "Thunder Shock", "DynamicPunch": "Dynamic Punch",
     "DragonBreath": "Dragon Breath", "ExtremeSpeed": "Extreme Speed", "AncientPower": "Ancient Power",
     "SmellingSalt": "Smelling Salts", "FeatherDance": "Feather Dance", "Grasswhistle": "Grass Whistle",
+    "B. Jealousy": "Burning Jealousy", "Cease. Edge": "Ceaseless Edge", "Clang. Soul": "Clangorous Soul",
+    "False Surr.": "False Surrender", "LightOfRuin": "Light of Ruin", "Moon. Beam": "Moongeist Beam",
+    "Sun. Strike": "Sunsteel Strike",
 }
 
 

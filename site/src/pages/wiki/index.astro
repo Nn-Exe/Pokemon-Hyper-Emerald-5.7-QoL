@@ -4,13 +4,14 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import ContextLinks from '../../components/ContextLinks.astro';
 import Mon from '../../components/Mon.astro';
 import { url } from '../../lib/url';
-import { stats, spritePos } from '../../lib/data';
+import { stats, spritePos, speciesId } from '../../lib/data';
+import { dexStats, frontSprite } from '../../lib/pokedex';
 import { LEGEND_COUNT } from '../../data/legendaries';
 import { SITE_NAME } from '../../consts';
 
 const crumbs = [{ name: 'Wiki' }];
 const description =
-  'Wild encounters, where to find every Pokémon, boss teams and scripted battles in Hyper Emerald v5.7, read straight from the game’s own data tables.';
+  'The Pokédex, moves, abilities, wild encounters, boss teams and scripted battles of Hyper Emerald v5.7, read straight from the game’s own data tables.';
 const n = (x: number) => x.toLocaleString('en-US');
 ---
 
@@ -23,7 +24,7 @@ const n = (x: number) => x.toLocaleString('en-US');
       <p class="lede">{description}</p>
       <button class="hub-search" type="button" data-search-open>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
-        <span>Search Pokémon, places and trainers…</span>
+        <span>Search Pokémon, moves, places and trainers…</span>
       </button>
     </header>
 
@@ -33,6 +34,50 @@ const n = (x: number) => x.toLocaleString('en-US');
         <span>Game reference</span>
       </div>
       <div class="reference-grid">
+        <a class="reference-card" href={url('/wiki/pokedex/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{n(dexStats.species)} species + {dexStats.forms} forms</span>
+            <h3>Pokédex</h3>
+            <p>Every Pokémon’s types, base stats, abilities, evolutions, locations and learnsets.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media is-fronts" aria-hidden="true">
+            {['Blaziken', 'Gardevoir'].map((name) => (
+              <img src={frontSprite(speciesId(name))} alt="" width="64" height="64" loading="lazy" />
+            ))}
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/moves/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{dexStats.moves} moves</span>
+            <h3>Moves</h3>
+            <p>Type, category, power, accuracy, PP and effect of every move, and which are TMs.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media is-types" aria-hidden="true">
+            <span class="type-badge t-fire">Fire</span>
+            <span class="type-badge t-water">Water</span>
+            <span class="type-badge t-grass">Grass</span>
+            <span class="type-badge t-fairy">Fairy</span>
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/abilities/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{dexStats.abilities} abilities</span>
+            <h3>Abilities</h3>
+            <p>What each ability does and who has it, hidden abilities included.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            <Mon name="Greninja" bare size="x15" />
+            <Mon name="Gyarados" bare size="x15" />
+            <Mon name="Gengar" bare size="x15" />
+            <Mon name="Lucario" bare size="x15" />
+          </div>
+        </a>
+
         <a class="reference-card" href={url('/wiki/encounters/')}>
           <div class="reference-copy">
             <span class="reference-count">{n(stats.areas)} encounter areas</span>

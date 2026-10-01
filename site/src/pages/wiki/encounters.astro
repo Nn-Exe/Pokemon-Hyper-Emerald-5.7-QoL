@@ -3,9 +3,9 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import WikiNav from '../../components/WikiNav.astro';
 import { url } from '../../lib/url';
+import { pokedexUrl } from '../../lib/pokedex';
 import {
   areas,
-  wildEntry,
   spritePos,
   levelRange,
   REGIONS,
@@ -105,11 +105,10 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
                     </thead>
                     <tbody>
                       {a.rows.map((r) => {
-                        const entry = wildEntry(r.sid);
                         return (
                           <tr data-n={r.species.toLowerCase()} data-m={r.method}>
                             <th scope="row">
-                              <a class="mon" href={url(`/wiki/pokemon/#${entry?.id}`)}>
+                              <a class="mon" href={pokedexUrl(r.sid)}>
                                 <span class="spr spr-mon" style={spritePos('mon', r.sid)} aria-hidden="true" />
                                 <span>{r.species}</span>
                               </a>

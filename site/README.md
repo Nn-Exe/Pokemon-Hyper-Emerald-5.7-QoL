@@ -19,13 +19,13 @@ Commit `docs/` together with the source: the published site is whatever is in `d
 | Path | What it is |
 | --- | --- |
 | `src/content/guides/*.mdx` | One file per guide. The file name is the URL (`/guides/<name>/`). |
-| `src/pages/` | The other pages: home, the guides and wiki hubs, the wiki indexes, features, FAQ, changelog, gallery, about. |
+| `src/pages/` | The other pages: home, the guides and wiki hubs, the wiki indexes, the Pokédex (`wiki/pokedex/[slug].astro` makes one page a species), features, FAQ, changelog, gallery, about. |
 | `src/data/*.json` | Generated from the ROM. Do not edit; see below. |
 | `src/data/*.ts` | Hand-written: features, releases, FAQ, legendaries, gallery captions. |
 | `src/components/` | Building blocks. The ones guides use are listed below. |
 | `src/styles/global.css` | The whole design system, in numbered sections. Colours are tokens at the top, light and dark. |
 | `src/consts.ts` | Site name, navigation, the patch version and "last updated" date. **Bump these with each release.** |
-| `public/` | Icons, the social card and the sprite sheets. |
+| `public/` | Icons, the social card, the sprite sheets and the Pokédex front pictures (`sprites/front/`). |
 | `scripts/publish.mjs` | Copies `dist/` into `../docs`. Keeps `NOTES.md`, `DEXNAV-PROGRESS.md` and `showcase/`; writes redirects for the old `.html` page names. |
 
 Screenshots and clips are **not** in this folder: they live in `../docs/showcase/`, which the README uses too.
@@ -37,7 +37,7 @@ Guides are Markdown with a few components, available without importing anything:
 
 ```mdx
 <Team id={265} />                         a boss team from the ROM (the trainer's id)
-<Mon name="Rayquaza" />                   a Pokémon with its icon; links to the finder if it is found in the wild
+<Mon name="Rayquaza" />                   a Pokémon with its icon, linked to its Pokédex page
 <Item name="Mega Bracelet" />             an item with its Bag icon; label="…" changes the text
 <Key>R</Key>                              a GBA button
 <Callout type="warn" title="…">…</Callout>   tip (default) · warn · info · danger · plain
@@ -58,7 +58,8 @@ The tables and sprites come from the patched ROM. From the repository root, with
 python tools/romdata/dump_tables.py && python tools/romdata/dump_maps.py && python tools/romdata/dump_trainers.py
 python tools/romdata/scan_wild.py && python tools/romdata/scan_static.py && python tools/romdata/make_key_trainers.py
 python tools/build_site_data.py        # wild.json, trainers.json, static.json, species.json, items.json
-python tools/build_sprites.py          # public/sprites/{mon,trainer,item}.png
+python tools/build_pokedex.py          # pokedex.json, moves.json, abilities.json (run before build_sprites.py)
+python tools/build_sprites.py          # public/sprites/{mon,trainer,item}.png and front/<species>.png
 python tools/build_site_content.py     # journal.json (from patches/journal/steps.py), side-content.json
 python tools/build_site_images.py      # favicon, touch icon and the social card
 FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six README montage GIFs
