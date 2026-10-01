@@ -16,7 +16,6 @@ Existing saves keep working.
   <img src="docs/showcase/showcase-battle.gif" width="720" alt="Battle: type badges, move effectiveness, gold box on shinies, quick ball throw">
   <img src="docs/showcase/showcase-dexnav.gif" width="720" alt="DexNav: the Unbound-style screen, shadows for unseen species, search and chain">
   <img src="docs/showcase/showcase-questlog.gif" width="720" alt="Quest Log and Journal: Evolutions, legendaries, key items, side content, the Sinnoh badge case">
-  <img src="docs/showcase/showcase-story-bosses.gif" width="720" alt="Story: the opening battle, Rayquaza at the Sky Pillar, boss and legendary battles">
 </p>
 
 ## Features
