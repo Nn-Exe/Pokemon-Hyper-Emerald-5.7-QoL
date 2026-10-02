@@ -355,6 +355,8 @@ for sid in range(1, N_SPECIES):
             forms.append({"to": ln["to"], "how": ln["how"], "text": ln["text"], "kind": ln["kind"]})
     if sid in battle_only:
         entry["battle"] = True                    # exists only for the length of a battle
+    if sid in F.TRAINER_ONLY:
+        entry["trainerOnly"] = F.TRAINER_ONLY[sid]    # never the player's: kept out of every family's list
     if evos:
         entry["evo"] = evos
     if forms:

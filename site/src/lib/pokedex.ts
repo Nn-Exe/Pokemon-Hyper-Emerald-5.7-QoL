@@ -4,7 +4,7 @@ import raw from '../data/pokedex.json';
 import movesRaw from '../data/moves.json';
 import abilitiesRaw from '../data/abilities.json';
 import { slugify, url } from './url';
-import { wildEntry, staticEncounters, speciesId, type Sighting } from './data';
+import { wildEntry, staticEncounters, speciesId, allTrainers, type Sighting } from './data';
 import { LEGEND_GROUPS } from '../data/legendaries';
 
 export type FormKind = 'Standard' | 'Mega' | 'Gigantamax' | 'Regional' | 'Form';
@@ -38,6 +38,8 @@ export type Species = {
   forms?: { to: number; how: string; text: string; kind: string }[];
   /** true for a form that lasts only for the battle */
   battle?: boolean;
+  /** set for a form the player cannot get (it is only on a trainer's team): why */
+  trainerOnly?: string;
   /** [level, move]; level 0 is learned on evolving */
   levelUp: [number, number][];
   /** indexes into TMS */
@@ -229,9 +231,16 @@ export function familyMembers(node: FamilyNode | undefined, into = new Set<numbe
   return into;
 }
 
-/** Other entries that share a National Dex number: regional forms, Megas, alternate forms. */
+/** Other entries that share a National Dex number: regional forms, Megas, alternate forms. Not the ones the
+ *  player cannot get: those are on no family's list. */
 export function otherForms(s: Species) {
-  return s.dex ? species.filter((o) => o.dex === s.dex && o.sid !== s.sid) : [];
+  return s.dex ? species.filter((o) => o.dex === s.dex && o.sid !== s.sid && !o.trainerOnly) : [];
+}
+
+/** The trainers with this species on their team. */
+export function trainersWith(s: Species) {
+  const ids = new Set(idsOf(s));
+  return allTrainers.filter((t) => t.party.some((p) => ids.has(p.sid)));
 }
 
 // ---- where to get one ----

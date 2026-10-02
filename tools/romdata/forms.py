@@ -37,7 +37,8 @@ Where each kind comes from (v5.7 bugfix 2; every address below is asserted, so a
                           Enamorus), the four Nectars 0x08FD6688.., Rotom Catalog 0x08FD6794, Deoxys Meteor
                           0x08FD6300 (routine 0x08FD7A04), Zygarde Cube 0x0988FFC1, DNA Splicers 0x08FD6554,
                           N-Solarizer / N-Lunarizer / Unity Reins 0x094A27C0.
-  quest                   two forms a side quest hands out (patches/questlog/sidecontent.py has both).
+  quest / npc             two forms a side quest hands out (patches/questlog/sidecontent.py has both), and the hat
+                          Ash puts on a Pikachu at the Battle Frontier.
 """
 import struct
 
@@ -91,6 +92,11 @@ QUESTS = [  # base, form, label, sentence
     (711, 1011, "Hero Greninja quest", "The reward of the Hero Greninja side quest: Elder Koga's trial in Koga's "
                                        "Village, through the Route 102 forest."),
 ]
+NPC_FORMS = [  # base, form, label, sentence
+    # Ash at the Battle Frontier (26/40, script 0x098BCF8C): once beaten he offers "Should I put a hat on your
+    # Pikachu?"; the routine 0x0839C850 with choice 6 makes the chosen Pikachu species 1076 and gives it four moves.
+    (25, 1076, "Ash's hat", "Beat Ash at the Battle Frontier: he then offers to put a hat on your Pikachu."),
+]
 EXPECT = {  # ROM name each id must carry, so a renumbered ROM cannot mislabel anything
     855: "Marshadow", 844: "Solgaleo", 845: "Lunala", 769: "Xerneas", 700: "Keldeo", 701: "Meloetta",
     474: "Cherrim", 734: "Aegislash", 608: "Darmanitan", 1197: "Darmanitan", 827: "Minior", 799: "Wishiwashi",
@@ -107,6 +113,18 @@ BASE_STATS_PTR = 0x1BC
 SKIP = set(range(412, 440)) | {1199}    # the Egg, Unown's letter forms, a blank slot
 NO_NUMBER = {990, 991, 992, 993}        # the hack's four restored fossil Pokémon: the table gives them Pikachu's 25
 DEX_FIX = {1062: 215}                   # Hisuian Sneasel carries 586, Sawsbuck's: it belongs with Sneasel
+# Slots the player cannot get, so no evolution or form list shows them. Eternamax Eternatus: both Dynamax routines
+# (0x09D6ABE4 "can it Dynamax", 0x09D5BB84 "which Gigantamax species") return at once for species 1190-1195
+# (Zacian, Zamazenta, Eternatus and their forms); no table names it, no script gives it or starts a wild battle
+# with it; it is only on one trainer's team, placed there as a species.
+# Kyurem-WB (1119, the hack's own fusion of both): no row, no routine, no script makes or gives it; it is on
+# Ghetsis's two teams. tools/romdata/obtainable.py is the audit that finds these: run it after a new ROM.
+TRAINER_ONLY = {
+    1195: "It cannot be obtained. Eternatus is one of the Pokémon this game does not let Dynamax, and nothing else "
+          "turns it into this form: it is only met on a trainer's team.",
+    1119: "No way to get it was found: nothing in the game's tables or scripts makes it or hands it out. It is "
+          "only met on a trainer's team.",
+}
 
 
 def natdex(rom, sid):
@@ -218,19 +236,14 @@ def links(rom, species_name, item_name, move_name, ability_text):
         if it == GMAX_MARK:
             soup = ("Give it Max Soup (Champion Island: the cook wants 3 Max Mushrooms and feeds the first "
                     "Pokémon in your party). It then takes this form when it Dynamaxes.")
-            if (sp, t) in wishing:
-                wp = item_name(WISHING_PIECE)
-                add(sp, t, "gmax", "Max Soup or " + wp, soup + " Holding the %s does it too." % wp, True,
-                    "Max Soup/" + wp)
-            else:
-                add(sp, t, "gmax", "Max Soup", soup, True)
+            add(sp, t, "gmax", "Max Soup", soup, True)
         else:
             name = item_name(it)
             add(sp, t, "held", "Hold " + name, "It enters battle in this form while holding the %s." % name, True,
                 name)
-    for sp, t in sorted(wishing - seen):
-        wp = item_name(WISHING_PIECE)
-        add(sp, t, "gmax", wp, "It takes this form in battle while holding the %s." % wp, True)
+    # (The Wishing Piece row, Charizard's, is not listed: nothing in the game hands the item out - no script
+    # gives it, no mart sells it, no wild Pokémon holds it - so it is no way a player can use.)
+    assert wishing <= seen, "a Wishing Piece form the battle-form table does not know: %s" % sorted(wishing - seen)
 
     # ---- forms that come and go with a held item ----
     o = HELD_FORMS
@@ -306,7 +319,10 @@ def links(rom, species_name, item_name, move_name, ability_text):
             "Use the %s from the Bag with %s in the party. Using it again splits them." % (name, partner), False,
             name)
 
-    # ---- quest rewards ----
+    # ---- quest rewards, and what an NPC does ----
     for base, form, label, text in QUESTS:
         add(base, form, "quest", label, text, False)
+    assert u32(0x0039C930) == 1076, "the hat routine's literal moved"
+    for base, form, label, text in NPC_FORMS:
+        add(base, form, "npc", label, text, False)
     return out

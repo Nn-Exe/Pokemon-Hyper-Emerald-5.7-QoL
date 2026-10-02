@@ -20,6 +20,8 @@ cd site && npm run build                               # -> docs/ (the published
 
 `forms.py` lists every way a Pokémon changes form (Mega Evolution, Gigantamax, held items, moves, abilities, Bag
 items, fusions) and where the game keeps each; the Pokédex tool and the Quest Log's Evolutions pages both read it.
+`obtainable.py` audits the result: is there a way to every Pokémon and form the lists show, and does each way's
+item or move have a source. Run it after a new ROM; it exits 1 if something on the lists cannot be had.
 `species_display.py` and `display_names.py` hold the names the site prints: the ROM's tables cut names to 10-13
 characters and name every alternate form after its base species.
 

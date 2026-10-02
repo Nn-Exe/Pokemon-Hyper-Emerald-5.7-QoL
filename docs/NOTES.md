@@ -2183,3 +2183,28 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
 - Gotchas: `tools/romdata/` has a `dis.py`, which shadows the standard library's when that folder comes first on
   `sys.path` (keystone -> inspect -> dis): append the folder, do not insert it. mGBA stops on a "Temporary file
   loaded" dialog when the ROM is under a temp folder, so `--script` tests never start there.
+
+## WHAT CAN ACTUALLY BE HAD: THE AUDIT — 2026-10-02 — `tools/romdata/obtainable.py`
+- Asked: is everything on the evolution and form lists obtainable, "not just the Eternatus case"? It was not checked:
+  the lists showed how each form comes about, not whether the way is open to a player.
+- **Eternamax Eternatus (1195)** cannot be had. Both Dynamax routines return at once for species 1190-1195 (Zacian,
+  Zamazenta, Eternatus, the Crowned forms, Eternamax): 0x09D6ABE4 ("can it Dynamax": also refuses species 385,
+  Mega Flygon, 902-951 the Megas, and needs the Dynamax Band and flag 0x278 or the right battle type) and
+  0x09D5BB84 (the species -> Gigantamax slot switch, the code twin of the table at 0x08C9A3B0). No table row,
+  no code constant (no literal, no shifted immediate, no negative-offset compare besides those two), no givemon,
+  no scripted battle. It is on Dragon Tamer Yanshan's team (trainer 899), as a species.
+- **Kyurem-WB (1119)**: nothing makes or gives it either; it is on Ghetsis's teams (1044, 1120).
+- **The Wishing Piece (item 702)** has the Mega Stone hold effect and a row for Charizard, but no script gives it,
+  no mart sells it, no wild Pokémon holds it: not a way a player has. (The bytes "BE 02" in scripts are species 702,
+  Genesect.)
+- **Ash's Pikachu (1076)** has a way: Ash at the Battle Frontier (26/40, script 0x098BCF8C), once beaten, offers to
+  put a hat on your Pikachu. 0x0839C7B0 checks the chosen Pokémon is a Pikachu of some kind, 0x0839C850 sets the
+  species by a choice 0-6 and four moves. The script always passes 6. Choices 0-4 are species 989-993, now the
+  White-Striped Basculin and the four fossil Pokémon: it looks as if those slots were the Cosplay Pikachu outfits
+  once, which would also be why the number table still gives 990-993 Pikachu's 25.
+- The rest have a way: 1,168 of 1,170; every one of the 110 items forms need and the 38 evolutions need has a
+  source (script gift or item ball, mart, held by a wild Pokémon, Battle Points prize: the Max Mushroom is one).
+  Legendaries count as had through the Quest Log's Legends chapter and the guide's list. The audit does not play
+  the game: it cannot see a way that is open on paper and blocked in play.
+- `forms.TRAINER_ONLY` keeps the two off every list (the site's and the Quest Log's); the audit says so if a way
+  to one of them ever turns up.

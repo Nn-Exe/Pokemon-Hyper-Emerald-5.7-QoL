@@ -5,7 +5,7 @@ import TypeBadge from '../../../components/TypeBadge.astro';
 import EvoNode from '../../../components/EvoNode.astro';
 import MoveTable from '../../../components/MoveTable.astro';
 import { url, slugify } from '../../../lib/url';
-import { spritePos, levelRange, METHODS, type Method } from '../../../lib/data';
+import { spritePos, levelRange, trainerTitle, METHODS, type Method } from '../../../lib/data';
 import {
   species,
   speciesBySid,
@@ -28,6 +28,7 @@ import {
   scriptedBattles,
   legendEntries,
   obtainableDirectly,
+  trainersWith,
   genderText,
   heightText,
   weightText,
@@ -402,7 +403,25 @@ const sections = [
       }
 
       {
-        !direct && !source && !temporary && (
+        s.trainerOnly && (
+          <>
+            <p class="dex-note">{s.trainerOnly}</p>
+            <ul class="dex-battles">
+              {trainersWith(s).map((t) => (
+                <li>
+                  <span class="tag warn">Trainer</span>
+                  <strong>{trainerTitle(t)}</strong>
+                  {t.where && <span>{t.where}</span>}
+                  <span>Lv {t.party.find((m) => speciesBySid(m.sid)?.sid === s.sid)?.level}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+
+      {
+        !direct && !source && !temporary && !s.trainerOnly && (
           <p class="dex-note">
             {s.name} has no wild encounter and no scripted battle in the game’s tables
             {steps.length > 0 ? `, and neither do the forms and stages before it` : ''}. Pokémon like this come from gifts,
