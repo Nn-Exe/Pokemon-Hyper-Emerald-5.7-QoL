@@ -15,7 +15,18 @@ import {
   METHOD_SHORT,
 } from '../lib/data';
 import { slugify } from '../lib/url';
-import { species, moves, abilities, wildSightings, dexNo, pokedexHref, moveHref, abilityHref } from '../lib/pokedex';
+import {
+  species,
+  moves,
+  abilities,
+  machines,
+  wildSightings,
+  dexNo,
+  pokedexHref,
+  moveHref,
+  abilityHref,
+  machineHref,
+} from '../lib/pokedex';
 import { LEGEND_GROUPS } from '../data/legendaries';
 import { FEATURES } from '../data/features';
 import { FAQ_GROUPS } from '../data/faq';
@@ -25,9 +36,10 @@ type Entry = { t: string; n: string; s: string; u: string; i?: number; k?: strin
 
 const PAGES: Entry[] = [
   { t: 'Page', n: 'Guides', s: 'Walkthrough, getting started and reference guides', u: 'guides/' },
-  { t: 'Page', n: 'Wiki', s: 'Pokédex, moves, abilities, encounters, trainers and scripted battles', u: 'wiki/' },
+  { t: 'Page', n: 'Wiki', s: 'Pokédex, moves, TM locations, abilities, encounters, trainers and scripted battles', u: 'wiki/' },
   { t: 'Page', n: 'Pokédex', s: 'Every Pokémon: stats, abilities, evolutions, locations and moves', u: 'wiki/pokedex/', k: 'pokedex dex species' },
   { t: 'Page', n: 'Moves', s: 'Every move: type, power, accuracy, PP and effect', u: 'wiki/moves/', k: 'attacks tm hm' },
+  { t: 'Page', n: 'TMs & HMs', s: 'Where to find every TM and HM', u: 'wiki/tms/', k: 'tm hm technical hidden machine locations' },
   { t: 'Page', n: 'Abilities', s: 'Every ability and the Pokémon that have it', u: 'wiki/abilities/', k: 'hidden ability' },
   { t: 'Page', n: 'Wild Encounters', s: 'Every encounter table by location', u: 'wiki/encounters/' },
   { t: 'Page', n: 'Pokémon Finder', s: 'Where to find each wild Pokémon', u: 'wiki/pokemon/' },
@@ -78,6 +90,16 @@ export const GET: APIRoute = async () => {
       s: [m.type, m.cat, m.power > 1 ? `Power ${m.power}` : '', m.tm ?? ''].filter(Boolean).join(' · '),
       u: moveHref(m).slice(1),
       k: m.desc,
+    });
+
+  // a machine: found first where it is free, the shops last
+  for (const t of machines)
+    entries.push({
+      t: 'TM',
+      n: `${t.label} ${t.move.name}`,
+      s: clipText([...new Set(t.sources.map((x) => x.place))].join(', ')),
+      u: machineHref(t.label).slice(1),
+      k: `${t.label.slice(0, 2)} ${Number(t.label.slice(2))} ${t.move.type}`,
     });
 
   for (const a of abilities) entries.push({ t: 'Ability', n: a.name, s: a.desc, u: abilityHref(a).slice(1) });

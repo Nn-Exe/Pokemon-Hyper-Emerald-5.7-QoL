@@ -7,7 +7,8 @@ interface Props {
   caption: string;
   /** what the first column holds: a level, a TM number, or nothing */
   lead?: string;
-  rows: { lead?: string; move: number }[];
+  /** leadHref: where the first column's text links to (a TM's row on the TMs page) */
+  rows: { lead?: string; leadHref?: string; move: number }[];
 }
 const { caption, lead, rows } = Astro.props;
 // power 1 is the game's marker for "worked out in battle" (Low Kick, Return); accuracy 0 never misses
@@ -34,7 +35,7 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
           const m = move(r.move)!;
           return (
             <tr>
-              {lead && <td class="move-lead">{r.lead}</td>}
+              {lead && <td class="move-lead">{r.leadHref ? <a href={url(r.leadHref)}>{r.lead}</a> : r.lead}</td>}
               <th scope="row">
                 <a href={url(moveHref(m))}>{m.name}</a>
               </th>

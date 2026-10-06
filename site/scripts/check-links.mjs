@@ -1,13 +1,14 @@
 // Check every internal link, image, video and anchor in the published site (../docs).
 //   node scripts/check-links.mjs
+//   node scripts/check-links.mjs <folder> <base>    another copy: ../infinityfree/htdocs with base "" (a domain root)
 // Exits 1 and lists the problems if a page links to a file or an #anchor that does not exist.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DOCS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs');
-const BASE = '/Pokemon-Hyper-Emerald-5.7-QoL';
+const DOCS = path.resolve(process.argv[2] || path.join(path.dirname(fileURLToPath(import.meta.url)), '../../docs'));
+const BASE = process.argv[3] ?? '/Pokemon-Hyper-Emerald-5.7-QoL';
 
 function walk(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {

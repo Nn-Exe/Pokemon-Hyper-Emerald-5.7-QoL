@@ -7,8 +7,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // GitHub Pages serves the repository's docs/ folder under this path.
-const SITE = 'https://nn-exe.github.io';
-const BASE = '/Pokemon-Hyper-Emerald-5.7-QoL';
+const GITHUB = { site: 'https://nn-exe.github.io', base: '/Pokemon-Hyper-Emerald-5.7-QoL' };
+
+// A second host (scripts/package-infinityfree.mjs) builds the same site for a domain's root: HOST_ROOT=1 and,
+// once the copy has an address of its own, HOST_SITE=https://that.address. Without HOST_SITE the copy is a
+// mirror: its pages name the GitHub address as the canonical one and it gets no sitemap.
+const onHost = process.env.HOST_ROOT === '1';
+const BASE = onHost ? '' : GITHUB.base;
+const SITE = (process.env.HOST_SITE || GITHUB.site).replace(/\/+$/, '');
+const OWN_ADDRESS = !onHost || Boolean(process.env.HOST_SITE);
+const CANONICAL_ROOT = OWN_ADDRESS ? SITE + BASE : GITHUB.site + GITHUB.base;
 
 // The screenshots and clips live in ../docs/showcase (the README uses them too) and are never copied:
 // scripts/publish.mjs leaves that folder alone, and in `astro dev` this middleware serves it.
@@ -61,13 +69,20 @@ function rehypeSite() {
 
 export default defineConfig({
   site: SITE,
-  base: BASE,
+  base: BASE || '/',
   trailingSlash: 'always',
   outDir: './dist',
   build: { format: 'directory', inlineStylesheets: 'never' },
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), ...(OWN_ADDRESS ? [sitemap()] : [])],
   // the remark/rehype pipeline, so the rehype plugin above runs on the MDX guides
   markdown: { processor: unified({ rehypePlugins: [rehypeSite] }) },
-  vite: { plugins: [showcaseDev()] },
+  vite: {
+    plugins: [showcaseDev()],
+    // src/lib/url.ts reads these: where canonical links point, and whether this build has a sitemap
+    define: {
+      'import.meta.env.CANONICAL_ROOT': JSON.stringify(CANONICAL_ROOT),
+      'import.meta.env.HAS_SITEMAP': JSON.stringify(OWN_ADDRESS),
+    },
+  },
   devToolbar: { enabled: false },
 });

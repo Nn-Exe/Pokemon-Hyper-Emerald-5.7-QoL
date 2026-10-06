@@ -3,6 +3,8 @@
 import raw from '../data/pokedex.json';
 import movesRaw from '../data/moves.json';
 import abilitiesRaw from '../data/abilities.json';
+import machinesRaw from '../data/tms.json';
+import sprites from '../data/sprites.json';
 import { slugify, url } from './url';
 import { wildEntry, staticEncounters, speciesId, allTrainers, type Sighting } from './data';
 import { LEGEND_GROUPS } from '../data/legendaries';
@@ -95,6 +97,19 @@ export const pokedexUrl = (sid: number) => {
   return s ? url(pokedexHref(s)) : undefined;
 };
 export const frontSprite = (sid: number, shiny = false) => url(`/sprites/front/${sid}${shiny ? 's' : ''}.png`);
+
+// The Pokédex index draws its thousand cards from sheets of 200 front pictures (tools/build_sprites.py), not
+// from a file each: a visitor who scrolls it asks the server for six images, not a thousand.
+const sheets = (sprites as any).frontSheet as { files: string[]; cols: number; per: number; order: number[] };
+const sheetIndex = new Map(sheets.order.map((sid, i) => [sid, i]));
+export const FRONT_SHEETS = sheets.files;
+/** Where a species' front picture is on those sheets: which sheet, and its cell as --x/--y. */
+export function frontCell(sid: number) {
+  const i = sheetIndex.get(sid);
+  if (i === undefined) throw new Error(`species ${sid} is on no front-picture sheet: run tools/build_sprites.py`);
+  const cell = i % sheets.per;
+  return { sheet: Math.floor(i / sheets.per), pos: `--x:${cell % sheets.cols};--y:${Math.floor(cell / sheets.cols)}` };
+}
 /** "#006"; the hack's four restored fossil Pokémon have no number of their own. */
 export const dexNo = (s: Species) => (s.dex ? '#' + String(s.dex).padStart(3, '0') : '#???');
 export const bst = (s: Species) => s.stats.reduce((a, b) => a + b, 0);
@@ -116,6 +131,21 @@ const abilityById = new Map(abilities.map((a) => [a.id, a]));
 export const move = (id: number) => moveById.get(id);
 export const ability = (id: number) => abilityById.get(id);
 export const moveHref = (m: Move) => `/wiki/moves/#${m.slug}`;
+
+// ---- where each TM and HM is found (tools/build_tm_locations.py) ----
+export type MachineSource = {
+  kind: 'gym' | 'gift' | 'trade' | 'ball' | 'hidden' | 'prize' | 'shop';
+  place: string;
+  how?: string;
+  price?: number;
+  coins?: number;
+};
+export type Machine = { label: string; item: number; move: Move; sources: MachineSource[] };
+const machineMove = new Map(TMS.map((t) => [t.label, t.move]));
+export const machines: Machine[] = (machinesRaw as { label: string; item: number; sources: MachineSource[] }[])
+  .map((t) => ({ ...t, move: moveById.get(machineMove.get(t.label)!)! }))
+  .filter((t) => t.move);
+export const machineHref = (label: string) => `/wiki/tms/#${label.toLowerCase()}`;
 export const abilityHref = (a: Ability) => `/wiki/abilities/#${a.slug}`;
 
 /** Who has each ability: [regular holders, hidden-ability holders]. */

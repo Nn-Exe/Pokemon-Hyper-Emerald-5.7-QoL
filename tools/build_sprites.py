@@ -2,7 +2,8 @@
 
 usage: HE_ROM=<patched rom> python tools/build_sprites.py
 writes site/public/sprites/{mon,trainer,item}.png, site/public/sprites/front/<species>.png (and <species>s.png,
-the shiny colours) and site/src/data/sprites.json
+the shiny colours), site/public/sprites/front-<n>.webp (the same pictures on sheets, for the Pokédex index) and
+site/src/data/sprites.json
 
 One atlas per kind, one cell per table index (species id, trainer pic id, item id), so the site addresses a
 sprite as (id % cols, id // cols) and never needs a name lookup. Needs Pillow.
@@ -163,14 +164,15 @@ dex_file = os.path.join(OUT_DATA, "pokedex.json")
 wanted = ([sp["sid"] for sp in json.load(open(dex_file, encoding="utf-8"))["species"]]
           if os.path.exists(dex_file) else range(1, N_SPECIES))
 written = total = 0
+normal = {}                                 # species -> its picture in true colour, for the sheets below
 for sid in wanted:
     try:
         pixels = lz77(off(u32(FRONT_PICS + 8 * sid)))[:2048]
         for suffix, table in (("", FRONT_PALS), ("s", SHINY_PALS)):
             pal = palette(lz77(off(u32(table + 8 * sid))))
-            im = tiles(pixels, 64, 64, pal).convert("P", palette=Image.Palette.ADAPTIVE, colors=16)
-            # keep colour 0 see-through: rebuild as a palette image with index 0 transparent
-            rgba = tiles(pixels, 64, 64, pal)
+            if not suffix:
+                normal[sid] = tiles(pixels, 64, 64, pal)
+            # keep colour 0 see-through: a palette image with index 0 transparent
             flat = Image.new("P", (64, 64))
             flat.putpalette([c for col in pal for c in col[:3]])
             flat.putdata([pixels[(y // 8 * 8 + x // 8) * 32 + (y % 8) * 4 + (x % 8) // 2] >> (4 if x & 1 else 0) & 15
@@ -183,5 +185,23 @@ for sid in wanted:
         continue
 meta["front"] = {"dir": "front", "cell": 64, "count": written}
 print("front pictures: %d species x 2 (normal, shiny), %d bytes" % (written, total))
+
+# ---- the same pictures on sheets, for the Pokédex index: a cell a species in the index's order, 200 to a
+# sheet. A card each would be a request each, over a thousand for one visitor who scrolls the index, and a
+# host the site is also on counts requests; this way the index asks for six files.
+SHEET, SHEET_COLS = 200, 20
+order = [sid for sid in wanted if sid in normal]
+for name in os.listdir(OUT_IMG):
+    if name.startswith("front-") and name.endswith(".webp"):
+        os.remove(os.path.join(OUT_IMG, name))
+sheets, total = [], 0
+for k in range(0, len(order), SHEET):
+    name = "front-%d.webp" % (k // SHEET)
+    path = os.path.join(OUT_IMG, name)
+    atlas([normal[sid] for sid in order[k:k + SHEET]], 64, SHEET_COLS).save(path, lossless=True, quality=100, method=6)
+    sheets.append(name)
+    total += os.path.getsize(path)
+meta["frontSheet"] = {"files": sheets, "cell": 64, "cols": SHEET_COLS, "per": SHEET, "order": order}
+print("front picture sheets: %d, %d bytes" % (len(sheets), total))
 
 json.dump(meta, open(os.path.join(OUT_DATA, "sprites.json"), "w", encoding="utf-8"), indent=1)

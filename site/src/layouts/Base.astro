@@ -8,7 +8,7 @@ import Footer from '../components/Footer.astro';
 import ImageViewer from '../components/ImageViewer.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, UPDATED } from '../consts';
-import { url, absolute } from '../lib/url';
+import { url, absolute, canonicalOf, HAS_SITEMAP } from '../lib/url';
 import { publicHash } from '../lib/media';
 
 interface Crumb {
@@ -42,7 +42,7 @@ const {
   noindex = false,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const canonical = canonicalOf(Astro.url.pathname);
 const home = absolute('/');
 const website = { '@type': 'WebSite', name: SITE_NAME, url: home };
 const jsonLd = [
@@ -105,7 +105,7 @@ const spriteVars = `:root{--spr-mon:${sprite('mon.png')};--spr-trainer:${sprite(
     <link rel="icon" href={url('/favicon-32.png')} sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} sizes="180x180" />
     <link rel="manifest" href={url('/site.webmanifest')} />
-    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    {HAS_SITEMAP && <link rel="sitemap" href={url('/sitemap-index.xml')} />}
     <script is:inline>
       (function () {
         var t;

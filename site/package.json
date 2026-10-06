@@ -10,7 +10,8 @@
     "build:site": "node ./node_modules/astro/bin/astro.mjs build",
     "publish": "node scripts/publish.mjs",
     "preview": "node scripts/serve-docs.mjs",
-    "check": "node scripts/check-links.mjs"
+    "check": "node scripts/check-links.mjs",
+    "package:infinityfree": "node scripts/package-infinityfree.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.1",

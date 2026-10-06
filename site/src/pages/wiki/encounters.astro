@@ -94,40 +94,34 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
                   <span class="record-chevron" aria-hidden="true">›</span>
                 </summary>
                 <div class="table-shell" tabindex="0" role="region" aria-label={`${a.map} encounter table`}>
-                  <table class="encounter-table stack-table">
+                  {/* 3,300 rows on one page: the row is as few bytes as it can be (a host this site is also on
+                      takes no HTML file over 1 MB). The icon, the rate bar and the phone layout are drawn by
+                      the .enc rules in global.css from the link's --x/--y and the rate cell's --p; the filter
+                      below reads a row's name and method from its own cells. */}
+                  <table class="enc">
                     <thead>
                       <tr>
                         <th scope="col">Pokémon</th>
                         <th scope="col">Method</th>
-                        <th scope="col" class="numeric">Level</th>
-                        <th scope="col" class="numeric">Rate</th>
+                        <th scope="col">Level</th>
+                        <th scope="col">Rate</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {a.rows.map((r) => {
-                        return (
-                          <tr data-n={r.species.toLowerCase()} data-m={r.method}>
-                            <th scope="row">
-                              <a class="mon" href={pokedexUrl(r.sid)}>
-                                <span class="spr spr-mon" style={spritePos('mon', r.sid)} aria-hidden="true" />
-                                <span>{r.species}</span>
-                              </a>
-                            </th>
-                            <td data-label="Method">
-                              <span class={`chip m-${r.method}`}>{METHODS[r.method]}</span>
-                            </td>
-                            <td data-label="Level" class="numeric">
-                              {levelRange(r.min, r.max)}
-                            </td>
-                            <td data-label="Rate" class="numeric">
-                              <span class="rate-bar" aria-hidden="true">
-                                <i style={`width:${Math.min(100, r.pct)}%`} />
-                              </span>
-                              {pct(r.pct)}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {a.rows.map((r) => (
+                        <tr>
+                          <th>
+                            <a class="mon" href={pokedexUrl(r.sid)} style={spritePos('mon', r.sid)}>
+                              {r.species}
+                            </a>
+                          </th>
+                          <td>
+                            <span class={`chip m-${r.method}`}>{METHODS[r.method]}</span>
+                          </td>
+                          <td>{levelRange(r.min, r.max)}</td>
+                          <td style={`--p:${Math.min(100, r.pct)}`}>{pct(r.pct)}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -148,9 +142,14 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
   const count = form.querySelector<HTMLElement>('[data-count]')!;
   const empty = document.querySelector<HTMLElement>('[data-empty]')!;
   const blocks = [...document.querySelectorAll<HTMLElement>('[data-region-block]')];
+  // a row's name is its first cell's text, its method the chip's class ("chip m-land")
   const areas = [...document.querySelectorAll<HTMLDetailsElement>('[data-area]')].map((el) => ({
     el,
-    rows: [...el.querySelectorAll<HTMLElement>('tbody tr')],
+    rows: [...el.querySelectorAll<HTMLTableRowElement>('tbody tr')].map((row) => ({
+      row,
+      name: row.cells[0].textContent!.trim().toLowerCase(),
+      method: row.cells[1].firstElementChild!.className.slice('chip m-'.length),
+    })),
   }));
   const initial = count.textContent;
 
@@ -163,9 +162,9 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
       let visible = 0;
       if (!region.value || el.dataset.region === region.value) {
         const whole = !term || el.dataset.name!.includes(term);
-        for (const row of rows) {
-          const ok = (!method.value || row.dataset.m === method.value) && (whole || row.dataset.n!.includes(term));
-          row.hidden = !ok;
+        for (const r of rows) {
+          const ok = (!method.value || r.method === method.value) && (whole || r.name.includes(term));
+          r.row.hidden = !ok;
           if (ok) visible++;
         }
       }

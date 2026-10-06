@@ -2208,3 +2208,37 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   the game: it cannot see a way that is open on paper and blocked in play.
 - `forms.TRAINER_ONLY` keeps the two off every list (the site's and the Quest Log's); the audit says so if a way
   to one of them ever turns up.
+
+## TM AND HM LOCATIONS FOR THE GUIDE — 2026-10-06 — `tools/build_tm_locations.py`
+- Asked: can the site show where the TMs are? Yes: all 128 have a source the scripts show. The page is `/wiki/tms/`
+  (`site/src/pages/wiki/tms.astro`, data `site/src/data/tms.json`).
+- TM01-TM120 are items 378-497, HM01-HM08 are 498-505 (the tool finds them by name in the item table).
+- What hands one over, per map entry point (objects, triggers, signs, map scripts; `scripts.walk`):
+  `setorcopyvar 0x8000, item` + `callstd 1` is an item ball (72), + `callstd 0` a gift (49: 31 gifts, 16 Gym
+  prizes, 2 trades); `additem` after a `removecoins` is the Game Corner's prize counter (10/3: TM40 1,500 coins,
+  TM10 3,500, TM03/04/05 4,000 each); `pokemart` lists: Lilycove Department Store 4F's right-hand clerk (list
+  0x0830AD06: TM08, 09, 17, 18, 19, 60, 61, 62) and Champion Island's shop (35/25, list 0x08F55CB0: TM01-TM90).
+  No hidden item (bg event kind 7, 112 of them) is a TM.
+- Champion Island's clerk checks flag 0x42D5 first ("We are still busy preparing goods"); the flag is set by the
+  map script of 34/31 (Test of Heart) after trainer 1135, Champion Cynthia. The island is a warp on Route 105.
+- Not sources, though they look like it: `setorcopyvar 0x8000, n` + `callstd 8` (registering a rematch: n is a
+  trainer id that happens to fall in 378-505); scripts no map runs - the vanilla Lilycove list at 0x0821FE20 (TM38,
+  25, 14, 15: that clerk's script is now 0x08F55BF0, evolution items), a run of ball scripts near 0x098327B4 and
+  0x08FE3E00 for TMs the author moved, and a block at 0x09807964 that gives TM118-HM08 in a row.
+- One ball on two maps: TM117 (Hearthome City 36/7 and Iron Island 36/67, flag 0x4310) and TM120 (Meteor Temple
+  34/17 and Icirrus Town 35/17, flag 0x4298). Whichever is picked up sets the flag both objects hide on; the page
+  says so on both rows.
+- The gifts' conditions come from reading each script, kept as `NOTES` in the tool. Ones that needed the code, not
+  just the text: the Pacifidlog brother gives TM100 Mega Punch at friendship score 4+ (150 or more) and TM01 Mega
+  Kick at score 0-1 (under 50), nothing between, once a day (flag 0x12B); Fortree's Hidden Power game is multichoice
+  0x36 (Right, Left) and wants 0, 0, 1; the Trick House TM70 is the fifth branch of the reward switch; TM79 is given
+  for the Meteorite by Prof. Cozmo and also by Tatara at Fuego Ironworks (37/52).
+- `tools/romdata/out/script_index.json` was from 2026-09-21 and knew 5 of the 128. The tool does not use it (it
+  walks the scripts itself) but `obtainable.py` does: rebuilt with `scripts.py` (7,603 entry points on 867 maps),
+  and the audit on it gives the same answer as before, 1,168 of 1,170 with nothing new missing.
+- Place names: `tools/romdata/map_names.json` (pret's `map_groups.json`) for groups 0-33 within vanilla's counts,
+  checked against the ROM's map section; the hack's own maps have only their section name, so the eight Sinnoh Gyms
+  (37/82-84, 37/89-93) and the Champion Island shop are named in `PLACES`.
+- Site: 21 browser checks (filters, search, the links from Moves and a learnset, phone, dark) on both the GitHub
+  build and the domain-root copy; link check clean; `wiki/tms/index.html` is 134 kB. The learnset links add about
+  1 MB over the 1,168 species pages.

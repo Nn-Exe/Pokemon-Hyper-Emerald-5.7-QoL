@@ -22,3 +22,7 @@ lz_blobs.json
 site/node_modules/
 site/dist/
 site/.astro/
+
+# the copy for a second host (site/scripts/package-infinityfree.mjs): built on demand, uploaded by hand
+site/dist-host/
+infinityfree/

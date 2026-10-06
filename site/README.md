@@ -14,6 +14,23 @@ npm run check      # every internal link, image, anchor and search entry resolve
 
 Commit `docs/` together with the source: the published site is whatever is in `docs/` on the default branch.
 
+## A second host (InfinityFree)
+
+```
+npm run package:infinityfree                                   # a mirror: canonical links name the GitHub site
+node scripts/package-infinityfree.mjs https://your.address     # a site of its own: own canonical links, sitemap, robots.txt
+```
+
+Builds the same site for a domain root (`HOST_ROOT=1`, see `astro.config.mjs`) into `../infinityfree/`, which is
+git-ignored: `htdocs/` is what goes into the account's `htdocs` folder by FTP, `zips/` the same in archives the
+host accepts, `HOW-TO-UPLOAD.txt` the steps. The script takes only the `docs/showcase` files the pages link, writes
+the `.htaccess`, and refuses to finish if the result breaks the free plan's limits (HTML and JS files 1 MB, other
+files 10 MB, 30,000 files and folders). Two more limits shape the pages themselves: every request counts toward
+50,000 a day, so the Pokédex index draws its cards from sheets, and no page may be heavier than 1 MB of HTML, so
+the Wild Encounters rows are bare cells (`.enc` in `global.css`). Check a copy with
+`node scripts/check-links.mjs ../infinityfree/htdocs ""` and look at it with
+`node scripts/serve-docs.mjs 4322 ../infinityfree/htdocs ""`.
+
 ## Where things are
 
 | Path | What it is |
@@ -59,7 +76,8 @@ python tools/romdata/dump_tables.py && python tools/romdata/dump_maps.py && pyth
 python tools/romdata/scan_wild.py && python tools/romdata/scan_static.py && python tools/romdata/make_key_trainers.py
 python tools/build_site_data.py        # wild.json, trainers.json, static.json, species.json, items.json
 python tools/build_pokedex.py          # pokedex.json, moves.json, abilities.json (run before build_sprites.py)
-python tools/build_sprites.py          # public/sprites/{mon,trainer,item}.png and front/<species>.png
+python tools/build_sprites.py          # public/sprites/{mon,trainer,item}.png, front/<species>.png, front-<n>.webp
+python tools/build_tm_locations.py     # tms.json: where each TM and HM is found (after build_pokedex.py)
 python tools/build_site_content.py     # journal.json (from patches/journal/steps.py), side-content.json
 python tools/build_site_images.py      # favicon, touch icon and the social card
 FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six README montage GIFs
@@ -68,6 +86,12 @@ FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six R
 The names the site prints for alternate forms (Alolan, Hisuian, Mega, Gigantamax…) and for names the ROM cuts
 short are in `tools/romdata/species_display.py` and `display_names.py`; how each form comes about (Mega Stones, Max
 Soup, held items, moves, abilities, Bag items) is read by `tools/romdata/forms.py`, which `build_pokedex.py` uses.
+
+`build_tm_locations.py` finds the TMs and HMs itself (item balls, gifts, Game Corner prizes, shop lists) but not
+what a gift asks of the player: that is one line a gift in its `NOTES`, written from the script's dialogue, and
+the tool stops, quoting the dialogue, when a ROM has a gift without one. Its place names are pret's for the
+maps vanilla Emerald has (`tools/romdata/map_names.json`) and the map section's for the hack's own; `PLACES`
+overrides either.
 
 ## Scope
 

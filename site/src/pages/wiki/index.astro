@@ -5,13 +5,13 @@ import ContextLinks from '../../components/ContextLinks.astro';
 import Mon from '../../components/Mon.astro';
 import { url } from '../../lib/url';
 import { stats, spritePos, speciesId } from '../../lib/data';
-import { dexStats, frontSprite } from '../../lib/pokedex';
+import { dexStats, frontSprite, machines } from '../../lib/pokedex';
 import { LEGEND_COUNT } from '../../data/legendaries';
 import { SITE_NAME } from '../../consts';
 
 const crumbs = [{ name: 'Wiki' }];
 const description =
-  'The Pokédex, moves, abilities, wild encounters, boss teams and scripted battles of Hyper Emerald v5.7, read straight from the game’s own data tables.';
+  'The Pokédex, moves, TM locations, abilities, wild encounters, boss teams and scripted battles of Hyper Emerald v5.7, read straight from the game’s own data tables.';
 const n = (x: number) => x.toLocaleString('en-US');
 ---
 
@@ -60,6 +60,20 @@ const n = (x: number) => x.toLocaleString('en-US');
             <span class="type-badge t-water">Water</span>
             <span class="type-badge t-grass">Grass</span>
             <span class="type-badge t-fairy">Fairy</span>
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/tms/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{machines.length} TMs and HMs</span>
+            <h3>TMs & HMs</h3>
+            <p>Where every machine is found: item balls, gifts, Gym prizes, the Game Corner and the shops.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            {['TM35', 'TM55', 'TM11', 'TM82'].map((label) => (
+              <span class="spr spr-item x2" style={spritePos('item', machines.find((t) => t.label === label)!.item)} />
+            ))}
           </div>
         </a>
 

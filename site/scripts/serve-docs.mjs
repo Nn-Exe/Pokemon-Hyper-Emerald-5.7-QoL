@@ -1,13 +1,14 @@
 // Serve ../docs exactly as GitHub Pages does: under the repository's path, with directory index pages
 // and docs/404.html for anything missing.   node scripts/serve-docs.mjs [port]
+// Another copy at a domain root:            node scripts/serve-docs.mjs 4322 ../infinityfree/htdocs ""
 
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DOCS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs');
-const BASE = '/Pokemon-Hyper-Emerald-5.7-QoL';
+const DOCS = path.resolve(process.argv[3] || path.join(path.dirname(fileURLToPath(import.meta.url)), '../../docs'));
+const BASE = process.argv[4] ?? '/Pokemon-Hyper-Emerald-5.7-QoL';
 const PORT = Number(process.argv[2]) || 4321;
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -46,7 +47,7 @@ function send(req, res, file, status = 200) {
 http
   .createServer((req, res) => {
     const pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-    if (pathname === '/') {
+    if (BASE && pathname === '/') {
       res.writeHead(302, { Location: BASE + '/' });
       return res.end();
     }
@@ -69,4 +70,4 @@ http
     if (fs.existsSync(file)) return send(req, res, file);
     send(req, res, path.join(DOCS, '404.html'), 404);
   })
-  .listen(PORT, () => console.log(`docs/ served at http://localhost:${PORT}${BASE}/`));
+  .listen(PORT, () => console.log(`${path.basename(DOCS)}/ served at http://localhost:${PORT}${BASE}/`));

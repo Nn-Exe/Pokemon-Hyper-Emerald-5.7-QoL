@@ -10,6 +10,7 @@ import {
   species,
   speciesBySid,
   TMS,
+  machineHref,
   STAT_LABELS,
   ability,
   abilityHref,
@@ -77,7 +78,9 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
 // learnsets: a Mega or Gigantamax form fights with what its base species knows
 const learner = temporary && base ? base.species : s;
 const levelUp = learner.levelUp.map(([lv, m]) => ({ lead: lv === 0 ? 'Evolve' : String(lv), move: m }));
-const machines = learner.tm.map((i) => ({ lead: TMS[i].label, move: TMS[i].move })).filter((r) => move(r.move));
+const machines = learner.tm
+  .map((i) => ({ lead: TMS[i].label, leadHref: machineHref(TMS[i].label), move: TMS[i].move }))
+  .filter((r) => move(r.move));
 const root = speciesBySid(familyRoot(s.sid));
 const eggFrom = learner.egg.length ? learner : root && root.egg.length ? root : undefined;
 const eggs = (eggFrom?.egg ?? []).map((m) => ({ move: m }));

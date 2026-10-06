@@ -3,13 +3,18 @@ import Base from '../../../layouts/Base.astro';
 import PageHero from '../../../components/PageHero.astro';
 import WikiNav from '../../../components/WikiNav.astro';
 import { url } from '../../../lib/url';
-import { species, dexStats, dexNo, bst, frontSprite, pokedexHref, typeClass, TYPE_LIST, STAT_LABELS } from '../../../lib/pokedex';
+import { species, dexStats, dexNo, bst, frontCell, FRONT_SHEETS, pokedexHref, typeClass, TYPE_LIST, STAT_LABELS } from '../../../lib/pokedex';
+import { publicHash } from '../../../lib/media';
 import { SITE_NAME } from '../../../consts';
 
 const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Pokédex' }];
 const n = (x: number) => x.toLocaleString('en-US');
 const description = `All ${dexStats.species} Pokémon in Hyper Emerald v5.7, Bulbasaur to Enamorus, plus ${dexStats.forms} Mega, Gigantamax, regional and alternate forms and how to get each one: types, base stats, abilities, evolutions, locations and learnsets.`;
 const FORM_LABELS = { Standard: 'Standard', Regional: 'Regional form', Mega: 'Mega / Primal', Gigantamax: 'Gigantamax', Form: 'Alternate form' };
+// .fs0, .fs1…: the sheet a card's picture is on (the card's own style picks the cell)
+const sheetRules = FRONT_SHEETS.map(
+  (file, i) => `.fs${i}{background-image:url("${url('/sprites/' + file)}?v=${publicHash('sprites/' + file)}")}`,
+).join('');
 ---
 
 <Base title={`Pokédex - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
@@ -62,6 +67,7 @@ const FORM_LABELS = { Standard: 'Standard', Regional: 'Regional form', Mega: 'Me
 
     <p class="wiki-empty" hidden data-empty>No Pokémon match those filters.</p>
 
+    <Fragment set:html={`<style>${sheetRules}</style>`} />
     <div class="dex-grid" data-grid>
       {
         species.map((s, i) => (
@@ -75,7 +81,7 @@ const FORM_LABELS = { Standard: 'Standard', Regional: 'Regional form', Mega: 'Me
             data-form={s.form}
             data-stats={s.stats.join(',')}
           >
-            <img src={frontSprite(s.sid)} alt="" width="64" height="64" loading="lazy" decoding="async" />
+            <span class={`fs fs${frontCell(s.sid).sheet}`} style={frontCell(s.sid).pos} />
             <span class="dex-card-meta">
               <span>{dexNo(s)}</span>
               <span>BST {bst(s)}</span>

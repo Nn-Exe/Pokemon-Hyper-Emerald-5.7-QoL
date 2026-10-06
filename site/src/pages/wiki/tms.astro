@@ -1,0 +1,222 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import { url } from '../../lib/url';
+import { spritePos } from '../../lib/data';
+import { machines, moveHref, typeClass, TYPE_LIST, type MachineSource } from '../../lib/pokedex';
+import { SITE_NAME } from '../../consts';
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'TMs & HMs' }];
+const tmCount = machines.filter((t) => t.label.startsWith('TM')).length;
+const hmCount = machines.length - tmCount;
+const description = `Where to find all ${tmCount} TMs and ${hmCount} HMs in Hyper Emerald v5.7: every item ball, gift, Gym Leader prize, Game Corner prize and shop, read from the game’s own scripts.`;
+
+type Kind = MachineSource['kind'];
+const KIND: Record<Kind, string> = {
+  gym: 'Gym prize',
+  gift: 'Gift',
+  trade: 'Trade',
+  ball: 'Item ball',
+  hidden: 'Hidden',
+  prize: 'Prize',
+  shop: 'Shop',
+};
+// what the Source filter calls each kind
+const GROUP: Record<Kind, string> = {
+  gym: 'given',
+  gift: 'given',
+  trade: 'given',
+  ball: 'ground',
+  hidden: 'ground',
+  prize: 'prize',
+  shop: 'shop',
+};
+const n = (x: number) => x.toLocaleString('en-US');
+const detail = (s: MachineSource) =>
+  s.kind === 'shop'
+    ? [`¥${n(s.price!)}`, s.how].filter(Boolean).join(', ')
+    : s.kind === 'prize'
+      ? `${n(s.coins!)} coins`
+      : s.how;
+const groupsOf = (sources: MachineSource[]) => {
+  const g = new Set(sources.map((s) => GROUP[s.kind]));
+  if (!g.has('shop')) g.add('unsold');
+  return [...g].join(' ');
+};
+const withGroup = (g: string) => machines.filter((t) => t.sources.some((s) => GROUP[s.kind] === g)).length;
+const sold = machines.filter((t) => t.sources.some((s) => s.kind === 'shop'));
+// the shops stock the first so many machines, in order
+const soldText = sold.every((t, i) => t === machines[i])
+  ? `${sold[0].label} to ${sold[sold.length - 1].label}`
+  : `${sold.length} of them`;
+---
+
+<Base title={`TMs & HMs - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="TMs & HMs" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <ul class="dex-totals">
+      <li><strong>{tmCount}</strong> TMs</li>
+      <li><strong>{hmCount}</strong> HMs</li>
+      <li><strong>{withGroup('ground')}</strong> lying on the ground</li>
+      <li><strong>{withGroup('given')}</strong> given by someone</li>
+      <li><strong>{sold.length}</strong> sold in a shop</li>
+    </ul>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search TMs and HMs</span>
+        <input type="search" placeholder="Number, move or place" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Type</span>
+        <select data-type>
+          <option value="">All types</option>
+          {TYPE_LIST.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Source</span>
+        <select data-from>
+          <option value="">Any source</option>
+          <option value="ground">Lying on the ground</option>
+          <option value="given">Given by someone</option>
+          <option value="prize">Game Corner prize</option>
+          <option value="shop">Sold in a shop</option>
+          <option value="unsold">Never sold</option>
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{machines.length} machines</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No TM or HM matches those filters.</p>
+
+    <div class="table-shell" tabindex="0" role="region" aria-label="TMs and HMs" data-shell>
+      <table class="move-table stack-table tm-table">
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Move</th>
+            <th scope="col">Type</th>
+            <th scope="col">Category</th>
+            <th scope="col">Where to get it</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            machines.map((t) => (
+              <tr
+                id={t.label.toLowerCase()}
+                data-tm
+                data-name={`${t.label} ${t.move.name}`.toLowerCase()}
+                data-text={t.sources.map((s) => `${s.place} ${s.how ?? ''}`).join(' ').toLowerCase()}
+                data-type={t.move.type}
+                data-from={groupsOf(t.sources)}
+              >
+                <td class="move-lead">
+                  <span class="item-ref">
+                    <span class="spr spr-item" style={spritePos('item', t.item)} aria-hidden="true" />
+                    <span>{t.label}</span>
+                  </span>
+                </td>
+                <th scope="row">
+                  <a href={url(moveHref(t.move))}>{t.move.name}</a>
+                </th>
+                <td data-label="Type">
+                  <span class:list={['type-badge', typeClass(t.move.type)]}>{t.move.type}</span>
+                </td>
+                <td data-label="Category" class:list={['move-cat', 'c-' + t.move.cat.toLowerCase()]}>
+                  {t.move.cat}
+                </td>
+                <td class="tm-where">
+                  <ul>
+                    {t.sources.map((s) => (
+                      <li>
+                        <span class={`chip k-${s.kind}`}>{KIND[s.kind]}</span>
+                        <span>
+                          <strong>{s.place}</strong>{detail(s) && <small>: {detail(s)}</small>}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="src">
+      Read from the scripts of v5.7 bugfix 2: every map’s people, item balls, hidden items and shops were walked for
+      what hands over a TM or HM. A machine is not used up, so one copy teaches as many Pokémon as you like. Champion
+      Island’s shop is reached from Route 105 and opens once you have beaten Champion Cynthia at the Sinnoh League;
+      it sells {soldText}, and the other {machines.length - sold.length} machines are never sold anywhere.
+    </p>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const type = form.querySelector<HTMLSelectElement>('[data-type]')!;
+  const src = form.querySelector<HTMLSelectElement>('[data-from]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const shell = document.querySelector<HTMLElement>('[data-shell]')!;
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-tm]')];
+
+  function apply() {
+    // "tm 26" and "TM26" both find TM26
+    const term = q.value.trim().toLowerCase().replace(/^([th]m)\s+(?=\d)/, '$1');
+    let shown = 0;
+    for (const row of rows) {
+      const ok =
+        (!term || row.dataset.name!.includes(term) || row.dataset.text!.includes(term)) &&
+        (!type.value || row.dataset.type === type.value) &&
+        (!src.value || row.dataset.from!.split(' ').includes(src.value));
+      row.hidden = !ok;
+      if (ok) shown++;
+    }
+    empty.hidden = shown > 0;
+    shell.hidden = shown === 0;
+    count.textContent = `${shown} ${shown === 1 ? 'machine' : 'machines'}`;
+  }
+
+  let timer: number;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(apply, 90);
+  });
+  type.addEventListener('change', apply);
+  src.addEventListener('change', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    q.value = '';
+    type.value = '';
+    src.value = '';
+    apply();
+  });
+
+  // #tm26 from a learnset: the row must be visible to be scrolled to
+  function focusHash() {
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (el?.matches('[data-tm]')) {
+      el.hidden = false;
+      shell.hidden = false;
+      el.scrollIntoView({ block: 'center' });
+    }
+  }
+  window.addEventListener('hashchange', focusHash);
+  const preset = new URLSearchParams(location.search).get('q');
+  if (preset) {
+    q.value = preset;
+    apply();
+  }
+  focusHash();
+</script>

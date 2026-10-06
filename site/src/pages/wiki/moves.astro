@@ -2,7 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import WikiNav from '../../components/WikiNav.astro';
-import { moves, typeClass, TYPE_LIST } from '../../lib/pokedex';
+import { url } from '../../lib/url';
+import { moves, machineHref, typeClass, TYPE_LIST } from '../../lib/pokedex';
 import { SITE_NAME } from '../../consts';
 
 const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Moves' }];
@@ -84,7 +85,7 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
                 <td data-label="Power" class="numeric">{dash(m.power)}</td>
                 <td data-label="Accuracy" class="numeric">{dash(m.acc)}</td>
                 <td data-label="PP" class="numeric">{m.pp}</td>
-                <td data-label="Machine">{m.tm ?? '—'}</td>
+                <td data-label="Machine">{m.tm ? <a href={url(machineHref(m.tm))}>{m.tm}</a> : '—'}</td>
                 <td class="move-desc">{m.desc}</td>
               </tr>
             ))
@@ -96,6 +97,7 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
     <p class="src">
       Read from the move table of v5.7 bugfix 2; only moves that some Pokémon can learn are listed. A dash under Power
       means the move does no direct damage or works its power out in battle; under Accuracy, that it cannot miss.
+      A TM or HM number links to <a href={url('/wiki/tms/')}>where that machine is found</a>.
     </p>
   </div>
 </Base>
