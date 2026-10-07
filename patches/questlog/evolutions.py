@@ -1,17 +1,25 @@
-"""The Quest Log's Evolutions chapter: every evolution in the ROM's own table, one list per region.
+"""The Quest Log's Evolutions chapter: every evolution in the ROM's own table and every other form a Pokemon takes,
+one list for all regions.
 
 The table (EVOS) is 40 bytes a species: five {method u16, parameter u16, target u16, extra u16}. The method's low byte
 is the method; a high byte (0x3F / 0xFF) marks a baby whose egg needs an incense, named in `extra`. Methods 250-255
-are Mega Evolutions, Primal Reversion and form changes, not evolutions - left out. Measured in this ROM 2026-09-30.
+are Mega Evolutions, Primal Reversion and form changes. Measured in this ROM 2026-09-30.
 
-Rows are grouped by the region of the Pokemon that evolves (its National Dex number) and sorted by it. A row shows
-"<name> -> <evolution>" and the method; while that Pokemon has not been seen, "???" (row_status in questlog.s).
+The forms come from tools/romdata/forms.py, the list the guide site's Pokedex uses, so a family's page shows what its
+page on the site shows: evolutions, Mega Evolution, Gigantamax, the forms a held item, a move, an ability or a Bag
+item brings about, and under "Other forms" the ones nothing in the game turns it into (regional forms that do not
+evolve, gift and costume forms). A form the player cannot get at all (forms.TRAINER_ONLY: Eternamax Eternatus) is
+left out. A family with more than nine lines runs on to a second or third page.
 """
 import json, os, struct, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "journal"))
 import journal_patch as J
+sys.path.append(os.path.join(HERE, "..", "..", "tools", "romdata"))   # last: that folder has a dis.py of its own
+import forms as F                                        # every form change the ROM knows, and what a species is
+from species_display import FORMS as NAMED_FORMS, display_name
+from display_names import item_name as item_display, move_name as move_display
 
 EVOS = 0x00F387C0                       # the evolution table (found by Bulbasaur's "level 16 -> Ivysaur" row)
 SPNAMES = 0x144                         # ROM header: the species names (11 bytes a name)
@@ -46,7 +54,8 @@ def names(rom):
 
 
 def item_name(rom, i):
-    return text_of(bytes(rom[J.ITEMS + 44 * i:J.ITEMS + 44 * i + 14]).split(b"\xff")[0])
+    """the item's name as the guide site prints it: the 14-character table cuts some ("RevengerArmor")"""
+    return item_display(i, text_of(bytes(rom[J.ITEMS + 44 * i:J.ITEMS + 44 * i + 14]).split(b"\xff")[0]))
 
 
 def natdex(rom, sp):
@@ -134,7 +143,6 @@ TYPES = {0: "Normal", 1: "Fighting", 2: "Flying", 3: "Poison", 4: "Ground", 5: "
 ALOLA = {19, 20, 26, 27, 28, 37, 38, 50, 51, 52, 53, 74, 75, 76, 88, 89, 103, 105}
 GALAR = {52, 77, 78, 79, 80, 83, 110, 122, 144, 145, 146, 199, 222, 263, 264, 554, 555, 562, 618}
 HISUI = {58, 59, 100, 101, 157, 211, 215, 503, 549, 570, 571, 628, 705, 706, 713, 724}
-GMAX_ITEM = 702                         # Wishing Piece: the hack's Gigantamax item (method 251 like Mega Stones)
 DETAIL_W = 210                          # the detail page's text width
 DETAIL_MAX = 0x2C0                      # open_detail lays the text out in V+0x100..V+0x400
 
@@ -151,126 +159,161 @@ DETAIL_COL = 128                        # the detail page: "Bulbasaur -> Ivysaur
 DETAIL_TEXT_W = 222
 
 
-def form_change(rom, lo, p, moves, nm):
-    """(the form's name, how) for methods 250-253: ("Mega Charizard X", "Charizardite X")."""
-    I = item_name(rom, p)
-    if lo == 250:
-        return "Ultra " + nm, "Ultra Burst"
-    if lo == 252:
-        return "Mega " + nm, moves.get(p, "a move")
-    if lo == 253:
-        return "Primal " + nm, I
-    if p == GMAX_ITEM:
-        return "G-Max " + nm, I
-    if I.endswith(("X", "Y")) and I[-2:-1] != " ":      # "CharizarditeX" -> "Mega Charizard X"
-        return "Mega %s %s" % (nm, I[-1]), I[:-1] + " " + I[-1]
-    return "Mega " + nm, I
+MOVE_NAMES = 0x148                      # ROM header: the move names (13 bytes a name)
+OTHER = "Other forms"                   # the line above the forms nothing in the game turns it into
+KINDS = ("Mega", "G-Max", "Primal", "Ultra")
+
+
+def short_name(name):
+    """The site's name, cut where the page's line is short: "Gigantamax Venusaur" -> "G-Max Venusaur"."""
+    return name.replace("Gigantamax ", "G-Max ")
 
 
 def families(rom):
-    """[(region, [family, ...])]; a family is {root, dex, title, tag, rows [(depth, from, to, how, how_short)],
-    pic}."""
+    """[(region, [family, ...])]; a family is {root, dex, chain, nevo, tag, rows [(depth, from, to, how,
+    how_short, target species, source species)], others [species], label, pic}. A row is an evolution or a form
+    change; `others` are the forms that share a National Dex number with a member and that nothing turns it into."""
     spname = names(rom)
-    moves = {int(k): (v["name"] if isinstance(v, dict) else v)
+    moves = {int(k): move_display(v["name"] if isinstance(v, dict) else v)
              for k, v in json.load(open(os.path.join(ROMDATA, "moves.json"), encoding="utf-8")).items()}
     places = {int(k): v["name"] for k, v in
               json.load(open(os.path.join(ROMDATA, "mapsections.json"), encoding="utf-8")).items()}
-    dex = {sp: natdex(rom, sp) for sp in range(1, NSPECIES)}
+    exists = {sp for sp in range(1, NSPECIES) if F.is_species(rom, sp, NAMED_FORMS)} - set(F.TRAINER_ONLY)
+    dex = {sp: F.natdex(rom, sp) for sp in range(1, NSPECIES)}
+    for sp in exists:                                    # a Gigantamax slot has no number: its species' one
+        if not dex[sp] and sp not in F.NO_NUMBER:
+            dex[sp] = next((dex[o] for o in range(1, NSPECIES) if o != sp and dex[o] and spname(o) == spname(sp)), 0)
     first = {}                                           # National Dex number -> its base species
     for sp in range(1, NSPECIES):
-        first.setdefault(dex[sp], sp)
+        if sp in exists and dex[sp]:
+            first.setdefault(dex[sp], sp)
 
-    def region_of(sp):
-        d, ts = dex[sp], types_of(rom, sp)
-        regions = [r for r, st in (("Alola", ALOLA), ("Galar", GALAR), ("Hisui", HISUI)) if d in st]
-        if d == 52:                                      # Meowth: Alolan Dark, Galarian Steel
-            regions = ["Alola"] if "Dark" in ts else ["Galar"]
-        return regions[0] if len(regions) == 1 else None
-
-    ADJ = {"Alola": "Alolan", "Galar": "Galarian", "Hisui": "Hisuian"}
+    def full(sp):
+        return display_name(sp, text_of(spname(sp)))
 
     def label(sp):
-        """ "Vulpix", "Alolan Vulpix", or "Wormadam (Bug/Steel)" for another form that shares the name"""
-        nm = text_of(spname(sp))
-        base = first[dex[sp]]
-        if sp == base or types_of(rom, sp) == types_of(rom, base):
-            return nm
-        r = region_of(sp)
-        return ADJ[r] + " " + nm if r else "%s (%s)" % (nm, "/".join(types_of(rom, sp)))
+        """the name the guide site prints, cut short: "Alolan Vulpix", "Wormadam (Sandy Cloak)", "G-Max Charizard" """
+        return short_name(full(sp))
 
+    links = F.links(rom, full, lambda i: item_name(rom, i), lambda m: moves.get(m, "a move"), lambda ab: None)
     edges, forms, incoming, reverts = {}, {}, set(), set()
+    for ln in links:
+        if ln["from"] in exists and ln["to"] in exists:
+            forms.setdefault(ln["from"], []).append((ln["to"], ln["short"]))
+            incoming.add(ln["to"])
     for sp in range(1, NSPECIES):
+        if sp not in exists:
+            continue
         o, n = (EEVEE_EVOS, 10) if sp == EEVEE else (EVOS + 40 * sp, 5)
         for k in range(n):
             m, p, t, x = struct.unpack_from("<HHHH", rom, o + 8 * k)
             lo = m & 0xFF
-            if not m or not 0 < t < NSPECIES:
+            if not m or t not in exists:
                 continue
             if lo == 255:                                # a form's way back to its base (the Gigantamax slots
-                reverts.add(sp)                          # 252-276, National Dex 0): covered by the base's family
+                reverts.add(sp)                          # 252-276): covered by the base's family
                 continue
-            if lo >= 250:
-                forms.setdefault(sp, []).append((t, lo, p))
+            if lo >= 250:                                # Mega Evolution and the like: forms.py reads these rows
                 continue
             short, shorter, sentence = method(rom, lo, p, sp, t, moves, places, spname, x)
-            if m >> 8 in (0x3F, 0xFF):                   # a baby: its Egg needs an incense
-                sentence += " To get its Egg, a parent must hold %s %s." % (article(item_name(rom, x)),
-                                                                            item_name(rom, x))
             edges.setdefault(sp, []).append((t, short, shorter))
             incoming.add(t)
-    roots = [sp for sp in range(1, NSPECIES)
-             if (sp in edges or sp in forms) and sp not in incoming and sp not in reverts]
+    member = set()                                       # in some family's tree
+
+    def collect(sp):
+        if sp in member:
+            return
+        member.add(sp)
+        for t, _, _ in edges.get(sp, []):
+            collect(t)
+        for t, _ in forms.get(sp, []):
+            collect(t)
+
+    roots = [sp for sp in sorted(exists) if sp not in incoming and sp not in reverts]
+    growing = [r for r in roots if edges.get(r) or forms.get(r)]        # the ones something comes of
+    for r in growing:
+        collect(r)
     fam = {}
-    for r in roots:
-        fam.setdefault(dex[r], []).append(r)
+    for r in growing:
+        if dex[r]:
+            fam.setdefault(dex[r], []).append(r)
     out = []
     for d, rs in fam.items():
         rs.sort(key=lambda r: (r != first.get(d), r))
-        rows, seen, kinds = [], set(), []
+        base = first.get(d)
+        # the page is headed by the number's own species; when only a form of it evolves (Basculin: the
+        # White-Striped one), that form gets a line of its own with its evolutions under it
+        root = base if base is not None and (base in rs or base not in member) else rs[0]
+        rows, seen, kinds, inside = [], set(), [], {root}
 
         def walk(sp, depth):
             src = label(sp)
+            inside.add(sp)
             for t, short, shorter in edges.get(sp, []):
                 key = (src, label(t), short)
                 if key in seen:                          # reads the same as one already listed (Burmy's cloaks)
                     continue
                 seen.add(key)
                 rows.append((depth, src, label(t), short, shorter, t, sp))
-                if t != sp and t not in rs:
+                if t != sp and t not in rs and t not in inside:
                     walk(t, depth + 1)
-            for t, lo, p in forms.get(sp, []):
-                name, how = form_change(rom, lo, p, moves, src)
+            for t, how in forms.get(sp, []):
+                name = label(t)
                 key = (src, name, how)
                 if key in seen:
                     continue
                 seen.add(key)
                 rows.append((depth, src, name, how, how, t, sp))
                 kinds.append(name.split()[0])            # Mega / G-Max / Primal / Ultra
+                if t not in inside:                      # a form of a form: Ash-Greninja, Ultra Necrozma
+                    walk(t, depth + 1)
 
         for r in rs:
-            walk(r, 0)
-            reg = region_of(r) if r != rs[0] else None
-            if reg:
-                kinds.append(reg)
-        if not rows:
-            continue
-        root = rs[0]
+            if r in inside and r != root:
+                continue
+            if r == root:
+                walk(r, 0)
+            else:                                        # Alolan Vulpix: its own line, then what comes of it
+                rows.append((0, label(root), label(r), "", "", r, root))
+                walk(r, 1)
         # the row: the main line (first branch at every stage), "+N" for the other branches
-        chain, sp = [text_of(spname(root))], root
-        while edges.get(sp):
+        chain, sp, walked = [label(root)], root, {root}
+        while edges.get(sp) and edges[sp][0][0] not in walked:
             sp = edges[sp][0][0]
+            walked.add(sp)
             chain.append(label(sp))
-        nevo = len(rows) - sum(1 for r in rows if r[2].split()[0] in ("Mega", "G-Max", "Primal", "Ultra"))
-        extra = [k for k in ("Mega", "G-Max", "Primal", "Ultra", "Alola", "Galar", "Hisui") if k in kinds]
-        tag = ""                                         # (no tag on the row: the table names Megas and forms)
-        out.append({"root": root, "dex": d, "chain": chain, "nevo": nevo, "tag": tag, "rows": rows,
-                    "pic": root})
+        nevo = len(rows) - sum(1 for r in rows if r[2].split()[0] in KINDS)
+        out.append({"root": root, "dex": d, "chain": chain, "nevo": nevo, "tag": "", "rows": rows, "others": [],
+                    "inside": inside, "numbers": {dex[sp] for sp in inside if dex[sp]}, "label": label, "pic": root})
+    # The forms nothing leads to (regional forms that do not evolve, gift and costume forms) go under "Other forms"
+    # in the family that holds their number; where no family does, the species and its forms make a page.
+    home = {}
+    for f in out:
+        for n in f["numbers"]:
+            home.setdefault(n, f)
+    loose = {}
+    for sp in sorted(exists):
+        if sp in member or not dex[sp] or any(sp in f["inside"] for f in out):
+            continue
+        if dex[sp] in home:
+            f = home[dex[sp]]
+            if label(sp) not in {label(o) for o in f["inside"] | set(f["others"])}:    # (Enamorus has a second slot)
+                f["others"].append(sp)
+        elif label(sp) not in {label(o) for o in loose.get(dex[sp], [])}:
+            loose.setdefault(dex[sp], []).append(sp)
+    for d, sps in loose.items():
+        if len(sps) < 2:
+            continue                                     # a Pokemon alone: nothing to list
+        sps.sort(key=lambda sp: (sp != first.get(d), sp))
+        out.append({"root": sps[0], "dex": d, "chain": [label(sps[0])], "nevo": 0, "tag": "", "rows": [],
+                    "others": sps[1:], "inside": {sps[0]}, "numbers": {d}, "label": label, "pic": sps[0]})
     regions = []
     for name, lo, hi in REGIONS:
         fs = sorted((f for f in out if lo <= f["dex"] <= hi), key=lambda f: f["dex"])
         if len(fs) > MAX_ROWS:
-            cut = len(fs) // 2
-            regions += [(name + " 1", fs[:cut]), (name + " 2", fs[cut:])]
+            parts = -(-len(fs) // MAX_ROWS)
+            size = -(-len(fs) // parts)
+            regions += [("%s %d" % (name, k + 1), fs[k * size:(k + 1) * size]) for k in range(parts)]
         elif fs:
             regions.append((name, fs))
     assert sum(len(f) for _, f in regions) == len(out), "a family outside every region"
@@ -341,34 +384,71 @@ def swrap(rom, b, w):
 
 
 def page_lines(rom, f):
-    """[(x, ball, text)]: one line per Pokemon a family reaches, its methods merged ("Glaceon: Ice Stone/Ancient
-    Tomb"), indented by stage; a line too wide continues under its text."""
+    """[(x, ball, text, species or None)]: one line per Pokemon a family reaches, its methods merged ("Glaceon: Ice
+    Stone/Ancient Tomb"), indented by stage; a line too wide continues under its text. Then "Other forms" and one
+    line for each."""
     merged = {}
     order = []
     for depth, src, dst, how, how2, t, sp in f["rows"]:
         k = (depth, dst)
         if k not in merged:
-            merged[k] = []
+            merged[k] = ([], t)
             order.append(k)
-        if how not in merged[k]:
-            merged[k].append(how)
+        if how not in merged[k][0]:
+            merged[k][0].append(how)
     out = []
     for depth, dst in order:
-        hows = merged[(depth, dst)]
-        x = RIGHT_X + INDENT * depth
+        hows, t = merged[(depth, dst)]
+        x = RIGHT_X + INDENT * min(depth, 3)
         w = RIGHT_END - x - BALL_W
-        text = J.enc(dst) + J.enc(": ") + b"/".join(how_bytes(h) for h in hows).replace(b"/", J.enc("/"))
+        hows = [h for h in hows if h]
+        text = J.enc(dst)
+        if hows:                                         # (none: a regional form heading its own evolutions)
+            text += J.enc(": ") + b"/".join(how_bytes(h) for h in hows).replace(b"/", J.enc("/"))
         if len(hows) == 1:
             text += J.enc(".")
         lines = swrap(rom, text, w)
-        out.append((x, 1, lines[0]))
-        out += [(x + BALL_W, 0, l) for l in lines[1:]]
+        out.append((x, 1, lines[0], t))
+        out += [(x + BALL_W, 0, l, None) for l in lines[1:]]
+    if f["others"]:
+        if out:
+            out.append((RIGHT_X, 0, J.enc(OTHER), None))
+        for sp in f["others"]:
+            lines = swrap(rom, J.enc(f["label"](sp)), RIGHT_END - RIGHT_X - BALL_W)
+            out.append((RIGHT_X, 1, lines[0], sp))
+            out += [(RIGHT_X + BALL_W, 0, l, None) for l in lines[1:]]
     return out
 
 
-def icons_of(f):
+def pages_of(lines):
+    """The lines in pages of LINES at most: a line is not parted from what it runs on to, and the "Other forms"
+    heading not from the first of them."""
+    heading = J.enc(OTHER)
+    pages, cur = [], []
+    i = 0
+    while i < len(lines):
+        group = [lines[i]]
+        i += 1
+        if group[0][2] == heading and not group[0][1] and i < len(lines):     # the heading: with the form under it
+            group.append(lines[i])
+            i += 1
+        while i < len(lines) and not lines[i][1] and lines[i][2] != heading:  # and the rest of a long line
+            group.append(lines[i])
+            i += 1
+        if len(cur) + len(group) > LINES and cur:
+            pages.append(cur)
+            cur = []
+        cur += group
+    if cur:
+        pages.append(cur)
+    assert all(len(p) <= LINES for p in pages), "a line longer than the page"
+    return pages
+
+
+def icons_of(f, page):
+    """the root, then the Pokemon this page's lines name (ten at most)"""
     seen, out = set(), []
-    for sp in [f["root"]] + [x for r in f["rows"] for x in (r[6], r[5])]:   # sources too: Alolan Vulpix
+    for sp in [f["root"]] + [t for _, _, _, t in page if t is not None]:
         if sp not in seen:
             seen.add(sp)
             out.append(sp)
@@ -380,11 +460,36 @@ def all_families(rom):
     return sorted((f for _, fs in families(rom) for f in fs), key=lambda f: f["dex"])
 
 
+def list_pages(rom):
+    """[(family, page number from 1, pages, its lines)]: what the list shows, in order."""
+    out = []
+    for f in all_families(rom):
+        pages = pages_of(page_lines(rom, f))
+        for k, page in enumerate(pages):
+            out.append((f, k + 1, len(pages), page))
+    return out
+
+
+def list_name(rom, f, k):
+    """ "025 Pikachu", and "025 Pikachu 2" for a family's second page; a name too wide for the list is cut."""
+    head = J.enc("%03d " % f["dex"])
+    tail = J.enc(" %d" % k) if k > 1 else b""
+    whole = J.enc(f["chain"][0])
+    name = whole
+    if swidth(rom, head + name + tail) > LIST_W:
+        dots = J.enc("…")
+        while swidth(rom, head + name + dots + tail) > LIST_W and len(name) > 1:
+            name = name[:-1]
+        name += dots
+    return head + name + tail
+
+
 def blob(base, rom, wrap_px, pane, locw):
-    """{EVOALL: the table}, then the table (16 bytes a family: {dex u16, 0, list name, hint, record}); a record is
-    {icons u8, lines u8, x0 u8, dx u8, species u16 x 10, lines 9 x {x, y, ball, 0, text}}.
-    Returns (bytes, 1, [("Evolutions", families)])."""
-    fs = all_families(rom)
+    """{EVOALL: the table}, then the table (16 bytes a list row: {dex u16, 0, list name, hint, record}); a record is
+    {icons u8, lines u8, x0 u8, dx u8, species u16 x 10, then `lines` x {x, y, ball, 0, text}}. A family with more
+    than nine lines has a row for each of its pages.
+    Returns (bytes, 1, [("Evolutions", rows)])."""
+    rows = list_pages(rom)
     d = bytearray(4)
     strings = {}
 
@@ -402,24 +507,22 @@ def blob(base, rom, wrap_px, pane, locw):
         return a
 
     hint = pane("You have not seen this Pokémon yet.")
-    tab = bytearray(16 * len(fs))
-    for i, f in enumerate(fs):
-        lines = page_lines(rom, f)
-        assert len(lines) <= LINES, "%s needs %d lines" % (f["chain"][0], len(lines))
+    tab = bytearray(16 * len(rows))
+    for i, (f, k, of, lines) in enumerate(rows):
         recl = b""
-        for k, (x, ball, t) in enumerate(lines):
-            recl += struct.pack("<BBBBI", x, LINE_Y0 + LINE_DY * k, ball, 0, string(t + b"\xff"))
-        recl += b"\xff" * (8 * (LINES - len(lines)))
-        ic = icons_of(f)
+        for n, (x, ball, t, _) in enumerate(lines):
+            recl += struct.pack("<BBBBI", x, LINE_Y0 + LINE_DY * n, ball, 0, string(t + b"\xff"))
+        # (only the lines it has: evo_draw reads `lines` of them, and the rows' records need not be one size)
+        ic = icons_of(f, lines)
         dx = min(30, 212 // max(1, len(ic) - 1)) if len(ic) > 1 else 0
         x0 = 120 - dx * (len(ic) - 1) // 2
         rec = struct.pack("<BBBB", len(ic), len(lines), x0, dx) + struct.pack("<10H", *(ic + [0] * (10 - len(ic))))
-        listname = J.enc("%03d " % f["dex"]) + J.enc(f["chain"][0])
+        listname = list_name(rom, f, k)
         assert swidth(rom, listname) <= LIST_W, listname
         struct.pack_into("<HHIII", tab, 16 * i, f["dex"], 0, string(listname + b"\xff"), string(hint),
                          put(rec + recl))
     struct.pack_into("<I", d, 0, put(bytes(tab)))
-    return bytes(d), 1, [("Evolutions", len(fs))]
+    return bytes(d), 1, [("Evolutions", len(rows))]
 
 
 def chapter_name(region):
@@ -430,9 +533,15 @@ def chapter_name(region):
 
 if __name__ == "__main__":
     rom = open(sys.argv[1], "rb").read()
-    for name, fs in families(rom):
-        print(name, len(fs))
-        for f in fs[:4]:
-            print("   ", text_of(row_title(rom, f).replace(bytes((ARROW,)), b">")), "|", f["tag"])
-            for r in f["rows"]:
-                print("        %s -> %s | %s" % (r[1], r[2], r[3]))
+    want = [a.lower() for a in sys.argv[2:]]
+    rows = list_pages(rom)
+    fams = all_families(rom)
+    print("%d families, %d list rows, %d with more than one page, most lines on a page %d" % (
+        len(fams), len(rows), sum(1 for f, k, of, _ in rows if k == 2), max(len(l) for _, _, _, l in rows)))
+    for i, (f, k, of, lines) in enumerate(rows):
+        title = text_of(list_name(rom, f, k))
+        if want and not any(x in title.lower() for x in want):
+            continue
+        print("%4d  %s   icons %s" % (i, title, [f["label"](sp) for sp in icons_of(f, lines)]))
+        for x, ball, t, _ in lines:
+            print("          %s%s%s" % (" " * ((x - RIGHT_X) // 3), "o " if ball else "  ", text_of(t)))

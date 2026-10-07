@@ -1924,6 +1924,78 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
 - GOTCHA for tests: marking unused gSprites entries in use from Lua (to fake a crowded map) hangs the game within a
   frame, with or without this patch - fake the shortage in the ROM copy instead (movs r5, #1 at 0x08FF6D02 -> #17).
 
+## BATTLE LUCK IS FIXED PER TURN (SAVE-STATE RETRIES REPLAY IT) — CHECKED 2026-10-02 — `tests/battleluck/`
+- Report (a v1.7 player, Hard Mode): against Gym Leaders paralysis / confusion "only take effect when I use a
+  particular move, otherwise it is as if they had a 100% hit rate; tested several times, the exact same result".
+- Not a bug of ours and not a Gym or Hard rule. Measured with `test_battleluck.lua` (the foe's turn read from RAM:
+  its PP went down = it acted, its HP went down without PP = it hurt itself, neither = fully paralysed):
+  * Status effects work: 8 battles against Roxanne (trainer 265; DIFF 1 / 2, Gym flags on / off), ~10 turns each:
+    fully paralysed 5, 1, 2, 1 times; hurt itself 1, 1, 3, 3 times.
+  * MODE=replay: the state saved at the move menu, reloaded, a different number of frames waited (14-210), the same
+    move chosen: the foe's turn was the same every time - 24 of 24 (paralysis) and 24 of 24 (confusion) against
+    Roxanne on Hard with the Gym flags; 16 of 16 in a wild battle (there "could not move" every time) and in a plain
+    trainer battle on Standard. The ORIGINAL Chinese ROM: 16 of 16 as well (wild, and Roxanne on Hard).
+  * The main RNG (gRngValue 0x03005D80, sRandCount 0x020249C0) still ticks twice a frame in battle and was different
+    in every retry, and never converged afterwards (traced 400 frames) - so the engine's luck for the turn does not
+    come from it at the moment of the check. Where it does come from was not traced (the hack's own Random at
+    0x09D380B2 / RandomRange 0x09D380E4 use gRngValue; the only other writers of it are vanilla - Battle Palace
+    0x0803C658 - and the hack site 0x08AE02AE, not looked into; 0x08FFF208 only reads it - see *Random numbers seeded at power-on*).
+  * MODE=seq: the same battle started 5, 6, 120, 333 frames after boot gives different sequences over 9 turns
+    (paralysis ..P....P. / ......... / .P.P.... / ....P... ; confusion H....H..H / ...HHH... / HH....... /
+    HHH...HH.), so a battle begun afresh is rolled anew; only a retry from a saved moment inside it is replayed.
+- So: reload a save state, choose the same thing, get the same thing. A move that draws numbers of its own
+  (accuracy, critical hit, damage) before the foe acts would shift what the foe then gets - NOT tested (both
+  retried moves, Splash and Growl, draw nothing and gave the same result).
+- How a Gym battle is set up (for tests): the leader's script calls 0x0983D1A7 = `special 0; setflag 0x273;
+  setflag 0x27F; setflag 0x274`, then `trainerbattle`; 0x098415C2 clears them after. The difficulty is var 0x409B
+  (1 Standard, 2 Hard Mode, 3 / 4 Challenge / Lunatic), set by the bedroom clock (0x08292781); the party rules are
+  skipped when it is 1 (0x0988F344).
+- Test GOTCHA: clear the held buttons and wait a few frames before emu:loadStateBuffer - a button still down is
+  seen as a new press by the reloaded game (B there backs out of the move menu and the script stalls). And the
+  lead faints around turn 10 from Infestation unless its HP is topped up.
+
+## L: MOVE INFO IN BATTLE — 2026-10-02 — `patches/lmoveinfo/`
+- Asked for: hold L while choosing a move to see its exact Power, Accuracy and whether it makes contact, in a box
+  that comes in from the left, with a mini "L Move Info" HUD. Built: a "[L] Move Info" tag above the move box
+  (64x32 sprite at (2,97), its top 14 rows drawn) and a 128x64 panel (two 64x64 sprites, rows 47-110) that slides
+  16 px a frame: the name on a navy strip, Power / Acc., Physical (red) / Special (blue) / Status (grey), Contact /
+  No contact, Priority (+N / -N / 0), Eff. N%. "---" for 0 power, 0 accuracy (never misses) and no effect chance.
+- HOOK, one word: HandleInputChooseMove (0x08057BFC) is `push {r4-r7,lr}; mov r7,r8; push {r7}; movs r0,#0;
+  ldr r0,[pc]; bx r0; .word 0x09D0A8C1` - the hack takes it over after the prologue. The word at 0x08057C08 now
+  points at our `entry` (bl body; then bx 0x09D0A8C1). lr is already saved there and r0-r3 are free. The hack's code
+  at 0x09D0A8C0 (bl 0x09D6077C ...) manages its own indicator sprite and uses START (newKeys & 8 -> 0x09D6AEE0);
+  nothing in it reads L or R, so L was free in the move menu.
+- Move data (gBattleMoves 0x09D86419, 12 bytes): effect +0, power +1, type +2, accuracy +3, pp +4, effect chance
+  +5, target +6, priority +7 (signed), flags +8 (bit 0 = makes contact), +10 the split: 0 physical, 1 special,
+  2 status. Checked on Tackle (40/100, contact, 0), Flamethrower (90, 10%, no contact, 1), Swords Dance (2),
+  Quick Attack (+1), Roar (-6), Fake Out (+3, 100%). gMoveNames 0x09D30258, 13 bytes each (the header's 0x14C is
+  NOT the move names in this hack).
+- No RAM of our own: the tag sprite is found by its callback (hud_cb), and its data[] is the state - data0 a
+  heartbeat `body` sets to 3 each frame and hud_cb counts down, data1 L held, data2/3 the panel halves' sprite ids
+  + 1, data4 the move drawn, data5 the slide offset (-128..0). When the move menu stops running (A, B, the target
+  cursor, the move-swap screen) the heartbeat runs out and hud_cb destroys the panel, frees the tiles (tags
+  0x5EB0-0x5EB2) and the palette (tag 0x5EB0, LoadSpritePalette - no HUD if no slot is free) and itself, three
+  frames later. No hook on any exit.
+- Text into sprites, the way the healthbox does it: AddWindow (bg 0, 16x8 tiles, never put on the tilemap) ->
+  the frame's pixels LZ77UnCompWram'd (0x082E7091 = swi 0x11) into its tileData (gWindows 0x02020004 + 12*id + 8)
+  -> AddTextPrinterParameterized4 (0x08199EED), font 8 (small narrow), speed 0xFF (drawn at once, no VRAM copy),
+  background colour 0 so the frame stays -> the window's rows copied 256 bytes at a time into the two sprites'
+  tiles (0x06010000 + sheetTileStart*32; sprite +0x40) -> RemoveWindow. Only when L goes down or the cursor moves.
+  ConvertIntToDecimalStringN 0x08008CC1. The palette is the key-item ring's (patches/keyring/art.py).
+- Addresses: code 0x09FDBCA8..0x09FDC178 (1232 bytes - 16 too many for the 0x08FF7240 gap after repelfix, and
+  every call is absolute, so it sits in the pointer-free window after keyring's data), data 0x09FDC400..0x09FDCB54.
+  0x08FF7240..0x08FF7700 stays free.
+- Tested (`test_lmoveinfo.lua`, a scripted wild Magikarp): the tag in the move menu; L: +2 sprites, the panel in
+  after 8 frames; RIGHT / DOWN / LEFT with L held: the panel shows the new move each time; L let go: sprites back to
+  the tag only; B to the action menu with L held: all of ours gone (Quick Ball's widget returns); Fight again: the
+  tag again. `DOUBLE=1` (bit 0 of gBattleTypeFlags forced during setup): the same in a 2 v 2. `test_lmoveinfo_moves
+  .lua` (Snorlax Lv 100, the move list overwritten once the menu is up): the four panels match the ROM's numbers; A
+  with L held uses the move, the panel is gone at once, and the next action menu has 18 sprites - as on the
+  unpatched ROM (13 the first time, 18 after a turn, on both).
+- The chain build (… -> nocandynpc -> lmoveinfo) equals the tested ROM byte for byte; against the working ROM before it (v1.7 plus the Evolutions data
+  change of 2026-10-02, sha1 4e74f11aebb9) it changes
+  0x08057C08 and the two regions above. sha1 c40d646c9c41.
+
 ## QUEST LOG: THE DEVON SCOUT BEFORE FABA — 2026-10-01 — `patches/journal/steps.py`
 - Reported: "Chase Faba" (done by 0x40A0) named the Scorched Slab as soon as Nanu's step (0x41BC) was done, and
   players went there first. The wormhole (Scorched Slab 24/73, object 2 at 7,2, script 0x098BF3C5) only lets you in
@@ -2184,6 +2256,26 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   `sys.path` (keystone -> inspect -> dis): append the folder, do not insert it. mGBA stops on a "Temporary file
   loaded" dialog when the ROM is under a temp folder, so `--script` tests never start there.
 
+## QUEST LOG: EVOLUTIONS SHOW EVERY FORM — 2026-10-02 — `patches/questlog/evolutions.py`
+- Asked for: the in-game Evolutions pages "exactly like in the website": Mega, Primal, regional, every form, each
+  with how. Charizard's Gigantamax was there (the evolution table has its Wishing Piece row) and nobody else's.
+- `families()` now takes its forms from `tools/romdata/forms.py`, names from `species_display.py` /
+  `display_names.py` ("Gigantamax" cut to "G-Max"), and what counts as a species and its number from
+  `forms.is_species` / `forms.natdex`. A page is headed by its number's own species; a regional form that evolves
+  gets a line of its own (no method) with its evolutions one step in; forms nothing leads to go under an "Other
+  forms" line; a species with other forms and no evolution gets a page too (Articuno: Galarian Articuno).
+- More than nine lines: `pages_of()` splits a family over list rows ("133 Eevee", "133 Eevee 2"), never parting a
+  line from what it runs on to. 361 families, 366 rows. `questlog_patch.evo_pages` must count rows, not families:
+  with the family count the last five rows could not be reached.
+- The records are no longer padded to nine lines (evo_draw reads `lines` of them): the blob is 0x09F82600..
+  0x09F8C8B0 with them, and would not have fitted before the Legends' data (0x09F90000) padded.
+- No assembly changed. The chain rebuild differs from the previous working ROM in the three EVOCOUNT literals
+  (0x08FEBA68, 0x08FEBC94, 0x08FEBE10) and the Evolutions blob. Installed (sha1 4c3db374...), backup "(before
+  evolution forms 2026-10-02)".
+- Tested (`test_questlog_evolutions.lua`): the grid, 18 families' pages, the last row, B back to the field, on the
+  user's save (264 of 366 rows seen, the rest shadows and ?????) and on a copy with evo_seen forced, for the pages
+  of families the save has not met.
+
 ## WHAT CAN ACTUALLY BE HAD: THE AUDIT — 2026-10-02 — `tools/romdata/obtainable.py`
 - Asked: is everything on the evolution and form lists obtainable, "not just the Eternatus case"? It was not checked:
   the lists showed how each form comes about, not whether the way is open to a player.
@@ -2208,6 +2300,281 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   the game: it cannot see a way that is open on paper and blocked in play.
 - `forms.TRAINER_ONLY` keeps the two off every list (the site's and the Quest Log's); the audit says so if a way
   to one of them ever turns up.
+- In the game too: the chain was rebuilt with these (360 families, 365 rows), tested with
+  `test_questlog_evolutions.lua`, installed (sha1 4e74f11a...), backup "(before trainer-only forms left out
+  2026-10-02)".
+
+## LEFTOVER CHINESE — 2026-10-02 — `patches/zhtext/`, `translation/official/`
+
+Asked for: every Chinese text still in the game except images; reported with it, Swords Dance at +6 printing the
+last word of "…'s Attack can't go higher!" in Chinese. One patch at the end of the chain, 2,341 texts and names,
+two small code changes and one graphic. Where each kind was and how it is replaced:
+
+- **Official Emerald texts, in place (official.json, 1,444).** The hack translated Emerald's own strings where
+  they stood and zero-filled the rest of each slot, so the English fits back at the same address and nothing is
+  re-pointed. `translation/official/vanilla.py` reads every labelled string from the pret/pokeemerald source and its
+  address and size from `pokeemerald.sym`; `scan.py` compares. Casing follows the texts an earlier pass had already
+  converted (`decap.py`). 260 of them are still referenced by something: the Easy Chat screen, the PokéNav map's
+  landmark names (`LandmarkName_*`, shown in the zoomed view), link / wireless / Union Room / trade / Berry Blender /
+  Mystery Gift messages, Battle Frontier lines. The other 1,184 are restored anyway (the hack moved most scripts,
+  but a slot is cheap to put right and stops the scans listing it).
+  - 77 of these end in `\p`. The second pass (NOTES, *Remaining-text pass*) left 42 link / Trainer Card messages
+    alone because a translation that ends in a page break can hang the text engine. These are not translations:
+    they are Emerald's bytes in Emerald's slots, read by Emerald's code.
+  - Two static names exist twice in the source with different text (`sText_PleaseWaitAWhile`,
+    `sText_CommunicationStandby`); the symbol's size says which is which.
+  - Not restored: `SlateportCity_ContestHall_Text_ImLikeMajorlyCheesed` (unreferenced; the hack put another string
+    in its tail).
+- **The hack's own strings (hack.json).** In place where the English fits the Chinese string's bytes, else a new
+  copy at 0x09FD2A00.. with every reference moved. A reference is one of: `loadword 0` (`0F 00 ptr`), `message`
+  (`67 ptr`), `bufferstring` (`85 n ptr`), a `trainerbattle` text argument, or a 4-aligned word in a table.
+  - **153 trainer lines the earlier passes never inserted** (`lines.py`): their only references are `trainerbattle`
+    arguments at unaligned addresses. Those passes had translations for 44 of them and found no pointer to move.
+    Mostly defeat lines of the story bosses. `trainer_arg()` accepts `5C type id16 arg16 ptr [ptr [ptr]]` with the
+    earlier pointer fields zero or pointers, and one more shape the hack uses for partner battles: type 0, a
+    non-zero arg16, a non-pointer word, then the defeat text (`5C 00 9B 03 6F 00 00 8E 00 00 <ptr>`).
+  - Defeat lines are expanded with the field placeholders (FD 01 = player, FD 06 = rival) and printed in the battle
+    box; 34 characters a line fits ("their dreams who change the world."), `\l` scrolls there as on the field.
+  - `givemon` (`79 species level item u32 u32 u8`) carries stale text pointers in its unused fields in a few
+    scripts, and `applymovement` (`4F id16 ptr`) with local id 15 looks like `0F 00 ptr`: neither is a text
+    reference. Both were caught by reading the bytes before each site.
+- **The battle engine's block 0x09D74000..0x09D77030.** Its strings are reached as a literal plus a constant, so
+  they can only be replaced where they stand, in the same bytes. Two cases needed code:
+  - **"higher".** 0x09D4AA14 `ldr r4,[pc,#0xd4]; adds r4,#0xe` forms 0x09D749F2, a 5-byte slot between two "rose".
+    Those two instructions are now `bl 0x09FDCC00`: `ldr r4,[pc,#0]; bx lr; .word` + "higher". lr is free there (the
+    function pushes it at 0x09D4A498). "lower" is Emerald's `gText_Lower`.
+  - **Field-effect names** for "{side}'s {effect} effect: N turn(s) remaining." (0x09D74CA2): seven 5-byte slots at
+    0x09D76FFE.. copied into B_BUFF1 by seven `ldr r1, =literal; adds r1, #n; bl copy` sites. The names are in
+    16-byte slots at 0x09FDCC10 (Swamp, Sea of Fire, Rainbow, Wildfire, Vine Lash, Cannonade, Volcalith), the five
+    literals re-aimed (0x09D4DE8C, 0x09D4E22C, 0x09D4E240, 0x09D4E908, 0x09D4EA7C) and two constants changed
+    (0x09D4E774 0x0A -> 0x15, 0x09D4E886 0x0F -> 0x25: three sites share one literal). The patcher checks that each
+    literal has no other reader. The old slots hold four-letter stand-ins. Not seen in play (it needs a Pledge
+    combination or a G-Max move); checked by computing what each site now forms.
+- **Names inside tables** (`tables.py`, `gen_tables.py`) - no pointer reaches them, so the text scans never saw them;
+  the battle test did ("Champion 阿戴克 would like to battle!").
+  - The hack's trainer table is at 0x090019F8, 40 bytes each, name at +4 (12 bytes). Trainers 0x399..0x54A are the
+    hack's own and 227 of them had Chinese names. Canon characters get their official names; the hack's people keep
+    the names earlier dialogue translations gave them, else pinyin. 小驱 / 小进 are Chase and Trace (Let's Go).
+  - The hack's font has its own glyphs in some rare-hanzi slots, so a decode shows 哞 for what reads as 唔 ("Mm…"),
+    詈绊 for 羁绊 (bond), 鲷 in 大力鳄 (Feraligatr). Translate by sense, not by the decoded character.
+  - Items 697 and 754-767 (name[14] at the start of each 44-byte entry at 0x08FC2C7C): second copies of held items
+    with the originals' descriptions; they take the originals' names.
+  - Species 990-993: the hack's four restored fossil Pokémon. Move 937: a second Petal Dance.
+  - Pokédex entries 906-959 (filler, Bulbasaur's text): category 种子 -> "Seed".
+  - Emerald's Trainer Hill (`sFloors_*`: floor 952 bytes, trainer 328, name at +0, six mons of 44 with the nickname
+    at +32) and `gApprentices` (name[6 languages][8]; all but the Japanese one were Chinese): from the pret source.
+  - Dead tables, left: Emerald's `gMoveNames`, `gAbilityNames`, `gSpeciesNames`, `gTrainers` at their vanilla
+    addresses are still Chinese and nothing points at them (the hack has its own at 0x09D30258, 0x09D03068,
+    0x08F2B790, 0x090019F8).
+- **One graphic** (`cityzoom.lz`). The PokéNav's zoomed city maps label buildings with sprites cut from a 64x64
+  sheet (`sCityZoomTextSpriteSheet` 0x086230F8); the hack redrew it in Chinese at 0x08FA5490. Emerald's sheet,
+  re-compressed from the pret PNG (702 bytes), is written into Emerald's own slot 0x08DC9208 (0x2C0 bytes, unused
+  by the hack) and the sprite sheet points there. Image text stays in capitals like the rest of the PokéNav.
+- **Free space**: moved texts 0x09FD2A00..0x09FD5472 (no 4-aligned word in the ROM points into
+  0x09FD2A00..0x09FD6F00; the hits at odd addresses are code bytes), the stub and names 0x09FDCC00..0x09FDCC80.
+- **Scans** (`remain.py`, `names_scan2.py`), before -> after: official texts still Chinese 1,333 -> 0; engine block
+  20 -> 0; strings a pointer reaches 603 -> 60. The 60 are data that decodes as hanzi (graphics, movement lists) and
+  old copies whose references were moved long ago. Also still in the ROM and unreferenced: the old copies of every
+  string this and earlier passes moved (badge names at 0x09875111, item descriptions at 0x09553C50, Pokédex
+  texts at 0x09600777…).
+- **Tested** in mGBA: `test_zhtext_battle.lua` MODE=higher (Swords Dance at +6: "Blaziken's Attack can't go
+  higher!") and MODE=defeat (a scripted battle with trainer 0x541 using the script's own re-pointed argument:
+  "Champion Alder would like to battle!", the three-page defeat speech); `test_zhtext_field.lua` (the Easy Chat
+  screen as an interview opens it; the PokéNav's Hoenn map zoomed over Littleroot, Oldale, Petalburg, Rustboro and
+  Routes 104 / 116: labels and landmark names). The patch applied twice gives the same ROM. The 40 tests of the v1.7
+  batch on the result: same logs but for boot-frame numbers and data another change had touched.
+  Test trick that changed: the engine rewrites `gBattleMons[0]` from the party while the menus are up, so a move
+  written at the action menu is gone by the time it is used. Write it from the move menu until it is picked.
+- Installed (sha1 d73b7c0f...), backup "(before leftover Chinese 2026-10-02)".
+
+## DAY/NIGHT: ON / OFF IN THE OPTION MENU — 2026-10-03 — `patches/daynight/`
+
+Asked for: a way to switch the evening and night colours off in the Option menu ("sometimes the colour of the game
+is not good"), and that switching it back on shows the right time of day.
+
+- **How the hack tints.** Not in the palettes: `gPlttBufferUnfaded` and `gPlttBufferFaded` are the same at every
+  hour. TransferPlttBuffer (0x080A19C0), which copies the faded buffer to the screen each frame, jumps at 0x080A19E0
+  (`ldr r1, =0x08CFE3E1; bx r1`) into the hack's routine. That routine reads gLocalTime's hour (0x03005CFA), stores
+  the time of day at 0x0203C000 and picks a mask of colour channels to keep:
+
+  | hour | time of day | mask | what the screen gets |
+  |---|---|---|---|
+  | 0-3 | 0 | 0x0000 | every channel halved (dark) |
+  | 4-5 | 1 | 0x03FF | red and green kept, blue halved |
+  | 6-16 | 2 | 0x7FFF | unchanged |
+  | 17-18 | 3 | 0x001F | red kept (orange) |
+  | 19-21 | 4 | 0x7C1F | red and blue kept (pink) |
+  | 22-23 | 5 | 0x7C00 | blue kept |
+
+  Then, unless the map type (gMapHeader+0x17) is 0, 4, 8 or 9 (none, underground, indoor, secret base) or the byte
+  0x02021685 is non-zero, it copies the 32 palettes itself, 8 words each, with `((c & ~(0x04210421 | mask)) >> 1) +
+  (c & mask)`; a palette bit mask picks which (0xFFFF0FFF: not BG palettes 12-15; none when 0x02021686 is above 2).
+  Otherwise it does the plain DMA copy and returns to 0x080A19E6. The Bag and battles are already untinted.
+- **Off** = that routine takes its plain copy. `ldr r0, =0x02021685; ldrb r1, [r0]` at 0x08CFE452 became
+  `bl tint_gate`, which returns r1 non-zero for the hack's byte or for bit 4 of SaveBlock2+0x15. lr is free there.
+  The hour, the time of day at 0x0203C000 and everything that reads the clock are untouched, so On is right for
+  the hour from the next frame.
+- **The bit.** The 21 accesses to SaveBlock2+0x14 / 0x15 in the ROM use bits 0-3 of 0x15 (sound, battle style,
+  battle scene, region map zoom); the hack's own 0x08C60F20 forces battle style. Task_OptionMenuSave writes
+  bitfields, so bit 4 survives. 0 = On, so old saves and new games start On.
+- **The row.** The menu's window holds seven rows and has no room for an eighth, so it takes the place of "Cancel"
+  (B has always left the menu and saved; A on that row no longer does anything):
+  - sOptionMenuItemsNames[6] (0x0855C67C) -> "Day/Night";
+  - DrawOptionMenuTexts (0x080BB104): its `bl CopyWindowToVram` (0x080BB144) goes to texts_tail, which draws the
+    row's On / Off first (dn_draw: the game's On / Off strings through DrawOptionMenuChoice 0x080BAB68 at y 96, "Off"
+    right-aligned to 198 like the Battle Scene row);
+  - Task_OptionMenuProcessInput (0x080BA86C): `b return` for a row above 5 (0x080BA938) goes to case6, which on
+    Left / Right flips the bit in the save, sets sArrowPressed and redraws, then joins the task's tail
+    (0x080BAA46). The `beq` that made A leave from row 6 (0x080BA88E) is a `mov r8, r8`.
+  - Both are reached through 8-byte veneers at 0x080BAFD4 / 0x080BAFDC: the body of ButtonMode_ProcessInput, dead
+    since rbutton put a trampoline at its head. A `b` reaches 2 KB and a `bl` 4 MB; the free space is 16 MB away.
+- Code 0x08FF7240..0x08FF7316 (after repelfix). In the chain before `zhtext`.
+- GOTCHA: `.align` again - the literal pools are aligned with an explicit `mov r8, r8` and the patcher checks that
+  every pc-relative load lands on one of its chunk's own `.word`s.
+- Test notes: the game only re-reads the clock on some events (a map load does it), so a test that shifts the
+  save's time offset (SaveBlock2+0x9A, hours) must warp afterwards. Tint = the number of colours in palette RAM
+  (0x05000000) that differ from gPlttBufferFaded: 398 on Route 102 at 23:00, 0 when off.
+- Tested: `test_daynight.lua` (10 checks: tinted at 23:00; the bit set -> not; cleared -> tinted; the menu's row,
+  RIGHT sets it, A stays, B leaves; Off kept on the field; LEFT -> the tint back at once; 12:00 no tint) and
+  `test_daynight_battle.lua` (BIT=1: field, Bag, battle, field all 0; BIT=0: 398 / 0 / 0 / 400, as before).
+- Installed 2026-10-03 (sha1 e85a5245...), backup "(before Day-Night option 2026-10-03)". The 40-test batch gave the
+  same logs as the build
+  before it (the four repel tests sometimes log a second, unscripted control lock around step 10 - not identified,
+  it comes and goes between runs of the same ROM; both builds give the same log when run back to back).
+
+## LORELEI / FLYGONITE FREEZE REPORT — NOT REPRODUCED — 2026-10-04 — `tests/lorelei/`
+
+Report (relayed): "I cannot obtain the Flygonite because on battling with Lorelei, it crashes the game. After she
+finishes her dialogue, the game freezes." No version, emulator or save yet.
+
+- **Where.** Ice Maze, map 35/53 (indoor, weather shade), entered from Meteor Temple 35/54. Lorelei is object 2
+  (local 3) at (20,9), script 0x098245D6, hidden by flag 0x4163; the Lapras behind her is local 4 (no script).
+  The Flygonite (item 700) is not hers: the sealed Flygon, object 0 (local 1) at (25,17), script 0x098249F4, flag
+  0x4160 - a scripted wild Flygon Lv 70, then `giveitem 700`. She stands in a one-tile corridor and can only be
+  talked to from (20,10).
+- **Her script**: lockall; showcoinsbox 1,21 (off screen, never hidden); showmonpic Lapras + cry; "!" on the
+  Lapras; msgbox; `special 0x3E`; playbgm 0x1FC; `trainerbattle 0, 0x3D8, 0, NULL, defeat`; msgbox;
+  fadescreenswapbuffers; removeobject 3, 4; fade in; setflag 0x4163; releaseall. Trainer 0x3D8: class 0x1F (Elite
+  Four), pic 0xD1, Dewgong / Jynx / Cloyster / Slowbro (Slowbronite) / Sandslash Lv 65, Lapras Lv 70.
+- **How the hack's boss scripts start a battle** (this pattern is in most of them): special 0x3E is vanilla
+  BattleSetup_StartRematchBattle - it creates the battle-start task and stops the script context - and the
+  `trainerbattle` behind it runs in the same frame, so it only loads the arguments (the opponent id) and parks the
+  script on `lock` in EventScript_TryDoNormalTrainerBattle (0x08271362). No intro text is shown (the pointer is
+  NULL and never read). Two consequences:
+  - the battle transition and battle music are chosen before the opponent id is loaded, from whatever trainer was
+    fought last this session (gTrainerBattleOpponent_A 0x02038BCA, 0 after a boot). An Elite Four / Champion
+    class there gives the mugshot transition (the hack's hook 0x094A3420 shows the real opponent's picture).
+  - the battle ends in the hack's CB2_EndRematchBattle (0x080B1994 -> 0x09D5E028): won -> back to the field and
+    the script goes on; lost or drawn -> white out, unless flag 0x273 is set, which is then treated as won.
+    Back in the script, GetTrainerFlag is true (the flag is set at battle end) and `gotopostbattlescript` jumps
+    behind the trainerbattle command.
+- **Trainer flags.** GetTrainerAFlag / B are hooked (0x094A3404): id <= 0x357 -> flag 0x500 + id; above ->
+  id + 0x40C9, in the hack's extended flags. Lorelei = 0x44A1.
+- **The hack's extended flags** (GetFlagPointer 0x0809D6EC -> 0x09F00CEC), ids 0x4000..0x467F, byte index
+  i = (id - 0x4000) >> 3: i <= 0x33 -> SaveBlock1 + 0x988 + i; 0x34..0x67 -> SaveBlock1 + 0x3B24 + (i - 0x34);
+  0x68..0x9B -> SaveBlock2 + 0x5C + (i - 0x68); above -> SaveBlock2 + 0x28 + (i - 0x9C). So 0x4160 / 0x4163 are
+  bits 0 / 3 of SaveBlock1 + 0x9B4, and 0x44A1 is bit 1 of SaveBlock2 + 0x88.
+- **Tested** (`tests/lorelei/test_lorelei.lua`, a copy of our save with the two flags cleared, mGBA):
+  - talk -> action menu: current build and v1.7 with difficulty 2 / 3, party level 40 and 2, one Pokemon, the girl,
+    23:00, text speed 0 / 3, battle scene off; last trainer = Lorelei, Sidney, Phoebe, Glacia, Drake, a Champion,
+    a Magma and an Aqua member, an ordinary trainer, 0x400, 0x3FE, 0x800, 0xFFFF (every transition the chooser can
+    return); each of flags 0x264, 0x268, 0x272-0x274, 0x276-0x278, 0x27F left set. All reach the battle.
+  - the whole thing (win, defeat speech, after-battle lines, fade, both objects gone, controls free, screen back):
+    current build; v1.7 at difficulty 2 and 3, as a first-time fight (0x44A1 cleared), as a rematch, at 23:00, as
+    the girl at Lv 60, with Instant text.
+  - a real fight (each of her Pokemon acting for several turns: Waterfall, Lovely Kiss, Poison Jab, Thunder,
+    Earthquake, Mega Slowbro's Psychic, four Full Restores): v1.0, v1.3, v1.4, v1.5, v1.6, v1.7.
+  - the sealed Flygon to "put away the Flygonite": v1.7.
+  - In every release the script, texts, trainer, party, map events, standard trainer scripts, battle-setup and
+    transition code are byte-identical to the original Chinese ROM.
+- Not tested: losing (the harness got stuck in the party menu), other emulators or hardware, the player's own
+  party. Open until we have the save.
+
+## RANDOM NUMBERS SEEDED AT POWER-ON — 2026-10-06 — `patches/rngseed/`
+
+Report (relayed): for a static encounter like Rayquaza "the RNG in the Emerald ROM is broken: it always reverts the
+odds to zero on the counter and doesn't keep registering when you reset the game".
+
+- True, and vanilla Emerald (pret/pokeemerald fixes it behind BUGFIX). AgbMain (0x080003A4) never seeds the RNG:
+  gRngValue (0x03005D80) is 0 at power-on. Random (0x0806F5CC, x = x * 0x41C64E6D + 0x6073, returns the top half)
+  also counts its steps in sRandCount (0x020249C0, "the counter"); VBlankIntr steps it once a frame. So the RNG at
+  any moment is step N of one fixed sequence, N = frames since power-on plus the numbers used.
+- Measured (`test_rngseed.lua`): two boots 7 s apart had the values of steps 28 and 23 from seed 0 at the script's
+  first frame (only the emulator's start-up differed). A scripted Rayquaza battle at a fixed frame after loading the
+  save: runs 1 and 2 at step 738 -> the same Rayquaza (personality 5F48539D, Quiet, 31/15/31/31/31/2); run 3 at step
+  737 -> its neighbour (539D6757, Timid). Resetting with similar timing therefore keeps landing in the same short
+  stretch of the sequence; what is not in it never comes up.
+- Rayquaza's battle (Sky Pillar, script 0x09824068) is `setwildbattle 406 50`, then 0x8004 = 6, 0x8005 = 3 and
+  `callasm 0x08FFF201`: the hack's routine that makes 0x8005 random IVs of party slot 0x8004 (6 = the wild one, as
+  gPlayerParty + 6 x 100 = gEnemyParty) 31, choosing them with its own LCG on gRngValue's top half (it reads gRngValue,
+  it does not write it - the earlier note that 0x08FFF208 writes it is wrong). 257 scripts use it.
+- The patch: AgbMain's `bl RtcInit` (0x080003DA) -> veneer 0x080BB030 (the dead body of ButtonMode_DrawChoices,
+  behind rbutton's trampoline) -> rng_seed (0x08FF7320..0x08FF7368): RtcInit, RtcGetInfo(&sRtc) (sRtc 0x03000DC0:
+  year, month, day, weekday, hour, minute, second in BCD, then status; the game's default date when there is no
+  clock), then gRngValue = hash of those seven bytes (two multiplies and a shift-xor). Nothing else: the RNG still
+  steps per frame and per use, sRandCount is untouched, Random2 is not seeded (it was not before either).
+- Tested: after the patch the three runs' RNG values were on no step of the seed-0 sequence (checked to 2,000 steps)
+  and gave three different Rayquazas (Mild 24/19/31/31/31/31, Mild 1/14/14/31/31/31, Quirky 31/31/31/15/5/31) - each
+  still with three 31s. The 40-test batch (Sky Pillar catch and entrance included) on the build.
+- Not changed: an emulator save state restores gRngValue with everything else, so reloading one before an encounter
+  replays the luck it was made with (see *Battle luck is fixed per turn*); waiting a different number of frames
+  before acting still changes the result.
+- Installed 2026-10-06 (sha1 5a84f01b...), backup "(before RNG seed 2026-10-06)". The 40-test batch: 36 logs the same as the
+  build before, the four repel tests differ only in random wild battles, Sky Pillar catch PASS.
+
+## "SOUND" IS THE HACK'S EXP SWITCH — 2026-10-07 — `patches/expgain/`
+- Reported: Sound set to Stereo = no experience until it is set back to Mono. Reproduced with the real menu
+  (`test_expgain.lua`, a Lv 2 Magikarp, the Lv 69 party member): Mono 2 EXP, Stereo 0, Mono 2.
+- Why: SetPokemonCryStereo 0x082E1810 is a trampoline to the hack's 0x09D45278 = `if (val) FlagSet(0x267) else
+  FlagClear(0x267)` (FlagSet 0x0809D741, FlagClear 0x0809D769; literals at +0x1C/+0x20/+0x24). It writes nothing
+  to REG_SOUNDCNT_H or the sound info any more. The row's handler (Sound_ProcessInput 0x080BADD8, vanilla) calls
+  it on Left / Right, and the game calls it with the saved bit when a save is loaded. The hack's experience code
+  tests FlagGet(0x267) at 0x09D5ACC0 and 0x09D5B00A (literals 0x09D5AE6C / 0x09D5B090) right after FlagGet(0x276)
+  and skips the award; 0x276 is the script-side "this battle gives no EXP" flag (44 setflag / 46 clearflag in
+  scripts), 0x267 has no script reference at all. Writing only the option bit (SaveBlock2+0x15 bit 0) changes
+  nothing - the flag is what counts.
+- Fix = the label: sOptionMenuItemsNames[3] (0x0855C670) -> "Exp. Gain", written over the "Mono" / "Stereo"
+  strings (0x085EE61D, 24 bytes; only Sound_DrawChoices' literals 0x080BAE54 / 58 pointed at them), and those two
+  literals -> the game's "On" / "Off" (0x085EE5F4 / FD). Choice 0 (flag clear) = On. No code changed.
+- Not done on purpose: making it a real Mono / Stereo row again would remove a feature players use (level caps),
+  and a save sitting on "Stereo" would need its flag cleared.
+
+## NAMING SCREEN: AN ENGLISH KEYBOARD — 2026-10-07 — `patches/namingkb/`
+- Asked: the nickname keyboard still shows Chinese letters. It did (see the patcher's docstring for the three
+  pages and the buttons).
+- The hack's keyboard code is 0x094A3378..0x094A3810, hooked from naming_screen.c through literals at 0x080E3338,
+  0x080E3D7C, 0x080E46D4, 0x080E4A30, 0x080E4D14, 0x080E4DE8: setup of the Chinese page (0x094A3378), the key
+  handler (0x094A3388: START = to OK, R / L = next / previous Chinese page, else Emerald's 0x080E46E1), page_ptr
+  (0x094A35B8), build of the RAM page (0x094A35D8), PrintKeyboardKeys (0x094A3626), the cursor's position
+  (0x094A36A8: x = 0x1D + 12 * col, y = 0x58 + 16 * row), GetCharAtKeyboardPos (0x094A36EC: 0xFF00 | c, or the
+  two-byte code). sPageColumnCounts (0x0858BEA0) is 12, 12, 12. Emerald's own key tables (sKeyboardChars
+  0x0858BE40, the row strings 0x0862B88D..) are unused; the hack's two ROM pages (0x0862B810, 2 x 0xC4) lie over
+  Emerald's Easy Chat keyboard strings and the first naming rows.
+- A ROM page: 4 rows x 0x31 bytes, 12 cells `FC 11 n c` + 0xFF. The hack's own spacing drifts a pixel after narrow
+  letters; the new rows are computed (key i starts at 3 + 12 i, glyphs narrower than 6 px centred) from the font's
+  width table 0x086542E4.
+- The patch: new 3-page table at 0x08FF7380..0x08FF75CC (after rngseed), page_ptr's literal 0x094A35D4 -> it,
+  six `cmp #2; bne` -> `b` (0x094A35BA, 36FE, 3638, 365A, 37B4, 37D0), the setup's `strh; bl build` -> nops
+  (0x094A3380). The RAM page is simply never used; names keep their two-byte support (a saved Chinese nickname
+  still prints).
+- Art: compared with pret/pokeemerald's graphics/naming_screen/*.png as 4bpp, only four sheets differ from
+  Emerald - back_button (0x08DD3C84), page_swap_upper / lower / others (0x08DD4044 / 40E4 / 4184). They are
+  Emerald's again (the .4bpp files in the folder). The button shows the page SELECT goes to next (UPPER page ->
+  "lower"), as in Emerald.
+- GOTCHA: "\x53".."\x56" for the PK MN PO Ke glyphs are the ASCII letters S T U V - the first table mapped those
+  four keys to the glyphs. The glyphs now have their own placeholder characters.
+- GOTCHA (test): keys are ignored while the page turns (about a second) - wait after SELECT.
+- ChangePokemonNickname is special 0xA1 here (0x9E is the wall clock), DoWaldaNamingScreen 0x201.
+- Tested (`test_namingkb.lua`): the three pages and buttons, "ABbz♀1" typed across them (bytes BB BC D6 EE B6 A2),
+  L / R ignored, START to OK, A saves; a blank key = space, B deletes ("A C" = BB 00 BD); the same on Walda's
+  15-letter screen. Chain (... -> rngseed -> expgain -> namingkb -> zhtext) = the previous build + exactly these
+  two patches' bytes (932 bytes in 23 runs); sha1 6ef5c8d9....
+- Test harness, 2026-10-07: the "latest" macOS mGBA build on the download server is now 0.10.5 (no `--script`).
+  mGBA's headless tool, built from source with `-DBUILD_HEADLESS=ON` and Lua, runs the same test scripts
+  (`mgba-headless --script run.lua game.gba`) once it is given a video buffer and `mCoreAutoloadSave` (two lines
+  in src/platform/headless-main.c) - without them the save is not loaded and `emu:screenshot` has nothing to save.
+- Installed on the Mac 2026-10-07 (sha1 6ef5c8d9...), backup "(before Exp Gain + naming keyboard 2026-10-07)" - that
+  ROM was still the 2026-10-01 build (141ec5fe), so this install also brought it up to the repo.
 
 ## TM AND HM LOCATIONS FOR THE GUIDE — 2026-10-06 — `tools/build_tm_locations.py`
 - Asked: can the site show where the TMs are? Yes: all 128 have a source the scripts show. The page is `/wiki/tms/`
@@ -2242,3 +2609,131 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
 - Site: 21 browser checks (filters, search, the links from Moves and a learnset, phone, dark) on both the GitHub
   build and the domain-root copy; link check clean; `wiki/tms/index.html` is 134 kB. The learnset links add about
   1 MB over the 1,168 species pages.
+- Published 2026-10-07: public repo commit 8850ff1, together with the lighter Encounters page, the Pokédex index's
+  sprite sheets and the InfinityFree package script from 2026-10-04.
+
+## FUSION SLOTS: "MULTIPLE FUSIONS ARE NOT ALLOWED!" WITH NOTHING FUSED — 2026-10-07 — `patches/fusionfix/`
+
+Report (a player's, no save): "how to fuse Necrozma and Solgaleo - when I select Necrozma it says multiple fusions are
+not allowed".
+
+- **How the game fuses.** Each item's field-use routine starts a script that opens the party screen (special 0xA2,
+  the choice in var 0x8004) and calls one routine, which answers in var 0x800D:
+  * N-Solarizer (641), N-Lunarizer (642), Unity Reins (742): field use 0x094A28D8, script 0x094A27C0, callasm
+    0x08C60D31 = a trampoline (`ldr r0,[pc,#0]; bx r0; .word 0x09F00F59`). The routine tells the three apart by the
+    item's byte +0x28 (0, 1, 2; 0x080D7644). Answers: 0 "can't be combined", 1 done, 2 "You are missing a
+    <partner>", 3 "Multiple fusions are not allowed!", 4 choose a move to forget, 5 party full. The script calls it
+    twice: var 0x8006 = 0 asks, then 1 (fuse) or 2 (split) does it. The player chooses the Necrozma or Calyrex; the
+    partner is found in the party.
+  * DNA Splicers (671): script 0x08FD6554, callasm 0x08FD7021 (called straight, no trampoline). The player chooses
+    Reshiram or Zekrom to fuse (Kyurem is found in the party) or the fused Kyurem to split. Answers: 1 fused, 2 "no
+    Kyurem in your party", 3 the same refusal, 4 split, 5 no room.
+  * The Pokemon that goes inside is kept whole (100 bytes) in the saved overflow stream: **0x0203D5E0 Necrozma's
+    (Solgaleo 844 or Lunala 845 - both items use this one slot), 0x0203D644 Calyrex's (Glastrier 1088 or Spectrier
+    1089), 0x0203D800 Kyurem's (Reshiram 696 or Zekrom 697)**. So one fused Necrozma, one Calyrex and one Kyurem at
+    a time, by design. (The earlier notes here called 0x0203D644 Lunala's: wrong.)
+  * "Taken" is: species (+0x20) not 0 for the first two (GetMonData at 0x09F0124A), first word not 0 for Kyurem's
+    (0x08FD704E). A split by the first routine also wants the slot's species to be exactly the partner's
+    (0x09F01262), or it answers 3 as well. Kyurem's split checks nothing.
+  * A dead older copy of the Necrozma routine sits at 0x094A2974 (it reads the slot through the literal
+    0x094A2B50); nothing calls it.
+  * The first routine never updates gPlayerPartyCount: a split puts the partner in slot [count] and leaves the
+    count; the game recounts later (the party screen does). Kyurem's updates it.
+- **Three ways a slot stayed "taken" with nothing to split** (each reproduced on our save):
+  1. **v1.5's Hyper Training** (ours). Its scratch byte was 0x0203D600 = Necrozma's slot + 0x20, the stored
+     species' low byte, in the saved stream. Every look at the EV-IV Display or an IV judge rewrote the low six bits
+     with the parities of the IVs read. v1.6 moved the scratch (0x0203F13C) but did not clean saves. On a
+     v1.5-era build (archive "before bagslots 2026-09-28"): split Necrozma, open the EV-IV Display once -> the byte
+     is 62; save; on any later build the N-Solarizer answers 3, the N-Lunarizer too (or 2 with no Lunala). With a
+     Solgaleo stored the species became 832-895 and the split answered 3: the 2026-09-28 note ("would hand back
+     Decidueye") was wrong, it handed back nothing.
+  2. **NEW GAME does not empty the slots** - the original Chinese ROM's behaviour, checked on it. The title screen
+     has loaded the save; NewGameInitData leaves the stream's three slots as they were, so a new game started over a
+     save with a fusion carries the stored Pokemon and can never make that fusion.
+  3. **The fused Pokemon is gone** (released), or case 2 on a save made before this patch.
+- **The patch** (312 bytes at 0x09FDCD00..0x09FDCE38; three pointer words):
+  * 0x08C60D34 -> fx_entry, 0x08FD655E (the DNA script's callasm operand) -> fx_dna. Before the game's routine:
+    Necrozma's slot with no Pokemon in it (level byte +0x54 = 0, which is how ZeroMonData and a new game leave it)
+    gets species 0; when the chosen Pokemon is Dusk Mane (1068) / Dawn Wings (1069) and the stored species is in
+    832-895, it becomes 844 / 845 (the slot only ever takes that form's partner; 844 can have become 845, so the
+    form decides); when a fusion is asked for (plain Necrozma 853, Calyrex 1098, or Reshiram / Zekrom chosen) and
+    the slot holds a Pokemon, the slot is zeroed if the player has none of the forms that could hold it - 1068,
+    1069 and the two Ultra Necrozma (1070, 1090; evolution table method 250) / 1099, 1100 / 995, 996.
+  * "Has" is the game's own routine 0x09F03738 (r0 = species): party (after CalculatePlayerPartyCount), the 14
+    boxes x 30 (GetBoxMonData: has species, not an egg), the two Day Care places (SB1+0x3030, +0x30BC). It is what
+    lets Littleroot hand a lost legend out again (0x09F037C8), so it is the author's own idea of "gone".
+  * 0x080D7098 (ClearBag's trampoline word, bagslots'; NewGameInitData's `bl` at 0x0808454E is its only caller) ->
+    fx_newgame: zero 200 bytes at 0x0203D5E0 and 100 at 0x0203D800, then on to what the word held (clear_bag
+    0x08FF606D).
+  * Left as it was: a slot whose fused Pokemon the player has (a second fusion is refused, the slot byte for byte);
+    Kyurem-WB (1119) has no part in any of it.
+- **Tested** (`test_fusionfix.lua`, `test_fusionfix_newgame.lua`; every scenario also with OLD=1 on the unpatched
+  build, where each healed case answers 3):
+  * v15: the stray byte on an empty slot -> fuse answers 1; stored Solgaleo reading 894, and reading 845 -> split
+    answers 1 and Solgaleo comes back; the same with the N-Lunarizer (883); the Unity Reins fuse and split as
+    before; a second Necrozma while Dusk Mane is in the party -> 3, slot unchanged; N-Lunarizer on Dusk Mane -> 0.
+  * gone_necrozma / gone_calyrex / gone_kyurem: fused form gone -> the fusion goes through. With the Black Kyurem
+    still in the PC (box 1 on our save) the DNA Splicers answer 3 and leave the slot alone: the box scan sees it.
+  * a v1.5 save carried over (made on the v1.5-era build: split, EV-IV Display, save from the Start menu), the
+    item used through the SELECT popup and the party screen: unpatched "Multiple fusions are not allowed!",
+    patched "Successful operation!", then split again the same way. DNA Splicers the same way: 3, then fuse 1 and
+    split 4.
+  * NEW GAME over our save: the three slots are empty 600 frames into the new game (unpatched: still Solgaleo and
+    Zekrom); `test_bagslots_newgame.lua` still passes behind the chained hook.
+  * The build differs from its input in the three words and the blob only. zhtext run again on top changes
+    nothing (2,350 "already English"), so `fusionfix` then `zhtext` gives the same ROM; the patcher refuses a
+    second run.
+- GOTCHA: free space at 0x08FF75CC..0x08FF7800 (after namingkb) looks free, but graphics data elsewhere holds the
+  aligned words 0x08FF7703 (at 0x09273FB4) and 0x08FF7785 (0x094530A8, 35A8, 36A8) - the same bytes in the original
+  ROM, where the target was 0xFF, so chance matches - and a patcher's pointer check stops any blob that reaches them
+  (at most 0x137 bytes fit before the first). The blob went to the hack's tail instead: 0x09FDCC80..0x09FDD400 has
+  no aligned word pointing in.
+- GOTCHA: the Thumb check's twin only replaces `.word` lines that carry a label, so every word of a table needs
+  its own label; and a literal pool that does not start on a 4-byte boundary makes Keystone emit `ldr.w` (the
+  patcher tries the source with and without one `mov r8, r8` pad).
+- GOTCHA (test): after a split the party count is stale, so the test looks at all six slots; the script's
+  messages need A, and a `use` step waits for the field (lock byte 0) before the next.
+- **By design**: the Pokemon let go in case 3 is not given back. After a new game it belongs to the old save, and
+  after a release the original game never returned it either. It is let go only at the moment a new fusion is
+  asked for, never otherwise.
+- **Not known**: which of the three the reporter had (no save). v1.5 plus one look at IVs is the likeliest; if the
+  refusal survives this build, ask for the save - 0x0203D5E0 is in the overflow stream, not in SaveBlock1 / 2.
+- Installed 2026-10-07 (sha1 86ad2d6f... = the working ROM cdc6346d + this patch), backup "(before fusion fix
+  2026-10-07)"; every test above run again on a copy of the installed file. `roms/test-fusion/Necrozma fusion test
+  (a v1.5 save)` is the same build with the carried-over v1.5 save (Necrozma and Solgaleo in the party, the stray
+  byte in the slot; one party member was dropped to make room), for trying the report by hand.
+
+## RELEASE v1.8 — 2026-10-07
+- Everything since v1.7: `lmoveinfo`, `daynight`, `rngseed`, `expgain`, `namingkb`, `zhtext`, the Quest Log's
+  Evolutions data and `fusionfix`. `qolversion`'s QOL is "1.8"; the Option title reads "+QoL1.8" (looked at;
+  `docs/showcase/option-expgain.png` retaken on it).
+- The release ROM is the chain's own output: the v1.4 archive + the shinybox two-byte edit + the 35 patches in
+  HANDOFF's order (`fusionfix` before `zhtext`), 33 s. It is the ROM tested that day (sha1 86ad2d6f...) with one
+  byte changed in each of the four title strings (0x08FF24E0.., the version digit). sha1
+  ade383bab8682dd25676b3a1ea8a85b10ca97677.
+- `release/hyper-emerald-en-qol.hpatch`: 4,455 runs, 922,577 bytes, made against the original ROM; applied to it,
+  it gives that sha1 back.
+- The data that was reserved at 0x09FBF800 / 0x09FC0000 is not in the build any more: `0x09FBC380..0x09FD2A00` is
+  one free 0xFF run of 89.6 KB (zhtext's moved texts start at 0x09FD2A00), and the map slots it held (37/122-126,
+  34/96-101, layouts 846-856) are free. With it gone, the same chain run from a checkout of the public repository
+  builds the release ROM byte for byte - the first release that does (checked on the checkout the release was
+  committed from).
+- GOTCHA: a fresh checkout cannot run `questlog_patch.py` as it is: `evolutions.py` reads `moves.json` and
+  `mapsections.json` from `tools/romdata/out/`, which is git-ignored. `python tools/romdata/dump_tables.py` with
+  `HE_ROM` set writes them (from the 2026-10-01 build or from the release ROM: the chain's result is the same). Now in
+  the README's list and in HANDOFF.
+- Tested on the release ROM: the Option title, `test_fusionfix.lua` (four scenarios) and
+  `test_fusionfix_newgame.lua`. Everything else in it is byte-identical to the build the day's batch ran on.
+- Guide site: its tables regenerated from the release ROM. `build_site_data.py` gives 212 trainers the names
+  `zhtext` gave them (they showed "(untranslated name)") and 30 more boss teams, which are matched by name (Steven,
+  Volo, Lusamine, Faba, 26 under Champions); `species.json` / `forms.json` pick up the form names of 2026-10-02
+  (the four Genesect Drives, both Gigantamax Urshifu, Toxtricity (Amped)). The Pokédex, moves, abilities, sprites,
+  TM and Journal data came out identical. `PATCH_VERSION` 1.8, a v1.8 card, feature cards (move info, Day/Night,
+  Exp. Gain, the naming keyboard, the last 2,341, fusions, resets) and FAQ entries (the Sound option, Day/Night,
+  "Multiple fusions", soft resets; "set Sound to Mono" is gone - that row never was the sound). 1,196 pages, link
+  check clean. The InfinityFree copy is rebuilt (largest page 887 KB) and still has to be uploaded by hand.
+- GOTCHA: `tools/romdata/out/` and `site/src/data/{trainers,species,forms}.json` were from 2026-10-01/02, before
+  `zhtext`: after a patch that changes names, run the `dump_*` / `scan_*` tools and `build_site_data.py` again.
+- GitHub: `gh` is not on this PC. The release was made through the REST API with the token Git Credential Manager
+  holds for github.com, after checking with GET /user that it is the project's account.
+- Installed 2026-10-07 (sha1 ade383ba...), backup "(before v1.8 title 2026-10-07)".

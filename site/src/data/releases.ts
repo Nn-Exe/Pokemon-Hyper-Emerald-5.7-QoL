@@ -11,6 +11,22 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: 'v1.8',
+    date: '2026-10-07',
+    summary:
+      'Move info in battle on L, Day/Night and Exp. Gain switches in the Option menu, an English keyboard on the naming screen, the last Chinese text in English, and fixes for fusions and soft resets.',
+    changes: [
+      ['Added', 'Move info in battle: hold L while you choose a move and a panel slides in with its exact Power and Accuracy, Physical / Special / Status, whether it makes contact, its Priority and the chance of its extra effect.'],
+      ['Added', 'Day/Night: On / Off in the Option menu. Off shows the daytime colours at any hour; the clock and everything timed by it carry on.'],
+      ['Changed', 'The Option menu’s “Sound: Mono / Stereo” row now reads Exp. Gain: On / Off. The hack had made that row its experience switch and left the old label on it, so Stereo stopped every Pokémon gaining experience. A save left on Stereo shows Off: switch it On.'],
+      ['Changed', 'The naming screen has an English keyboard: UPPER, lower and others pages in place of the hack’s Chinese ones, with Emerald’s own buttons.'],
+      ['Fixed', 'The last Chinese text is English, 2,341 texts and names: what bosses say when beaten, 227 trainer names, Trainer Hill, the Easy Chat screen, link and trade menus, battle lines such as “can’t go higher!”, and the building labels on the PokéNav’s zoomed city maps.'],
+      ['Changed', 'Quest Log Evolutions: a family’s page shows every form and how you get it, as its Pokédex page on this site does. All 34 Gigantamax forms and the forms a held item, a move, an ability or a Bag item brings about; forms nobody can get are left out.'],
+      ['Fixed', '“Multiple fusions are not allowed!” with nothing fused. Necrozma could not be fused, or split again, on a save that had looked at IVs on v1.5, and a new game started over a save with a fusion could never make that fusion. The N-Solarizer, N-Lunarizer, Unity Reins and DNA Splicers now put it right when used.'],
+      ['Fixed', 'Soft-resetting for a legendary kept giving the same few natures and IVs. The game now starts its random numbers from the clock, so every reset rolls afresh.'],
+    ],
+  },
+  {
     version: 'v1.7',
     date: '2026-10-01',
     summary:

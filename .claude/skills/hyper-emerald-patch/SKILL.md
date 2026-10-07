@@ -37,8 +37,15 @@ Two checks in that template matter more than they look:
    `0x08FEFE00..0x08FEFE74`, the Quest Log at `0x08FEA000..0x08FECB3C`, leaguefly at `0x08FEFF00..0x08FEFF0E` and
    leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FECB3C` to `0x08FEFF00`
    and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
-   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`; `0x09FBF800..` and `0x09FC0000..` are reserved - group 37 is full: a warp's map number is a signed byte and 127 is MAP_DYNAMIC). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
-   naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Check inbound pointers
+   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The 0xFF run `0x09FBC380..0x09FD2A00` (89.6 KB) is free: reserved data sat there until 2026-10-07, so it is proven safe for data; the many words that seem to point into it are chance matches in code and text (zhtext's moved texts follow at `0x09FD2A00`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
+   naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Inside the second free run,
+   `0x08FF6D00..0x08FF723C` is the key ring and repelfix and `0x08FF7240..0x08FF7316` daynight, `0x08FF7320..0x08FF7368`
+   rngseed, `0x08FF7380..0x08FF75CC` namingkb's table; `0x08FF75CC..0x08FF7800` is free, but graphics data elsewhere
+   holds the words `0x08FF7703` and `0x08FF7785` by chance, so a pointer check stops a blob that reaches them. Dead vanilla bodies used for veneers: ButtonMode_ProcessInput 0x080BAFD4..E3
+   (daynight), ButtonMode_DrawChoices 0x080BB030..37 (rngseed). In the hack's
+   own tail, `0x09FD8000..0x09FDCB54` is the DexNav screen, the key ring and lmoveinfo, `0x09FDCC00..0x09FDCC80`
+   zhtext's stub and names, `0x09FDCD00..0x09FDCE38` fusionfix (free from there to the end of the ROM), and `0x09FD2A00..0x09FD5472` zhtext's moved texts (text only: up to `0x09FD6F00` no
+   aligned word points in, but code bytes at odd addresses match by chance). Check inbound pointers
    before using a region, and remember a "pointer" found inside compressed graphics is usually a false hit.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
    the hack's own code (`ldr rX,[pc,#0]; bx rX; .word target`) — repointing that word is the cheapest hook
@@ -63,9 +70,15 @@ Do not reason about it, measure it. `patches/dexnavchain/test_scratch_ram.lua` f
 a pattern and plays through battles, menus, the bag, a save and a Pokénav call, then reports which survived.
 `0x0203B700` looked perfect and turned out to be a save staging buffer. `0x0203A660` (32 bytes + 96 of
 scratch) is in use by the DexNav chain; `0x02039E40`, `0x0203D600`, `0x0203F100` and `0x02031C00` also
-survived the same test. Taken since: `0x02039E40` (the Quest Log's Start-menu widget) and `0x0203D600` (one
-byte, hypertrain); `0x02031C00` (64 bytes) is the egg-move buffer since the eggmoves patch; `0x0203F100` is free (the Lua
-tests put scripts at `0x0203F100`).
+survived the same test. Taken since: `0x02039E40` (the Quest Log's Start-menu widget); `0x02031C00` (64 bytes) is
+the egg-move buffer since the eggmoves patch; `0x0203F13C` is hypertrain's byte; the rest of `0x0203F100..0x0203F13B`
+is free (the Lua tests put scripts at `0x0203F100`).
+
+**`0x0203D600` is not scratch, though it survived that test.** It is inside the saved overflow stream
+(`0x0203CF64..0x0203DE00`): the species of the Pokémon kept inside a fused Necrozma (slot `0x0203D5E0`; Calyrex's is
+`0x0203D644`, Kyurem's `0x0203D800`). The test ran with those slots empty. hypertrain used the byte in v1.5 and
+players could no longer fuse or split Necrozma (NOTES, *Fusion slots*). Before taking EWRAM, check it is outside
+that stream, and measure with a fusion stored.
 
 Guard every scratch block with a magic word and zero it when the magic is absent — EWRAM does not come up
 zeroed on hardware.

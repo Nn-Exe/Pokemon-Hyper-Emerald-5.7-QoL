@@ -683,9 +683,10 @@ _EVO_PAGES = {}
 
 
 def evo_pages(rom):
-    """[(chapter name, rows)] of the Evolutions regions (EV.rows, computed once per ROM)."""
+    """[(chapter name, rows)] of the Evolutions chapter (computed once per ROM): a row is a family's page, and a
+    family with more than nine lines has more than one."""
     if id(rom) not in _EVO_PAGES:
-        _EVO_PAGES[id(rom)] = [("Evolutions", len(EV.all_families(rom)))]
+        _EVO_PAGES[id(rom)] = [("Evolutions", len(EV.list_pages(rom)))]
     return _EVO_PAGES[id(rom)]
 
 

@@ -29,6 +29,8 @@ export const SCREENSHOTS: GalleryShot[] = [
   { src: 'questlog-badges.png', alt: 'The Sinnoh badge case with eight badges', caption: 'The Sinnoh badge case' },
   { src: 'option-autorun.png', alt: 'The Option menu with the Auto Run setting', caption: 'Auto Run in the Option menu' },
   { src: 'option-instanttext.png', alt: 'The Option menu with Text Speed set to Instant', caption: 'Text Speed: Instant' },
+  { src: 'option-expgain.png', alt: 'The Option menu with the Exp. Gain row selected and a Day/Night row at the bottom', caption: 'Exp. Gain and Day/Night' },
+  { src: 'naming-keyboard.png', alt: 'The naming screen with an English keyboard, typing a nickname', caption: 'An English naming keyboard' },
   { src: 'bag-999.png', alt: 'The Bag showing a stack of 999 items', caption: '999 per item' },
   { src: 'bag-sort.png', alt: 'The Bag after sorting, with a message in the description box', caption: 'Bag sort' },
   { src: 'both-bikes.png', alt: 'The Key Items pocket holding both the Mach Bike and the Acro Bike', caption: 'Both bikes at once' },

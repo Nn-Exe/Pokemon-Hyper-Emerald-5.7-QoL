@@ -33,7 +33,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'How do I know which version I am on?',
-        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.7” followed by your difficulty when you are on the current build.',
+        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.8” followed by your difficulty when you are on the current build.',
       },
     ],
   },
@@ -115,6 +115,22 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
         a: 'He was removed in v1.7: 999 Rare Candies for a single “yes” made levelling pointless. Candies you already received stay in the Bag.',
       },
       {
+        q: 'Where did the Sound option go?',
+        a: 'That row never changed the sound in this hack: it was the hack’s experience switch with Emerald’s label left on it, and Stereo stopped every Pokémon gaining experience. From v1.8 it reads <strong>Exp. Gain: On / Off</strong>. A save that was on Stereo shows Off; switch it On.',
+      },
+      {
+        q: 'Can I turn off the evening and night colours?',
+        a: 'Yes: START → Option → <strong>Day/Night: Off</strong> keeps the daytime colours at any hour. Only the colours change; the clock keeps running, and evolutions and events that depend on the hour work as before.',
+      },
+      {
+        q: 'The N-Solarizer says “Multiple fusions are not allowed!”',
+        a: 'The game keeps one fused Necrozma at a time (and one Calyrex, one Kyurem), so split the one you have first. If nothing of yours is fused, it was a bug: a look at IVs on v1.5, or a new game started over a save that had a fusion, left the game thinking a fusion was stored. v1.8 puts that right when you use the item again; your save needs nothing else.',
+      },
+      {
+        q: 'Soft-resetting keeps giving me the same nature and IVs',
+        a: 'Fixed in v1.8. The game used to start its random numbers from the same point at every power-on, so a reset with the same timing met the same Pokémon. It now starts them from the clock. Loading an emulator save state still brings back the luck it was made with: reset the game instead.',
+      },
+      {
         q: 'A stat-boost message from an X item is not coloured',
         a: 'The hack draws that message inside the Bag window with its own routine, which ignores colour codes. Stat changes from moves and abilities are coloured.',
       },
@@ -124,12 +140,8 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
     title: 'The hack’s own known issues',
     items: [
       {
-        q: 'The game freezes or softlocks with the sound set to Stereo',
-        a: 'Set sound to <strong>Mono</strong> in the in-game Option menu. Reported for several versions of the hack.',
-      },
-      {
         q: 'My Pokémon stopped gaining experience',
-        a: `In every mode except Easy, Pokémon stop gaining experience at the current level cap, which rises with badges and league wins. After the Elite Four, keep progressing the post-game story. See ${link('/guides/mechanics/#level-caps-and-obedience', 'level caps and obedience')}.`,
+        a: `Two things do that. First, START → Option → <strong>Exp. Gain</strong> must be On (before v1.8 that row was labelled Sound, and Stereo was Off). Second, in every mode except Easy, Pokémon stop gaining experience at the current level cap, which rises with badges and league wins. After the Elite Four, keep progressing the post-game story. See ${link('/guides/mechanics/#level-caps-and-obedience', 'level caps and obedience')}.`,
       },
       {
         q: 'The game crashes when I catch certain Pokémon with a Master Ball',
@@ -158,7 +170,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
     items: [
       {
         q: 'I still see a few Chinese lines',
-        a: `About 50 strings are intentionally left in Chinese: link-battle and Trainer Card messages that end in a page-break control (rewriting those can hang the text engine), a few short name-table entries without context, and text baked into images such as the title logo. If you see Chinese <em>dialogue</em> during normal play, report it with a screenshot on the ${ext(ISSUES, 'GitHub issues page')}.`,
+        a: `From v1.8 the only Chinese left is text that is part of a picture: the title logo and a few other drawn screens. Every text the game can reach has been translated as far as our scans can tell. If you meet a Chinese line during play, report it with a screenshot on the ${ext(ISSUES, 'GitHub issues page')}.`,
       },
       {
         q: 'How do I report a bug?',

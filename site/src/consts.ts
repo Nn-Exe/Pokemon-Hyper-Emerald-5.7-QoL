@@ -3,8 +3,8 @@
 export const SITE_NAME = 'Hyper Emerald Guide';
 export const GAME = 'Pokémon Hyper Emerald: Lost Artifacts';
 export const GAME_VERSION = 'v5.7';
-export const PATCH_VERSION = '1.7';
-export const UPDATED = '2026-10-02';
+export const PATCH_VERSION = '1.8';
+export const UPDATED = '2026-10-07';
 export const TAGLINE =
   'The complete player’s guide to Pokémon Hyper Emerald: Lost Artifacts v5.7 and its English + quality-of-life patch.';
 

@@ -50,8 +50,16 @@ export const FEATURES: FeatureSection[] = [
         text: 'Enamorus has its name, the newer berries are numbered No44 onward instead of “No?2”, the Sinnoh League attendant speaks English, and the Option screen says v5.7.',
       },
       {
+        title: 'The last 2,341',
+        text: 'A final pass put the leftover texts and names into English: what bosses say when beaten, 227 of the hack’s trainer names, Trainer Hill, the Easy Chat screen, link and trade menus, and battle lines such as “can’t go higher!”.',
+      },
+      {
+        title: 'English naming keyboard',
+        text: 'Nicknames, your own name and PC box names are typed on three English pages (UPPER, lower, others) in place of the hack’s Chinese ones.',
+      },
+      {
         title: 'What stays Chinese',
-        text: 'About 50 strings, on purpose: link-battle and Trainer Card messages whose control codes can hang the text engine, a few name-table entries with no context, and text baked into images such as the title art.',
+        text: 'Only text that is part of a picture: the title art and a few other drawn screens. If you meet a Chinese line in play, send a screenshot.',
       },
     ],
     media: [{ clip: 'pokedex-english' }, { clip: 'english-trainer-names' }],
@@ -144,6 +152,16 @@ export const FEATURES: FeatureSection[] = [
         how: 'START → Option → Text Speed',
       },
       {
+        title: 'Day/Night switch',
+        text: 'The game tints the screen by the hour: orange in the evening, pink, then blue at night. Off keeps the daytime colours at any hour; the clock and everything timed by it carry on.',
+        how: 'START → Option → Day/Night',
+      },
+      {
+        title: 'Exp. Gain switch',
+        text: 'The hack’s own switch for experience, now named for what it does. It was the row labelled “Sound”, where Stereo quietly stopped all experience. Off is there for level caps and challenge runs.',
+        how: 'START → Option → Exp. Gain',
+      },
+      {
         title: 'In-party move relearner',
         text: 'A Moves option in the party menu opens the Move Relearner for that Pokémon, with the hack’s expanded move lists. No Heart Scale needed.',
         how: 'Party menu → Moves',
@@ -175,6 +193,11 @@ export const FEATURES: FeatureSection[] = [
       {
         title: 'Move effectiveness',
         text: 'The move list shows the highlighted move’s multiplier in front of the PP count: ×4 red, ×2 orange, ×1 green, ×½ and ×¼ yellow, ×0 black. In doubles it follows the target you are choosing.',
+      },
+      {
+        title: 'Move info on L',
+        text: 'Hold L while you choose a move and a panel slides in with its exact Power and Accuracy, Physical / Special / Status, whether it makes contact, its Priority and the chance of its extra effect. It follows the cursor, in doubles too.',
+        how: 'Hold L in the move list',
       },
       {
         title: 'Gold box for shinies',
@@ -313,7 +336,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Evolutions',
-        text: 'Every evolution family with each step’s method, Megas, Gigantamax and regional forms included. Families you have not seen show as shadows.',
+        text: 'Every evolution family with each step’s method, and every form with how you get it: Megas, all 34 Gigantamax forms, regional forms, and the forms an item, a move or an ability brings about. Families you have not seen show as shadows.',
       },
     ],
     media: [
@@ -349,6 +372,14 @@ export const FEATURES: FeatureSection[] = [
       {
         title: 'Hyper Training that shows',
         text: 'The EV-IV Display and the IV judges show 31 for a trained stat, and the stats go up the moment training finishes.',
+      },
+      {
+        title: 'Fusions that were refused',
+        text: '“Multiple fusions are not allowed!” with nothing fused, after a look at IVs on v1.5 or a new game started over a save with a fusion. The fusion items now put it right when used, and a fused Necrozma that could not be split can be again.',
+      },
+      {
+        title: 'A fresh roll after every reset',
+        text: 'Soft-resetting for a legendary kept giving the same few natures and IVs, because the game started its random numbers from the same point at every power-on. It now starts them from the clock.',
       },
       {
         title: 'Repel prompt',

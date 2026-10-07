@@ -1,7 +1,7 @@
 -- Hyper Training end to end: train the lead's six stats the trainer's way, run his success path (0x09812840),
 -- log the stats right after, then open the EV-IV Display (registered to UP here: SELECT popup, UP) and run an IV judge
 -- (0x08FF0040). Screenshots t*_*.png. Run next to game.gba/game.sav.
--- Also: the fusion slots (a whole Pokemon kept at 0x0203D5E0 / 0x0203D644 while Necrozma is fused) must come
+-- Also: the fusion slots (a whole Pokemon kept at 0x0203D5E0 while Necrozma is fused, 0x0203D644 for Calyrex) must come
 -- out of all that unchanged - the old scratch byte 0x0203D600 was the first slot's species.
 NAME = "htfull"
 dofile((DIR or "./") .. "../dexnavchain/test_boot.lua")

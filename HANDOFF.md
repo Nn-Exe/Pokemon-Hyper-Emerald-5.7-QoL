@@ -54,7 +54,8 @@ These are not style preferences; each one is a bug that already happened.
    limits — pc-relative `ldr` reaches 1020 bytes, so long functions need several literal pools.
 5. **Never write to the save.** No feature so far stores anything in SaveBlock1/2. (One deliberate exception:
    `bagslots` moves the Items pocket within the hack's own saved "overflow stream", 0x0203CF64-0x0203DE00, with a
-   one-time migration - NOTES, *Items pocket 100 -> 200 slots*. That stream is saved: never use it as scratch.)
+   one-time migration - NOTES, *Items pocket 100 -> 200 slots*. That stream is saved: never use it as scratch -
+   v1.5's Hyper Training did, one byte, and players could no longer fuse Necrozma: NOTES, *Fusion slots*.)
    Scratch goes in EWRAM
    that has been *measured* to be unused (fill a candidate with a pattern, play through battles, menus, the
    bag, a save and a Pokénav call, then check what survived — `patches/dexnavchain/test_scratch_ram.lua`).
@@ -66,7 +67,7 @@ These are not style preferences; each one is a bug that already happened.
 Applied to the working ROM and verified in mGBA (on a real late-game save, Sinnoh post-game):
 
 - everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-23**;
-- the last published release is **v1.7** (2026-10-01; see CHANGELOG for v1.6 and v1.7); v1.5 (2026-09-23) added, on top of v1.4 (DexNav, Sinnoh map + fly,
+- the last published release is **v1.8** (2026-10-07; see CHANGELOG for v1.6 to v1.8); v1.5 (2026-09-23) added, on top of v1.4 (DexNav, Sinnoh map + fly,
   R button, News Tracker fix):
   * gold healthbox on your own shinies too (`patches/shinybox/`);
   * the **Journal** key item: next story objective from Prof. Birch to Cogita, 84 steps traced in the game's
@@ -83,14 +84,19 @@ Applied to the working ROM and verified in mGBA (on a real late-game save, Sinno
 - the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
   (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
 
-Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots` -> `itemdesc` -> `textfix` -> `hmfree` -> `instanttext` -> `fastsurf` -> `dexnavseen` -> `dexnavscan` -> `dexnavui` -> `keyring` -> `repelfix` -> `nocandynpc`
-(takes `candynpc`'s NPC back out at the end of the chain - NOTES, *Rare Candy NPC removed*).
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots` -> `itemdesc` -> `textfix` -> `hmfree` -> `instanttext` -> `fastsurf` -> `dexnavseen` -> `dexnavscan` -> `dexnavui` -> `keyring` -> `repelfix` -> `nocandynpc` -> `lmoveinfo` -> `daynight` -> `rngseed` -> `expgain` -> `namingkb` -> `fusionfix` -> `zhtext`
+(`nocandynpc` takes `candynpc`'s NPC back out - NOTES, *Rare Candy NPC removed*; `fusionfix` chains on the ClearBag
+trampoline `bagslots` made, so it comes after it - NOTES, *Fusion slots*; `zhtext` is the leftover Chinese and
+must stay last: it checks the Chinese bytes it replaces - NOTES, *Leftover Chinese*; its data files are made by
+`translation/official/`, which needs a pret/pokeemerald checkout and is not needed to build).
 After pulling a change to any patch that is not last, rebuild the whole chain from the v1.4 archive + the shinybox
 edit - see NOTES, *Working ROM rebuilt*. `bagslots` changes the save: see NOTES, *Items pocket 100 -> 200 slots*.
-`questlog_patch.py` needs numpy. Tests: `make_tests.py` (94 cases); `test_journal.lua` on the chain's Journal-only
+`questlog_patch.py` needs numpy and the move and place names in `tools/romdata/out/` (git-ignored: run
+`python tools/romdata/dump_tables.py` once with `HE_ROM` set to a build of the game). Tests: `make_tests.py` (94 cases); `test_journal.lua` on the chain's Journal-only
 stage (after `journal`, before `questlog`) and `test_questlog.lua` on the end, with their check_*.py;
 `test_hypertrain.lua`; `test_bagslots.lua` then `test_bagslots_reload.lua`, `test_bagslots_newgame.lua`,
-`test_bagslots_saves.lua`, `test_bagslots_state.lua` (a pre-1.6 save state).
+`test_bagslots_saves.lua`, `test_bagslots_state.lua` (a pre-1.6 save state); `test_fusionfix.lua` (four scenarios,
+`SCEN=`; with `OLD=1` it expects an unpatched build's answers) and `test_fusionfix_newgame.lua`.
 
 (On a ROM that already has the old shinybox, "both sides" is the 2-byte edit at `0x08FDA136` in NOTES; the
 patcher itself only builds from a clean BattleMainCB2.)
