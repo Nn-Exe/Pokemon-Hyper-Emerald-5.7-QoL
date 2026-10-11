@@ -11,6 +11,8 @@ import {
   speciesBySid,
   TMS,
   machineHref,
+  stoneFor,
+  megaStoneHref,
   STAT_LABELS,
   ability,
   abilityHref,
@@ -50,6 +52,7 @@ const next = species[index + 1];
 const total = bst(s);
 const temporary = !!s.battle;
 const base = baseForm(s);
+const stone = stoneFor(s);
 
 const regular = s.abilities.map((a) => ability(a)!).filter(Boolean);
 const hidden = s.hidden ? ability(s.hidden) : undefined;
@@ -299,11 +302,19 @@ const sections = [
           <p class="dex-note">
             {s.name} is a battle-only form of <a href={url(pokedexHref(base.species))}>{base.species.name}</a>, so it
             has no encounter of its own. {base.text}
-            {s.form === 'Mega' && (
+            {stone && stone.name === base.how ? (
               <span>
                 {' '}
-                See <a href={url('/guides/mega-stones-key-items/')}>Mega Stones & Key Items</a>.
+                The {stone.name} comes from <strong>{stone.sources[0].place}</strong>:{' '}
+                <a href={url(megaStoneHref(stone))}>where exactly</a>.
               </span>
+            ) : (
+              s.form === 'Mega' && (
+                <span>
+                  {' '}
+                  See <a href={url('/guides/mega-stones-key-items/')}>Mega Stones & Key Items</a>.
+                </span>
+              )
             )}
           </p>
         )

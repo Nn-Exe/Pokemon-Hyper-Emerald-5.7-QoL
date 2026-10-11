@@ -78,6 +78,8 @@ python tools/build_site_data.py        # wild.json, trainers.json, static.json, 
 python tools/build_pokedex.py          # pokedex.json, moves.json, abilities.json (run before build_sprites.py)
 python tools/build_sprites.py          # public/sprites/{mon,trainer,item}.png, front/<species>.png, front-<n>.webp
 python tools/build_tm_locations.py     # tms.json: where each TM and HM is found (after build_pokedex.py)
+python tools/build_mega_stones.py      # megastones.json: where each Mega Stone is found
+python tools/build_spot_maps.py        # public/spots/*.webp, spots.json: the tile of each hidden pick-up (after the two above)
 python tools/build_site_content.py     # journal.json (from patches/journal/steps.py), side-content.json
 python tools/build_site_images.py      # favicon, touch icon and the social card
 FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six README montage GIFs
@@ -86,6 +88,11 @@ FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six R
 The names the site prints for alternate forms (Alolan, Hisuian, Mega, Gigantamax…) and for names the ROM cuts
 short are in `tools/romdata/species_display.py` and `display_names.py`; how each form comes about (Mega Stones, Max
 Soup, held items, moves, abilities, Bag items) is read by `tools/romdata/forms.py`, which `build_pokedex.py` uses.
+
+The three location tools read the release's ROM, not a build with work in progress in it. The hack hides every
+Mega Stone and all but one of the TMs it leaves lying about on objects with a blank sprite: `item_sources.py`
+tells those from item balls and gives their tile, `build_spot_maps.py` draws the map around it, and the pages
+show the picture (`<Spot>`; the guide's list is `<MegaStoneList />`).
 
 `build_tm_locations.py` finds the TMs and HMs itself (item balls, gifts, Game Corner prizes, shop lists) but not
 what a gift asks of the player: that is one line a gift in its `NOTES`, written from the script's dialogue, and

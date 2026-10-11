@@ -2972,7 +2972,7 @@ a.type-badge:hover {
 }
 .tm-where li {
   display: grid;
-  grid-template-columns: 5.2rem minmax(0, 1fr);
+  grid-template-columns: 6.3rem minmax(0, 1fr);
   gap: 0.5rem;
   align-items: baseline;
 }
@@ -2986,7 +2986,8 @@ a.type-badge:hover {
   color: var(--muted);
   font-size: 0.88rem;
 }
-.chip.k-ball {
+.chip.k-ball,
+.chip.k-unseen {
   border-color: color-mix(in srgb, var(--success) 45%, var(--border));
   color: var(--success);
 }
@@ -3005,6 +3006,71 @@ a.type-badge:hover {
   border-color: transparent;
   background: var(--surface-2);
   color: var(--muted);
+}
+/* a pick-up nobody can see: the picture of its tile, as a thumbnail or a small button */
+.spot-link {
+  display: inline;
+  margin-left: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  cursor: zoom-in;
+}
+.spot-link:hover {
+  color: var(--accent);
+}
+.spot-thumb {
+  display: block;
+  width: fit-content;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0c1210;
+  line-height: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+/* the width comes from the picture's own size, so the row is as tall before it loads as after */
+.spot-thumb img {
+  max-width: 224px;
+  height: auto;
+}
+.spot-thumb:hover,
+.spot-thumb:focus-visible {
+  border-color: var(--accent);
+}
+.stone-table th,
+.stone-table td {
+  padding-block: 0.6rem;
+  vertical-align: top;
+}
+.stone-table th[scope='row'] {
+  font-weight: 650;
+  white-space: nowrap;
+}
+.stone-table tr {
+  scroll-margin-top: calc(var(--header) + 1rem);
+}
+.stone-table tr:target {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface));
+}
+.stone-spot {
+  width: 240px;
+}
+.stone-table .tm-where {
+  min-width: 13rem;
+}
+.stone-spot .spot-thumb + .spot-thumb {
+  margin-top: 0.4rem;
 }
 .move-table tr:target,
 .ability-card:target {
@@ -3964,7 +4030,22 @@ a.type-badge:hover {
     padding-top: 0.3rem;
   }
   .tm-where li {
-    grid-template-columns: 4.6rem minmax(0, 1fr);
+    grid-template-columns: 6rem minmax(0, 1fr);
+  }
+  .stone-table td::before {
+    content: none;
+  }
+  .stone-table .tm-where,
+  .stone-table .stone-spot {
+    grid-column: 1 / -1;
+    width: auto;
+    min-width: 0;
+  }
+  .stone-table .stone-spot:empty {
+    display: none;
+  }
+  .stone-spot .spot-thumb img {
+    max-width: 100%;
   }
   /* encounter rows: the name, then method, level and rate on one line */
   .enc thead {

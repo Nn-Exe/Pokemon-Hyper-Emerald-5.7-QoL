@@ -20,12 +20,14 @@ import {
   moves,
   abilities,
   machines,
+  megaStones,
   wildSightings,
   dexNo,
   pokedexHref,
   moveHref,
   abilityHref,
   machineHref,
+  megaStoneHref,
 } from '../lib/pokedex';
 import { LEGEND_GROUPS } from '../data/legendaries';
 import { FEATURES } from '../data/features';
@@ -100,6 +102,15 @@ export const GET: APIRoute = async () => {
       s: clipText([...new Set(t.sources.map((x) => x.place))].join(', ')),
       u: machineHref(t.label).slice(1),
       k: `${t.label.slice(0, 2)} ${Number(t.label.slice(2))} ${t.move.type}`,
+    });
+
+  for (const st of megaStones)
+    entries.push({
+      t: 'Mega Stone',
+      n: st.name,
+      s: clipText([...new Set(st.sources.map((x) => x.place))].join(', ')),
+      u: megaStoneHref(st).slice(1),
+      k: 'mega stone location where',
     });
 
   for (const a of abilities) entries.push({ t: 'Ability', n: a.name, s: a.desc, u: abilityHref(a).slice(1) });

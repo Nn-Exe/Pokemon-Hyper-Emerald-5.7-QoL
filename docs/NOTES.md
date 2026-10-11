@@ -2737,3 +2737,45 @@ not allowed".
 - GitHub: `gh` is not on this PC. The release was made through the REST API with the token Git Credential Manager
   holds for github.com, after checking with GET /user that it is the project's account.
 - Installed 2026-10-07 (sha1 ade383ba...), backup "(before v1.8 title 2026-10-07)".
+
+## MEGA STONES READ FROM THE ROM, AND THE PICK-UPS NOBODY CAN SEE — 2026-10-11 — `tools/build_mega_stones.py`
+- Reported: the guide's row "Venusaurite, Blastoisinite, Charizardite Y - Route 115" is wrong, "recheck all mega". The
+  guide's Mega Stones table was typed in from community lists (the Chinese v5.0-era ones and the v5.6 Scribd guide).
+  It is now `site/src/data/megastones.json`, read from the v1.8 release ROM (sha1 ade383ba...), and the guide prints
+  it with `<MegaStoneList />`.
+- The stones are the items the evolution table asks for (0x08F387C0; method 251 a Mega Evolution by held item, 253 a
+  Primal Reversion): 48 Mega Stones, the Blue and Red Orb and Rayquaza's Final Meteor (item 648; Rayquaza also has
+  a 252 row, "knows Dragon Ascent"). The Wishing Piece (702) is left out, as in forms.py.
+- What was wrong: Venusaurite is on Route 119 (0/34 at 13,82), Blastoisinite on the S.S. Tidal's lower deck (25/42),
+  Charizardite Y in the Scorched Slab (24/73), Charizardite X at Mt. Silver (34/56); Gengarite is in Scott's house
+  (26/46), Mt. Pyre has the Medichamite (6F) and the Banettite (summit); Pinsirite is on Route 124. Right all along:
+  Pidgeotite, Scizorite, Salamencite, Aerodactylite, Metagrossite, the Route 114 three, Galladite, Gardevoirite
+  (Wanda's house), Houndoominite, Manectite, Tyranitarite, Cameruptite, Gyaradosite, Abomasite, Garchompite,
+  Beedrillite, Slowbronite. The seven "not documented" and nineteen never listed are all found.
+- **Nothing shows on the map.** 46 stones and the two orbs are finditem scripts on objects with graphics 78, whose
+  first frame is blank (the table at 0x08505620; +0x1C the frame list; the same in the original hack). Ordinary item
+  balls use graphics 59: 256 objects against 130 on 78. So "item ball" was the wrong word, on the TMs page too: 71
+  of its 72 are on graphics 78, only TM120 at the Meteor Temple is a ball. `item_sources.py` calls these `unseen`
+  and gives the tile ("group-num-x-y"); `tools/build_spot_maps.py` draws 21 x 15 metatiles around it with
+  `tools/render_world.py` and frames the tile: 120 pictures (49 for stones, 71 for TMs), 0.56 MB of lossless WebP in
+  `site/public/spots/`. The Itemfinder works on hidden-item bg events (kind 7); none of those is a stone or a TM.
+- Five are given: Flygonite (Ice Maze 35/53: the "sealed Flygon" is itself an unseen object; a Lv 70 Flygon
+  holding a Smooth Rock, then giveitem), Metagrossite (Steven, Meteor Falls 24/107, after trainer 804), Blue Orb
+  (Archie, trainer 876, Marine Cave 24/103), Red Orb (Maxie, trainer 882, Terra Cave 24/105), Final Meteor (Zinnia,
+  Sky Pillar top). Each orb also has an unseen pick-up in the same room (the Blue Orb's has no hide flag).
+- Not true, and taken off the site: "Groudon / Kyogre holds the Red / Blue Orb" (both setwildbattle rows pass item
+  0, neither has a held item in its base stats); "Professor Elm rewards you for showing him Venusaurite,
+  Blastoisinite and both Charizardites" - the script exists at 0x09836AA2 (checkitem 305, 307, 304, 306) but no
+  pointer to it is anywhere in the ROM, original hack included: Elm's object on Steven's Island (35/41) runs
+  0x09836CA6, "I'm a little busy". Its rewards were items 695-697, of which 695 and 696 are now the News Tracker and
+  the Travel Suit; 697 is still a "Feraligatrite" with the Mega Stone hold effect and no evolution row.
+- Other scripts no map runs: a second Gengarite ball (0x0980D9E8), a Lopunnite one (0x08222926), a Charizardite Y
+  and a Metagrossite one beside the live balls near 0x08FE3B9D, older copies of the Flygonite and orb scenes.
+- The scan moved out of `build_tm_locations.py` into `tools/romdata/item_sources.py`, shared by both tools; tms.json
+  came out the same but for the kind (71 x ball -> unseen, with the tile) and one place name.
+- Place names: the hack has a second Route 106 map (34/68), west of Dewford Town, with a cave named Granite Cave
+  (34/69) whose left and right doors lead to the Sablenite (34/73) and the Mawilite (34/71); TM75 is on 34/68.
+- Site: `<Spot>` shows a picture as a thumbnail or behind "Show the spot", opening in the image viewer (which takes
+  the size from `data-w`/`data-h` when there is no thumbnail); a Mega form's Pokédex page says where its stone is;
+  search has an entry a stone. 21 browser checks; the TM, Pokédex and general suites still pass.
+- Not rechecked: the Z-Crystal and Plate rows of the same guide are still from community lists.

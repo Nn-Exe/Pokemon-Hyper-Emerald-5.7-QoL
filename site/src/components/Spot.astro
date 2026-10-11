@@ -1,0 +1,37 @@
+---
+// The picture of a pick-up nobody can see: the map around its tile, the tile framed (tools/build_spot_maps.py).
+// Opens in the image viewer, as a thumbnail or (text) as a small button.
+import spots from '../data/spots.json';
+import { url } from '../lib/url';
+import { publicHash } from '../lib/media';
+
+interface Props {
+  /** "group-num-x-y", from a source in tms.json or megastones.json */
+  spot: string;
+  /** what the picture shows: "Venusaurite, Route 119" */
+  title: string;
+  /** a text button instead of the thumbnail */
+  text?: boolean;
+}
+const { spot, title, text = false } = Astro.props;
+const size = (spots as Record<string, number[]>)[spot];
+if (!size) throw new Error(`Spot: no picture for "${spot}" (run tools/build_spot_maps.py)`);
+const [width, height] = size;
+const file = `spots/${spot}.webp`;
+const src = `${url('/' + file)}?v=${publicHash(file)}`;
+const alt = `The map at ${title.split(', ').slice(1).join(', ') || title}, with the tile to face framed in red`;
+---
+
+<button
+  class={text ? 'spot-link' : 'spot-thumb'}
+  type="button"
+  data-lightbox
+  data-src={src}
+  data-alt={alt}
+  data-title={title}
+  data-w={width}
+  data-h={height}
+  aria-label={`Show the spot: ${title}`}
+>
+  {text ? 'Show the spot' : <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />}
+</button>

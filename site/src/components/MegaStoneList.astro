@@ -1,0 +1,75 @@
+---
+// The Mega Stones list (src/data/megastones.json, read from the game's scripts by tools/build_mega_stones.py):
+// each stone, the form it brings about, where it is and, for one nobody can see, a picture of its tile.
+import stones from '../data/megastones.json';
+import Mon from './Mon.astro';
+import Spot from './Spot.astro';
+import { spritePos } from '../lib/data';
+import { megaStones, speciesBySid, type MegaStone } from '../lib/pokedex';
+import { slugify } from '../lib/url';
+
+const KIND: Record<MegaStone['sources'][number]['kind'], string> = {
+  gift: 'Gift',
+  ball: 'Item ball',
+  unseen: 'Hidden spot',
+  hidden: 'Hidden item',
+  wild: 'Held',
+};
+const list = stones as { item: number; name: string; primal: boolean; mons: { sid: number; to: number }[]; sources: Source[] }[];
+const form = (m: { sid: number; to: number }) => {
+  const s = speciesBySid(m.to) ?? speciesBySid(m.sid);
+  if (!s) throw new Error(`MegaStoneList: species ${m.to} is not in the Pokédex`);
+  return s;
+};
+---
+
+<div class="table-shell" tabindex="0" role="region" aria-label="Mega Stones">
+  <table class="stack-table stone-table">
+    <thead>
+      <tr>
+        <th scope="col">Stone</th>
+        <th scope="col">For</th>
+        <th scope="col">Where to get it</th>
+        <th scope="col">The spot</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        megaStones.map((s) => (
+          <tr id={slugify(s.name)}>
+            <th scope="row">
+              <span class="item-ref">
+                <span class="spr spr-item" style={spritePos('item', s.item)} aria-hidden="true" />
+                <span>{s.name}</span>
+              </span>
+            </th>
+            <td data-label="For">
+              {s.mons.map((m) => (
+                <Mon sid={form(m).sid} label={form(m).name} />
+              ))}
+            </td>
+            <td class="tm-where">
+              <ul>
+                {s.sources.map((x) => (
+                  <li>
+                    <span class={`chip k-${x.kind}`}>{KIND[x.kind]}</span>
+                    <span>
+                      <strong>{x.place}</strong>{x.how && <small>: {x.how}</small>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </td>
+            <td class="stone-spot">
+              {s.sources
+                .filter((x) => x.spot)
+                .map((x) => (
+                  <Spot spot={x.spot!} title={`${s.name}, ${x.place}`} />
+                ))}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

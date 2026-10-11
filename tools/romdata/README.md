@@ -15,6 +15,8 @@ python tools/build_site_data.py tools/romdata/out      # -> site/src/data/{wild,
 python tools/build_pokedex.py                          # -> site/src/data/{pokedex,moves,abilities}.json
 python tools/build_sprites.py                          # -> site/public/sprites/{mon,trainer,item}.png and front/ (needs Pillow)
 python tools/build_tm_locations.py                     # -> site/src/data/tms.json (where each TM and HM is found)
+python tools/build_mega_stones.py                      # -> site/src/data/megastones.json (where each Mega Stone is found)
+python tools/build_spot_maps.py                        # -> site/public/spots/ (the tile of each hidden pick-up; numpy, Pillow)
 python tools/build_site_content.py                     # -> site/src/data/{journal,side-content}.json
 cd site && npm run build                               # -> docs/ (the published site)
 ```
@@ -23,6 +25,9 @@ cd site && npm run build                               # -> docs/ (the published
 items, fusions) and where the game keeps each; the Pokédex tool and the Quest Log's Evolutions pages both read it.
 `obtainable.py` audits the result: is there a way to every Pokémon and form the lists show, and does each way's
 item or move have a source. Run it after a new ROM; it exits 1 if something on the lists cannot be had.
+`item_sources.py` is the scan behind the two location tools: for a set of items, every item ball, pick-up on
+an unseen object (with its tile), gift, prize, shop list and hidden item a map's scripts can reach, with the
+place named.
 `map_names.json` is pret's list of the maps vanilla Emerald has, by group and number: the script index and
 `maps.json` know a map only by its section ("Mauville City" for the city and every building in it), and
 `build_tm_locations.py` uses the list to say which building.

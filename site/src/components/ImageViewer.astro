@@ -34,8 +34,9 @@
       image.src = t.dataset.src!;
       image.alt = t.dataset.alt || '';
       // screenshots are 240x160 or 480x320: scale them up in half steps so the pixels stay even
-      const w = Number(thumb?.getAttribute('width')) || 480;
-      const h = Number(thumb?.getAttribute('height')) || 320;
+      // a trigger without a thumbnail (the TMs page's "Show the spot") says its picture's size itself
+      const w = Number(thumb?.getAttribute('width') ?? t.dataset.w) || 480;
+      const h = Number(thumb?.getAttribute('height') ?? t.dataset.h) || 320;
       const room = Math.min(1040, window.innerWidth * 0.9);
       const fit = Math.min(room / w, (window.innerHeight * 0.94 - 210) / h);
       const scale = fit >= 1 ? Math.floor(fit * 2) / 2 : fit;

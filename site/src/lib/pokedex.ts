@@ -4,6 +4,7 @@ import raw from '../data/pokedex.json';
 import movesRaw from '../data/moves.json';
 import abilitiesRaw from '../data/abilities.json';
 import machinesRaw from '../data/tms.json';
+import megaStonesRaw from '../data/megastones.json';
 import sprites from '../data/sprites.json';
 import { slugify, url } from './url';
 import { wildEntry, staticEncounters, speciesId, allTrainers, type Sighting } from './data';
@@ -134,9 +135,11 @@ export const moveHref = (m: Move) => `/wiki/moves/#${m.slug}`;
 
 // ---- where each TM and HM is found (tools/build_tm_locations.py) ----
 export type MachineSource = {
-  kind: 'gym' | 'gift' | 'trade' | 'ball' | 'hidden' | 'prize' | 'shop';
+  /** unseen: a pick-up on an object nobody can see; `spot` names the picture of its tile */
+  kind: 'gym' | 'gift' | 'trade' | 'ball' | 'unseen' | 'hidden' | 'prize' | 'shop';
   place: string;
   how?: string;
+  spot?: string;
   price?: number;
   coins?: number;
 };
@@ -146,6 +149,19 @@ export const machines: Machine[] = (machinesRaw as { label: string; item: number
   .map((t) => ({ ...t, move: moveById.get(machineMove.get(t.label)!)! }))
   .filter((t) => t.move);
 export const machineHref = (label: string) => `/wiki/tms/#${label.toLowerCase()}`;
+
+// ---- where each Mega Stone is found (tools/build_mega_stones.py) ----
+export type MegaStone = {
+  item: number;
+  name: string;
+  primal: boolean;
+  mons: { sid: number; to: number }[];
+  sources: { kind: 'gift' | 'ball' | 'unseen' | 'hidden' | 'wild'; place: string; how?: string; spot?: string }[];
+};
+export const megaStones = megaStonesRaw as MegaStone[];
+/** The stone or orb that brings a form about, if the form is a Mega Evolution or Primal Reversion by held item. */
+export const stoneFor = (s: Species) => megaStones.find((st) => st.mons.some((m) => bySid.get(m.to)?.sid === s.sid));
+export const megaStoneHref = (st: MegaStone) => `/guides/mega-stones-key-items/#${slugify(st.name)}`;
 export const abilityHref = (a: Ability) => `/wiki/abilities/#${a.slug}`;
 
 /** Who has each ability: [regular holders, hidden-ability holders]. */
