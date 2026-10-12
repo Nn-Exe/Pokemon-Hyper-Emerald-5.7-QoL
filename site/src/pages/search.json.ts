@@ -33,6 +33,7 @@ import { LEGEND_GROUPS } from '../data/legendaries';
 import { FEATURES } from '../data/features';
 import { FAQ_GROUPS } from '../data/faq';
 import journal from '../data/journal.json';
+import guideItems from '../data/guide-items.json';
 
 type Entry = { t: string; n: string; s: string; u: string; i?: number; k?: string };
 
@@ -112,6 +113,24 @@ export const GET: APIRoute = async () => {
       u: megaStoneHref(st).slice(1),
       k: 'mega stone location where',
     });
+
+  for (const t of guideItems.totems)
+    entries.push({
+      t: 'Z-Crystal',
+      n: t.name,
+      s: clipText(`Totem · ${[...new Set(t.entrances.map((e) => e.place))].join(', ')}`),
+      u: `guides/mega-stones-key-items/#${slugify(t.name)}`,
+      k: 'z crystal totem location where',
+    });
+  for (const [type, list] of [['Z-Crystal', guideItems.crystals], ['Plate', guideItems.plates]] as const)
+    for (const r of list)
+      entries.push({
+        t: type,
+        n: r.name,
+        s: clipText([...new Set(r.sources.map((x) => x.place))].join(', ')),
+        u: `guides/mega-stones-key-items/#${slugify(r.name)}`,
+        k: 'location where',
+      });
 
   for (const a of abilities) entries.push({ t: 'Ability', n: a.name, s: a.desc, u: abilityHref(a).slice(1) });
 

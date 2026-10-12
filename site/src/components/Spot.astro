@@ -1,5 +1,5 @@
 ---
-// The picture of a pick-up nobody can see: the map around its tile, the tile framed (tools/build_spot_maps.py).
+// The picture of where something lies: the map around its tile, the tile framed (tools/build_spot_maps.py).
 // Opens in the image viewer, as a thumbnail or (text) as a small button.
 import spots from '../data/spots.json';
 import { url } from '../lib/url';
@@ -19,7 +19,7 @@ if (!size) throw new Error(`Spot: no picture for "${spot}" (run tools/build_spot
 const [width, height] = size;
 const file = `spots/${spot}.webp`;
 const src = `${url('/' + file)}?v=${publicHash(file)}`;
-const alt = `The map at ${title.split(', ').slice(1).join(', ') || title}, with the tile to face framed in red`;
+const alt = `The map at ${title.split(', ').slice(1).join(', ') || title}, with its tile framed in red`;
 ---
 
 <button

@@ -11,7 +11,7 @@ import { SITE_NAME } from '../../consts';
 const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'TMs & HMs' }];
 const tmCount = machines.filter((t) => t.label.startsWith('TM')).length;
 const hmCount = machines.length - tmCount;
-const description = `Where to find all ${tmCount} TMs and ${hmCount} HMs in Hyper Emerald v5.7: every hidden spot (with a picture of the tile), gift, Gym Leader prize, Game Corner prize and shop, read from the game’s own scripts.`;
+const description = `Where to find all ${tmCount} TMs and ${hmCount} HMs in Hyper Emerald v5.7: every TM lying on the ground (with a picture of where), gift, Gym Leader prize, Game Corner prize and shop, read from the game’s own scripts.`;
 
 type Kind = MachineSource['kind'];
 const KIND: Record<Kind, string> = {
@@ -29,9 +29,9 @@ const GROUP: Record<Kind, string> = {
   gym: 'given',
   gift: 'given',
   trade: 'given',
-  ball: 'ball',
-  unseen: 'spot',
-  hidden: 'spot',
+  ball: 'ground',
+  unseen: 'ground',
+  hidden: 'ground',
   prize: 'prize',
   shop: 'shop',
 };
@@ -64,7 +64,7 @@ const soldText = sold.every((t, i) => t === machines[i])
     <ul class="dex-totals">
       <li><strong>{tmCount}</strong> TMs</li>
       <li><strong>{hmCount}</strong> HMs</li>
-      <li><strong>{withGroup('spot')}</strong> at a hidden spot</li>
+      <li><strong>{withGroup('ground')}</strong> lying on the ground</li>
       <li><strong>{withGroup('given')}</strong> given by someone</li>
       <li><strong>{sold.length}</strong> sold in a shop</li>
     </ul>
@@ -85,8 +85,7 @@ const soldText = sold.every((t, i) => t === machines[i])
         <span>Source</span>
         <select data-from>
           <option value="">Any source</option>
-          <option value="spot">At a hidden spot</option>
-          <option value="ball">In an item ball</option>
+          <option value="ground">Lying on the ground</option>
           <option value="given">Given by someone</option>
           <option value="prize">Game Corner prize</option>
           <option value="shop">Sold in a shop</option>
@@ -160,9 +159,9 @@ const soldText = sold.every((t, i) => t === machines[i])
 
     <p class="src">
       Read from the scripts of v5.7 bugfix 2: every map’s people, item balls, hidden items and shops were walked for
-      what hands over a TM or HM. A <strong>hidden spot</strong> is a pick-up with nothing to see: the game puts it
-      on an invisible object, so stand next to the framed tile, face it and press A (the Itemfinder does not react
-      to these). A machine is not used up, so one copy teaches as many Pokémon as you like. Champion
+      what hands over a TM or HM. A TM on the ground is a ball of its own colours, not the usual Poké Ball:
+      “Show the spot” opens a picture of the map around it. Characters and item balls that the game keeps where
+      nobody can walk are left out. A machine is not used up, so one copy teaches as many Pokémon as you like. Champion
       Island’s shop is reached from Route 105 and opens once you have beaten Champion Cynthia at the Sinnoh League;
       it sells {soldText}, and the other {machines.length - sold.length} machines are never sold anywhere.
     </p>

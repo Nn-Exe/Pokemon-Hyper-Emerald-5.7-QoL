@@ -4,9 +4,9 @@ usage: HE_ROM=<patched rom> python tools/build_tm_locations.py
 writes site/src/data/tms.json; run tools/build_pokedex.py first (it writes the TM list this reads), and
 tools/romdata/dump_maps.py if the ROM changed (tools/romdata/out/maps.json).
 
-tools/romdata/item_sources.py finds what hands a machine over (item balls, pick-ups on an unseen object, gifts,
-the Game Corner's prizes, shop lists; no hidden item is a TM in v5.7) and names the place; a pick-up nobody can
-see comes with its tile, which tools/build_spot_maps.py draws. How each gift is earned is in NOTES here, written from
+tools/romdata/item_sources.py finds what hands a machine over (the balls lying about, gifts, the Game Corner's
+prizes, shop lists; no hidden item is a TM in v5.7) and names the place; a ball comes with its tile, which
+tools/build_spot_maps.py draws. How each gift is earned is in NOTES here, written from
 the script's dialogue: the build stops on a gift without a note, so a new ROM cannot slip one in unexplained.
 """
 import json
@@ -59,16 +59,13 @@ NOTES = {
     ("TM80", 0, 2): ("gift", "Wattson, once you have shut down the generator in New Mauville for him."),
     ("TM82", 10, 0): ("gym", "Wattson’s prize for beating him."),
     ("TM96", 0, 6): ("gift", "A boy near Steven’s house: say you want it."),
-    ("TM103", 0, 8): ("gift", "Lucas, the Trainer from Sinnoh: beat him in his second practice battle."),
     ("TM103", 37, 91): ("gym", "Crasher Wake’s prize for beating him."),
     ("TM104", 37, 83): ("gym", "Gardenia’s prize for beating her."),
     ("TM105", 37, 92): ("gym", "Volkner’s prize for beating him."),
     ("TM106", 37, 93): ("gym", "Maylene’s prize for beating her."),
     ("TM109", 37, 82): ("gym", "Roark’s prize for beating him."),
     ("TM111", 37, 90): ("gym", "Candice’s prize for beating her."),
-    ("TM113", 11, 15): ("gift", "Serena, who dances here: win her performance battle."),
     ("TM114", 37, 84): ("gym", "Fantina’s prize for beating her."),
-    ("TM119", 0, 8): ("gift", "X, the Kalos Champion: beat him a second time."),
     ("TM119", 37, 89): ("gym", "Byron’s prize for beating him."),
     ("HM01", 11, 11): ("gift", "The Cutter, who can tell a skilled Trainer at a glance."),
     ("HM02", 0, 34): ("gift", "May or Brendan, after your battle on Route 119."),
@@ -111,7 +108,7 @@ for (label, g, n, kind), s in found.items():
             continue
         used.add((label, g, n))
         del s["text"]
-        s.pop("spot", None)          # a Gym's prize script sits on an unseen object: the Leader is who to find
+        s.pop("spot", None)          # the note says who to find; the pictures are for what lies on the ground
         s["kind"], s["how"] = note
     elif kind == "shop":
         if (g, n) not in SHOPS:

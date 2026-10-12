@@ -1,0 +1,70 @@
+---
+// Items and where each comes from, out of src/data/guide-items.json (read from the game's scripts by
+// tools/build_guide_items.py): <ItemPlaceList list="plates" /> or <ItemPlaceList list="crystals" />.
+import data from '../data/guide-items.json';
+import Spot from './Spot.astro';
+import { spritePos } from '../lib/data';
+import { slugify } from '../lib/url';
+
+interface Props {
+  list: 'plates' | 'crystals';
+  /** the table's name for screen readers */
+  label: string;
+}
+const { list, label } = Astro.props;
+type Source = { kind: string; place: string; how?: string; spot?: string };
+const rows = data[list] as { item: number; name: string; sources: Source[] }[];
+const KIND: Record<string, string> = {
+  gift: 'Gift',
+  trade: 'Trade',
+  ball: 'Item ball',
+  unseen: 'Hidden spot',
+  hidden: 'Hidden item',
+  wild: 'Held',
+};
+---
+
+<div class="table-shell" tabindex="0" role="region" aria-label={label}>
+  <table class="stack-table stone-table">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col">Where to get it</th>
+        <th scope="col">The spot</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((r) => (
+          <tr id={slugify(r.name)}>
+            <th scope="row">
+              <span class="item-ref">
+                <span class="spr spr-item" style={spritePos('item', r.item)} aria-hidden="true" />
+                <span>{r.name}</span>
+              </span>
+            </th>
+            <td class="tm-where">
+              <ul>
+                {r.sources.map((x) => (
+                  <li>
+                    <span class={`chip k-${x.kind}`}>{KIND[x.kind]}</span>
+                    <span>
+                      <strong>{x.place}</strong>{x.how && <small>: {x.how}</small>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </td>
+            <td class="stone-spot">
+              {r.sources
+                .filter((x) => x.spot)
+                .map((x) => (
+                  <Spot spot={x.spot!} title={`${r.name}, ${x.place}`} />
+                ))}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

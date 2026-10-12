@@ -45,10 +45,10 @@ and says where it comes from.
 
 ## Mega Stones
 
-Read from the game's own scripts (v5.7 bugfix 2). **Nothing marks a Mega Stone on the map.** The game puts each
-one on an object you cannot see, so walk up to the tile framed in the picture, face it and press <Key>A</Key>;
-the Itemfinder does not react to them. Click a picture to enlarge it. The two orbs behind Primal Reversion and
-Rayquaza's Final Meteor are in the list too.
+Read from the game's own scripts (v5.7 bugfix 2). A Mega Stone lies on the ground as a small round stone of
+many colours, not as a Poké Ball: each picture shows the map around one, with its tile framed. Click a
+picture to enlarge it. Five are handed over instead, and the list says by whom. The two orbs behind Primal
+Reversion and Rayquaza's Final Meteor are in the list too.
 
 <MegaStoneList />
 
@@ -57,54 +57,31 @@ v5.7: the script for it is still in the game, but nothing runs it, and he only s
 
 ## Z-Crystals
 
-All eighteen type Z-Crystals are held by **Totem Pokémon** at level 80, each in a hidden base-style spot in Hoenn.
-The species and crystals are read from the ROM; the route hints are from community guides. If you beat a Totem
-without getting its crystal, Selene on Steven's Island can re-awaken it. Collecting all 18 is required to reach
-Team Rainbow Rocket's castle and Necrozma.
+Read from the game's scripts. Each of the eighteen type Z-Crystals belongs to a **Totem Pokémon**, Lv 80, that
+waits in a Secret Base room. A room has three or four ways in: the Secret Base spots pictured for it below (a
+big tree, a shrub or an indent in a rock wall). Use Secret Power on any one of them and go in.
 
-| Z-Crystal | Totem (Lv 80) | Where |
-| --- | --- | --- |
-| <Item name="Normalium Z" /> | <Mon name="Gumshoos" /> | Route 113 |
-| <Item name="Firium Z" /> | <Mon name="Alolan Marowak" /> | Route 114, near the Meteor Falls entrance |
-| <Item name="Waterium Z" /> | <Mon name="Wishiwashi (School)" label="Wishiwashi" /> | Route 111, big tree on the left |
-| <Item name="Electrium Z" /> | <Mon name="Vikavolt" /> | Route 119 |
-| <Item name="Grassium Z" /> | <Mon name="Lurantis" /> | Route 120 |
-| <Item name="Icium Z" /> | <Mon name="Alolan Ninetales" /> | Route 111 desert, top |
-| <Item name="Fightinium Z" /> | <Mon name="Bewear" /> | Route 115, surf north |
-| <Item name="Poisonium Z" /> | <Mon name="Salazzle" /> | Route 119 |
-| <Item name="Groundium Z" /> | <Mon name="Mudsdale" /> | Route 115 / 119 |
-| <Item name="Flyinium Z" /> | <Mon name="Toucannon" /> | Route 114 |
-| <Item name="Psychium Z" /> | <Mon name="Oranguru" /> | Route 120 |
-| <Item name="Buginium Z" /> | <Mon name="Golisopod" /> | Route 111 desert, right |
-| <Item name="Rockium Z" /> | <Mon name="Lycanroc" /> | Route 114, big tree on the left |
-| <Item name="Ghostium Z" /> | <Mon name="Palossand" /> | Route 119 |
-| <Item name="Dragonium Z" /> | <Mon name="Kommo-o" /> | Route 111 desert slope |
-| <Item name="Darkinium Z" /> | <Mon name="Alolan Raticate" /> | Route 114 |
-| <Item name="Steelium Z" /> | <Mon name="Alolan Sandslash" /> | Route 119 |
-| <Item name="Fairium Z" /> | <Mon name="Mimikyu (Busted)" label="Mimikyu" /> | Route 110, surf south of Mauville, big tree on the right |
+- The Totems appear once you have reported back to Anabel on Steven's Island from your first journey through
+  an Ultra Wormhole. Gladion is then back at the big tree on Route 111: the first Totem, Wishiwashi, is inside
+  it, and the other seventeen do not show until it is beaten.
+- The room asks "Want to battle the Totem?". The game refuses ("Can't use some moves!") while a Pokémon in
+  your party knows Destiny Bond, Perish Song, Pain Split or Leech Seed.
+- Win, and the crystal is handed to you; the Totem does not come back. If you won and the crystal is not in
+  your Bag, Selene on Steven's Island wakes that Totem again.
 
-Extras: <Item name="Pikashunium Z" /> can be split into Pikashunium Z and <Item name="Eevium Z" /> by a machine on
-World Championship Island; Ash-Greninja's Z comes from beating Ash at the Battle Frontier; the
-<Item name="Tapunium Z" /> comes from Nanu after the four Tapu trials; the developer's note after Rainbow Rocket
-releases "a few unassigned exclusive Z-items".
+<TotemList />
 
-## The 17 Plates
+### The other Z-Crystals
 
-Needed for Dialga, Palkia and Arceus. Waji's riddles and the resolved locations are on the
-[Lost Artifacts page](/guides/lost-artifacts/#2-the-17-plates). In short:
+<ItemPlaceList list="crystals" label="The other Z-Crystals" />
 
-- **Hoenn:** <Item name="Fist Plate" label="Fist" /> (Sealed Chamber), <Item name="Sky Plate" label="Sky" /> (the
-  Wingull house on Route 119), <Item name="Earth Plate" label="Earth" /> (Granite Cave 1F),
-  <Item name="Iron Plate" label="Iron" /> and <Item name="Dread Plate" label="Dread" /> (Mauville Rocket base),
-  <Item name="Flame Plate" label="Flame" /> (Mt. Chimney), <Item name="Splash Plate" label="Splash" /> (underwater
-  on Route 126), <Item name="Meadow Plate" label="Meadow" /> (Route 120), <Item name="Zap Plate" label="Zap" />
-  (New Mauville), <Item name="Draco Plate" label="Draco" /> (the Meteor Temple).
-- **Sinnoh:** <Item name="Toxic Plate" label="Toxic" /> (the marsh on Route 212),
-  <Item name="Stone Plate" label="Stone" /> (Oreburgh Mine), <Item name="Insect Plate" label="Insect" /> and
-  <Item name="Mind Plate" label="Mind" /> (Solaceon Ruins), <Item name="Spooky Plate" label="Spooky" /> (Lost
-  Tower), <Item name="Icicle Plate" label="Icicle" /> (Route 217 hut), <Item name="Pixie Plate" label="Pixie" />
-  (Mt. Coronet).
-- The <Item name="Blank Plate" /> comes from Volo.
+## The Plates
+
+Read from the game's scripts: fifteen lie in item balls (one ball holds two), a man gives you the Icicle Plate,
+and the Blank and Legend Plates come at the very end of the Hisui story. Waji's riddle for each one and the
+rest of the questline are on the [Lost Artifacts page](/guides/lost-artifacts/#2-the-17-plates).
+
+<ItemPlaceList list="plates" label="The Plates" />
 
 ## Shops and tutors worth knowing
 

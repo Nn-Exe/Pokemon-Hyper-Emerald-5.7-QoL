@@ -1,0 +1,61 @@
+---
+// The eighteen type Z-Crystals (src/data/guide-items.json, read from the game's scripts by
+// tools/build_guide_items.py): the crystal, the Totem that holds it and every Secret Base spot that leads to it.
+import data from '../data/guide-items.json';
+import Mon from './Mon.astro';
+import Spot from './Spot.astro';
+import { spritePos } from '../lib/data';
+import { speciesBySid } from '../lib/pokedex';
+import { slugify } from '../lib/url';
+
+const totem = (sid: number) => {
+  const s = speciesBySid(sid);
+  if (!s) throw new Error(`TotemList: species ${sid} is not in the Pokédex`);
+  return s;
+};
+---
+
+<div class="table-shell" tabindex="0" role="region" aria-label="Z-Crystals and their Totems">
+  <table class="stack-table stone-table totem-table">
+    <thead>
+      <tr>
+        <th scope="col">Z-Crystal</th>
+        <th scope="col">Totem</th>
+        <th scope="col">Ways in: use Secret Power on any one</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        data.totems.map((t) => (
+          <tr id={slugify(t.name)}>
+            <th scope="row">
+              <span class="item-ref">
+                <span class="spr spr-item" style={spritePos('item', t.item)} aria-hidden="true" />
+                <span>{t.name}</span>
+              </span>
+            </th>
+            <td data-label="Totem">
+              <Mon sid={totem(t.sid).sid} label={totem(t.sid).name} />
+              <small class="totem-level">Lv {t.level}</small>
+            </td>
+            <td class="totem-ways">
+              <ul>
+                {t.entrances.map((e) => (
+                  <li>
+                    <Spot spot={e.spot} title={`${t.name}, ${e.place}`} />
+                    <span>{e.place}</span>
+                  </li>
+                ))}
+              </ul>
+              {t.also.map((s) => (
+                <p class="totem-also">
+                  <strong>{s.place}</strong>: {s.how}
+                </p>
+              ))}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

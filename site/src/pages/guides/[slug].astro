@@ -14,6 +14,8 @@ import Tag from '../../components/Tag.astro';
 import Team from '../../components/Team.astro';
 import LegendaryList from '../../components/LegendaryList.astro';
 import MegaStoneList from '../../components/MegaStoneList.astro';
+import TotemList from '../../components/TotemList.astro';
+import ItemPlaceList from '../../components/ItemPlaceList.astro';
 import JournalList from '../../components/JournalList.astro';
 import SideContent from '../../components/SideContent.astro';
 import { allGuides, guideHref, guidePoster, type Guide } from '../../lib/guides';
@@ -137,6 +139,8 @@ const crumbs = [{ name: 'Guides', href: '/guides/' }, { name: d.title }];
               Team,
               LegendaryList,
               MegaStoneList,
+              TotemList,
+              ItemPlaceList,
               JournalList,
               SideContent,
             }}

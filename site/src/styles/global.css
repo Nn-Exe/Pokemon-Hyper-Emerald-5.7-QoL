@@ -3072,6 +3072,35 @@ a.type-badge:hover {
 .stone-spot .spot-thumb + .spot-thumb {
   margin-top: 0.4rem;
 }
+/* a Totem's row: every Secret Base spot that leads to it, pictured */
+.totem-level {
+  display: block;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+.totem-ways ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.totem-ways li {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+.totem-ways .spot-thumb img {
+  max-width: 168px;
+}
+.totem-also {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
 .move-table tr:target,
 .ability-card:target {
   outline: 2px solid var(--accent);
@@ -4036,6 +4065,7 @@ a.type-badge:hover {
     content: none;
   }
   .stone-table .tm-where,
+  .stone-table .totem-ways,
   .stone-table .stone-spot {
     grid-column: 1 / -1;
     width: auto;

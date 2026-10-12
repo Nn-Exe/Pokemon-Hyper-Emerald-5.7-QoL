@@ -6,8 +6,8 @@ writes site/src/data/megastones.json; run tools/romdata/dump_tables.py and dump_
 
 The stones are the items the evolution table asks for (0x08F387C0: method 251 is a Mega Evolution by held item,
 253 a Primal Reversion), in National Dex order of the Pokémon. tools/romdata/item_sources.py finds what hands each
-one over and names the place; nearly all sit on an object nobody can see, so each comes with its tile, which
-tools/build_spot_maps.py draws. How a gift is earned is in NOTES, written from the script's dialogue: the build
+one over and names the place; each comes with its tile, which tools/build_spot_maps.py draws (a stone lies on
+the ground as a small round stone: extended sprite 0x18). How a gift is earned is in NOTES, written from the script's dialogue: the build
 stops on a gift without a note and on a stone without a source. The Wishing Piece is left out, as in forms.py: it
 has a row for Charizard and nothing in the game gives it.
 """
@@ -33,8 +33,8 @@ MEGA, PRIMAL = 251, 253
 NOTES = {
     ("Flygonite", 35, 53): "Touch the sealed Flygon and battle it (Lv 70): it vanishes and leaves the stone behind.",
     ("Metagrossite", 24, 107): "Steven, after you battle him here once New Team Magma is dealt with.",
-    ("Blue Orb", 24, 103): "Archie leaves it behind when you beat him in front of Kyogre.",
-    ("Red Orb", 24, 105): "Maxie leaves it behind when you beat him in front of Groudon.",
+    ("Blue Orb", 24, 103): "Archie leaves it behind when you beat him in front of Kyogre.",   # the orb object in
+    ("Red Orb", 24, 105): "Maxie leaves it behind when you beat him in front of Groudon.",    # each room is walled in
     ("Final Meteor", 24, 85): "Zinnia, once Rayquaza has chosen you at the top of the Sky Pillar. Rayquaza also "
                               "Mega Evolves without it, if it knows Dragon Ascent.",
 }

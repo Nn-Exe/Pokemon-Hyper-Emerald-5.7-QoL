@@ -2738,7 +2738,9 @@ not allowed".
   holds for github.com, after checking with GET /user that it is the project's account.
 - Installed 2026-10-07 (sha1 ade383ba...), backup "(before v1.8 title 2026-10-07)".
 
-## MEGA STONES READ FROM THE ROM, AND THE PICK-UPS NOBODY CAN SEE — 2026-10-11 — `tools/build_mega_stones.py`
+## MEGA STONES READ FROM THE ROM — 2026-10-11 — `tools/build_mega_stones.py`
+- **Corrected 2026-10-12:** the bullet below that says nothing shows on the map is wrong, and so is every
+  "unseen" in this section. See the next section.
 - Reported: the guide's row "Venusaurite, Blastoisinite, Charizardite Y - Route 115" is wrong, "recheck all mega". The
   guide's Mega Stones table was typed in from community lists (the Chinese v5.0-era ones and the v5.6 Scribd guide).
   It is now `site/src/data/megastones.json`, read from the v1.8 release ROM (sha1 ade383ba...), and the guide prints
@@ -2752,7 +2754,7 @@ not allowed".
   Pidgeotite, Scizorite, Salamencite, Aerodactylite, Metagrossite, the Route 114 three, Galladite, Gardevoirite
   (Wanda's house), Houndoominite, Manectite, Tyranitarite, Cameruptite, Gyaradosite, Abomasite, Garchompite,
   Beedrillite, Slowbronite. The seven "not documented" and nineteen never listed are all found.
-- **Nothing shows on the map.** 46 stones and the two orbs are finditem scripts on objects with graphics 78, whose
+- **[Wrong: see the next section.] Nothing shows on the map.** 46 stones and the two orbs are finditem scripts on objects with graphics 78, whose
   first frame is blank (the table at 0x08505620; +0x1C the frame list; the same in the original hack). Ordinary item
   balls use graphics 59: 256 objects against 130 on 78. So "item ball" was the wrong word, on the TMs page too: 71
   of its 72 are on graphics 78, only TM120 at the Meteor Temple is a ball. `item_sources.py` calls these `unseen`
@@ -2779,3 +2781,51 @@ not allowed".
   the size from `data-w`/`data-h` when there is no thumbnail); a Mega form's Pokédex page says where its stone is;
   search has an entry a stone. 21 browser checks; the TM, Pokédex and general suites still pass.
 - Not rechecked: the Z-Crystal and Plate rows of the same guide are still from community lists.
+
+## THE MEGA STONES AND TMS CAN BE SEEN; OBJECTS NOBODY CAN REACH; Z-CRYSTALS AND PLATES — 2026-10-12
+- **The mistake.** The section above concluded that Mega Stones and TMs sit on invisible objects, because graphics
+  id 78 (0x4E) has an empty first frame in the object graphics table at 0x08505620. It went live on 2026-10-11. The
+  doubt came a day later, while reading the Z-Crystal scripts: Nanu, Prof. Kukui and the Sinnoh Gym Leaders use id
+  78 too, and they are plainly not invisible.
+- **How the hack draws its own objects.** GetObjectEventGraphicsInfo (0x0808E69C) is vanilla, but its callers are
+  hooked (literals at 0x0808D9F0, 0x0808DB6C, 0x0808DD04, 0x0808E204, 0x08096A98 -> 0x094A2BA0..0x094A2BF8). The
+  shared tail at 0x094A2BCE: `cmp r0, #0x4E; bne vanilla; r0 = 0x0839CF00 + 36 * r1`, with r1 the object's byte
+  0x1A, which is the template's fourth byte (vanilla leaves it unused). So graphics 0x4E means "extended sprite n":
+  a table of 36-byte graphics infos. 0x18 is the Mega Stone (16x32, a round stone of many colours, palette tag
+  0x1103), 0x3C the TM (a ball, tag 0x1106), 0x30 the sealed Flygon, 0x3F Nanu, 0xA2 Roark. Object palettes:
+  {pointer, tag} at 0x0850BBC8, 35 of them. Of the objects whose script is a finditem, 255 use graphics 59 (the
+  Poké Ball), 77 use 0x4E/0x3C, 48 use 0x4E/0x18; **none has an empty sprite**.
+- `item_sources.sprite()` and `frame()` follow that rule; `blank()` now tests the frame the game would draw.
+  `tools/build_spot_maps.py` draws the object's own sprite on its tile.
+- **Objects nobody can reach.** With the sprites right, the pictures showed pick-ups inside trees, water and lava.
+  The hack parks objects where no tile around them can be stood on (map grid bits 10-11, collision), scripts
+  intact. `walled_in()` drops a finditem whose four neighbours are all solid (a neighbour with metatile behaviour
+  0x80, a counter, counts as open if the tile behind it is; past the edge of a map without connections there is
+  nothing) and a giveitem whose giver is sealed that way and stands on a solid tile itself. Dropped: fifteen spare
+  Plates in the filler of Solaceon Ruins (35/14), a Grassium Z on Route 116 (63,16), a Grassium Z in the Lurantis
+  room, the Blue Orb in Marine Cave (6,23) and the Red Orb in Terra Cave (15,24) (so each orb comes from Archie or
+  Maxie only), a Max Revive at Spear Pillar, a second TM117 in Hearthome City (42,8), and three gifts that were on
+  the TMs page: Lucas (TM103) and X (TM119) on the west cliff of Ever Grande City (5,67 and 5,64), Serena (TM113)
+  in the top wall of Rustboro's Flat 2 3F (13,0). No script of those maps moves any of them.
+- **Z-Crystals.** The 18 type crystals: a trigger in each of 18 secret-base rooms (map group 25) runs
+  `setwildbattle <Totem>, 80, <crystal>`. A room is reached from the routes' secret-base spots (bg events of kind
+  8); the spot's id picks the room through the table at 0x0858CFE8 (refs 0x080E8FCC, 0x080E91E8): four bytes a
+  group of ten ids, the first the room's map number, in the order 0, 6, 12, 18, 1, 7, ... (not id // 10, which
+  put Wishiwashi behind the wrong trees until Gladion's own tree on Route 111 disagreed). 75 spots, 57 of them into
+  Totem rooms. The script: nothing unless flag 0x419D (set by Anabel on Steven's Island, 0x09833C35, on your
+  report from the first Ultra Wormhole journey; it also brings Gladion back to Route 111); Wishiwashi's room also
+  wants 0x41A2 clear and sets it on a win, the other seventeen want it set. callnative 0x094A224C: for each of
+  the four moves at 0x094A2318 (Destiny Bond, Perish Song, Pain Split, Leech Seed), 0x094A2204 walks the party's
+  move slots; a hit answers 77 and the script says "Can't use some moves!". Otherwise it adds 623 to var 0x8000
+  (the Totem's index: so the crystal's item id) and sets the Totem up. A win (special 0xB7 == 1) does finditem
+  with that var and sets the Totem's flag. Selene (34/42, 0x098B72D6) clears the flag of each beaten Totem whose
+  crystal is not in the Bag; for Wishiwashi she adds the Waterium Z herself.
+- The community's route hints named one spot of each room and all eighteen agree with the table; "all 18 are
+  needed for Team Rainbow Rocket's castle" was not checked and is off the page.
+- **The other Z-Crystals and the Plates**: `tools/build_guide_items.py`, sources from `item_sources.scan`, a note
+  a gift. The four Tapu trials give a crystal after the Lv 50 battle however it ends; Prof. Oak (Steven's Island,
+  Eterna City) or a Sandgem researcher splits the Special Gem into Pikanium Z and Eevium Z. The fifteen Plate balls
+  and the Icicle Plate agree with the Lost Artifacts guide's table, which was written from the scripts.
+- Site: `<TotemList />`, `<ItemPlaceList list="plates|crystals" />`; 196 pictures, 0.98 MB; 29 browser checks.
+- Still from community lists on that guide page: the key items table (the Quest Log's list disagrees with it on
+  the Mega Bracelet and the Z-Power Ring), shops and tutors, the HM paragraph.

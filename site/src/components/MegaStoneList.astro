@@ -1,7 +1,6 @@
 ---
 // The Mega Stones list (src/data/megastones.json, read from the game's scripts by tools/build_mega_stones.py):
-// each stone, the form it brings about, where it is and, for one nobody can see, a picture of its tile.
-import stones from '../data/megastones.json';
+// each stone, the form it brings about, where it is and a picture of the map around it.
 import Mon from './Mon.astro';
 import Spot from './Spot.astro';
 import { spritePos } from '../lib/data';
@@ -10,12 +9,11 @@ import { slugify } from '../lib/url';
 
 const KIND: Record<MegaStone['sources'][number]['kind'], string> = {
   gift: 'Gift',
-  ball: 'Item ball',
+  ball: 'On the ground',
   unseen: 'Hidden spot',
   hidden: 'Hidden item',
   wild: 'Held',
 };
-const list = stones as { item: number; name: string; primal: boolean; mons: { sid: number; to: number }[]; sources: Source[] }[];
 const form = (m: { sid: number; to: number }) => {
   const s = speciesBySid(m.to) ?? speciesBySid(m.sid);
   if (!s) throw new Error(`MegaStoneList: species ${m.to} is not in the Pokédex`);
@@ -24,7 +22,7 @@ const form = (m: { sid: number; to: number }) => {
 ---
 
 <div class="table-shell" tabindex="0" role="region" aria-label="Mega Stones">
-  <table class="stack-table stone-table">
+  <table class="stack-table stone-table mega-table">
     <thead>
       <tr>
         <th scope="col">Stone</th>
