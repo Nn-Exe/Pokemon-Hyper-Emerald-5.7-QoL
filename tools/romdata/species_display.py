@@ -25,6 +25,15 @@ FULL = {
     "Kyurem-B": "Black Kyurem", "Floette-E": "Floette (Eternal Flower)", "Dusk Mane": "Dusk Mane Necrozma",
     "Dawn Wings": "Dawn Wings Necrozma", "U-Necrozma": "Ultra Necrozma", "Calyrex-IR": "Calyrex (Ice Rider)",
     "Calyrex-SR": "Calyrex (Shadow Rider)",
+    # Gen 9 (v1.9: patches gen9 and gen9rest, slots 1200-1326)
+    "ScreamTail": "Scream Tail", "BruteBonet": "Brute Bonnet", "FluttrMane": "Flutter Mane",
+    "SlithrWing": "Slither Wing", "SndyShocks": "Sandy Shocks", "IronTreads": "Iron Treads",
+    "IronBundle": "Iron Bundle", "IronJuguls": "Iron Jugulis", "IronThorns": "Iron Thorns",
+    "RoarngMoon": "Roaring Moon", "IronVliant": "Iron Valiant", "WalkngWake": "Walking Wake",
+    "IronLeaves": "Iron Leaves", "Fezndipiti": "Fezandipiti", "GouginFire": "Gouging Fire",
+    "RagingBolt": "Raging Bolt", "IronBouldr": "Iron Boulder", "Meowscarda": "Meowscarada",
+    "Squawkbily": "Squawkabilly", "Kilowatrel": "Kilowattrel", "Bramblghst": "Brambleghast",
+    "Dudunsprce": "Dudunsparce", "Poltchgist": "Poltchageist",
 }
 
 FORMS = {
@@ -98,6 +107,10 @@ FORMS = {
     1179: "Morpeko (Hangry)",
     1193: "Zacian (Crowned Sword)", 1194: "Zamazenta (Crowned Shield)", 1195: "Eternamax Eternatus",
     1196: "Galarian Darumaka", 1197: "Galarian Darmanitan", 1198: "Galarian Darmanitan (Zen Mode)",
+    # Gen 9 forms (v1.9): Ogerpon's three other masks, and the Paldean forms of gen9rest
+    1229: "Ogerpon (Wellspring Mask)", 1230: "Ogerpon (Hearthflame Mask)", 1231: "Ogerpon (Cornerstone Mask)",
+    1323: "Paldean Wooper", 1324: "Paldean Tauros (Combat Breed)", 1325: "Paldean Tauros (Blaze Breed)",
+    1326: "Paldean Tauros (Aqua Breed)",
 }
 for _i, _t in enumerate(TYPES):
     FORMS[874 + _i] = "Arceus (%s)" % _t

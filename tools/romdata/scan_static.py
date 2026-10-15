@@ -81,7 +81,7 @@ with open(os.path.join(OUT,'static_encounters.md'),'w',encoding='utf-8') as f:
     seenrow=set()
     for r in sorted(found, key=lambda r:(r['map'],r['species'])):
         key=(r['map'],r['species_id'],r['level'])
-        if not (1<=r['species_id']<=1199) or not (1<=r['level']<=100): continue
+        if not (1<=r['species_id']<len(species)) or not (1<=r['level']<=100): continue
         if r['item_id']==0: r['item']=''
         if key in seenrow: continue
         seenrow.add(key)

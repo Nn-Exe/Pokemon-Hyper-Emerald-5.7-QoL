@@ -51,7 +51,7 @@ for o in entries:
     for k in ('land','water','rock','fishing'):
         if rec[k]:
             for s in rec[k]['slots']:
-                if not (1<=s['minLevel']<=s['maxLevel']<=100) or not (1<=s['species_id']<=1199): bad+=1
+                if not (1<=s['minLevel']<=s['maxLevel']<=100) or not (1<=s['species_id']<len(species)): bad+=1
     wild.append(rec)
 print('slot sanity failures', bad)
 save('wild.json', wild)

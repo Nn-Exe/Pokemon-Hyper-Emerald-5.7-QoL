@@ -1,12 +1,15 @@
-"""Cut the six README montage GIFs (docs/showcase/showcase-*.gif, a 3x3 grid of captioned clips each) into
-one small MP4 and one PNG poster per clip, for the guide site.
+"""Cut the README montage GIFs (docs/showcase/showcase-*.gif, a 3x3 grid of captioned clips each) and the v1.9
+montage (gba-trans/showcase/gifs/v1.9.gif, made with tools/gif_editor.py) into one small MP4 and one PNG poster
+per clip, for the guide site.
 
 usage: FFMPEG=<path to ffmpeg> python tools/build_clips.py
        python tools/build_clips.py --posters        (redo the poster frames only; no ffmpeg needed)
+       python tools/build_clips.py --only v1.9      (one montage; the others' files and entries stay as they are)
 writes docs/showcase/clips/<slug>.mp4 + <slug>.png and site/src/data/clips.json
 
-The montages are 1476x1114: a 44 px title bar, then three rows of three 480x320 cells (a GBA screen at 2x) with
-a caption strip under each. A 27 MB set of GIFs becomes about 5 MB of video the site can load on demand.
+The README montages are 1476x1114: a 44 px title bar, then three rows of three 480x320 cells (a GBA screen at 2x)
+with a caption strip under each. The GIF editor's are 1464x1084, with narrower margins. A 27 MB set of GIFs
+becomes about 5 MB of video the site can load on demand.
 """
 import json
 import os
@@ -21,7 +24,9 @@ OUT = os.path.join(SHOW, "clips")
 DATA = os.path.join(HERE, "..", "site", "src", "data")
 FFMPEG = os.environ.get("FFMPEG") or "ffmpeg"
 
-XS, YS, W, H = (10, 498, 986), (44, 400, 756), 480, 320
+W, H = 480, 320
+README = {"size": (1476, 1114), "xs": (10, 498, 986), "ys": (44, 400, 756)}       # the six README montages
+EDITOR = {"size": (1464, 1084), "xs": (6, 492, 978), "ys": (34, 384, 734)}        # tools/gif_editor.py's
 
 MONTAGES = [
     ("showcase-story-bosses", "Story & bosses", [
@@ -90,6 +95,18 @@ MONTAGES = [
         ("questlog-next-objective", "Next objective, with its location"),
         ("questlog-step-detail", "Every step explained"),
     ]),
+    # (source, group, cells, layout): a path for a montage that is not in docs/showcase
+    (os.path.join(HERE, "..", "..", "showcase", "gifs", "v1.9.gif"), "What's new in v1.9", [
+        ("gen9-wild", "The whole of Gen 9, wild all over Hoenn"),
+        ("area-zero-hole", "Area Zero: the black hole in Mossdeep City"),
+        ("time-rift", "The time rift: the past and the future"),
+        ("paradox-wild", "Paradox Pokémon in the crater's tall grass"),
+        ("gen9-evolution-items", "New evolution items at the Lilycove Dept. Store"),
+        ("move-info-tag", "Move info: hold L (the new magnifier tag)"),
+        ("legends-119", "Legends: 119 to catch, Kitakami's locked"),
+        ("evolutions-gen9", "Every Gen 9 evolution line"),
+        ("questlog-area-zero", "Area Zero side quests in the Quest Log"),
+    ], EDITOR),
 ]
 
 # clips whose mid-point frame is a washed-out transition
@@ -97,15 +114,24 @@ BUSIEST_POSTER = {"cynthia-champion", "dexnav-patch"}
 
 os.makedirs(OUT, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
+ONLY = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
+old_meta = json.load(open(os.path.join(DATA, "clips.json"), encoding="utf-8")) if ONLY else []
 meta = []
-for gif, group, cells in MONTAGES:
-    src = os.path.join(SHOW, gif + ".gif")
+for gif, group, cells, *layout in MONTAGES:
+    layout = layout[0] if layout else README
+    src = gif if os.path.isabs(gif) or os.sep in gif else os.path.join(SHOW, gif + ".gif")
+    name = os.path.splitext(os.path.basename(src))[0]
+    if ONLY and ONLY != name:
+        meta += [m for m in old_meta if m["group"] == group]
+        continue
     im = Image.open(src)
-    assert im.size == (1476, 1114), "%s is not a 1476x1114 montage" % gif
+    assert im.size == layout["size"], "%s is not a %dx%d montage" % ((gif,) + layout["size"])
+    XS, YS = layout["xs"], layout["ys"]
     # A clip's poster is the frame 3.6 s in, where each clip shows its subject - unless that frame is a
     # fade to black or a white flash, in which case the busiest frame of the clip is used instead.
     frames = []
-    for f in range(0, im.n_frames, 6):
+    step = 6 if layout is README else 2         # (the editor's frames are 160 ms: every second one, 3.2 s at [10])
+    for f in range(0, im.n_frames, step):
         im.seek(f)
         frames.append(im.convert("RGB"))
     parts, maps = ["[0:v]split=%d%s" % (len(cells), "".join("[s%d]" % i for i in range(len(cells))))], []
@@ -124,7 +150,7 @@ for gif, group, cells in MONTAGES:
     if "--posters" not in sys.argv:
         subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", src, "-filter_complex", ";".join(parts)] + maps,
                        check=True)
-    print(gif, "->", len(cells), "clips")
+    print(name, "->", len(cells), "clips")
 
 json.dump(meta, open(os.path.join(DATA, "clips.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 total = sum(os.path.getsize(os.path.join(OUT, f)) for f in os.listdir(OUT))

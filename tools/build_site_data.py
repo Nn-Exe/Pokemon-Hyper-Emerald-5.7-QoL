@@ -21,7 +21,6 @@ from display_names import item_name, move_name  # noqa: E402
 
 OUT = os.path.join(HERE, "..", "site", "src", "data")
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "romdata", "out")
-N_SPECIES = 1200
 
 
 def load(name):
@@ -34,6 +33,7 @@ def dump(name, obj):
 
 species = load("species.json")
 items = load("items.json")
+N_SPECIES = len(species)                # 1,200 slots up to v1.8, 1,408 in v1.9 (dump_tables.py reads them all)
 
 
 def sp_name(sid, name):
@@ -174,6 +174,12 @@ GROUPS = [
      ["Roark", "Gardenia", "Maylene", "Wake", "Fantina", "Byron", "Candice", "Volkner"], None),
     ("sinnoh-league", "Sinnoh Elite Four & Champion", "", ["Aaron", "Bertha", "Flint", "Lucian", "Cynthia"], None),
     ("volo", "Lost Artifacts: Volo", "The final boss of the Hisui epilogue.", ["Volo"], None),
+    ("area-zero", "Area Zero",
+     "The Paldea area through the black hole in Mossdeep City, open once Team Rainbow Rocket is beaten. Nemona "
+     "battles you in the crater in the future, and again after the story in Research Station No. 3; in the Zero Lab "
+     "the AIs of Professor Sada and Professor Turo battle you one after the other, then the Paradise Protection "
+     "Protocol sends out the lab's own Koraidon and Miraidon.",
+     ["Nemona", "AI Sada", "AI Turo", "Protocol"], ["Champion", "Professor", "Paradise"]),
     ("villains", "Villain bosses", "Rainbow Rocket and the other evil-team leaders met in the post-game.",
      ["Giovanni", "Cyrus", "God Cyrus", "Ghetsis", "Lysandre", "Lusamine", "Faba", "Archer", "Ariana", "Petrel", "Proton",
       "Jupiter", "Mars", "Saturn", "Zinzolin", "Xerosic", "Malva", "Blaise", "Amber"], None),
@@ -192,9 +198,10 @@ BOSS_CLASSES = {"PkMn Trainer", "Champion", "Leader", "Elite Four", "Team Magma"
                 "Dragon Tamer", "PkMn Tamer", "Lady", "PkMn Breeder♀", "Scientist", "TeamGalactic", "Team Plasma",
                 "Team Flare", "Team Rocket", "Lorekeeper", "Magma Admin", "Aqua Admin", "Magma Leader", "Aqua Leader"}
 PLACEHOLDER_IDS = {1131, 1132, 1133, 1134, 1135}
-# Trainer slots that are not part of the published game: the site documents the public release only.
-UNRELEASED_TRAINERS = {943, 947, 952}
-trainers = [t for t in trainers if t["id"] not in UNRELEASED_TRAINERS]
+# Slots 943, 947 and 952 hold trainers outside the published game in other builds; v1.9's Area Zero uses them. The
+# site keeps them only when they are Area Zero's.
+AREA_ZERO_SLOTS = {943: "AI Sada", 947: "AI Turo", 952: "Nemona"}
+trainers = [t for t in trainers if AREA_ZERO_SLOTS.get(t["id"], t["name"]) == t["name"]]
 PLACEHOLDER_TIP = ("The ROM's trainer table only holds a placeholder team for this battle; the hack builds the real "
                    "level-50 team when the fight starts (the League lobby monitor shows it before each match).")
 
@@ -244,7 +251,7 @@ for k, v in species.items():
 item_ids = {}
 for k, v in items.items():
     iid = int(k)
-    if 0 < iid < 769 and v["name"] not in ("------------", "??????"):
+    if 0 < iid and v["name"] not in ("------------", "??????", "New Item"):
         item_ids.setdefault(item_name(iid, v["name"]), iid)
 
 os.makedirs(OUT, exist_ok=True)

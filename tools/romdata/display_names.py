@@ -21,6 +21,9 @@ ITEMS_BY_ID = {
     697: "Feraligatrite", 754: "Life Orb", 755: "Assault Vest", 756: "Eviolite", 757: "Rocky Helmet",
     758: "Light Ball", 759: "Leftovers", 760: "Scope Lens", 761: "Throat Spray", 762: "Mago Berry",
     763: "Wiki Berry", 764: "Aguav Berry", 765: "Tanga Berry", 766: "Weakness Policy", 767: "Focus Sash",
+    # v1.9: gen9's item and gen9rest's six (their ROM names are cut: "AuspciousArmr")
+    769: "Booster Energy", 770: "Auspicious Armor", 771: "Malicious Armor", 772: "Syrupy Apple", 773: "Metal Alloy",
+    774: "Unremarkable Teacup", 775: "Leader's Crest",
 }
 
 MOVES = {
@@ -57,6 +60,10 @@ MOVES = {
     "B. Jealousy": "Burning Jealousy", "Cease. Edge": "Ceaseless Edge", "Clang. Soul": "Clangorous Soul",
     "False Surr.": "False Surrender", "LightOfRuin": "Light of Ruin", "Moon. Beam": "Moongeist Beam",
     "Sun. Strike": "Sunsteel Strike",
+    # Gen 9 (v1.9: moves 938-985)
+    "Coll. Course": "Collision Course", "ElectroDrift": "Electro Drift", "LastRespects": "Last Respects",
+    "LuminaCrash": "Lumina Crash", "PopulatnBomb": "Population Bomb", "KowtowCleave": "Kowtow Cleave",
+    "ArmorCannon": "Armor Cannon", "GigatonHammr": "Gigaton Hammer", "MatchaGotcha": "Matcha Gotcha",
 }
 
 

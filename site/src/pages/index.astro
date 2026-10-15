@@ -6,7 +6,7 @@ import { url, showcase } from '../lib/url';
 import { clip } from '../lib/media';
 import { areas, stats, spritePos, levelRange, METHODS } from '../lib/data';
 import { dexStats, pokedexUrl } from '../lib/pokedex';
-import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, UPDATED, formatDate } from '../consts';
+import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, RELEASED_VERSION, PATCH_PENDING, UPDATED, formatDate } from '../consts';
 
 const title = `${SITE_NAME} - ${GAME} ${GAME_VERSION} Walkthrough & Wiki`;
 const description =
@@ -45,7 +45,7 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
         <h1>Two regions. Sixteen gyms. <span class="accent">One guide for all of it.</span></h1>
         <p class="lede">
           Pokémon Hyper Emerald: Lost Artifacts is an Emerald hack with all of Hoenn and Sinnoh, every Pokémon through
-          Generation 8, and a post-game longer than the main story.
+          Generation 8, and a post-game longer than the main story. The patch adds Generation 9 and Area Zero.
         </p>
         <p class="hero-support">
           This guide covers the English + quality-of-life patch, a walkthrough from Littleroot Town to the last battle
@@ -288,7 +288,9 @@ const pct = (p: number) => (p >= 1 ? `${p}%` : '<1%');
 
   <section class="section" style="padding-top:0">
     <div class="container cta-panel">
-      <p class="eyebrow">Current release · QoL {PATCH_VERSION}</p>
+      <p class="eyebrow">
+        {PATCH_PENDING ? `Patch file · QoL ${RELEASED_VERSION} (v${PATCH_VERSION} to follow)` : `Current release · QoL ${PATCH_VERSION}`}
+      </p>
       <h2>Ready to begin?</h2>
       <p>
         Patch your own copy of Hyper Emerald: Lost Artifacts {GAME_VERSION} in one command, pick your difficulty at the

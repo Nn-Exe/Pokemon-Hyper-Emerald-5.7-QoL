@@ -6,10 +6,39 @@ export type Release = {
   version: string;
   date: string;
   summary: string;
+  /** shown above the list, e.g. while the version's patch file is not out yet */
+  note?: string;
   changes: [Kind, string][];
 };
 
 export const RELEASES: Release[] = [
+  {
+    version: 'v1.9',
+    date: '2026-10-16',
+    summary:
+      'The whole of Generation 9 and Area Zero, a Paldea area behind a black hole in Mossdeep City, with the Quest Log following both; and fixes for bugs of the original hack, from Hisui’s striped ground and roaming storms to battle graphics, text that ran off the box and side quests that could not be finished.',
+    note: 'Not released yet: this site already describes v1.9, but the patch file in the repository still builds v1.8 until v1.9 is published. A save opened in v1.9 cannot go back to v1.8.',
+    changes: [
+      ['Added', 'Every Gen 9 Pokémon: 127 new slots at their official Pokédex numbers, Sprigatito No. 906 to Pecharunt No. 1025, Paldean Wooper and the three Paldean Tauros included, each with its English Pokédex entry. The newer ones live in the wild all over Hoenn; none of the game’s own Pokémon were taken out to make room.'],
+      ['Added', 'Gen 9 evolutions, older families’ too: Primeape → Annihilape, Girafarig → Farigiraf, Dunsparce → Dudunsparce, Bisharp → Kingambit, Applin → Dipplin → Hydrapple, Duraludon → Archaludon, Paldean Wooper → Clodsire. The six new evolution items are sold at the Lilycove Department Store, 4F. Gen 9 Pokémon that hatch from Eggs have their egg moves.'],
+      ['Added', 'Gen 9 moves and abilities. The legends’ seven signature moves (Collision Course, Electro Drift, Ruination, Ivy Cudgel, Hydro Steam, Psyblade, Glaive Rush) and their abilities have code of their own; the other new moves and abilities work like ones the game already has, and a few do less than in Scarlet and Violet.'],
+      ['Added', 'Area Zero. Jacq stands in Mossdeep City from the start; once Team Rainbow Rocket is beaten a black hole opens beside him. Behind it: Paldea’s Great Crater in the past and in the future, joined by time rifts; Penny, Arven and Nemona; the Titans Great Tusk and Iron Treads; four research logs; the Zero Lab’s finale against the professors’ AIs and the Paradise Protection Protocol.'],
+      ['Added', 'After Area Zero’s story: Koraidon and Miraidon, eight more Paradox Pokémon, Wo-Chien, Chien-Pao, Ting-Lu, Chi-Yu (three of them behind a sliding-floor puzzle in the Sealed Vault) and Terapagos, once each. Twelve Paradox Pokémon roam the craters’ tall grass, Booster Energy lies in the craters and is sold in the Zero Lab, and Nemona battles again in Research Station No. 3.'],
+      ['Added', 'Quest Log for Gen 9: Legends counts 119 with the twenty Paradox Pokémon (the five that live in Kitakami, which the game does not have, show as Locked and are not counted, and counts over 99 print properly); Side Content has ten Area Zero rows (55 in all); Evolutions has every Gen 9 family (400 pages); the Journal has seven optional Area Zero steps that never take the main story’s place.'],
+      ['Changed', 'Move info’s tag above the move box is a small L key with a magnifying glass, half as wide, so it no longer covers the Pokémon. Holding L works as before.'],
+      ['Changed', 'In Hisui the Sinnoh Map no longer flies you: it shows where you are and names every place. Flying from it let you skip ahead of the story.'],
+      ['Changed', 'Quest Log Key Items: the Contest Pass is gone (nothing in the game hands it out). Side Content rows that said the wrong thing were rewritten from the scripts: Ash’s challenge, the Burning Soul, Meltan, the demon soul’s Magikarp, the Battle Frontier gifts and Blue’s Galar team.'],
+      ['Changed', 'The Option screen’s title says +QoL1.9.'],
+      ['Fixed', 'Hisui maps whose ground turned to stripes, with people drawn as noise, until the next battle (seven wandering Pokémon had fewer pictures than their walk).'],
+      ['Fixed', 'Tornadus and Thundurus left Sinnoh for Hoenn’s sea routes after a save and reset. They stay Sinnoh roamers now.'],
+      ['Fixed', 'Battle graphics: move animations drawn as blocks late in a long battle, the gold shiny box losing its colours to an animation or staying lit through a fade, Pokémon from the newer Poké Balls holding on to two palettes, and the wrong colours of a status icon on a gold box.'],
+      ['Fixed', 'Colours: people and Pokémon drawn in another’s colours on busy maps, the EV-IV Display showing a Pokémon in the last one’s colours, and DexNav bar icons in the wrong palette for many Pokémon numbered above 412.'],
+      ['Fixed', 'The DexNav bar named the wrong ability, or “-------”, for 184 species; it names the one the Pokémon will have.'],
+      ['Fixed', 'Text: 56 pages whose line ran past the message box, the Regi tablet that ran on into the next text, and the fog turning solid white behind a message in mist.'],
+      ['Fixed', 'Egg moves: Mr. Mime and Mime Jr. had none, and Goldeen and Bonsly had theirs.'],
+      ['Fixed', 'Side quests that could not be finished: Blue’s Galar gift in the Lilycove Museum (she stood inside a wall), the demon soul’s Magikarp on Steven’s Island (it shared a flag with Dawn’s battle), and the summit, where one failed visit took Kitty’s nameless stone for good.'],
+    ],
+  },
   {
     version: 'v1.8',
     date: '2026-10-07',

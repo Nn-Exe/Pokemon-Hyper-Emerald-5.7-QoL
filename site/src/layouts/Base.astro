@@ -10,6 +10,7 @@ import SearchDialog from '../components/SearchDialog.astro';
 import { SITE_NAME, GAME, GAME_VERSION, PATCH_VERSION, UPDATED } from '../consts';
 import { url, absolute, canonicalOf, HAS_SITEMAP } from '../lib/url';
 import { publicHash } from '../lib/media';
+import spriteMeta from '../data/sprites.json';
 
 interface Crumb {
   name: string;
@@ -75,7 +76,12 @@ const jsonLd = [
 ];
 
 const sprite = (file: string) => `url("${url('/sprites/' + file)}?v=${publicHash('sprites/' + file)}")`;
-const spriteVars = `:root{--spr-mon:${sprite('mon.png')};--spr-trainer:${sprite('trainer.png')};--spr-item:${sprite('item.png')}}`;
+// each atlas's size in pixels, from tools/build_sprites.py's sprites.json: the sheets grow with the game's tables
+const sheet = (kind: 'mon' | 'trainer' | 'item') => {
+  const m = (spriteMeta as any)[kind];
+  return `--spr-${kind}-w:${m.cols * m.cell}px;--spr-${kind}-h:${Math.ceil(m.count / m.cols) * m.cell}px`;
+};
+const spriteVars = `:root{--spr-mon:${sprite('mon.png')};--spr-trainer:${sprite('trainer.png')};--spr-item:${sprite('item.png')};${sheet('mon')};${sheet('trainer')};${sheet('item')}}`;
 ---
 
 <!doctype html>

@@ -6,7 +6,7 @@ import Shot from '../components/Shot.astro';
 import ContextLinks from '../components/ContextLinks.astro';
 import { FEATURES, FEATURE_STATS } from '../data/features';
 import { url } from '../lib/url';
-import { SITE_NAME, PATCH_VERSION, UPDATED } from '../consts';
+import { SITE_NAME, PATCH_VERSION, RELEASED_VERSION, PATCH_PENDING, UPDATED } from '../consts';
 
 const crumbs = [{ name: 'Features' }];
 const title = 'What the English + QoL Patch Adds';
@@ -37,7 +37,12 @@ const description =
         }
       </div>
       <p class="micro">
-        Current release: QoL {PATCH_VERSION}. Everything here works on existing saves.{' '}
+        {
+          PATCH_PENDING
+            ? `This page describes QoL ${PATCH_VERSION}; the repository’s patch file builds QoL ${RELEASED_VERSION} until ${PATCH_VERSION} is released.`
+            : `Current release: QoL ${PATCH_VERSION}.`
+        }{' '}
+        Everything here works on existing saves.{' '}
         <a class="text-link" href={url('/guides/controls/')}>See every button on one page →</a>
       </p>
     </div>

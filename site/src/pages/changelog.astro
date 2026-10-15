@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 import ContextLinks from '../components/ContextLinks.astro';
 import { RELEASES, type Kind } from '../data/releases';
-import { SITE_NAME, REPO, formatDate } from '../consts';
+import { SITE_NAME, REPO, PATCH_PENDING, formatDate } from '../consts';
 
 const crumbs = [{ name: 'Changelog' }];
 const title = 'Patch Changelog';
@@ -11,6 +11,9 @@ const description =
   'Every release of the English + QoL patch for Hyper Emerald v5.7, newest first: what was added, changed and fixed in each version.';
 const kindClass: Record<Kind, string> = { Added: 'accent', Changed: 'info', Fixed: 'warn', Removed: 'danger' };
 const current = RELEASES[0];
+// while the newest version's patch file is not out, the one before it is the current release
+const currentIndex = PATCH_PENDING ? 1 : 0;
+const tagOf = (i: number) => (i < currentIndex ? 'Not released yet' : i === currentIndex ? 'Current release' : 'Previous release');
 ---
 
 <Base title={`${title} - ${SITE_NAME}`} description={description} crumbs={crumbs} updated={current.date}>
@@ -24,13 +27,14 @@ const current = RELEASES[0];
           <details class:list={['card', 'release-card', { 'release-current': i === 0 }]} id={r.version} open={i === 0}>
             <summary>
               <div>
-                <span class:list={['tag', { current: i === 0 }]}>{i === 0 ? 'Current release' : 'Previous release'}</span>
+                <span class:list={['tag', { current: i === currentIndex }]}>{tagOf(i)}</span>
                 <h2>{r.version}</h2>
               </div>
               <time datetime={r.date}>{formatDate(r.date)}</time>
             </summary>
             <div class="release-body">
               <p>{r.summary}</p>
+              {r.note && <p class="callout warn">{r.note}</p>}
               <ul>
                 {r.changes.map(([kind, text]) => (
                   <li>
@@ -47,7 +51,8 @@ const current = RELEASES[0];
       <p class="src" style="margin-top:1.4rem">
         This is the player’s summary. The line-by-line engineering changelog, with the patch folder behind each change,
         is <a href={`${REPO}/blob/main/CHANGELOG.md`} target="_blank" rel="noopener noreferrer">CHANGELOG.md</a> in the
-        repository. Saves carry over between every version.
+        repository. Saves carry over from every version to the next; a save opened in v1.9 cannot go back to an
+        older one.
       </p>
 
       <ContextLinks

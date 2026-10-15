@@ -16,7 +16,11 @@ if (!final && !c) throw new Error(`JournalList: unknown chapter "${chapter}"`);
   c && (
     <>
       <p>
-        {c.blurb} <span class="src">{c.steps.length} objectives.</span>
+        {c.blurb}{' '}
+        <span class="src">
+          {c.steps.filter((s: any) => !s.optional).length} objectives
+          {c.steps.some((s: any) => s.optional) && `, and ${c.steps.filter((s: any) => s.optional).length} optional ones`}.
+        </span>
       </p>
       <ol class="journal-list">
         {c.steps.map((s: any) => (
@@ -25,6 +29,14 @@ if (!final && !c) throw new Error(`JournalList: unknown chapter "${chapter}"`);
             <div>
               <strong>
                 {s.title}{' '}
+                {s.optional && (
+                  <span
+                    class="tag info"
+                    title="An optional quest: the Journal shows it once the step before it is done, and never makes it your next story objective"
+                  >
+                    optional
+                  </span>
+                )}
                 {s.anyOrder && (
                   <span
                     class="tag warn"

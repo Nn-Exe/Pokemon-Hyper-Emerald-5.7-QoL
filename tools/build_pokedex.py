@@ -4,7 +4,10 @@ abilities (the hidden one too), breeding and training facts, Pokédex entry, evo
 usage: HE_ROM=<patched rom> python tools/build_pokedex.py
 writes site/src/data/pokedex.json, moves.json, abilities.json
 
-Where each table is (ROM header = the pointer block at 0x128-0x1D4, the layout Dynamic Pokémon Expansion uses):
+Where each table is (ROM header = the pointer block at 0x128-0x1D4, the layout Dynamic Pokémon Expansion uses).
+The addresses are v1.8's; v1.9 (the whole of Gen 9: 1,408 species slots, moves to 985, items to 775) keeps the
+species tables, the move descriptions, the egg moves and the Pokédex entries elsewhere, and tools/romdata/tables.py
+finds each in the build it is given:
   base stats        header 0x1BC   28 bytes a species. +0 HP Atk Def Spe SpA SpD, +6 types, +8 catch rate,
                                    +9 exp yield, +10 EV yield (2 bits a stat), +12/+14 held items, +16 gender,
                                    +17 egg cycles, +18 friendship, +19 growth, +20 egg groups. Its ability
@@ -40,12 +43,15 @@ sys.path.insert(0, os.path.join(HERE, "romdata"))
 import romlib as R  # noqa: E402
 from species_display import FORMS, display_name  # noqa: E402
 import forms as F  # noqa: E402
+import tables  # noqa: E402
 from display_names import item_name as item_display, move_name as move_display  # noqa: E402
 
 OUT = os.path.join(HERE, "..", "site", "src", "data")
 rom = R.rom
 u8, u16, u32 = R.u8, R.u16, R.u32
-N_SPECIES = 1200
+T = tables.of(rom)
+F.use(T)
+N_SPECIES = T.species
 
 BASE_STATS = u32(0x1BC) - 0x08000000
 ABILITY_NAMES = u32(0x1C0) - 0x08000000
@@ -55,16 +61,17 @@ MOVE_NAMES = u32(0x148) - 0x08000000
 SPECIES_NAMES = u32(0x144) - 0x08000000
 ITEMS = u32(0x1C8) - 0x08000000
 ABILITIES = 0x017A0000
-N_ABILITIES = 400
+N_ABILITIES = T.abilities
 TYPE_NAMES = 0x01D382E8
-MOVE_DESCS = 0x01D2ACFC
-LEARNSETS = 0x01D89578
+MOVE_DESCS = T.move_descs - 4                     # indexed [move - 1]
+N_MOVES = T.moves
+LEARNSETS = T.table["level-up pointers"]
 TM_MOVES, N_TMHM, N_TM = 0x01E0FE80, 128, 120
-TM_COMPAT = 0x00FCD8F4
-EGG_MOVES = 0x01D78128
-EVOS, EEVEE, EEVEE_EVOS = 0x00F387C0, 133, 0x01F0B4A0
-NATDEX = 0x00F50370
-DEX_ENTRIES = 0x01250000
+TM_COMPAT = T.table["TM/HM bits"]
+EGG_MOVES = T.egg_moves
+EVOS, EEVEE, EEVEE_EVOS = T.table["evolutions"], 133, 0x01F0B4A0
+DEX_ENTRIES = T.dex_entries
+N_ITEMS = T.items
 REGION_MAP = 0x005A147C
 HISUIAN_PILL = 753
 
@@ -95,6 +102,13 @@ ABILITY_FULL = {
     "Scr. Cleaner": "Screen Cleaner", "SteelySpirit": "Steely Spirit", "Wander. Soul": "Wandering Spirit",
     "Chill. Neigh": "Chilling Neigh", "TanglingHair": "Tangling Hair", "Emerg. Exit": "Emergency Exit",
     "AlchemyPower": "Power of Alchemy",
+    # Gen 9 (v1.9)
+    "Orich. Pulse": "Orichalcum Pulse", "HadronEngine": "Hadron Engine", "P. Puppeteer": "Poison Puppeteer",
+    "ThermalExch.": "Thermal Exchange", "Lingr. Aroma": "Lingering Aroma", "WellBakedBdy": "Well-Baked Body",
+    "Electromorph": "Electromorphosis", "MyceliumMght": "Mycelium Might", "PurifyngSalt": "Purifying Salt",
+    "RockyPayload": "Rocky Payload", "SuprswtSyrup": "Supersweet Syrup", "SupremeOvlrd": "Supreme Overlord",
+    "Protosynth.": "Protosynthesis", "Tablets Ruin": "Tablets of Ruin", "SwordOfRuin": "Sword of Ruin",
+    "VesselOfRuin": "Vessel of Ruin", "BeadsOfRuin": "Beads of Ruin",
 }
 
 
@@ -203,7 +217,7 @@ def evolution(lo, p, x):
 
 # ---------------- moves and abilities ----------------
 moves = {}
-for m in range(1, 937):
+for m in range(1, N_MOVES):
     name = R.decode(MOVE_NAMES + 13 * m, 13)[0]
     if not name.strip() or "{" in name:
         continue
@@ -212,6 +226,15 @@ for m in range(1, 937):
     moves[m] = {"id": m, "name": move_display(name), "type": TYPES.get(b[2], "Normal"),
                 "cat": CATEGORY[b[10]] if b[10] < 3 else "Status", "power": b[1], "acc": b[3], "pp": b[4],
                 "desc": text(d) if d else ""}
+
+# v1.9's type variants share a name (Ivy Cudgel for each of Ogerpon's masks, Raging Bull for each Paldean Tauros):
+# the later ones are named by their type
+first_named = {}
+for m in sorted(moves):
+    n = moves[m]["name"]
+    if n in first_named and moves[first_named[n]]["type"] != moves[m]["type"]:
+        moves[m]["name"] = "%s (%s)" % (n, moves[m]["type"])
+    first_named.setdefault(n, m)
 
 tm_moves = [u16(TM_MOVES + 2 * i) for i in range(N_TMHM)]
 tm_label = ["TM%02d" % (i + 1) if i < N_TM else "HM%02d" % (i - N_TM + 1) for i in range(N_TMHM)]
@@ -258,7 +281,7 @@ def form_kind(sid, name):
         return "Mega"
     if name.startswith(("Gigantamax ", "Eternamax ")):
         return "Gigantamax"
-    if name.startswith(("Alolan ", "Galarian ", "Hisuian ")):
+    if name.startswith(("Alolan ", "Galarian ", "Hisuian ", "Paldean ")):
         return "Regional"
     return "Form" if sid in FORMS else "Standard"
 
@@ -319,7 +342,7 @@ for sid in range(1, N_SPECIES):
         "items": [it for it in (struct.unpack_from("<H", b, 12)[0], struct.unpack_from("<H", b, 14)[0])],
     }
     entry["items"] = [{"id": it, "name": item(it), "rate": rate}
-                      for it, rate in zip(entry["items"], ("50%", "5%")) if 0 < it < 769]
+                      for it, rate in zip(entry["items"], ("50%", "5%")) if 0 < it < N_ITEMS]
     if dex:
         d = DEX_ENTRIES + 32 * dex
         category = R.decode(d, 12)[0]

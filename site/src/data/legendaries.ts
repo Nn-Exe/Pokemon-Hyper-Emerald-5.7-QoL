@@ -391,6 +391,80 @@ export const LEGEND_GROUPS: LegendGroup[] = [
       },
     ],
   },
+  {
+    // v1.9: patches/paldea (story.py's LEGENDS, the levels its scripts set) and the ROM's wild tables for Area Zero
+    key: 'area-zero',
+    legends: [
+      {
+        name: 'Koraidon and Miraidon',
+        mons: ['Koraidon', 'Miraidon'],
+        level: '75',
+        where:
+          'Area Zero, at Arven’s picnic spot by the big lake once the story is over: Koraidon in the crater in the past, Miraidon in the crater in the future. During the story they are worn out, and Arven’s sandwiches get them up again. The Zero Lab’s own pair (Lv 78) is the team of the Paradise Protection Protocol in the finale.',
+        source: 'rom',
+      },
+      {
+        name: 'Walking Wake, Gouging Fire and Raging Bolt',
+        mons: ['Walking Wake', 'Gouging Fire', 'Raging Bolt'],
+        level: '75',
+        where:
+          'Area Zero, the crater in the past, standing on the map once the story is over. Each is met once: if it faints, it is gone for good.',
+        source: 'rom',
+      },
+      {
+        name: 'Iron Leaves, Iron Boulder and Iron Crown',
+        mons: ['Iron Leaves', 'Iron Boulder', 'Iron Crown'],
+        level: '75',
+        where: 'Area Zero, the crater in the future, once the story is over. Once each, like the three of the past.',
+        source: 'rom',
+      },
+      {
+        name: 'Roaring Moon and Iron Valiant',
+        mons: ['Roaring Moon', 'Iron Valiant'],
+        level: '75',
+        where: 'Area Zero, the Crystal Cavern (the cave in the crater’s north-west wall), once the story is over.',
+        source: 'rom',
+      },
+      {
+        name: 'Chien-Pao',
+        mons: ['Chien-Pao'],
+        level: '75',
+        where: 'Area Zero, the icy cave on the crater wall’s middle ledge, once the story is over.',
+        source: 'rom',
+      },
+      {
+        name: 'Wo-Chien, Ting-Lu and Chi-Yu',
+        mons: ['Wo-Chien', 'Ting-Lu', 'Chi-Yu'],
+        level: '75',
+        where:
+          'Area Zero, the Sealed Vault behind the Crystal Cavern’s second cave mouth, which opens once the story is over. Each waits behind a crystal; slide over the mirror floor to its stake (a bundle of tablets, a vessel on three legs, a string of curved beads) and pull it.',
+        source: 'rom',
+      },
+      {
+        name: 'Terapagos',
+        mons: ['Terapagos'],
+        level: '80',
+        where: 'Area Zero, the Underdepths, down the Crystal Cavern’s ladder. A crystal blocks the ladder until the story is over.',
+        source: 'rom',
+      },
+      {
+        name: 'The wild Paradox Pokémon',
+        mons: ['Great Tusk', 'Scream Tail', 'Brute Bonnet', 'Flutter Mane', 'Slither Wing', 'Sandy Shocks', 'Iron Treads', 'Iron Bundle', 'Iron Hands', 'Iron Jugulis', 'Iron Moth', 'Iron Thorns'],
+        level: '63–67',
+        where:
+          'Area Zero’s tall grass at any time: the six ancient ones in the crater in the past, the six iron ones in the crater in the future. Iron Bundle also turns up in the icy cave. Great Tusk and Iron Treads are the story’s Titans too (Lv 68 and 72), which cannot be caught.',
+        source: 'rom',
+      },
+      {
+        name: 'Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt',
+        mons: ['Okidogi', 'Munkidori', 'Fezandipiti', 'Ogerpon', 'Pecharunt'],
+        level: '–',
+        where:
+          'Not in this version. The game has them as Pokémon, but they live in Kitakami, which it does not have, and nothing in the game meets them. The Quest Log lists them as Locked and leaves them out of its count.',
+        source: 'rom',
+      },
+    ],
+  },
 ];
 
 export const LEGEND_COUNT = LEGEND_GROUPS.reduce((n, g) => n + g.legends.length, 0);

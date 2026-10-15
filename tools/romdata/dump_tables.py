@@ -2,9 +2,11 @@
 import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from romlib import *
-SPECIES=0xF2B790; ITEMS=0xFC2C7C; MOVES=0x9D30258-0x8000000; MAPSEC=0x5A147C; CLASSES=0x30FCD4
+import tables
+T=tables.of(rom)   # v1.9 (the whole of Gen 9) has longer species, move and item tables elsewhere
+SPECIES=T.table['names']; ITEMS=0xFC2C7C; MOVES=T.move_names; MAPSEC=0x5A147C; CLASSES=tables.CLASS_NAMES
 species={}
-for i in range(0,1200):
+for i in range(0,T.species):
     s=decode(SPECIES+11*i,11)[0].strip()
     species[i]=s
 save('species.json', species)
@@ -25,12 +27,12 @@ while k<800:
     k+=1
 print('items', k)
 save('items.json', items)
-moves={i:decode(MOVES+13*i,13)[0].strip() for i in range(0,937)}
+moves={i:decode(MOVES+13*i,13)[0].strip() for i in range(0,T.moves)}
 save('moves.json', moves)
 secs={}
 for i in range(213):
     e=MAPSEC+8*i
     secs[i]={'name':decode(ptr(e+4),40)[0],'x':rom[e],'y':rom[e+1],'w':rom[e+2],'h':rom[e+3]}
 save('mapsections.json', secs)
-classes={i:decode(CLASSES+13*i,13)[0].strip() for i in range(71)}
+classes={i:decode(CLASSES+13*i,13)[0].strip() for i in range(T.trainer_classes)}
 save('trainer_classes.json', classes)

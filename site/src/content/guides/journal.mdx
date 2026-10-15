@@ -21,6 +21,12 @@ done. From the Start menu, <Key>R</Key> opens it too.
   is still missing.
 </Callout>
 
+<Callout type="plain" title="Area Zero: an optional quest">
+  Since v1.9 the Post-game chapter has seven rows tagged <Tag type="info">optional</Tag>, after "Steven is waiting":
+  the way into [Area Zero](/guides/area-zero/) and its story. Each opens once the row before it is done, shows
+  "???" until then, and never becomes the objective the Journal names next, so the main story keeps its place.
+</Callout>
+
 <div class="shot-grid cols-3">
   <Shot src="journal.png" alt="The Journal's next-objective message in the field" caption="Using the Journal names your next objective." />
   <Clip slug="questlog-next-objective" />
@@ -48,6 +54,6 @@ done. From the Start menu, <Key>R</Key> opens it too.
 <JournalList final />
 
 <p class="src">
-  Generated from `patches/journal/steps.py`, the table the ROM's Journal is built from, so this page always matches
-  the game.
+  Generated from `patches/journal/steps.py`, the table the ROM's Journal is built from, and Area Zero's rows from
+  `patches/paldea/journal_az.py`, which adds them to it, so this page always matches the game.
 </p>

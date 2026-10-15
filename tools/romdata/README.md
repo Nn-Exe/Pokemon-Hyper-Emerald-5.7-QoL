@@ -33,6 +33,10 @@ one (`walled_in()`).
 `map_names.json` is pret's list of the maps vanilla Emerald has, by group and number: the script index and
 `maps.json` know a map only by its section ("Mauville City" for the city and every building in it), and
 `build_tm_locations.py` uses the list to say which building.
+`tables.py` says where a build keeps the tables every tool reads (the species tables, move names and
+descriptions, abilities, items, egg moves, Pokédex entries, trainer classes): v1.8's fixed addresses, or v1.9's,
+where the Gen 9 patches moved them (1,408 species slots). Each address comes from a word the game itself uses and is
+checked, so the tools stop on a build that moved them again.
 `species_display.py` and `display_names.py` hold the names the site prints: the ROM's tables cut names to 10-13
 characters and name every alternate form after its base species.
 

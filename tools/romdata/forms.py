@@ -127,6 +127,13 @@ TRAINER_ONLY = {
 }
 
 
+def use(t):
+    """Read a build whose species tables moved (t = tables.of(rom); v1.9 has 1,408 slots elsewhere). The defaults
+    above are v1.8's, which the Quest Log reads early in the chain."""
+    global EVOS, NATDEX, NSPECIES
+    EVOS, NATDEX, NSPECIES = t.table["evolutions"], t.table["national dex no."], t.species
+
+
 def natdex(rom, sid):
     """A species' National Dex number as the guide uses it: the ROM's table with its five wrong slots put right.
     The Gigantamax slots (no number in the table) take their species' through the name they share."""

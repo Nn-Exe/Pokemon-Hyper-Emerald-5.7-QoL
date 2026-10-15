@@ -15,12 +15,60 @@ export type FeatureSection = {
 
 export const FEATURE_STATS = [
   { value: '~6,000', label: 'strings translated', note: 'two passes over the whole game' },
-  { value: '905', label: 'Pokédex entries', note: 'every species in the game, in English' },
+  { value: '1,025', label: 'Pokédex entries', note: 'every species in the game, Gen 9 included, in English' },
   { value: '84', label: 'Journal objectives', note: 'from Prof. Birch to Cogita' },
   { value: '200', label: 'item slots', note: 'and 999 of each' },
 ];
 
 export const FEATURES: FeatureSection[] = [
+  {
+    id: 'gen9',
+    nav: 'Gen 9 & Area Zero',
+    eyebrow: 'New in v1.9',
+    title: 'The whole of Gen 9, and Area Zero to find it in',
+    intro:
+      'Every Gen 9 Pokémon at its official Pokédex number, the newer ones in the wild all over Hoenn, and an optional Paldea area behind a black hole in Mossdeep City with a story, the Paradox Pokémon and the Gen 9 legends.',
+    cards: [
+      {
+        title: 'Every Gen 9 Pokémon',
+        text: '127 new slots, Sprigatito No. 906 to Pecharunt No. 1025, with Paldean Wooper and the three Paldean Tauros. They live in the wild over Hoenn without pushing out any of the game’s own Pokémon, and older families gained their Gen 9 evolutions (Annihilape, Farigiraf, Dudunsparce, Kingambit, Hydrapple, Archaludon, Clodsire).',
+      },
+      {
+        title: 'Area Zero',
+        text: 'Once Team Rainbow Rocket is beaten, a black hole opens beside Jacq in Mossdeep City. Behind it: Paldea’s Great Crater in the past and in the future, joined by time rifts, and Arven, Nemona and Penny to find.',
+        how: 'Mossdeep City, below the Space Center',
+      },
+      {
+        title: 'Paradox Pokémon and legends',
+        text: 'Twelve Paradox Pokémon in the craters’ tall grass, the Titans Great Tusk and Iron Treads, the Zero Lab’s finale, then Koraidon, Miraidon, eight more Paradox, the four Treasures of Ruin and Terapagos to catch, once each.',
+      },
+      {
+        title: 'New moves and items',
+        text: 'The legends’ seven signature moves and their abilities have code of their own; the other new moves and abilities work like ones the game already has. Six evolution items at the Lilycove Department Store, 4F, and Booster Energy in Area Zero.',
+      },
+      {
+        title: 'The Quest Log knows Gen 9',
+        text: 'Legends counts 119, the Paradox Pokémon included; the five that live in Kitakami show as Locked. Side Content has Area Zero’s extras, Evolutions every Gen 9 family, and the Journal seven optional Area Zero steps.',
+      },
+      {
+        title: 'One-way saves',
+        text: 'v1.9 moves a save’s Gen 9 Pokédex marks to where the longer Pokédex keeps them. A save that has been opened in v1.9 must not go back to an older version.',
+      },
+    ],
+    media: [
+      { clip: 'area-zero-hole' },
+      { clip: 'time-rift' },
+      { clip: 'paradox-wild' },
+      { clip: 'gen9-wild' },
+      { clip: 'legends-119' },
+      { clip: 'evolutions-gen9' },
+    ],
+    links: [
+      { href: '/guides/area-zero/', label: 'Area Zero guide' },
+      { href: '/guides/legendaries/#area-zero-paldea', label: 'Gen 9 legends' },
+      { href: '/wiki/pokedex/', label: 'Pokédex' },
+    ],
+  },
   {
     id: 'english',
     nav: 'English text',
@@ -35,7 +83,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Every Pokédex entry',
-        text: 'All 905 species have an English entry, wrapped to fit the page. Thirty-five that ran into the frame were laid out again.',
+        text: 'All 1,025 species have an English entry, wrapped to fit the page, Gen 9’s too. Thirty-five that ran into the frame were laid out again.',
       },
       {
         title: 'English trainer names',
@@ -184,7 +232,7 @@ export const FEATURES: FeatureSection[] = [
     eyebrow: 'In battle',
     title: 'The information you used to look up',
     intro:
-      'With every species through Generation 8 on the other side of the field, types and matchups are shown where you need them.',
+      'With every species through Generation 9 on the other side of the field, types and matchups are shown where you need them.',
     cards: [
       {
         title: 'Type badges',
@@ -196,7 +244,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Move info on L',
-        text: 'Hold L while you choose a move and a panel slides in with its exact Power and Accuracy, Physical / Special / Status, whether it makes contact, its Priority and the chance of its extra effect. It follows the cursor, in doubles too.',
+        text: 'Hold L while you choose a move and a panel slides in with its exact Power and Accuracy, Physical / Special / Status, whether it makes contact, its Priority and the chance of its extra effect. It follows the cursor, in doubles too. A small L key with a magnifying glass above the move box is the reminder.',
         how: 'Hold L in the move list',
       },
       {
@@ -292,7 +340,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Hisui too',
-        text: 'Used anywhere in Hisui, the map shows Hisui, drawn in the same style. A on a red square flies you there with Braviary.',
+        text: 'Used anywhere in Hisui, the map shows Hisui, drawn in the same style, with the marker on where you are. It does not fly you there: that let you skip ahead of the story.',
       },
       {
         title: 'Every Fly spot on the Hoenn map',
@@ -315,7 +363,7 @@ export const FEATURES: FeatureSection[] = [
     cards: [
       {
         title: 'Journal',
-        text: 'A key item, handed to you automatically, that names your next story objective from Prof. Birch to Volo. It saves nothing of its own, so it never gets out of step.',
+        text: 'A key item, handed to you automatically, that names your next story objective from Prof. Birch to Volo, with Area Zero as an optional quest beside the story. It saves nothing of its own, so it never gets out of step.',
         how: 'Journal in Key Items, or R in the Start menu',
       },
       {
@@ -324,11 +372,11 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Legends',
-        text: 'Every legendary and mythical Pokémon in National Dex order, Ultra Beasts included: ticked once caught, named once seen, with where to find it.',
+        text: 'Every legendary and mythical Pokémon in National Dex order, Ultra Beasts and the twenty Paradox Pokémon included, 119 in all: ticked once caught, named once seen, with where to find it. Kitakami’s five show as Locked.',
       },
       {
         title: 'Key Items and Side Content',
-        text: 'The 55 key items in story order with where each comes from, and a checklist of the Hisuian trades, gift Pokémon, hidden starters and side stories.',
+        text: 'The 54 key items in story order with where each comes from, and a checklist of 55 side quests: the Hisuian trades, gift Pokémon, hidden starters, side stories and Area Zero’s extras.',
       },
       {
         title: 'Sinnoh badge case',
@@ -336,7 +384,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Evolutions',
-        text: 'Every evolution family with each step’s method, and every form with how you get it: Megas, all 34 Gigantamax forms, regional forms, and the forms an item, a move or an ability brings about. Families you have not seen show as shadows.',
+        text: 'Every evolution family with each step’s method, Gen 9’s included, and every form with how you get it: Megas, all 34 Gigantamax forms, regional forms, and the forms an item, a move or an ability brings about. Families you have not seen show as shadows.',
       },
     ],
     media: [
@@ -346,6 +394,7 @@ export const FEATURES: FeatureSection[] = [
       { clip: 'questlog-side-content' },
       { clip: 'sinnoh-badge-case' },
       { clip: 'evolutions-family' },
+      { clip: 'questlog-area-zero' },
     ],
     links: [
       { href: '/guides/journal/', label: 'Every Journal objective' },
@@ -392,6 +441,38 @@ export const FEATURES: FeatureSection[] = [
       {
         title: 'Sinnoh League fly',
         text: 'Flying to the League lands at the building’s door once you have come through Victory Road, not at the Pokémon Center by the entrance.',
+      },
+      {
+        title: 'Hisui’s striped ground',
+        text: 'The ground of a Hisui map turned to stripes, with people drawn as noise, until the next battle: seven wandering Pokémon had fewer pictures than their walk. They glide in their standing picture now.',
+      },
+      {
+        title: 'Tornadus and Thundurus stay in Sinnoh',
+        text: 'After a save and reset the two storms roamed Hoenn’s sea routes while the News Tracker, the Quest Log and the researcher said Sinnoh. They are Sinnoh roamers for good now.',
+      },
+      {
+        title: 'Battle graphics that stay right',
+        text: 'Move animations drawn as blocks late in a long battle, the gold box losing its colours to an animation or a fade, Pokémon from the newer balls holding on to palettes, wrong status-icon colours on a gold box: all fixed.',
+      },
+      {
+        title: 'Colours that belong',
+        text: 'People and Pokémon on busy maps drawn in another’s colours, the EV-IV Display keeping the last Pokémon’s colours, and the DexNav bar’s icons in the wrong palette for many Pokémon numbered above 412.',
+      },
+      {
+        title: 'Text that fits',
+        text: '56 pages whose line ran past the message box were broken again, the Regi tablet no longer runs on into the next text, and in mist the message box no longer turns the fog solid white.',
+      },
+      {
+        title: 'Side quests you could not finish',
+        text: 'Blue’s Galar gift (she stood inside a wall), the demon soul’s Magikarp (it shared a flag with Dawn’s battle) and the summit, where a failed visit took Kitty’s nameless stone for good.',
+      },
+      {
+        title: 'DexNav names the real ability',
+        text: 'The bar read its ability from leftover bytes and showed “-------” or the wrong name for 184 species. It now names the ability the Pokémon will have.',
+      },
+      {
+        title: 'Egg moves for Mime Jr.',
+        text: 'Mr. Mime and Mime Jr. had no egg moves and Goldeen and Bonsly had theirs. Each has its own list now.',
       },
     ],
     media: [{ clip: 'questlog-next-objective' }, { clip: 'no-pc-dungeons' }],

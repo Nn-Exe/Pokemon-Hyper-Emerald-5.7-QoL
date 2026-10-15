@@ -63,9 +63,14 @@ sha1sum "Hyper EMR LA v5.7 bugfix 2.gba"
   <li>
     <strong>Play</strong>
     Load the new `.gba` in mGBA, RetroArch (mGBA core), or any GBA emulator. The Option screen's title reads
-    **+QoL1.8** when you are on the current build.
+    **+QoL1.8** with today's patch file.
   </li>
 </ol>
+
+<Callout type="warn" title="v1.9 is described here before its release">
+  This site already covers v1.9 (Gen 9 and [Area Zero](/guides/area-zero/)). Until v1.9 is published, the patch
+  file in the repository builds v1.8, which has neither.
+</Callout>
 
 <Callout title="Heads-up">
   This is a fan patch on top of a large ROM hack. It is tested, but it may still contain glitches or bugs. Keep a
@@ -97,8 +102,14 @@ sha1sum "Hyper EMR LA v5.7 bugfix 2.gba"
 
 <Callout type="info" title="Your old save keeps working">
   Battery saves (`.sav`) transfer between the original Chinese hack, the older translation-only builds and this
-  build in either direction. The first time a save from before v1.6 is loaded, the items in the Bag's Items pocket
-  are moved into the new 200-slot pocket; nothing is lost.
+  build up to v1.8 in either direction. The first time a save from before v1.6 is loaded, the items in the Bag's
+  Items pocket are moved into the new 200-slot pocket; nothing is lost.
+</Callout>
+
+<Callout type="warn" title="From v1.9, one way only">
+  v1.9 moves a save's Gen 9 Pokédex marks to where its longer Pokédex keeps them the first time it loads the save.
+  An older save loads in v1.9, but a save that has been opened in v1.9 must not go back to v1.8 or older. Keep a
+  copy of the `.sav` from before.
 </Callout>
 
 - Emulators match saves by **ROM file name**. Either name the new ROM exactly like the old one, or rename the

@@ -16,6 +16,10 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
         a: 'Hyper Emerald: Lost Artifacts (究极绿宝石) is a Chinese ROM hack of Pokémon Emerald by Destvol, Satochu, Popy, Potato, Hurricane, Feiyixiang and others. On top of the Hoenn story it adds the whole Sinnoh region as post-game, Mega Evolution, Z-Moves and Dynamax, every species through Sword and Shield, a trainer-level system, over a hundred side quests and a hard mode.',
       },
       {
+        q: 'Is Gen 9 in the game?',
+        a: `In v1.9, yes (this site describes it ahead of its patch file): every Gen 9 Pokémon at its official Pokédex number, the newer ones wild all over Hoenn, and the Paradox Pokémon and legends in ${link('/guides/area-zero/', 'Area Zero')}, a Paldea area that opens in Mossdeep City after Team Rainbow Rocket. Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt cannot be met: they live in Kitakami, which the game does not have.`,
+      },
+      {
         q: 'Is the hack complete?',
         a: 'Yes. v5.7 is a finished release with Hoenn, Sinnoh and the post-game. The English patch has been played through the areas its tests cover, not all forty-plus hours, so odd text is still possible in deep post-game screens.',
       },
@@ -33,7 +37,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'How do I know which version I am on?',
-        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.8” followed by your difficulty when you are on the current build.',
+        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.8” followed by your difficulty with the patch file in the repository today. v1.9, which this site already describes, will read +QoL1.9.',
       },
     ],
   },
@@ -63,7 +67,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
     items: [
       {
         q: 'My save is gone after switching to the new ROM',
-        a: 'Emulators match the <code>.sav</code> by file name. Rename either the ROM or the save so the base names match. The save data itself is compatible in both directions.',
+        a: 'Emulators match the <code>.sav</code> by file name. Rename either the ROM or the save so the base names match. Up to v1.8 the save data is compatible in both directions; a save that has been opened in v1.9 must not go back to an older version.',
       },
       {
         q: 'Can I use save states from the old ROM?',
@@ -75,7 +79,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'Will future patch versions break my save?',
-        a: 'Updates are designed to be save-compatible: the features keep their state in bytes the game never used. Keep a backup of the <code>.sav</code> anyway; it is a 128 KB file.',
+        a: 'Updates are designed to be save-compatible: the features keep their state in bytes the game never used, and an older save loads in a newer version. v1.9 is one way: it moves the save’s Gen 9 Pokédex marks, so a save opened in it must not go back to v1.8 or older. Keep a backup of the <code>.sav</code>; it is a 128 KB file.',
       },
       {
         q: 'My save disappears after the League',

@@ -41,16 +41,23 @@ CURATED = [
     ("Gift Pokémon", "Handed to you by a script.", [
         ("Littleroot Town", "Return the Mega Bracelet: a choice of Giratina Lv80, Kyurem, Xerneas or Yveltal Lv50", "0x4311"),
         ("Hearthome City", "Meloetta Lv50, after its stage performance", "0x4055"),
-        ("Lilycove City", "A choice of Galar Pokémon Lv15 (Corsola, Eiscue, Glastrier, Indeedee, Morpeko, Mr. Mime, …)", "0x40B9"),
-        ("Lilycove City", "Meltan Lv5", "0x40CA"),
-        ("Battle Frontier", "Kubfu or Rockruff Lv5", "0x40F2, 0x42DB-0x42DD"),
+        ("Lilycove City (museum, 1F)", "Beat Blue: all nine of her Galar Pokémon Lv15 (Galarian Mr. Mime, Stunfisk, "
+         "Weezing and Corsola, Indeedee, Eiscue, Morpeko, Glastrier, Spectrier); what the party cannot hold goes to "
+         "the PC. Before the sidefix patch (2026-10-15) she stood inside the wall and could not be reached", "0x40B9"),
+        ("Lilycove City (Cove Lily Motel)", "Meltan Lv5, from the Game Designer once every Hoenn Pokédex Pokémon "
+         "is caught", "0x40CA"),
+        ("Battle Frontier", "Beat Palmer (0x40F2), then: Rockruff Lv5 for a 35-win singles streak in the Battle "
+         "Tower, Kubfu Lv5 (with the Dark and Water Scrolls) for a 35-win doubles streak, a second Kubfu for all "
+         "seven Gold Symbols", "0x42DB, 0x42DC, 0x42DD"),
         ("Ultra Space", "Poipole Lv5", "0x41BD"),
         ("Timeless Woods", "Wimpod Lv10", "0x41B7"),
         ("Hearthome City / Bell Tower", "Let's Go Eevee or Pikachu Lv5", "0x4307, 0x40CB"),
         ("Lavaridge Town", "Pikachu Belle Lv5", "0x408F"),
         ("Rustboro City", "A fossil of your choice revived at Lv20", "0x010B"),
         ("Valley Windworks", "Drifloon Lv15", "0x42DE-0x42E1"),
-        ("Route 210", "Magikarp Lv1", "0x4118"),
+        ("Steven's Island", "Magikarp Lv1: pay the demon soul in the top room of Steven's residence 1,996 and "
+         "beat him (trainer 1161). Before the sidefix patch (2026-10-15) he shared his flag with Dawn's battle on Route 210",
+         "0x4552"),
         ("Mossdeep City", "Beldum Lv5 (Steven's house)", "0x012A"),
     ]),
     ("Legendary and mythical battles outside the Journal", "Scripted one-off encounters.", [
@@ -85,19 +92,23 @@ CURATED = [
     ]),
     ("Hidden powers", "Two secret trials that give your Pokémon a power, and what follows them.", [
         ("Route 112 (foot of Mt. Chimney, west side)", "A hidden cave into a sealed part of the Magma Hideout. "
-         "Take TM53, then face the flame creature and do NOT choose to leave: the Crimson Apostle (a Flareon "
-         "serving the Crimson Nova) runs three rounds of hologram battles (trainers 1155-1157) and awakens the "
-         "Burning Soul. One try only: on the way out the cave collapses (0x42E2) whether you finished or fled; "
-         "0x4301 is set only if you finished. Lore: a Typhlosion trainer passed the same trial on Stark Mountain; "
+         "Take TM53, then read the sign with a Typhlosion as your only Pokémon (nothing happens otherwise). "
+         "Asked whether to leave, say No: Yes collapses the cave for good (0x42E2). The Crimson Apostle (a "
+         "Flareon serving the Crimson Nova) then runs three rounds of hologram battles (trainers 1155-1157) and "
+         "awakens the Burning Soul (0x4301); the cave collapses after that too. A lost round only blacks you out: "
+         "the cave stays open and you start again from round 1. Needed for Ash's challenge. Lore: a Typhlosion trainer passed the same trial on Stark Mountain; "
          "Flint (Test of Heart) remembers a Johto girl's very fast Typhlosion.", "0x4297, 0x42E2, 0x4301"),
         ("Champion Island", "Beat Koga (trainer 1160): he gives his mark and points to a hidden village through "
          "the forest of Route 102.", "0x42FF"),
         ("Koga's Village (hidden, via Route 102)", "Elder Koga's succession trial: only one Greninja, some items "
          "banned, two stages (trainers 1159, 1158). Your Greninja gains its hero form, like Ash's.", "0x4300"),
-        ("Route 101", "Ash from Pallet Town comes for a 2-vs-2 battle with you and your rival; a red-haired "
-         "passerby (-Echo-) joins and drops a cartridge and a note.", "0x4302"),
-        ("Steven's Island", "The northeast corner of Steven's residence: -Echo- / -Hibiki- (trainer 1016). A book "
-         "there by Gengyi Xiang adds entries as you earn each power.", "0x4303"),
+        ("Littleroot Town (Prof. Birch's lab) / Route 101", "With the Hero Greninja (0x4300), the Burning Soul "
+         "(0x4301) and Team Rainbow Rocket beaten (0x41D5), say yes to your rival's battle in the lab: Ash walks in "
+         "and you all go to Route 101 for a 2-vs-2, you and your rival against Ash and a red-haired passerby "
+         "(-Echo-), who drops a cartridge and a note. Without all three it is the rival's usual battle.", "0x4302"),
+        ("Steven's Island", "The northeast corner of Steven's residence (its top room): -Echo- / -Hibiki- (trainer "
+         "1016), there only after Ash's challenge; talking to her counts, the battle is optional. A book there by "
+         "Gengyi Xiang adds entries as you earn each power.", "0x4303"),
     ]),
     ("Side stories", "Short scripted scenes and quests the Journal does not name.", [
         ("Route 102", "Red and Blue corner Buzzwole at an Ultra Wormhole", "0x42A3-0x42A6"),
@@ -111,6 +122,23 @@ CURATED = [
         ("Meteor Temple / Meteor Falls", "Zinnia's grandmother on the Draconids; a former Dragon Tamer", "0x4139, 0x432A"),
         ("Sinnoh League", "Lucas and Barry greet you; Barry waits in Twinleaf Town for a battle", "0x40CE"),
         ("Route 110 / Desert Underpass", "A timed cycling run; a vibration in the depths", "0x40CC, 0x40CD"),
+    ]),
+    # v1.9: the Paldea area (patches/paldea, story.py); the Quest Log's ten Area Zero rows (patches/gen9journal)
+    ("Area Zero", "Extras of the Paldea area behind Mossdeep City's black hole; each is a row of the Quest Log's "
+     "Side Content chapter.", [
+        ("Research Stations No. 1-4", "Play the professors' recorded log on the left counter of each station: No. 1 "
+         "on the crater wall's middle ledge, No. 2 the house on the shelf below the stairs into the crater, No. 3 the "
+         "house on the knoll in the east of the crater, No. 4 above the waterfall (surf across the pond and climb "
+         "it). All four, then a word with Penny, unlock the Zero Lab's door", "0x43B8-0x43BB"),
+        ("Arven's picnic, by the big lake", "Beat the Titans in the den on the crater's west side - Great Tusk in the "
+         "past, Iron Treads in the future - and bring Arven both Sour Herba Mystica: his sandwiches get Koraidon "
+         "and Miraidon up again", "0x43B5, 0x43B6"),
+        ("Research Station No. 3", "After the story Nemona lives here: beat her in a rematch", "0x43E4"),
+        ("The Sealed Vault", "After the story, behind the Crystal Cavern's second cave mouth: slide over the mirror "
+         "floor and pull its three stakes, marked with a bundle of tablets (Wo-Chien), a vessel on three legs "
+         "(Ting-Lu) and a string of curved beads (Chi-Yu); each frees the legend behind its crystal",
+         "0x43D8-0x43DA"),
+        ("The crater, past and future", "A Booster Energy in an item ball in each era's crater", "0x43DC, 0x43DD"),
     ]),
 ]
 

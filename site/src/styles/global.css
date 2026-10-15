@@ -1706,20 +1706,20 @@ dl.kv > :nth-last-child(-n + 2) {
 }
 .spr-mon {
   --cell: 32px;
-  --sheet-w: 1280px;
-  --sheet-h: 960px;
+  --sheet-w: var(--spr-mon-w);
+  --sheet-h: var(--spr-mon-h);
   background-image: var(--spr-mon);
 }
 .spr-trainer {
   --cell: 64px;
-  --sheet-w: 1024px;
-  --sheet-h: 1024px;
+  --sheet-w: var(--spr-trainer-w);
+  --sheet-h: var(--spr-trainer-h);
   background-image: var(--spr-trainer);
 }
 .spr-item {
   --cell: 24px;
-  --sheet-w: 768px;
-  --sheet-h: 600px;
+  --sheet-w: var(--spr-item-w);
+  --sheet-h: var(--spr-item-h);
   background-image: var(--spr-item);
 }
 .spr.x2 {
@@ -2086,7 +2086,7 @@ a.mon:hover > span:last-child {
   width: 32px;
   height: 32px;
   margin-block: -0.6rem;
-  background: var(--spr-mon) no-repeat calc(var(--x) * -32px) calc(var(--y) * -32px) / 1280px 960px;
+  background: var(--spr-mon) no-repeat calc(var(--x) * -32px) calc(var(--y) * -32px) / var(--spr-mon-w) var(--spr-mon-h);
   image-rendering: pixelated;
 }
 .enc a.mon:hover {

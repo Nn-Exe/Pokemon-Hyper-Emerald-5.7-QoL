@@ -81,16 +81,24 @@ python tools/build_tm_locations.py     # tms.json: where each TM and HM is found
 python tools/build_mega_stones.py      # megastones.json: where each Mega Stone is found
 python tools/build_guide_items.py      # guide-items.json: the Z-Crystals with their Totems, and the Plates
 python tools/build_spot_maps.py        # public/spots/*.webp, spots.json: a picture of each spot (after the three above)
-python tools/build_site_content.py     # journal.json (from patches/journal/steps.py), side-content.json
+python tools/build_site_content.py     # journal.json (patches/journal/steps.py, Area Zero's rows from patches/paldea), side-content.json
 python tools/build_site_images.py      # favicon, touch icon and the social card
-FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the six README montage GIFs
+FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the README montage GIFs and the GIF editor's v1.9 one
+                                            # (--only v1.9: that montage alone, the other clips left as they are)
 ```
+
+Every tool finds the game's tables through `tools/romdata/tables.py`: up to v1.8 they sit at fixed addresses; v1.9
+(the whole of Gen 9) moved the species tables to 1,408 slots elsewhere, and the move descriptions, egg moves and
+Pokédex entries too. It reads each address from the words the game itself uses and checks it, so the same tools
+read v1.8 and v1.9, and a build that moves them again stops instead of giving the site wrong data.
 
 The names the site prints for alternate forms (Alolan, Hisuian, Mega, Gigantamax…) and for names the ROM cuts
 short are in `tools/romdata/species_display.py` and `display_names.py`; how each form comes about (Mega Stones, Max
 Soup, held items, moves, abilities, Bag items) is read by `tools/romdata/forms.py`, which `build_pokedex.py` uses.
 
-The location tools read the release's ROM, not a build with work in progress in it. `item_sources.py` gives the
+The tools read the ROM of the version the site describes: v1.9 since 2026-10-16 (the working ROM of that day,
+sha1 65b5a7f6..., snapshotted in `gba-trans/_testrun/site19/hyper19.gba`), before that v1.8's release ROM. Run them
+with `HE_ROMDATA_OUT` pointing at a scratch folder. `item_sources.py` gives the
 tile of whatever lies on the ground, `build_spot_maps.py` draws the map around it with the object on it, and the
 pages show the picture (`<Spot>`; the guide's lists are `<MegaStoneList />`, `<TotemList />` and
 `<ItemPlaceList />`). Two things about this hack that the scan has to know: it draws its own objects through a
@@ -105,5 +113,8 @@ overrides either.
 
 ## Scope
 
-The site documents the public release. `tools/build_site_data.py` leaves out the trainer slots the release does
-not use (`UNRELEASED_TRAINERS`); keep unreleased content out of the guides, the gallery and the changelog too.
+The site documents the public game: since 2026-10-16 v1.9, with Gen 9 and Area Zero (the user: "Yes, both
+public"), ahead of its patch file (`RELEASED_VERSION` in `src/consts.ts` names the version the repository's patch
+file builds; while it is behind `PATCH_VERSION` the home, Features, Changelog and Install pages say so).
+`tools/build_site_data.py` keeps trainer slots 943, 947 and 952 only when they hold Area Zero's trainers
+(`AREA_ZERO_SLOTS`); keep unreleased content out of the guides, the gallery and the changelog.

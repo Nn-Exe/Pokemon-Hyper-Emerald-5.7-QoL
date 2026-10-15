@@ -376,5 +376,68 @@
   "group": "Quest Log & Journal",
   "width": 480,
   "height": 320
+ },
+ {
+  "slug": "gen9-wild",
+  "caption": "The whole of Gen 9, wild all over Hoenn",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "area-zero-hole",
+  "caption": "Area Zero: the black hole in Mossdeep City",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "time-rift",
+  "caption": "The time rift: the past and the future",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "paradox-wild",
+  "caption": "Paradox Pokémon in the crater's tall grass",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "gen9-evolution-items",
+  "caption": "New evolution items at the Lilycove Dept. Store",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "move-info-tag",
+  "caption": "Move info: hold L (the new magnifier tag)",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "legends-119",
+  "caption": "Legends: 119 to catch, Kitakami's locked",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "evolutions-gen9",
+  "caption": "Every Gen 9 evolution line",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "questlog-area-zero",
+  "caption": "Area Zero side quests in the Quest Log",
+  "group": "What's new in v1.9",
+  "width": 480,
+  "height": 320
  }
 ]

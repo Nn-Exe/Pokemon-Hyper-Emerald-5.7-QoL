@@ -2,6 +2,7 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from romlib import *
 T=0x10019F8
+NSP=len(load('species.json'))   # species ids are 1..NSP-1 (dump_tables.py first)
 def name_ok(nm):
     return is_clean(nm) or nm=='' or (nm.count('{CN')>0 and all(ch.isalnum() or ch in " .'&-!?" for ch in __import__('re').sub(r'\{CN[0-9A-F]{4}\}','',nm)))
 def entry_valid(i):
@@ -14,7 +15,7 @@ def entry_valid(i):
     pp=p-0x8000000; esz=16 if fl&1 else 8
     for k in range(ps):
         m=pp+esz*k
-        if not (1<=u16(m+2)<=100 and 1<=u16(m+4)<=1199): return False
+        if not (1<=u16(m+2)<=100 and 1<=u16(m+4)<NSP): return False
     return True
 last=0; junk=[]
 for i in range(0,4000):
@@ -52,7 +53,7 @@ for i in range(NT):
             mvs = [u16(m+8+2*j) for j in range(4)] if flags&1 else []
             mon={'iv':u16(m),'level':u16(m+2),'species_id':u16(m+4),'species':sp(u16(m+4)),
                  'item_id':itm,'item':it(itm),'moves':[mv(x) for x in mvs],'move_ids':mvs}
-            if not (1<=mon['level']<=100) or not (1<=mon['species_id']<=1199): warn.append((i,name,k,mon['level'],mon['species_id']))
+            if not (1<=mon['level']<=100) or not (1<=mon['species_id']<NSP): warn.append((i,name,k,mon['level'],mon['species_id']))
             party.append(mon)
     out.append({'id':i,'class_id':cls,'class':classes.get(str(cls),'?'),'name':name,'party_flags':flags,'gender_music':music,'pic':pic,
                 'items':[it(x) for x in titems if x],'double':dbl,'ai_flags':ai,'party_size':psize,'party_ptr':hex(0x8000000+pp) if pp is not None else None,'party':party,'dead_party':bool(pp is not None and psize>0 and rom[pp:pp+16*psize]==b'\0'*16*psize)})

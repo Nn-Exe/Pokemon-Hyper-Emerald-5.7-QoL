@@ -16,6 +16,8 @@ import sys
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "romdata"))
+import tables  # noqa: E402
 ROM_PATH = os.environ.get("HE_ROM") or (sys.argv[1] if len(sys.argv) > 1 else None)
 if not ROM_PATH:
     sys.exit("set HE_ROM=<path to the patched ROM>")
@@ -24,14 +26,15 @@ OUT_DATA = os.path.join(HERE, "..", "site", "src", "data")
 
 rom = open(ROM_PATH, "rb").read()
 assert rom[0xAC:0xB0] == b"BPEE", "not the expected ROM"
+T = tables.of(rom)                  # v1.9 keeps the species tables elsewhere, 1,408 slots, and has items to 775
 
-ICON_TABLE = 0x00F2A020     # species -> 32x64 4bpp icon, two frames (GetMonIconTiles' table)
-ICON_PALIDX = 0x00F2B2E0    # species -> icon palette 0-5
+ICON_TABLE = T.table["icons"]               # species -> 32x64 4bpp icon, two frames (GetMonIconTiles' table)
+ICON_PALIDX = T.table["icon palette ids"]   # species -> icon palette 0-5
 ICON_PALS = 0x0057C540      # gMonIconPaletteTable: {palette pointer, tag} x 6
 TRAINER_PICS = 0x0101BE90   # {LZ77 64x64 4bpp, u16 size, u16 tag} x 250 (found by a table scan; 8 bytes each)
 TRAINER_PALS = 0x0101C660   # {LZ77 palette, u16 tag, pad} x 250, referenced from the vanilla trainer-pic code
 ITEM_ICONS = 0x00FCBFF4     # item -> {LZ77 24x24 4bpp, LZ77 palette}
-N_SPECIES, N_TRAINER_PICS, N_ITEMS = 1200, 250, 769
+N_SPECIES, N_TRAINER_PICS, N_ITEMS = T.species, 250, T.items
 
 
 def u32(o):

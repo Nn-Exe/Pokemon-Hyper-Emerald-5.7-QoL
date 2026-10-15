@@ -324,7 +324,7 @@ const dexNumbers = new Set(species.filter((s) => s.dex).map((s) => s.dex)).size;
 export const dexStats = {
   /** every page in the Pokédex: species and their forms */
   total: species.length,
-  /** National Dex numbers: Bulbasaur to Enamorus */
+  /** National Dex numbers: Bulbasaur to Pecharunt */
   species: dexNumbers,
   forms: species.filter((s) => s.dex).length - dexNumbers,
   /** the hack's own Pokémon, which the National Dex has no number for */

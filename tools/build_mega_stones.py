@@ -21,11 +21,13 @@ sys.path.insert(0, os.path.join(HERE, "romdata"))
 import romlib as R                                         # noqa: E402
 import forms as F                                          # noqa: E402
 import item_sources as I                                   # noqa: E402
+import tables                                              # noqa: E402
 from display_names import item_name                        # noqa: E402
 from species_display import display_name                  # noqa: E402
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 rom = R.rom
+F.use(tables.of(rom))
 DATA = os.path.join(HERE, "..", "site", "src", "data")
 MEGA, PRIMAL = 251, 253
 

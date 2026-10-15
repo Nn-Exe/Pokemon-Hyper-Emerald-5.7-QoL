@@ -1,5 +1,6 @@
 {
  "count": 84,
+ "optional": 7,
  "chapters": [
   {
    "key": "hoenn",
@@ -403,12 +404,179 @@
     },
     {
      "n": 62,
+     "title": "Area Zero: Jacq",
+     "text": "Optional: a teacher from Paldea stands by a black hole in Mossdeep City, down the little stairs below the Space Center. Talk to him.",
+     "anyOrder": false,
+     "optional": true
+    },
+    {
+     "n": 63,
+     "title": "Area Zero: Penny",
+     "text": "Step into the black hole. You land on the crater's wall: Penny hides in Research Station No. 1, on the middle ledge.",
+     "anyOrder": false,
+     "optional": true
+    },
+    {
+     "n": 64,
+     "title": "Area Zero: sandwiches",
+     "text": "Arven's Koraidon and Miraidon are worn out. His sandwiches need Sour Herba Mystica from the two Titans.",
+     "anyOrder": false,
+     "optional": true,
+     "group": {
+      "label": "Sandwiches",
+      "all": false,
+      "members": [
+       {
+        "text": "Find Arven at his picnic by the big lake in the south of the crater.",
+        "twice": false
+       },
+       {
+        "text": "In the past, beat the Titan Great Tusk twice in the den on the crater's west side.",
+        "twice": false
+       },
+       {
+        "text": "Bring its Sour Herba Mystica to Arven: his sandwich gets Koraidon up again.",
+        "twice": false
+       },
+       {
+        "text": "Step through a time rift to the future, and beat the Titan Iron Treads twice in the same den.",
+        "twice": false
+       },
+       {
+        "text": "Bring that herb to Arven too: Miraidon gets up again.",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 65,
+     "title": "Area Zero: Nemona",
+     "text": "Nemona is in the future, in the tall grass south of the waterfall's pond. Beat her in a battle.",
+     "anyOrder": false,
+     "optional": true
+    },
+    {
+     "n": 66,
+     "title": "Area Zero: the four logs",
+     "text": "Each research station holds a recorded log from the professors. Play all four, then talk to Penny.",
+     "anyOrder": false,
+     "optional": true,
+     "group": {
+      "label": "Logs",
+      "all": false,
+      "members": [
+       {
+        "text": "Station No. 1, on the crater wall's middle ledge: play the recorder on the left counter.",
+        "twice": false
+       },
+       {
+        "text": "Station No. 2: the house on the shelf below the stairs into the crater.",
+        "twice": false
+       },
+       {
+        "text": "Station No. 3: the house on the knoll in the east of the crater.",
+        "twice": false
+       },
+       {
+        "text": "Station No. 4: above the waterfall. Surf across the pond and climb it.",
+        "twice": false
+       },
+       {
+        "text": "Talk to Penny in Station No. 1: she unlocks the Zero Lab's door.",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 67,
+     "title": "Area Zero: the Zero Lab",
+     "text": "Arven and Nemona have opened the shutter in the crater's north-east wall. Go in and talk to the machine.",
+     "anyOrder": false,
+     "optional": true
+    },
+    {
+     "n": 68,
+     "title": "Area Zero: legends",
+     "text": "Koraidon, Miraidon and the Paradox Pokémon can be caught now, once each: if one faints, it is gone for good. Jacq's class lives in the research stations.",
+     "anyOrder": false,
+     "optional": true,
+     "group": {
+      "label": "Done",
+      "all": false,
+      "members": [
+       {
+        "text": "Koraidon waits at Arven's picnic spot, in the past.",
+        "twice": false
+       },
+       {
+        "text": "Miraidon waits at Arven's picnic spot, in the future.",
+        "twice": false
+       },
+       {
+        "text": "Walking Wake: in the crater, in the past.",
+        "twice": false
+       },
+       {
+        "text": "Gouging Fire: in the crater, in the past.",
+        "twice": false
+       },
+       {
+        "text": "Raging Bolt: in the crater, in the past.",
+        "twice": false
+       },
+       {
+        "text": "Iron Leaves: in the crater, in the future.",
+        "twice": false
+       },
+       {
+        "text": "Iron Boulder: in the crater, in the future.",
+        "twice": false
+       },
+       {
+        "text": "Iron Crown: in the crater, in the future.",
+        "twice": false
+       },
+       {
+        "text": "Roaring Moon: in the Crystal Cavern.",
+        "twice": false
+       },
+       {
+        "text": "Iron Valiant: in the Crystal Cavern.",
+        "twice": false
+       },
+       {
+        "text": "Wo-Chien: in the Sealed Vault, behind the Crystal Cavern's second cave mouth: pull its stake.",
+        "twice": false
+       },
+       {
+        "text": "Chien-Pao: in the icy cave on the crater wall's middle ledge.",
+        "twice": false
+       },
+       {
+        "text": "Ting-Lu: in the Sealed Vault, behind the Crystal Cavern's second cave mouth: pull its stake.",
+        "twice": false
+       },
+       {
+        "text": "Chi-Yu: in the Sealed Vault, behind the Crystal Cavern's second cave mouth: pull its stake.",
+        "twice": false
+       },
+       {
+        "text": "Terapagos: in the Underdepths, down the Crystal Cavern's ladder.",
+        "twice": false
+       }
+      ]
+     }
+    },
+    {
+     "n": 69,
      "title": "A Silver Symbol",
      "text": "Earn a Silver Symbol at the Battle Frontier - for one, beat Salon Maiden Anabel, the 35th battle of a Battle Tower Singles streak. Then see Scott in his Frontier house for a ferry ticket to the World Championships.",
      "anyOrder": true
     },
     {
-     "n": 63,
+     "n": 70,
      "title": "To Champion Island",
      "text": "Take the ferry from Lilycove City to Champion Island for the World Championships. Familiar faces are waiting.",
      "anyOrder": true
@@ -421,13 +589,13 @@
    "blurb": "The eight Sinnoh gyms and the League.",
    "steps": [
     {
-     "n": 64,
+     "n": 71,
      "title": "Sail to Sinnoh",
      "text": "Show Waji's boat ticket to the sailor at Lilycove City's harbor and sail to Canalave City in Sinnoh.",
      "anyOrder": true
     },
     {
-     "n": 65,
+     "n": 72,
      "title": "The Sinnoh Badges",
      "text": "Earn the eight Sinnoh Gym Badges. Still to beat:",
      "anyOrder": false,
@@ -471,7 +639,7 @@
      }
     },
     {
-     "n": 66,
+     "n": 73,
      "title": "The Sinnoh League",
      "text": "Take Victory Road to the Sinnoh League and beat the Elite Four and Cynthia.",
      "anyOrder": false
@@ -484,7 +652,7 @@
    "blurb": "Waji, the Plates, Giratina, Arceus and Volo.",
    "steps": [
     {
-     "n": 67,
+     "n": 74,
      "title": "The 17 Plates",
      "text": "Collect the 17 Plates hidden in Hoenn and Sinnoh. Waji, at the Spear Pillar on top of Mt. Coronet, gives hints.",
      "anyOrder": false,
@@ -560,49 +728,49 @@
      }
     },
     {
-     "n": 68,
+     "n": 75,
      "title": "The Spear Pillar altar",
      "text": "Step onto the altar at the Spear Pillar with all 17 Plates. The rift that opens will test everything you have.",
      "anyOrder": true
     },
     {
-     "n": 69,
+     "n": 76,
      "title": "A way through",
      "text": "Waji senses the rift's energy in Celestic Town. Visit its ruins with Dialga and Palkia both caught to open a way into the Distortion World, or go in from the islet on Route 129.",
      "anyOrder": true
     },
     {
-     "n": 70,
+     "n": 77,
      "title": "The reverse world",
      "text": "Enter the Distortion World and face the ruler of the reverse world. Ways in: the new passage at the Spear Pillar or Sendoff Spring, or the islet on Route 129 in Hoenn.",
      "anyOrder": true
     },
     {
-     "n": 71,
+     "n": 78,
      "title": "The Plates' owner",
      "text": "Keep all 17 Plates in your Bag and return to the Mountain Top above Team Rainbow Rocket's castle. The Plates' true owner is waiting.",
      "anyOrder": false
     },
     {
-     "n": 72,
+     "n": 79,
      "title": "Cogita in Hearthome",
      "text": "Arceus sent you to Hearthome City. Find Cogita in a house on the west side of town, with all 17 Plates in your Bag.",
      "anyOrder": false
     },
     {
-     "n": 73,
+     "n": 80,
      "title": "Through the rift",
      "text": "Step through the space-time rift in Cogita's house. It leads to the Hisui region.",
      "anyOrder": false
     },
     {
-     "n": 74,
+     "n": 81,
      "title": "Find Cogita in Hisui",
      "text": "Find Cogita in Hisui. Rei (Mingyao) at the Deertrack Heights base camp flies you around: look on Firespit Island.",
      "anyOrder": false
     },
     {
-     "n": 75,
+     "n": 82,
      "title": "The clan leaders",
      "text": "Visit the clan leaders at the hot spring in the Alabaster Icelands.",
      "anyOrder": false,
@@ -622,55 +790,55 @@
      }
     },
     {
-     "n": 76,
+     "n": 83,
      "title": "The Primeval Cave",
      "text": "Diamond and Pearl point to the foot of Mt. Coronet. Enter the Primeval Cave: whoever is behind the rifts is inside.",
      "anyOrder": false
     },
     {
-     "n": 77,
+     "n": 84,
      "title": "Back to base camp",
      "text": "Volo is beaten. Return to base camp in Hisui: Rei and Cogita have news.",
      "anyOrder": false
     },
     {
-     "n": 78,
+     "n": 85,
      "title": "A sleeping woman",
      "text": "In Solaceon Town in Sinnoh, a woman has slept in a nightmare since her offerings at the Lost Tower. Hear her husband out.",
      "anyOrder": true
     },
     {
-     "n": 79,
+     "n": 86,
      "title": "Wake the sleeper",
      "text": "Bring the Lunar Wing to the sleeping woman in Solaceon Town and wake her.",
      "anyOrder": true
     },
     {
-     "n": 80,
+     "n": 87,
      "title": "The Lost Tower",
      "text": "The oppressive presence in the Lost Tower has lifted. Something pitch-black stirs deep inside: face the phantom of nightmares.",
      "anyOrder": true
     },
     {
-     "n": 81,
+     "n": 88,
      "title": "One more legend",
      "text": "Catch Tornadus, Thundurus and Landorus, then show Cogita on Firespit Island in Hisui. She has one more legend to tell.",
      "anyOrder": false
     },
     {
-     "n": 82,
+     "n": 89,
      "title": "Kitty's dried fish",
      "text": "Kitty in the three-floor house on Steven's Island wants dried fish. Find the Dried Fish on Prelude Beach in Hisui and bring it to her for a nameless stone.",
      "anyOrder": true
     },
     {
-     "n": 83,
+     "n": 90,
      "title": "The summit",
      "text": "With Kitty's nameless stone in your Bag, climb toward the Sacred Temple in Hisui's highlands. A dread of unknown origin hangs over the summit.",
      "anyOrder": true
     },
     {
-     "n": 84,
+     "n": 91,
      "title": "Cogita's invitation",
      "text": "Cogita waits on Champion Island with more to tell.",
      "anyOrder": true
