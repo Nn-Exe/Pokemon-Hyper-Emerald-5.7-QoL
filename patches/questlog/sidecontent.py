@@ -21,12 +21,23 @@ SIDE = [
     # ---- gift Pokémon
     (0x4055, "Meloetta",
      "Hearthome City: it joins you after its performance on stage, Lv50."),
-    (0x40B9, "A Galar gift",
-     "Lilycove City: a choice of Galar Pokémon (Corsola, Eiscue, Glastrier, Indeedee, Morpeko, Mr. Mime...), Lv15."),
+    (0x40B9, "Blue's Galar team",
+     "Lilycove City: Blue waits in the museum, 1F. Beat her and she gives you all nine of her Galar Pokémon, "
+     "Lv15: Galarian Mr. Mime, Stunfisk, Weezing, Corsola, Indeedee, Eiscue, Morpeko, Glastrier, Spectrier. "
+     "What your party cannot hold goes to the PC."),
     (0x40CA, "Meltan",
-     "Lilycove City: a gift, Lv5."),
-    (0x40F2, "Kubfu or Rockruff",
-     "Battle Frontier: a gift, Lv5."),
+     "Lilycove City: the Game Designer at the Cove Lily Motel gives it once you have caught every Pokémon of "
+     "the Hoenn Pokédex, Lv5."),
+    # Palmer (Battle Frontier) sets 0x40F2 when you beat him and gives nothing then; each gift has its own flag
+    (0x42DB, "Rockruff",
+     "Battle Frontier: beat Palmer by the Battle Tower, then reach a 35-win singles streak there (open "
+     "level). He gives you a Rockruff, Lv5."),
+    (0x42DC, "Kubfu",
+     "Battle Frontier: beat Palmer by the Battle Tower, then reach a 35-win doubles streak there. He gives "
+     "you a Kubfu, Lv5, with the Dark Scroll and the Water Scroll."),
+    (0x42DD, "A second Kubfu",
+     "Battle Frontier: beat Palmer by the Battle Tower, then win all seven Gold Symbols of the Battle "
+     "Frontier. He gives you another Kubfu, Lv5."),
     (0x41BD, "Poipole",
      "Ultra Space, through the Ultra Wormhole on Mt. Pyre: a gift, Lv5."),
     (0x41B7, "Wimpod",
@@ -39,8 +50,11 @@ SIDE = [
      "Rustboro City: Devon Corp. revives a fossil of your choice, Lv20."),
     (0x42DE, "Drifloon",
      "Valley Windworks in Sinnoh: a gift, Lv15."),
-    (0x4118, "Magikarp",
-     "Route 210 in Sinnoh: a gift, Lv1."),
+    # 0x4552 is the "demon soul"'s trainer flag (trainer 1161: id + 0x40C9). His script used 0x4118, which Dawn's
+    # battle on Route 210 also sets; the sidefix patch moved him onto his trainer flag.
+    (0x4552, "Magikarp",
+     "Steven's Island: in the top room of Steven's residence, pay the 1,230-year-old demon soul 1,996 for "
+     "advice and beat him. He gives you a Magikarp, Lv1."),
     (0x012A, "Beldum",
      "Mossdeep City: in Steven's house, Lv5."),
     # ---- starters from other regions, hidden one-off battles
@@ -87,8 +101,9 @@ SIDE = [
      "The Old Chateau in Sinnoh: a powerful grudge dwells in a statue."),
     # ---- hidden powers: the Burning Soul and the Hero Greninja (Ash's Koga ninja style)
     (0x4301, "The Burning Soul",
-     "Route 112, foot of Mt. Chimney (west): a hidden cave. Take TM53, face the flame creature and stay. "
-     "ONE try: the cave collapses after. Win 3 rounds for the Burning Soul, as a Typhlosion trainer once did."),
+     "Route 112, foot of Mt. Chimney (west): a hidden cave. Take TM53, then read the sign with only a "
+     "Typhlosion in your party. Say No to leaving: Yes collapses the cave for good. Win 3 rounds (a lost "
+     "round only sends you back). Needed for Ash's challenge."),
     (0x42FF, "Koga's mark",
      "Champion Island: battle Koga of Johto's Elite Four. He gives you his mark and tells of a hidden ninja "
      "village reached through the forest of Route 102."),
@@ -96,8 +111,9 @@ SIDE = [
      "Koga's Village, through the Route 102 forest: bring only one Greninja to Elder Koga's two-stage trial "
      "(some items are banned). Your Greninja gains its hero form, like Ash's."),
     (0x4302, "Ash's challenge",
-     "Route 101: once your Greninja has its hero form, Ash from Pallet Town comes to battle. A red-haired "
-     "passerby joins in, and leaves a note behind."),
+     "Littleroot Town: once you have the Hero Greninja and the Burning Soul and have beaten Team Rainbow "
+     "Rocket, accept your rival's battle in Prof. Birch's lab. Ash joins: a 2-vs-2 on Route 101, where a "
+     "red-haired passerby fights on his side and leaves a note."),
     (0x4303, "The note's sender",
      "Steven's Island: the northeast corner of Steven's residence. The passerby from Route 101 is waiting."),
 ]

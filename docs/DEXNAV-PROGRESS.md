@@ -202,7 +202,9 @@ Nothing here is a known defect; these are decisions someone may want to revisit.
   conflict with re-picking the same species to keep the chain.
 - **Hidden abilities are not granted** — this was written believing the hack had none (the base stats carry
   two ability bytes). It does: the game reads three u16 per species at 0x097A0000, the third being the hidden
-  ability (hook at 0x0806B694). The chain grants the second ability at best. The egg move is granted silently; the bar does not
+  ability (hook at 0x0806B694). The chain grants the second ability at best. Until 2026-10-08 the slot roll and
+  the name on the bar read those two leftover bytes as well, so the bar said "-------" or another ability's name
+  for 184 wild species; `patches/dexnavabil/` points both at the real table. The egg move is granted silently; the bar does not
   show it (deliberately, to match the requested layout: no direction arrow, no MOVE line).
 - **Safari Zone** catches were not tested; the Safari battle outcome may not be the value the scoring expects.
 - **The chain is RAM only.** Search levels are in flash; the chain could join them in the same sector.

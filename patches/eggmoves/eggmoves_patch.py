@@ -15,6 +15,13 @@ The list now goes to a 32-move buffer at EWRAM 0x02031C00 (64 bytes, measured un
 dexnavchain/test_scratch_ram.lua): the three words that name the old buffer (BuildEggMoveset's pool
 0x08070580 and the hack's 0x09F00A60, 0x09F01CA0) are repointed, and both limits become 32. The longest list
 in the table is 17.
+
+Two lists had no species. The table is species + 20000, then that species' moves; where Mr. Mime's and Mime
+Jr.'s markers belong the hack has a move id (53 Flamethrower, 107 Minimize), so their five egg moves (Hypnosis,
+Fake Out, Confuse Ray, Power Split, Tickle - Sword/Shield's list) ran on from the species before: Goldeen and
+Bonsly could be bred with them, and with Flamethrower / Minimize, while Mr. Mime and Mime Jr. had none. The two
+words become the markers, which leaves Goldeen and Bonsly with exactly Sword/Shield's lists. Found by comparing
+every list with the official games (_testrun/report/eggcheck.py, eggmissing.py).
 """
 import struct, sys
 
@@ -23,6 +30,9 @@ BUF_WORDS = (0x08070580, 0x09F00A60, 0x09F01CA0)
 CLEAR_CMP = 0x080704BA                          # cmp r6, #9   -> cmp r6, #31 (clear the whole buffer)
 COPY_CMP = 0x08070446                           # cmp r2, #0xF -> cmp r2, #31 (copy up to 32)
 TABLE, TABLE_END = 0x09D78128, 0x09D7973C
+# (address, the move id written there, the species it should mark, the species whose list it ran on from)
+MARKERS = ((0x09D78478, 53, 122, 118), (0x09D78E40, 107, 492, 491))
+MIME_MOVES = (95, 252, 109, 471, 321)           # Hypnosis, Fake Out, Confuse Ray, Power Split, Tickle
 
 
 def build(inp, outp):
@@ -35,6 +45,20 @@ def build(inp, outp):
     assert sorted(0x08000000 + i for i in everywhere) == sorted(BUF_WORDS), "other readers of the buffer: %s" % everywhere
     assert bytes(rom[o(CLEAR_CMP):o(CLEAR_CMP) + 2]) == bytes((0x09, 0x2E)), "the clear loop changed"
     assert bytes(rom[o(COPY_CMP):o(COPY_CMP) + 2]) == bytes((0x0F, 0x2A)), "the copy limit changed"
+
+    # the two markers written as moves
+    u16 = lambda a: struct.unpack_from("<H", rom, o(a))[0]
+    words = [u16(a) for a in range(TABLE, TABLE_END, 2)]
+    for addr, move, species, before in MARKERS:
+        assert u16(addr) == move, "%08X is not move %d" % (addr, move)
+        assert 20000 + species not in words, "species %d already has a list" % species
+        back = addr - 2
+        while u16(back) < 20000:
+            back -= 2
+        assert u16(back) == 20000 + before, "%08X is not in species %d's list" % (addr, before)
+        assert tuple(u16(addr + 2 + 2 * i) for i in range(5)) == MIME_MOVES and u16(addr + 12) > 20000, \
+            "the five moves after %08X changed" % addr
+        struct.pack_into("<H", rom, o(addr), 20000 + species)
 
     # the longest list must fit
     longest, run = 0, 0
@@ -49,7 +73,8 @@ def build(inp, outp):
     rom[o(CLEAR_CMP)] = SLOTS - 1
     rom[o(COPY_CMP)] = SLOTS - 1
     open(outp, "wb").write(rom)
-    print("egg-move buffer %08X -> %08X (%d moves); longest list in the table: %d" % (OLD_BUF, NEW_BUF, SLOTS, longest))
+    print("egg-move buffer %08X -> %08X (%d moves); longest list in the table: %d; %d species markers restored"
+          % (OLD_BUF, NEW_BUF, SLOTS, longest, len(MARKERS)))
 
 
 if __name__ == "__main__":

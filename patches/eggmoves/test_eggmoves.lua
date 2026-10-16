@@ -13,7 +13,9 @@ local STUBBYTES = {0x10,0xB5,0x05,0x48,0x00,0x68,0x05,0x49,0x40,0x18,0x05,0x4B,0
                    0xC9,0x08,0x07,0x08}
 local NAMES = {[0]="-", [10]="Scratch", [33]="Tackle", [45]="Growl", [52]="Ember", [80]="Petal Dance",
   [92]="Toxic", [130]="Skull Bash", [144]="Transform", [174]="Curse", [187]="Belly Drum", [275]="Ingrain",
-  [335]="Block", [407]="Dragon Rush", [22]="Vine Whip", [73]="Leech Seed", [77]="PoisonPowder", [79]="Sleep Powder", [76]="SolarBeam", [188]="Sludge Bomb", [202]="Giga Drain", [321]="Tickle", [276]="Superpower"}
+  [335]="Block", [407]="Dragon Rush", [22]="Vine Whip", [73]="Leech Seed", [77]="PoisonPowder", [79]="Sleep Powder", [76]="SolarBeam", [188]="Sludge Bomb", [202]="Giga Drain", [321]="Tickle", [276]="Superpower",
+  [53]="Flamethrower", [95]="Hypnosis", [107]="Minimize", [114]="Haze", [252]="Fake Out", [322]="Cosmic Power",
+  [109]="Confuse Ray", [471]="Power Split"}
 local function mv(m) return NAMES[m] or tostring(m) end
 local function run(bytes)
   for i, b in ipairs(bytes) do emu:write8(SCRIPT + i - 1, b) end
@@ -49,6 +51,13 @@ local CASES = {
   {"Ditto + female: Curse + 3 TMs", {132, false, {144}}, {1, true, {174, 76, 188, 202}}},
   {"Turtwig: mother knows Tickle (its 17th egg move)", {440, true, {321, 33}}, {440, false, {33}}},
   {"Turtwig: father knows Tickle + Superpower (16th)", {440, true, {33}}, {440, false, {321, 276}}},
+  -- the two species markers the hack wrote as moves: Mr. Mime's list sat on Goldeen's, Mime Jr.'s on Bonsly's
+  {"Mr. Mime: father knows Fake Out, Tickle, Hypnosis", {122, true, {33}}, {122, false, {252, 321, 95}}},
+  {"Mr. Mime: mother knows Confuse Ray, Power Split", {122, true, {109, 471}}, {122, false, {33}}},
+  {"Goldeen: father knows Flamethrower, Hypnosis, Haze", {118, true, {33}}, {118, false, {53, 95, 114}}},
+  {"Sudowoodo: father knows Minimize, Tickle, Curse", {185, true, {33}}, {185, false, {107, 321, 174}}},
+  -- Sword/Shield's list: Cosmic Power is a TR there (the tutor here), not an egg move
+  {"Buneary + Smeargle knowing Fake Out, Cosmic Power", {480, true, {33}}, {235, false, {252, 322}}},
 }
 local plan, t0 = {}, nil
 local function at(d, fn) plan[#plan + 1] = {d, fn} end

@@ -1098,7 +1098,8 @@ def build(inp, outp):
     rom[EVO_FREE:EVO_FREE + len(evo)] = evo
     bg = tiles(grid_bg())
     assert CASE_FREE + len(case) <= GRID_FREE, "the badge case runs into the grid's background"
-    assert GRID_FREE + len(bg) <= 0x01FBF800, "the grid's background runs into the next patch's space"
+    assert GRID_FREE + len(bg) <= 0x01FBC380, "the grid's background runs into the next patch's space"   # (Area Zero's
+    # block begins at 0x09FBC400 and its patcher wants the 0x80 bytes before it blank: 0x09FBC380 since 2026-10-11)
     assert set(rom[GRID_FREE:GRID_FREE + len(bg)]) == {0xFF}, "grid background region not free"
     rom[GRID_FREE:GRID_FREE + len(bg)] = bg
     struct.pack_into("<I", rom, e + 0x1C, f["item_use"] | 1)

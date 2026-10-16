@@ -9,6 +9,7 @@ __pycache__/
 !docs/**/*.png
 !site/public/**/*.png
 !patches/questlog/badges/sinnoh.png
+!patches/paldea/sprites/src/*.png
 *_log.txt
 *_done.txt
 

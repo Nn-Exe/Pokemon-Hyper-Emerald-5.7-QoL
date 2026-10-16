@@ -1039,7 +1039,8 @@ Unregister (dexnavchain): A on the tracked species runs chain_break and leaves l
   itself is not in any script (specials 145/312 are screen effects) - it lives in code.
 - Hero Greninja: Koga on Champion Island (35/6, trainer 1160) sets 0x42FF and points to Route 102's forest;
   Koga's Village 35/45 (hidden) and trial grounds 35/85: one Greninja only, two stages (1159, 1158), sets 0x4300.
-  Route 101's map script (`0x081EBCD5`, var 0x4023 checks) then stages Ash's 2-vs-2 and sets 0x4302; the note
+  Ash's 2-vs-2 is started by the rival in Birch's lab, not by Route 101 itself (corrected 2026-10-15: *Side quests
+  rechecked*); Route 101's map script (`0x081EBCD5`, var 0x4023 checks) stages it and sets 0x4302; the note
   leads to Steven's Island 35/8 object at (4,5): -Echo-/-Hibiki-, trainer 1016, sets 0x4303. The book at
   35/8 (4,6) (`0x0983D029`) by "Gengyi Xiang" shows entries by 0x4300, 0x4301, 0x41D5, 0x4302.
 - Both are Side Content rows (sidecontent.py). The user's save (2026-09-22): TM53 taken, cave not collapsed.
@@ -2737,6 +2738,1574 @@ not allowed".
 - GitHub: `gh` is not on this PC. The release was made through the REST API with the token Git Credential Manager
   holds for github.com, after checking with GET /user that it is the project's account.
 - Installed 2026-10-07 (sha1 ade383ba...), backup "(before v1.8 title 2026-10-07)".
+- Published: public repo commit 41391be on main ("Release v1.8: ..."), tag v1.8, GitHub release with the patch
+  and checksums. Checked from outside: the downloaded patch applied to the original is the installed ROM. The
+  local branch `release-1.8` is that commit. The helpers stayed outside the repo, in `gba-trans/_testrun/rel18/`:
+  `rebuild_chain.py` (the chain from the v1.4 archive; `CHAIN_REPO` builds from another checkout) and
+  `mirror_public.py` (dev working copy -> public checkout; prints every passage it rewrites, dry run first).
+
+## SPECIES TABLES: 1,200 -> 1,280 SLOTS — 2026-10-08 — `patches/speciesx/`
+- Asked for: Gen 9 legendaries taken from another ROM hack (Crest). The hack has no free species slot (1199 is the
+  only blank one) and every species table is exactly 1,200 entries with the next one starting on the next byte.
+- **Status: a test build, not in the working ROM or the chain yet** (`roms/test-gen9/`). `speciesx` then `gen9` go
+  LAST, after `zhtext`: zhtext still writes species names into the old name table, and speciesx copies the tables.
+  A patch that runs after speciesx must take a species table's address from the ROM header (0x128-0x144, 0x1BC) or
+  from `speciesx_patch.layout()`, never from the old addresses below.
+- **The tables** (old address, bytes an entry, words that pointed at it):
+  base stats 0x08F186E0 28 (74, + four field words: 0x0806EB7C +12, 0x0806EBA0 +14, 0x08070A08 / 0x08070AA4 +17) ·
+  front pictures 0x08F20A20 8 (43) · back pictures 0x08F22FA0 8 (15) · palettes 0x08F25520 8 (6) · shiny palettes
+  0x08F27AA0 8 (3) · icons 0x08F2A020 4 (3) · icon palette ids 0x08F2B2E0 1 (13) · names 0x08F2B790 11 (131) ·
+  evolutions 0x08F387C0 40 (7) · front coordinates 0x08F44340 4 (15) · back coordinates 0x08F45600 4 (11) · front
+  anim ids 0x08F468C0 1 (4) · anim delays 0x08F46D70 1 (2) · footprints 0x08F47220 4 (1) · elevation 0x08F4F560 1 (4)
+  · National Dex no. 0x08F50370 2 (2) · Hoenn -> National 0x08F50CD0 2 (2) · Hoenn Dex no. 0x08F51630 2 (2) · back
+  anim sets 0x08F51F90 1 (1) · front anim tables 0x08F52440 4 (5) · level-up pointers 0x09D89578 4 (14) · TM/HM bits
+  0x08FCD8F4 16 (4) · tutor bits 0x09750000 16 (1; rows 0..1198, other data starts at row 1199).
+  Four are indexed by species - 1 (anim ids, anim delays, both Dex number tables). Between the names and the
+  evolutions (0x08F2EB20..0x08F387C0) is compressed graphics, not a table.
+- New home: 0x0968D000..0x096C4A00, 1,280 entries each, 367 words repointed. The old tables are left as they were.
+- **Left alone because long enough**: the cry tables 0x08F484E0 / 0x08F4BD20 (indexed by cry id; 386 ids are in use,
+  388 and up are free - 666 species share cry id 274, the hack never gave Gen 4+ their cries); species -> cry id
+  0x08F4FA10 (indexed by species - 277: 1,200 entries reach species 1476); abilities 0x097A0000 (three u16 a
+  species; zeros follow).
+- **The species count** in code, nine sites: 0x08FD5D60 and 0x08FD7C7C (`movs r4,#0x96; lsls r4,#3`: the TM/HM and
+  tutor bit test returns 0 above it) · 0x092582BA (the egg-species walk back through the evolution table) ·
+  literals 0x4AF at 0x09D00210 (which species a Mega goes back to), 0x09D45370, 0x09F006DC, 0x09F01C80
+  (pre-evolution searches) · literals 0x4B0 at 0x080DE860 (SanitizeSpecies) and 0x09257F18 (Dex number -> species).
+  Not raised, on purpose: 0x08FF12B2 (`movs r0,#0x4B; lsls r0,#4`), in a routine that fills gEnemyParty, which
+  looks like a random species below 1,200. The clamps vanilla has on `species > NUM_SPECIES` are not there: the
+  hack's author made those branches unconditional (GetIconSpecies 0x080D2E3A,
+  GetMonSpritePalFromSpeciesAndPersonality 0x0806E750).
+- **Which words are pointers.** A word equal to a table address is rewritten only when it is the ROM header's or a
+  literal some `ldr rX,[pc,#n]` in front of it loads, inside the regions that hold code. That test alone finds the
+  one false match: 0x092A14DC holds 0x09750000 inside graphics data. (The first prototype rewrote it.) The same
+  test guards the free space: no code literal points into it. Words that merely look like addresses are common in
+  the vanilla script area 0x081DB680..0x082E7000 and in sound data - not evidence of use.
+- **Free space, a new kind.** The hack's upper 16 MB was padded with 0x00, not 0xFF: megabytes of it between the
+  author's blocks, which sit at round addresses (0x09250000 Dex entries, 0x09750000 tutor bits, 0x097A0000
+  abilities, 0x09D00000 the engine). Used: 0x0968D000..0x096C4A00 (speciesx) and 0x09A10000..0x09AB810C (gen9, third build), out
+  of the zero runs 0x0968D000..0x096FFF00 and 0x099E5508..0x09D00000. Evidence they were unused: no code literal
+  points in; they hold real data in every test below (boot, battles, menus, Dex, bag, PC, saving) and nothing reads
+  differently for the old species. The FF runs the skill lists are too small for this (414 KB in all).
+- **The Pokedex has room.** The hack's flag arrays are 120 bytes each (SaveBlock1 + 0x560 seen, + 0x5D8 caught):
+  960 numbers. 906-959 were unused, their entries (0x09250000, 32 bytes a number) copies of Bulbasaur's. So new
+  species get real entries with no change to the save - numbered 906 up, not their official numbers.
+- `check_gen9.py before.gba after.gba` audits a build: every differing byte must be one of the intended changes,
+  the first 1,200 entries of each moved table must equal the old table, the old tables must be untouched.
+- Tested (`patches/gen9/test_gen9.lua`, helpers in `gba-trans/_testrun/gen9/`): 17 old species (Bulbasaur to the
+  Galarian Zen Darmanitan, 1198) in a seeded wild battle read the same on the ROM before and after.
+
+## GEN 9: LEGENDARIES, MYTHICALS, PARADOX POKEMON, THE BAXCALIBUR LINE — 2026-10-08 — `patches/gen9/`
+- Asked for: "all gen 9 mythical and legendaries, including paradox", "faithful as possible but not high risk".
+  38 species in slots 1200-1237, Dex 906-940, in National Dex order: Great Tusk to Iron Thorns (12), Frigibax /
+  Arctibax / Baxcalibur, the four Treasures of Ruin, Roaring Moon, Iron Valiant, Koraidon, Miraidon, Walking Wake,
+  Iron Leaves, the Loyal Three, Ogerpon in its four masks (four species, one Dex number), Gouging Fire, Raging
+  Bolt, Iron Boulder, Iron Crown, Terapagos, Pecharunt. That is all 20 Paradox Pokemon; the Baxcalibur line is
+  there because the user's "sudos" was read as pseudo-legendaries (not confirmed).
+  **Nothing in the game hands them out yet** - that is the open decision.
+- **Sources.** Numbers are the official Scarlet/Violet ones (`official.json`, from PokeAPI; `make_official.py`
+  rebuilds it byte for byte): stats, types, abilities, level-up moves, everything each can learn, Dex text.
+  Pictures, palettes, icons and cries come from the Crest ROM (third argument of the patcher, sha1 checked; not in
+  the repository). Crest's own numbers are not used: its Miraidon never learns Electro Drift, Terapagos and
+  Pecharunt have no ability.
+- **Crest v1.0.F** is a pokeemerald-expansion build (about 1.7): BPEE, 31.1 MB, the vanilla ROM header at
+  0x128-0x1BC still valid, 1,381 species, 36-byte species info, cries at 0x0901D3D8 (12 bytes, species - 1),
+  elevation at 0x083A890C. Its Gen 9 front pictures are one 64x64 frame, like the hack's own late species
+  (Terapagos's has two: the first is kept). It has six icon palettes, the hack three: ten icons are redrawn with
+  the closest of the three (`fit_icon`).
+- **Moves.** The engine's own, plus seven signature moves (ten ids, 938-947): the seven Crest has - Collision
+  Course, Electro Drift, Ruination, Ivy Cudgel, Hydro Steam, Psyblade, Glaive Rush. Asked for on the second pass:
+  "if Crest has 7, then try 7 ... try to match Crest for now". The other six of the thirteen (Burning Bulwark,
+  Thunderclap, Mighty Cleave, Tachyon Cutter, Tera Starstorm, Malignant Chain) are in neither game and stay out
+  of the lists; Snowscape is given as Hail. TM/HM and tutor bits: a bit is set when the Pokemon learns that move
+  in Scarlet/Violet by any method (TM list 0x09E0FE80, 128; tutor list 0x08FD80B8, 127).
+  - **How Crest has them** (read from its tables: 20-byte move rows 0x083D3940, names 0x083C703F, scripts by
+    effect 0x08367AA8, animations 0x08332AF0). Collision Course / Electro Drift (effect 404), Hydro Steam (393),
+    Psyblade (392) and Ivy Cudgel (414) run the plain-hit script and get their rule from the expansion's C
+    damage code; Ruination is Super Fang's effect (40). Glaive Rush is effect 204, which 14 unfinished moves
+    share: its script prints a message and ends (the expansion's placeholder), so in Crest the move does
+    nothing. All seven share one animation with Crest's other Gen 9 moves. Crest gives Collision Course and
+    Electro Drift 10 PP; the numbers here are Scarlet/Violet's (5).
+  - **The engine's move tables** hold 938 moves (0-937; 676-729 are the Z-Moves, 937 a spare Petal Dance), but
+    two of them were made for more and are written in place: the data at 0x09D86419 (12 bytes: effect, power,
+    type, accuracy, PP, chance, target, priority, flags, an argument, 0 physical / 1 special / 2 status, a second
+    argument; a plain hit has 0 and 9 in the two) is zero up to id 1023, and the animation pointers at 0x09D0AB00
+    run to id 1029, the unused ones holding 0x09D0BB18. Four end at the last move with other data behind them and
+    move to free space with 1,024 entries (63 words): names 0x09D30258 (13 bytes; 58 words; the Z-Moves' long
+    names start 5 bytes after entry 937), description pointers 0x09D2AD00 (indexed move - 1; 2 words; 938
+    entries, the last no move's), and two byte tables read with the move a Z-Move or Max Move was made from: Z
+    power 0x09D8A838 (2 words; 932 entries, then the first record of another table) and Max power 0x09D86050
+    (1 word; 929, then a table of stat changes). The first 938 bytes of each are copied as they read today.
+  - Flags (byte 8): 0x01 contact, 0x02 Protect, 0x10 Mirror Move, 0x20 King's Rock, **0x40 high critical-hit
+    ratio**. Effect 0 is a plain hit. **Effect 1 is "a set amount", and the engine picks the amount by the
+    move's number** (0x09D63DFC: Sonic Boom, Seismic Toss, Dragon Rage, Night Shade, Psywave, Super Fang,
+    Endeavor, Final Gambit, Nature's Madness; any other move gets 1). A move's type can be keyed by its number
+    the same way (Revelation Dance is effect 0), which is why Ivy Cudgel is four ids, one type each, one for
+    each of Ogerpon's four species.
+  - Animations are borrowed: Close Combat, Volt Tackle, Night Daze, Wood Hammer / Crabhammer / Fire Punch /
+    Stone Edge, Scald, Psycho Cut, Dragon Rush. Z power and Max power are filled in by the usual scale.
+- **Booster Energy** is item 769, the first of the game's unused "New Item" rows (769-799: id set, pocket 1,
+  type 4, field routine 0x080FE821 "cannot be used", text "?????"; items 0x08FC2C7C, 44 bytes; pictures
+  0x08FCBFF4, {compressed 24x24 picture, compressed palette}, 800 entries). It gets a name, a text and Crest's
+  picture of it (Crest's item 771; its items are 40 bytes at 0x08EB686C, pictures 0x08F70A30). No hold effect:
+  gen9.s knows the item by its id. Nothing hands it out yet.
+- **How the engine holds abilities** (found for this): the species table gives a 16-bit id. The battle engine keeps
+  each battler's at 0x0203F000 + 2 * battler (0x0203F008 is the last one looked up); `gBattleMons[].ability` is
+  only its low byte. The engine switches on the 16-bit value, so an id it does not list does nothing - Groudon
+  given 326 (256 + Drought) summons no sun. The hack's own ids above 255 (Chilling Neigh 334...) work because its
+  code names each. Two places read a species' ability for battle: 0x09D00110 (stores the one of the Pokemon coming
+  in for gActiveBattler; called from the stubs at 0x09D000F8 / 0x09D00104 that Cmd_switchindataupdate and the
+  battle intro jump to) and 0x09D73A9C (species, slot -> ability; 14 callers). The summary screen reads the table
+  through the game's own GetAbilityBySpecies (0x0806B694 -> 0x09D73A80) and prints `names[id]` with a 16-bit id.
+- **What gen9 does with that.** The ability name and text tables (0x09D03068, 13 bytes, and 0x09D00218; 342
+  entries, code right behind) move to free space with 1,793 entries (ten words). Then six hooks, `gen9.s`:
+  - `g9_enter` / `g9_lookup` replace 0x09D00110 and 0x09D73A9C (8-byte trampolines; both sites are 4-aligned
+    leaf routines): an alias ability is handed to the engine as the ability it stands on. Aliases are 256 + base,
+    so the one-byte paths agree: Orichalcum Pulse 326 (Drought), Hadron Engine 420 (Electric Surge), Toxic Chain
+    399 (Poison Touch), Guard Dog 295 (Inner Focus), Tera Shell 487 (Shadow Shield), Poison Puppeteer 452
+    (Merciless), Thermal Exchange 297 (Water Veil). The last five do exactly what their base does and show the
+    base's own text; in battle messages the base's name appears.
+  - `g9_damage` is entry 5 of the engine's command table (0x09D77190; the live table is 0x09D7717C, 251 entries
+    - the vanilla one at 0x0831BD10 is dead, its entries point into graphics). It runs the engine's damage
+    command (0x09D6046C, which calls 0x09D5FF3C) and scales gBattleMoveDamage. The abilities: Orichalcum Pulse
+    (Koraidon with Drought, physical, sun) and Hadron Engine (Miraidon with Electric Surge, special, Electric
+    Terrain) x4/3; Sword / Beads of Ruin x4/3 and Tablets / Vessel of Ruin x3/4 (another battler has it, the one
+    whose stat drops does not); Protosynthesis and Quark Drive x13/10 or x10/13 when the best stat is the one
+    in play. The six are ids of their own with a low byte of 0 (512, 768, 1024, 1280, 1536, 1792): nothing else
+    in the engine knows them. The moves: Hydro Steam x3 in sun (the engine has just halved it), Psyblade x3/2 on
+    Electric Terrain, Collision Course / Electro Drift x4/3 when gMoveResultFlags (0x0202427C) has 0x02, super
+    effective. Whole multiples are applied first, so that less is lost to rounding.
+  - **The engine works type effectiveness out inside command 5.** Its scripts go critcalc, damagecalc,
+    adjustnormaldamage (`04 05 07`, no `06`); command 6 is still the game's own Cmd_typecalc and is not on
+    their path - a hook put there never ran.
+  - Glaive Rush: `g9_damage` marks the user when the move is about to land (the command only runs after the
+    accuracy check; the mark needs result flags 0x29 clear) and doubles what a marked target takes; `g9_cancel`,
+    entry 0 of the command table (0x09D5783C, a battler starts on a move), takes the mark off that battler.
+  - `g9_fixed` is entry 24 of the engine's second table of routines (0x09D79EAC, 220 entries; the command at
+    0x09D686CC reads a 16-bit number from the script and calls that entry). It runs the set-amount routine and,
+    for Ruination, stores half the target's HP (a quarter where the engine would quarter Super Fang's).
+  - `g9_speed` stands in front of the engine's speed routine (0x09D5E3F0: battler in r0 -> its speed with
+    stages, items and paralysis; 16 `bl` callers, no stack arguments). Its first instruction loads r3, so r3 is
+    free at the entry: an 8-byte trampoline goes there, the four instructions it replaces are in
+    `g9_speed_engine`, which carries on at +8 through r2 (dead once `str r2,[sp]` has run). x3/2 when
+    Protosynthesis or Quark Drive is working and Speed is the holder's best stat.
+  - Booster Energy: asking and using are apart. `g9_boosted` (asked by the damage and speed routines) only
+    reads: the boost is on in the sun / on the terrain, or when the battler has used a Booster Energy since it
+    came in (a flag), or holds one now. `g9_booster` does the using and runs only from `g9_cancel`, for every
+    battler, when a real move starts: a holder whose ability the sun / terrain is not carrying loses the item in
+    gBattleMons (+0x2E) and in the party (+0x22; the side from gBattlerPositions 0x02024076, the slot from
+    gBattlerPartyIndexes 0x0202406E), and the flag keeps the boost on until the battler is replaced.
+  - Abilities are read through the engine's own "is it in effect" test, 0x09D45AEC (battler, 0): 0 under Gastro
+    Acid (bit 0x40 of the battler's byte +2 in the engine's struct) or with Neutralizing Gas (235) out.
+  - The stats a move uses: its category, with the engine's exceptions (Body Press 759 attacks with Defense, Foul
+    Play 492 with the target's Attack, Psyshock 473 / Psystrike 540 / Secret Sword 548 are taken on Defense).
+    The Ruin abilities are (stat + 2) * 256 in the order Attack, Defense, Sp. Atk, Sp. Def, so the code works
+    out which one matters from the stat.
+  - Hydro Steam: x3 when the engine halved it (sun, a Water move by its current type, 0x09D4B164, and the target
+    without a Utility Umbrella, hold effect 0xA4 through 0x09D68700 (battler, 1): the engine skips its whole
+    weather modifier for that target at 0x09D5FFF0), else x3/2; nothing when the user holds the umbrella.
+  - State: 8 bytes of EWRAM at 0x0203F130 (+0..3 a Booster Energy was used, +4..7 Glaive Rush's mark), cleared
+    for a battler by `g9_enter`, which runs before anything reads them.
+  - Helpers it uses: 0x09D45B84 (1 unless Cloud Nine or Air Lock is on the field); sun is gBattleWeather & 0x860;
+    Electric Terrain is `*(*(0x02024218) + 0xD4) & 0x1E000` (its turn counter).
+- **Where it is not the official rule** (all in gen9.s's header): stat stages are not counted when picking the
+  best stat; a Booster Energy is used at the first move after its holder comes in, not on entry (its boost is
+  there from the start), shows no message, and is not stopped by Embargo or Magic Room; attacks on a Glaive Rush
+  user are not made sure to hit (that would mean the accuracy command, which also carries Protect); an
+  attacker's Mold Breaker does not get past Tablets or Vessel of Ruin; Orichalcum Pulse and Hadron Engine travel
+  as Drought and Electric Surge through Skill Swap, Trace and Role Play, and Protosynthesis and Quark Drive can
+  be copied; moves that pick their category when used (Photon Geyser) go by their data; damage worked out
+  elsewhere (confusion, Future Sight, the AI's estimates) is untouched; and the five stand-in aliases above.
+  Terapagos is one species in its Terastal Form (the form it always has in battle; Normal and Stellar need
+  Terastallizing) with the Normal Form's icon. Ogerpon's masks are four separate species: nothing switches them
+  (the user: "left Ogerpon as is").
+- **Tested** in mGBA on the build (`test_gen9.lua`; `MODE=`), each number the same battle with the same random
+  numbers on a `--no-effects` build as the control:
+  - `battle`: all 38 in a wild battle with our lead made the same species - pictures, names, types, stats, and
+    the species' own cry sample found in the sound engine's RAM (run again after the second pass);
+  - entry effects: Koraidon brings sun (ability 70 in the engine's array), Miraidon Electric Terrain (164);
+    Groudon, Tapu Koko and Glastrier (334) as before;
+  - `damage`, the abilities: 19 cases on two seeds - every ratio as intended (78 vs 59, 68 vs 51, 69 vs 92...),
+    every case that should not change equal to the point, and the same numbers before and after the second pass;
+  - `damage`, the moves (two seeds): Collision Course 218 vs 164 super effective, equal when neutral or
+    resisted; Electro Drift 336 vs 252; Hydro Steam 81 vs 27 in sun (55 without), and equal when Rayquaza's Air
+    Lock cancels the sun; Psyblade 88 vs 59 on terrain; Ruination 230 of 460 HP (1 on the control); the four
+    Ivy Cudgels super effective on Blastoise, Charizard, Venusaur, Charizard; Koraidon's Collision Course 394 vs
+    222 (16/9); Walking Wake's Hydro Steam in sun 128 vs 33; Iron Leaves' Psyblade on terrain 148 vs 76;
+  - Booster Energy on Great Tusk: 54 vs 42 and the item gone from party and battle; kept when the sun was up
+    before the battle's first events; kept by Rayquaza; the boost in both turns of a two-turn fight;
+  - `duel` (the foe answers): Glaive Rush's user takes 132 vs 66 until it next moves and 66 after, both when it
+    moves first and when the foe does; Iron Bundle on terrain, or with a Booster Energy, outruns a foe 20 Speed
+    faster, not one 150 faster, and not without either; old set-damage moves (Super Fang, Seismic Toss, Dragon
+    Rage) and turn order with nothing new involved are equal on both builds;
+  - every new move's animation frame by frame, its name in the battle message and the move menu; summary pages
+    (names, type icons, PP, power, accuracy, the two-line texts); Booster Energy in the bag (picture, text);
+    wild Koraidon, Miraidon, Walking Wake and Iron Leaves choosing their signature move by themselves;
+  - `give`: summary pages (ability names and texts, Dex numbers, level-up moves); `dex`: all 35 entries and the
+    list's end; `catch`: Iron Moth with a ball, into the PC, Dex flags set; `evolve`: Frigibax -> Arctibax at 35,
+    Arctibax -> Baxcalibur at 54, learning Glaive Rush as it evolves (level 0 in the list, the hack's own way);
+    `tm`: Rest offered to Koraidon; `fight`: battles played to the end both ways; `save` / `check`: party, PC
+    and Dex flags after a fresh start; `pc`: the storage screen on a box full of them; shiny colours (`SHINY=1`).
+- **Not tested**: trainers using them, the Battle Frontier, contests, the Hall of Fame record, breeding in the
+  Day Care (Frigibax's egg moves are appended to the list at 0x09D7973C and its bound at 0x08070464 raised;
+  checked by `check_gen9.py`, not by an egg), abilities being copied, a new move as a Z-Move or Max Move (the
+  two power tables are checked byte for byte, not played).
+- **Independent review, and the third build (2026-10-08).** Three reviewers (Thumb code; patcher and data; game
+  rules), each from the code and the disassembly alone. The patcher and the data were found sound (all 38 rows
+  recomputed from official.json and equal; no table reference left behind). Four real problems, all fixed:
+  - **Booster Energy was used inside the engine's look-ahead.** Each turn, during action selection, the engine
+    copies gBattleMons aside, puts the Pokemon a battler would switch to into its slot (gBattlerPartyIndexes
+    unchanged), asks for speeds (0x09D6BDCC, 0x09D6B678; the AI's damage estimate 0x09D6EEC4 reaches the speed
+    routine through Gyro Ball / Electro Ball power) and copies gBattleMons back. A routine that uses the item
+    while asked therefore left the flag set and the item held, or cleared the party item of the Pokemon whose
+    index the slot still named. Seen in play: switching to a benched holder against trainer 1020 (a Bronzong
+    with Gyro Ball) set the flag while the item stayed in battle and in the party. Fixed by splitting asking
+    from using (above). Rule: in this engine, nothing that the speed or damage routines call may write.
+  - Hydro Steam tripled against a Utility Umbrella; Gastro Acid and Neutralizing Gas did not switch the new
+    abilities off; Body Press / Foul Play / Psyshock-type moves were counted by category. Fixed as above.
+  - `check_gen9.py` only checked where bytes changed. It now also compares the number of repointed words with
+    what the patchers expect (440), refuses a code literal still holding a moved table's old address, reads the
+    nine count sites, and checks the six hook sites (all the engine's own, or all leading into gen9's code).
+    Three planted faults (a move-name literal put back, a count site at 1,208, command 5 aimed at the header)
+    each make it fail.
+  Tested on the third build (`_testrun/gen9/moves.ps1` and `damage.ps1`, control vs fixed): every earlier
+  number unchanged; Hydro Steam with the target's umbrella 82 vs 55; Koraidon's bonus gone under Gastro Acid
+  and for its Body Press; Chien-Pao's Psyshock 60 vs 45 (Sword of Ruin), Chi-Yu's unchanged; a Booster Energy
+  handed over mid-battle in a trainer battle and the benched-holder switch both end with the item gone from
+  battle and party and nothing else touched; two double battles (a second Pokemon's Booster Energy used, the
+  lead's Leftovers kept; Glaive Rush's mark on battler 2); all 38 species again; Arctibax -> Baxcalibur with
+  Glaive Rush. One ability case differed by 1 HP: the hit landed two frames later, so the roll differed; with
+  the random numbers held fixed until the hit (`PINRNG=1`) the control, the second and the third build all
+  deal 32.
+- **GOTCHAS**
+  - Comparing two builds: different code can make a turn a frame or two longer, and the damage roll moves with
+    the frame. Hold the random numbers (`PINRNG=1`) before reading a 1-HP difference as a bug.
+  - A wild Pokemon's AI does not think ahead; a trainer's does. Anything about the engine's look-ahead has to be
+    tested in a trainer battle (`duel` with `TRAINER=`).
+  - A test that compares two builds needs the same Pokemon in both: `givemon` and a wild battle draw IVs and
+    nature from the random numbers, and `rngseed` starts them from the clock. Write 0x03005D80 before each.
+  - The damage roll is drawn when the hit lands, and the random numbers step every frame: if the foe strikes
+    first and its damage differs between the builds, its HP bar drains for a different number of frames and our
+    roll changes. `MODE=damage` puts the foe to sleep.
+  - A hit cannot take more than the HP that is left: against a foe it knocks out, both builds read the same
+    number. Use a level 100 Snorlax. A wild Snorlax holds Leftovers: read a hit as it lands, not at the turn's end.
+  - Rayquaza's Air Lock cancels the weather for everyone, the test's sun included: it is the wrong user for a sun
+    test (and the right one to see that Hydro Steam is then not tripled either).
+  - A wild Pokemon picks its move as the action menu comes up, from its party data: to give it one move, write
+    gEnemyParty on the battle's first frame (`FOEMOVE`). Writing gBattleMons at the menu is too late.
+  - The engine asks for speeds before the battle's first events. A sun written at the menu comes after a Booster
+    Energy has gone; `EARLY=1` writes it from the intro.
+  - With the literal pool off a 4-byte boundary keystone does not fail: it reaches the pool with `ldr.w`. The
+    Thumb check catches it; the patcher tries each padding (gen9.s has two pools: a load reaches 1020 bytes).
+  - PowerShell `Start-Process -ArgumentList` does not quote: a ROM name with a space reaches mGBA as two
+    arguments and the script never runs. Run Python that reads the Crest ROM or the PokeAPI files with `-I`
+    (which also ignores PYTHONIOENCODING and leaves the script's folder off the path: gen9_patch.py adds it).
+- **Still to do before it ships**: a way to obtain them and Booster Energy (one cheap way for the item: the two
+  held-item fields of the Paradox Pokemon's base stats, so that wild ones can carry it; PokeAPI has no held-item
+  data for them to copy); Ogerpon's masks - the held-item form table at 0x09E0FC70 could switch them if the
+  masks become items; `tools/build_pokedex.py`,
+  `build_sprites.py`, `romdata/forms.py` and `patches/questlog/evolutions.py` hold 1,200 and the old table
+  addresses, so the guide and the Quest Log do not see the new species yet; README and CHANGELOG once it is in
+  the chain.
+
+## HISUI MAP: NO FLYING — 2026-10-08 — `patches/hisuimap/`
+- Asked for: "prohibit the use of flying Hisui, since it can skip several flags cuz the game bug, still open the
+  map". In Hisui the Sinnoh Map's A ran Mingyao's Braviary block for the square (showmonpic, waitbuttonpress,
+  hidemonpic, warp 37.<map> 1), and those blocks check nothing, so it took you to any Hisui area ahead of the story.
+- `HISUI_FLY = False`: the Hisui region record's fly table (H_FLY) now starts with its end mark, 0xFF, in place of the
+  first entry's key (107, Snowfall Hot Spring). courier_for finds no entry, so fly_target answers 0 (A does
+  nothing) and draw_name prints every name plain (no entry means "not a fly stop", the same as a Sinnoh route).
+  The table keeps its size: nothing after it moves. Sinnoh's record is untouched. Mingyao's own menu (multichoice
+  137) is the game's and still flies; only the map's shortcut is gone.
+- Chain rebuild (`_testrun/rel18/rebuild_chain.py`): before the change it gave the installed v1.8 ROM byte for byte
+  (sha1 ade383ba...); after it, one byte differs: 0x08FF544C, 0x6B -> 0xFF. The same single byte separates the Gen 9
+  and Area Zero builds made on top (speciesx, gen9, check_gen9 clean, paldea) from the ones before.
+- Tested (`test_nofly_hisui.lua`, run by `_testrun/hisuifly/run.ps1`, the working save), old build as the control:
+  in Hisui (37/106) A on Coronet Highlands and on Firespit Island closed the map and flew you (old) / did nothing,
+  the map stayed up with the names right (new); B back on the same tile; Sinnoh, Oreburgh -> A on Jubilife flies to
+  36/2 on both.
+- Installed 2026-10-08 (sha1 742ae12b...), backup "(before Hisui no-fly 2026-10-08)" with the .sav. The Gen 9 test
+  ROM (roms/test-gen9, now sha1 cd311786...) and Area Zero test 5 (roms/test-paldea, b5e0b95a...) carry it.
+
+## AREA ZERO: THE PALDEA AREA FOR THE GEN 9 BUILD — 2026-10-08 — `patches/paldea/`
+
+- Asked for: where the Gen 9 Pokemon are found. The user wanted "a mini location for Paldea region like theme
+  future and past", optional after Team Rainbow Rocket, with existing or new minor characters only ("I don't wanna
+  use Colress and Dulse ... it should be unimportantn npcs or new npc"), Jacq at "custom darkhole maybe like some
+  students got sucked from it after ultrawormhole", "medium but faintful like should be event about stupid sandwich
+  as well". The story (revision 2, approved; `story.py` says it in full) and the research behind it are in
+  `gba-trans/_testrun/gen9/paldea/`. On test 6 the user asked for "the npcs and story" and then "let go full mode
+  now": test 7 has all of it.
+- Goes after gen9 (it needs species 1200-1237). Data at `0x09FBC400..0x09FCBF38` on test 16 (62.8 KB of the 0xFF
+  run `0x09FBC380..0x09FD2A00`, blank in the hack's own ROM; 26.7 KB left): seventeen map layouts (the thirteen maps
+  and the four strips past the crater's edges: *Test 14*, *Test 15*), tinted tileset copies, the copied
+  layout and group-35 tables, events, scripts, texts, four trainer parties. Its sprites are a block of their own,
+  `0x09FF1000..0x09FFB608` (41.5 KB; to `0x09FFBF5C`, 43.8 KB, with the time rift of 2026-10-12; `0x09FF1000..0x09FFC000` kept for it) in the ROM's free tail (0xFF from
+  fusionfix's end `0x09FDCE38` to the end of the ROM; the aligned words that seem to point into the tail are a
+  number compared in vanilla code at `0x0802BF0A`, 0x09FE0000, and bytes of pictures and text).
+- **The story in the game** (flags in story.py):
+  - Mossdeep City (0/6; the Timeless Woods, 34/67, up to test 15: *Test 16*): Jacq and the hole (shown after
+    0x41D5). ON_FRAME (stage 3) plays the ending with
+    Arven, Nemona and Penny there (F_HIDE_HOME cleared for it): Jacq gives a Master Ball, they say they are going
+    back in, a fade, all four are taken off the map, stage 4. From then on they live in the research stations
+    (test 11; up to test 10 they stayed by the hole, and the user: "those 4 standing blocking the way").
+  - Research Station No. 1 (the wall): Penny. Every station's recorder (left counter) plays its log and sets
+    F_LOGS[k]. Penny gives the next missing station's whereabouts; with all four she opens the Zero Lab
+    (F_LAB_OPEN: unlocked. The door is a shutter until Arven and Nemona stand at it: *The lab's door*, below).
+  - Arven at the picnic (both eras, one script each, shared flags): first meeting, then "the Titan is in the den";
+    with the Titan beaten the sandwich (fade, heal jingle, the legend's cry: F_KORAIDON_UP / F_MIRAIDON_UP).
+  - **Arven and Nemona go to the lab's door by themselves** when both legends are up, Nemona is beaten and the lab
+    is open: F_GUARDS_UP set (their picnic / field objects' hide flag), F_HIDE_GUARDS cleared (the door pair's).
+    Whichever of the four comes last does it: Arven's script after the second sandwich, Nemona's after her battle
+    (both: a fade, removeobject / addobject for the people on this map), or, for Penny's (she is on another
+    map), the next map script: `state` works F_GUARDS_UP out on the way into every map (test 10: `guards_check`
+    in the craters' ON_TRANSITION). **Test 9 did it only in Arven's script, and the
+    lab's machine asked for F_GUARDS_UP**: the user talked to Arven before the logs were done ("the order of
+    mine"), opened the lab, and got "VISITOR NOT AUTHORIZED" from the machine with nothing saying that Arven had
+    to be talked to once more (and a terminal beside it saying "Visitor authorized"). Now nobody has to be talked
+    to twice, and what is still missing is said in words: Penny (on opening the lab, and after) and the machine
+    give a line for each of Koraidon, Miraidon and Nemona that is not done, with where to go.
+  - The Titans (den, between two crystals): two wild battles (lv 68, then lv 72 with Leftovers after "it ate the
+    herb"), each with the Totems' flags set around it (0x272: the battle refuses Poke Balls as a trainer battle
+    does, read at 0x09D6115E; 0x273: a loss is not a white-out, the script heals you), GetBattleOutcome (special
+    183) checked; a flag per Titan remembers the first win (0x43D2 / 0x43D3). The Titan's object hides by its done
+    flag (removeobject sets it).
+  - Nemona (the future, in the tall grass south of the waterfall's pond): `trainerbattle 3` (no intro), then
+    F_BEAT_NEMONA.
+  - The Zero Lab's machine (the glass cylinder, read from below): with both legends up and Nemona beaten (the
+    open door is how you got in; it sets F_GUARDS_UP itself, for a save made in the lab) the finale: the AIs appear
+    (clearflag F_HIDE_LAB_CAST, addobject), heal, AI Sada, heal, AI Turo, the Protocol (a camera shake; you step
+    back two tiles and the lab's Koraidon and Miraidon come up behind you at 4,9 and 8,9, facing you: at 4,10 and
+    9,10, test 9's places, they were below the screen), heal, the Protocol's double battle, both AIs gone in a white flash; then
+    F_STORY_DONE, the door pair hidden again, the students shown at home, the post-story legends shown, stage 3,
+    `warpteleport` to the woods. A white-out on the way sends you to a Pokemon Center; the machine starts the
+    finale again. (The white-out leaves F_HIDE_LAB_CAST cleared, so the lab's ON_TRANSITION sets it each time you
+    come in: otherwise the AIs and both guardians would be standing there before the machine is touched.)
+  - After the story: the picnic legends (the same objects: their script asks to battle; caught -> removeobject),
+    six Paradox legends in the craters, Roaring Moon and Iron Valiant in the Crystal Cavern, Terapagos in the
+    Underdepths (the cavern's ladder, whose crystal hides by F_STORY_DONE), the Ruinous four as themselves (test 11:
+    Chien-Pao in the icy cave; Wo-Chien, Ting-Lu and Chi-Yu in the Crystal Cavern; up to test 10 they were stone
+    stakes in a Sealed Shrine). Caught = gone; knocked out = still there. Penny in Station No. 1 says where the
+    legends are; Arven in No. 2 (his sandwiches heal), Nemona in No. 3 (a rematch, as often as you like) and Jacq
+    in No. 4 hide by F_HIDE_RESIDENTS until the ending is over.
+  - **Who is to be seen is worked out, not kept** (test 11). `state`, a subroutine every Area Zero map's
+    ON_TRANSITION and ON_RESUME call (the woods' too, then `woods_state`), sets or clears every hide flag that only
+    says "shown later" or "gone again" from the story's own flags and the stage: the door pair (F_HIDE_GUARDS, and
+    F_GUARDS_UP itself once everything it stands for is done), the post-story legends until F_STORY_DONE, the
+    students in the woods (stage 3 only), Jacq in the woods (0x41D5 until stage 4), the residents (stage 4). So a
+    save from any older build shows the right people, and no order of doing things can leave a flag behind. Tests
+    7-10 kept these as flags set once (F_INIT) and by whichever conversation came last. ON_RESUME matters:
+    Continue does not run ON_TRANSITION (test 7 showed the ending's students beside Jacq on the user's save). It
+    runs in ResumeMap, before the saved objects are put back, so `removeobject` there takes a saved one off the
+    map (the four people a test 10 save made after the ending has standing in the woods).
+- **The hole's sprite**: the hack's sprite table entry 125 (blank, no map uses it) is overwritten in place with a
+  copy of main sprite 168's info (the dark vortex of Hisui 37/104 and Hearthome 37/73, 32x32) and palette tag
+  0x1119 (deep indigo; the vortex's own 0x1106 is pink). Entry 126 is the hack's crystal shard (its sprite 20,
+  16x32) in 0x1111 (pale and glassy: the time crystal up to 2026-10-11; the craters have the time rift since, and the entry is still written for a save's copy of a crater from before). Decorative crystals: the red shard (22) in the past, the
+  black one (21) in the future, the purple one (20) in the caves.
+- **Sprites of its own** (`mons.py`, `sprites/`). Tests 1-9 stood Koraidon, Miraidon and the Titans on the map as
+  their 64x64 battle pictures and borrowed Suicune, Entei and so on for the post-story legends; the user: "cannot
+  we use sprite from the other game? cuz right now it is too big, should not it be sprite?". Now all seventeen
+  (thirteen on test 10; the Ruinous four on test 11: "cannot we just use the sprite instead of the statue?") are
+  the overworld sprites pokeemerald-expansion gives them (rh-hideout/pokeemerald-expansion,
+  `graphics/pokemon/<name>/overworld.png` and `overworld_normal.pal`, fetched 2026-10-08, kept in `sprites/src/`;
+  that project's artists drew them, credit them if this is released): six square frames a sheet (down, down
+  stepping, up, up stepping, left, left stepping), 16 colours. Most are 32x32; Koraidon, Miraidon and Raging Bolt
+  64x64 with the drawing about 44x48. `sprites/convert.py` (needs PIL; run once) writes the three standing frames
+  as `<name>.4bpp` and the colours as `<name>.gbapal`; the patch reads only those.
+  - **Slots**: the hack's sprite table (0x0839CF00, 0x24 an entry, graphics 0x4E + the template's fourth byte) has
+    room for 256 entries. 0-239 are the hack's; 240-255 are 576 bytes of 0x0F that nothing points at (the next
+    table starts right after, at 0x0839F300), and the lookup (0x094A2BCE) has no bound. Ours: 127, 212, 225, 227
+    (the blank 16x32 entries tests 1-9 already used: Koraidon, Miraidon, Great Tusk, Iron Treads; 217 looks blank
+    but Ever Grande 16/8 places it) and 240-253 (Walking Wake, Gouging Fire, Raging Bolt, Iron Leaves, Iron
+    Boulder, Iron Crown, Roaring Moon, Iron Valiant, Terapagos, the recorder, Wo-Chien, Chien-Pao, Ting-Lu,
+    Chi-Yu); 254 and 255 were free up to 2026-10-12 and are the time rift now (*The time rift*): none is left. An entry is a copy of one of the
+    hack's of the same size (32x32 Suicune 73, 64x64 Giratina 83, 16x32 a shard 20: its OAM and subsprites) with
+    our palette tag and frames, the standard animation table (0x08509100: frames 0 down, 1 up, 2 left, mirrored
+    for right, 3-8 the steps) so that `faceplayer` turns it, nine frame entries (the steps are the standing
+    frames again: nothing walks), not inanimate, no footprints. The recorder keeps still (the animation table of
+    the clipboard, sprite 28).
+  - **Palettes**: the hack gives every object palette by its tag, not by the entry's slot: 0x0808DA02 jumps to
+    0x094A3354 for every slot but 0 and 10, and 0x094A356A finds the tag among sprite palettes 4-9 or loads it
+    into a free one of those (so six object palettes at a time; a seventh goes to 10). The tag is looked up in
+    vanilla's table (0x0850BBC8, {pointer, tag} x 35 and a zero row; six of its rows point at 0x08FFFFFF) by
+    vanilla's code, which holds the table's address in three words: 0x0808E8BC (LoadObjectEventPalette), 0x0808E950
+    (PatchObjectPalette), 0x0808E9A8 (FindObjectEventPaletteIndexByTag). The table is full, so it is copied into
+    our block with eighteen rows added (tags 0x1124-0x1135) and those three words point at the copy. The copy
+    ends in tag 0x11FF, the one the search stops at; vanilla forgot it (its last row is zeros), so a search for a
+    tag that is not there ran on into the data after the table. Tests 1-9 used four of the 0x08FFFFFF rows
+    instead; the vanilla table is left alone now.
+  - **A reflection on dry land**: the game mirrors a sprite below itself when a reflective tile (pond water,
+    behaviour 0x10) lies under it: (width + 8) / 16 - 1 columns either side and (height + 8) / 16 rows down
+    (0x08096A8C; a 64x64 sprite: three columns each way, four rows), whatever is in between. The mirror image is
+    hidden by ordinary ground but not by tiles whose picture is on the bottom layer (the picnic's dirt): Koraidon
+    at 34,42 and then at 35,42 (the lake's shore is 33) had its feelers lying upside down on the picnic. The
+    legend stands at 39,42 now. Keep a 64x64 sprite four columns from pond water that is level with it or below.
+  - **Standing behind one**: a 64x64 sprite covers the two tiles above its own; the tile behind Koraidon /
+    Miraidon and Raging Bolt holds a rock (`world.rock`, put wherever places.py stands them), or you could talk
+    to it while hidden.
+  - The Sealed Shrine's stakes (the hack's stone statue, 23) went with the shrine in test 11.
+- **People** (main sprites, stand-ins): Jacq 9, Arven 37, Nemona 20, Penny 58, AI Sada 202, AI Turo 46.
+- **Trainers**: entries 952 (Nemona: class 38 Champion, pic 194), 943 (AI Sada: new class 71 "Professor", pic 218),
+  947 (AI Turo: class 71, pic 31), 958 ("Protocol": new class 72 "Paradise", pic 146, a double battle: Koraidon
+  and Miraidon lv 78). The four slots are ones no script names. Class names go in
+  the 0xFF space after the game's 71 (0x0830FCD4 + 13 * class). Parties: custom moves and items (flags 3), IV
+  field 114 as the hack's bosses, moves by the ROM's own names (cut: "Coll. Course", "ElectroDrift", "U-Turn",
+  "Dazzle Gleam", "MysticalFire", "1st Impress."). Nemona lv 72-74 (Lycanroc, Goodra, Iron Hands, Iron Bundle,
+  Baxcalibur); the AIs lv 75-77 with Scarlet's and Violet's Area Zero teams, Booster Energy on Roaring Moon and
+  Iron Valiant. Booster Energy gets a price (5000; gen9 left it 0) for the lab's shop (`pokemart`).
+- **New maps** (maps.py), group 35, layout ids 846-857: 35/89 the wall, 35/90 and 35/91 the crater
+  in the past and in the future, 35/92, 93, 97, 98 Research Stations No. 1-4, 35/94 the Crystal Cavern, 35/95 the
+  icy cave, 35/96 the Zero Lab, 35/99 the old Sealed Shrine (empty since test 11 and with no way in: kept so that 35/100
+  keeps its number and a save made inside it still loads; its way out leads to the wall), 35/100 the Underdepths (the first eight keep test 6's
+  numbers). Group 35, not 34/37: a save parked in a map of groups 34/37 that an older build had cannot load into one of these. The
+  first builds copied the unused cliff 34/27 and the Giant Chasm 34/79 whole; the user: "the cliff is kinda too
+  big to walk", "this is just a copy paste with is boring". Both are drawn new by `world.py`:
+  - **The wall** (27x30, General + NavelRock, tint "zero" grey-green, music 479, place-name popup on): 34/27's sky
+    and summit on top, rock seen from above (529) and the rock face (537); three ledges (540 | 529 ... | 539, the
+    lip under each 536 | 537 | 538), ladders 516 (height 0), five cave mouths 523 524 525 / 531 532 533 (only 532
+    walkable, height 0): the hole, Station No. 1 and the icy cave, the Sealed Shrine and the way down.
+  - **The crater** (52x44, General + Petalburg, tints "past" / "future", music 381 / 501), painted from a sketch
+    (`Sketch`, `paint()`): land above 113, the north wall's face 121, grass 1 (sometimes 399 / 437 / 4), tall grass
+    13, flowers 4, boulders 224, trees as the Chasm has them (2 wide, 3 tall, even columns: 462 463 / 454 455 /
+    494 495, then 470 471 and 484 485, 468 469 where two meet), ponds as Route 102 (176 177 178 / 184 161 186, the
+    shore 203 204 205 below, widening only), dirt with every corner (464-466 / 472-474 / 480-482, 456-459).
+    **Heights**: a level per tile, LEVEL_STEP 2 (floor 3, then 5, 7: at an even height the game draws people in
+    front of the map's top layer). Terraces are cut-corner blocks (`Sketch.blob`): top corners cut two tiles per
+    row, bottom corners three. Every raised tile with a lower neighbour is an edge, drawn as the hack's Hisui maps
+    (37/103) draw theirs: rim 153 (walked on), corners 108 / 129, sides 116 / 137, face 100 with round ends 124 /
+    145, where the edge turns inwards 140 / 139 above and 132 / 131 below, steps 207 (height 0) on a face (tests
+    1-12 had 136 / 138, 122 / 125 and 124 / 145 there: the rock family's pieces, see *Test 13*). **A face one tile long
+    is drawn as a round end beside an inner corner and reads as a loose boulder** (the user's screenshot of test
+    6: "the tiles are miss align"): `paint()` refuses any face shorter than 3 or rim shorter than 2 on one level
+    and row (`edge_problems`). Woods and the wall count as level 9: no edge against them.
+    Copied pieces: the Chasm's north stairs and mouth (its x 42-52, y 0-8) and two of Petalburg's houses (its x
+    8-13, y 14-18; door 647 at height 0) for Stations No. 2 and 3, their floor (height 3 there) set to the height
+    around them; mouths 159 over 167 (height 0) for the Crystal Cavern, the Zero Lab and Station No. 4.
+    **The waterfall** is Route 119's (0/34): a river on the land above (400 368 402), the lip (187 179 188), the
+    falling water (185) down the wall's other three rows, the splash (193 across; Route 119's ends 376 / 377 carry
+    a bank each and stood in the middle of the pond until test 13) on the pond's top row. All of
+    it open water at height 1: Waterfall climbs it (the field effect walks up while the tile is a waterfall and
+    stops on the river), coming down it pushes you south (vanilla's forced movement on waterfall tiles). Test 6
+    had it solid: the climb ended on the river at the top with water and rock all round - stuck (the user). Test
+    8 put Station No. 4 in a mouth in a little cliff on the sand above the wall; the user: "what the hex is up
+    there? this is half cheap work". So the map is 8 rows taller (TOP): the floor is sketched as before
+    (`crater_floor`, its own coordinates) and moved down; above it the rim's woods and a **hanging valley**
+    (x 24-41, rows 3-9): a meadow closed in by trees, the river from a spring (the pool's top edge 392 393 394)
+    to the lip, Research Station No. 4 as a Petalburg house, tall grass, crystals, and the rim (row 10, plateau
+    113 walked on, sketch "=") as a lookout over the crater.
+  - **The rooms** are rooms the game has, copied whole (layout and tilesets, recoloured where marked) with new
+    events: the stations the lab room 35/13 (no warp leads to it; door mat 571 572 at 9-10,8; the space behind its
+    counters is shut off, so the cot is a sign on the right counter; its PC, behaviour 0x83 at 5,1, opens the
+    game's own PC). The log is an object you can see on the left counter and the note one on the table (a
+    clipboard ext 28, a bag main 97, a paper ext 28, an open book ext 27): test 8 had both as signs on bare
+    tiles, and the user tried the PC for the log ("it is just a normal PC storage?") and found the table
+    answering with no book on it. The log's object was main sprite 88 on tests 8 and 9, taken for a small machine
+    at catalogue size: it is Mr. Briney's boat seen from the front (the user: "why use the ship sprite for
+    recorder?"). The game has no machine among its sprites, so the recorder is drawn for the patch
+    (`sprites/convert.py`: a tape machine, two reels and a display, 16x32 with its foot on the counter's front
+    edge; sprite 249). The Crystal Cavern is a Mt. Coronet room 36/82 ("crystal"; mouth 774 at 3,1, ladder 575 at
+    6,11), the icy cave an Iron Island room 36/65 ("ice"; way out 758 at 6,8), the Zero Lab the Rocket Hideout's
+    lab 34/75 ("future"; its pad 627 is behaviour 0x70 and warps as you step on it), the Sealed Shrine a Regigigas
+    Temple room 36/74 ("past"; way out 572 at 8,12), the Underdepths a Mt. Coronet chamber 36/94 ("tera": its lava
+    pool turns to crystal light; way out 734 at 12,21). The patch checks each room's size and those tiles.
+- **Map section 186** ("Route 224", no map uses it, and its name string is its own) points at "Area Zero".
+- **Warps**: the hole and the way back are object scripts (`warpteleport`). The wall: 0 the lowest mouth -> the
+  past crater, 1 Station No. 1, 2 the icy cave (3 was the Sealed Shrine up to test 10). Each crater: 0 its north mouth -> the wall,
+  1 Station No. 2, 2 the Crystal Cavern, 3 the Zero Lab, 4 Station No. 3, 5 Station No. 4. The cavern's ladder ->
+  the Underdepths. Every room's way out is MAP_DYNAMIC (127/127): entering by a warp whose target warp is dynamic
+  stores the map and warp you came by, so one room serves both eras.
+- **Time crystals** (drawn as a time rift since 2026-10-12: *The time rift*; on the dais at 26,30 and on the north-east platform at 45,20, map coordinates): `getplayerxy 0x8004, 0x8005`
+  and `warpteleport` to the other era with those vars: you arrive where you stood.
+- **Wild tables**: gWildMonHeaders (0x08E17D50, 254 headers) ends at 0x08E19128 in a terminator followed by 68
+  bytes of 0xFF, nothing pointing in before 0x08E19180. Three headers (35/90, 35/91, 35/95) where the terminator
+  was, then the terminator: that space is full. Land rate 20, levels 63-67: the six Paradox Pokemon of each era;
+  the icy cave the Frigibax line (Baxcalibur 4%), Glalie, Froslass, Weavile, Mamoswine, Abomasnow, Beartic,
+  Avalugg, Iron Bundle 1%.
+- **State**: flags 0x43AB-0x43BE and 0x43C0-0x43D6 (all taken; 0x43B0, the old F_INIT, is set in
+  older saves and left alone; 0x43D6 says which crater you were last in) and vars 0x40A8 (0 nothing, 1 met Jacq, 2 in Area Zero, 3 on the way home, 4 the
+  ending over) and 0x40F9 (the build's stamp: *Positions are data*), checked unused on the Gen 9 build (scripts,
+  object hide flags, aligned literals, the saves). 0x43BF is not free. story.py lists each.
+- **GOTCHAS**
+  - An object takes the height of the tile it stands on (1 on water): A from the shore then offers Surf. Objects
+    here are placed at height 0 (they answer at any height) or the room's 3.
+  - A copied piece keeps its heights: the Chasm's stairs and the houses came in at 3 and would have walled the
+    shelf off. `crater()` sets their floor to the height around them. A house's door must face a plain floor tile:
+    Station No. 3 first stood where its doorstep was an inner corner (solid).
+  - A 64x64 sprite is drawn up from its tile and 4 tiles wide (tests 1-9: Great Tusk's battle picture hid one of
+    its two crystals until they moved a tile further out). It mirrors itself below when pond water is within
+    three columns, and it covers whoever stands behind it: see *Sprites of its own*.
+  - A sprite picked from a numbered sheet at catalogue size can be something else entirely (main 88, "a small
+    machine", was a boat). Look at it at 4x, and in the game, before it stands for something.
+  - A message that reads like a lock ("VISITOR NOT AUTHORIZED") must say how it opens. Whatever a step needs is
+    checked where the step is taken, not through a flag another conversation sets.
+  - A post-story Pokemon must not close a corridor with the crystals beside it: Roaring Moon at 11,3 of the cavern
+    did (found by the post-story test).
+  - Waterfall tiles must be open water, or the climb strands you at the top.
+  - Anything that answers A must be something you can see: a sign on a bare counter or table tile reads as a bug.
+  - The crater's map coordinates are the floor's plus TOP (8): (26,22) in crater_floor is (26,30) on the map.
+  - Tests: walking tests refresh a running-low Repel (its "use another?" prompt stops a walk); scripted battles go
+    through a "fight" step (A mashed, our battlers pinned at 9999 with full HP and Dark Pulse); a multi-tile
+    "step" on land can overshoot (running), so walks are used there; mashing A in front of a PC reopens it.
+- **Tested** (mGBA dev, hidden; `_testrun/paldea/run.ps1` with `test_paldea.lua`; `run_all.ps1` runs a list, each
+  from the same save, and keeps each run's log and pictures), on test 10: test_story1-5 walk the whole story and
+  the post-story (Penny and logs, Arven, both Titans twice, both sandwiches, Nemona's battle, the waterfall up
+  and down with Station No. 4, Penny opening the lab, Arven and Nemona at its door, the finale's three battles,
+  the ending and Jacq's gift, the picnic legend, Walking Wake, Wo-Chien, the ladder to the Underdepths and
+  Terapagos); **the orders**: test_story6 is the user's (Arven talked to when only a log is missing, the door
+  still shut, the log, up to Penny, back down: the pair at the door, the finale), test_story7 Nemona last (Penny
+  and the machine say she is missing, nobody at the door, her battle sends them), test_story8 a sandwich last
+  (Arven goes straight on to "let's finish this"); test_steps_whiteout (the cast's flag left cleared: hidden
+  again on the way in); test_steps (the way in, Station No. 1, the icy cave and a wild battle, home),
+  test_steps_crater (both time crystals, a wild battle each era, the lab, Station No. 2's cot / note / log / PC,
+  the cavern), test_steps_save (save in the crater, Continue), test_steps_before (the woods before the arc) all
+  pass, with flag and who-is-on-the-map checks ("expect" steps stop the run when wrong); test_steps_continue loads
+  the user's own save (no setup) and checks nobody from the ending is in the woods. test_steps_tour and
+  test_steps_sprites (every sprite of ours, Koraidon and Miraidon talked to from three sides) take pictures.
+  Test builds in `gba-trans/roms/test-paldea/` with a map guide (`map_guide.py`: gold during the story, green
+  ways in and out, cyan after it; objects drawn, hidden ones too).
+- **A second save beside test 10**: the user played test 9 up to the lab without saving (the .sav in the folder
+  was never written after it was put there), so that play is gone. `make_save_lab_door.lua`, run on a copy of
+  their own save, sets the story's flags up to the finale, warps to the lab's door and saves from the Start menu
+  (the Repel counter left alone); `test_save_lab_door.lua` continues from that save and plays the finale. It is
+  offered as a second copy of the ROM with that save, next to the usual one with their own.
+- **Test 11 (2026-10-08): the user's five notes on test 10.** "walkingwake should be on top of the waterfall":
+  it stands on the river above the falls (33,7), water on all four sides, and is talked to from a surfing
+  Pokemon. "the door should be prohibited to enter until those two are at the door": *The lab's door*. "can I
+  edit the placement myself???": *Positions are data*. "Chien Pao should be in the icy cave, and the other 3
+  should be in Crystal cave", as sprites: done, the shrine emptied. "those 4 standing blocking the way ... let
+  them be in the area zero houses?": they leave after the ending's last line and live in the stations.
+- **The lab's door**: Penny unlocks it (F_LAB_OPEN) but it stays a shutter until F_GUARDS_UP, which `state` sets
+  once both legends are up, Nemona is beaten and the lab is unlocked; whoever of the four comes last also fades
+  the screen and puts the pair there and then (`to_the_door`). The crater's ON_LOAD writes the shut tile
+  (`setmetatile`) while F_GUARDS_UP is clear; a sign on it says what is missing. **The shut tile must have
+  behaviour 0.** Test 11's first try used 584, which looks right but is an "animated door" (behaviour 0x69):
+  walking north into a 0x69 tile warps you whether it is solid or not (TryDoorWarp looks at the tile in front),
+  so the shut door let you in. 653 (behaviour 0) is used and the patch asserts it. A "non-animated door" (0x60,
+  the open mouth 167) only warps when stood on.
+- **Positions are data** (`places.py`, `check.py`, `rebuild.py`, `editor.py`): no position of a person, a Pokemon,
+  a crystal or an item is in paldea_patch.py. `places.THINGS` has the built-in ones; a `placements.txt` (the
+  user's is in `gba-trans/roms/test-paldea/`) overrides them; lists of crystals may be any length, or "none".
+  - `check.py` refuses a build and says why in plain words: off the map, in something solid (the recorder, the
+    note and Terapagos may be), in a doorway, two things on a tile that are there at the same time, on water
+    with a bank beside it (A from the bank offers Surf, and Surf then puts you on top of it), a reflection on dry
+    land (the rule under *Sprites of its own*), more than 15 things within one screen (the game keeps 16 objects
+    with you; it spawns 9 tiles left to 10 right and 7 up to 9 down of you), more than 64 on a map
+    (LoadObjEventTemplatesFromHeader copies them all into the save block's 64 without counting), ground that can
+    no longer be walked to from the way in (story and after-story checked apart, on foot and with Surf; patches
+    under 4 tiles ignored unless a door is in them), and a thing nobody can walk up to. Walking is the game's
+    rule: collision bits; height 1 water; 15 keeps your height; 0 fits any; else heights must match.
+  - `rebuild.py <folder>` (rebuild.bat): builds "Hyper Emerald - Area Zero (my placements N).gba" from the Gen 9
+    test build, N past every ROM, save and save state of that name it can find (the user's emulator loads a ROM's
+    last save state by itself, and one from an older build crashes), copies the newest save that has a game in
+    it beside the ROM and into every mGBA `savegamePath`, warns if a save state is newer than that save, redraws
+    the map guide, keeps its last two ROMs (the others' saves go to "old saves").
+  - `editor.py <folder>` (edit placements.bat): a page served on 127.0.0.1 only. Every map as the game draws it
+    (`map_guide.Rom.ground`), every thing as its own sprite; drag, arrow keys, add / remove a crystal, "Check"
+    (a build in a temporary folder, check.py's findings), "Save and rebuild" (writes placements.txt, runs
+    rebuild.py). `?selftest` on the page's address exercises it without a mouse.
+  - `map_guide.py` draws tile numbers round each picture and a faint grid; a rebuild draws them again.
+  - **A save keeps its own copy of the map it was made on**: the 64 object templates (positions, hide flags,
+    sprites) and the objects in sight. On Continue only the templates' script pointers are refreshed, by index
+    (LoadSaveblockObjEventScripts). So after a rebuild a save made in Area Zero showed everything where it used
+    to stand until you left the map, and with a crystal added or taken away the wrong script behind an object.
+    Var 0x40F9 holds the stamp of the build the copy was taken from (a CRC over every map's objects and blocks
+    and over the positions; `STAMP_SALT` for what the woods get): ON_TRANSITION sets it; ON_RESUME turns any
+    other value into 0; each map's ON_FRAME table starts with (0x40F9, 0) -> `refresh_<map>`: `getplayerxy`,
+    `warpsilent` to the same map and tile, `waitstate`. The map is read again from the ROM, once, with one more
+    fade. A save from before test 11 has 0 there and is read again too (the old shrine got map scripts for this).
+  - Object order in a map's list is kept as test 10 had it (time crystals, crystals, then the people), local ids
+    are counted, never written.
+- **The user plays from save states** (their emulator: EmuDeck's mGBA, `savegamePath` the Desktop,
+  `savestatePath` N:\Emulation\saves\mgba\states, autoload and autosave on). They finished test 10 without one
+  in-game save: the .sav their emulator made on the Desktop is all 0xFF, and the .sav put beside the ROM is never
+  read by it. `state_to_save.lua` (run on the ROM the state belongs to, with a copy of the state) loads the
+  state, saves from the Start menu and continues from the save; test 11's save is their last test 10 state made
+  that way, put beside the ROM and on the Desktop under the ROM's name. A state from one build must not be
+  loaded on another: every script and map-script pointer in RAM is stale.
+- **Tested on test 11** (sha1 d8e70efd...): `final11.ps1` runs test_story1-9 (9: the four in the stations,
+  Nemona's rematch twice), test_steps, _crater, _before, _tour, _sprites, _whiteout, _save, _door; `old_saves.ps1`
+  (saves made on test 10 in the woods after the ending, in the shrine and in the Underdepths, continued on test
+  11); `refresh11.ps1` (a save made in the crater continued on a build with Arven and Koraidon moved, a crystal
+  gone and two added: everything where the new placements put it, both answer; and on the same build: nothing
+  read again). test_steps_continue is the user's own save: nobody by the hole, in through it, Penny at home.
+  `second_save11.ps1` makes "(before the door opens)" from their save (make_save_before_door.lua: all but Nemona,
+  the lab unlocked, below the shut door in the future) and plays it to the ending and on to Arven in Station
+  No. 2 (test_save_before_door.lua). The tests' boot presses no keys once the field is up (BOOT_QUIET_FIELD in
+  dexnavchain/test_boot.lua): a key landing on the frame a refresh ends would open a menu.
+- **Test 12 (2026-10-08): three things the user found on test 11, and painting.**
+  - "the crystal cavern right now it is loop cannot go out". A room's way out is MAP_DYNAMIC, and **the game
+    keeps one dynamic place**: SetupWarp notes "the warp you came by" whenever the warp you take leads to a warp
+    that is itself dynamic. The Underdepths' way out was dynamic too, so going down the cavern's ladder made the
+    place the ladder, and the cavern's mouth then led to the cavern's own ladder. Never chain two dynamic rooms.
+    Now the Underdepths' way out is a plain warp to the cavern's ladder (warp 1), and the cavern's ON_TRANSITION
+    and ON_RESUME say where its mouth leads (`setdynamicwarp` to the crater's warp 2), by F_IN_FUTURE (0x43D6,
+    set by the future crater's map scripts and cleared by the past's): a save or state made in the loop gets out.
+    `setdynamicwarp`'s x and y go through VarGet: plain numbers there, 0xFFFF would be read as a var far outside
+    the table. test_steps_cavern (in from each time, down, up, out) and old_saves' "loop" (a save made on test 11
+    in the loop).
+  - "the head of the player character got cut off when stand in front of locked gate": the shutter's picture is
+    on its metatile's second layer, and with layer type 0 that layer is drawn over people. "the record UI, the
+    top part got cut off": the same, the counter's top behind the recorder (a tile made to cover a clerk
+    standing behind it). `tint.tileset(..., covered=)` copies a tileset's attribute table (512 words: nothing
+    says how many metatiles a tileset has) with the named metatiles' layer type set to 1 (both layers under
+    people): the shutter 653 in the craters' copies; in the stations' copy (same colours, their first copy at
+    all) the tile the recorder stands on and the one above it, wherever placements.txt has it. No map of the
+    game's sees a copy. test_steps_look12 takes the pictures.
+- **The ground can be painted** ("apart from placement, can I change tiles layout everything myself? like Hex
+  app. I cannot use Hex app": Hex Maniac Advance does not open this ROM). `ground.py`: ground.txt beside
+  placements.txt, `[map]` then `x,y:block` words (hex, the game's own map word), only the tiles that differ
+  from the map as the patch draws it; sections are grounds: the wall, the crater (both times: a time crystal
+  puts you on the same tile), the research stations (one room), the cavern, the icy cave, the lab, the
+  Underdepths; not the Timeless Woods. `paldea_patch.build(..., ground=)` gives every map rows of its own, keeps
+  a copy as drawn, lays the file over them (`GR.lay`), then puts the rocks behind the big Pokemon; an unpainted
+  build is byte for byte the build before.
+  - **Tiles that stay**: every warp, sign (bg event) and trigger tile is "locked"; check.py refuses a build in
+    which one differs from the map as drawn, or a way in or out that could be reached as drawn (with Surf) no
+    longer can, or a tile a script puts you on (the wall's landing tile, the lab's standing tiles) is not
+    ground. A warp only works on a tile whose behaviour is a door's or a ladder's, so painting over one would
+    silently kill it.
+  - **The editor** (`editor.py`, "edit placements.bat"): two modes. "Paint the ground" draws the map on a canvas
+    from a 512 x 512 atlas of the map's metatiles (`map_guide.Rom.atlas`: 32 a row, as the built ROM's tinted
+    tilesets draw them) and paints as Hex Maniac Advance does: left paints, right-click picks the tile under the
+    mouse with its collision and height, right-drag picks an area as a brush (stamped, or laid side by side when
+    dragged), Shift-drag fills a box, Ctrl+Z / Ctrl+Y. The list of tiles is every metatile that some layout of
+    the game uses from the map's two tilesets (`usage()`: one pass over the 845 layouts), so nothing in it is
+    past a tileset's end; a tile from the list gets the collision the game most often gives it (the map's own
+    use first) and the height of what it is painted on, unless it has a height of its own (0, 1, 15) or the
+    Walk / Height boxes say otherwise. Overlays: walls and water, heights, locked tiles.
+  - check.py's findings are tidied for it: with a locked tile changed nothing else is said about that map; more
+    than three things out of reach are one finding; the two craters, or the four stations, saying the same
+    thing say it once ("the crater, both times").
+  - A save holds the tiles round you as you last saw them; the build's stamp (0x40F9) takes the blocks in, so a
+    save made beside a painted tile reads its map again (test_ground_make / _load).
+  - Not yet: a map's size; where its doors, mouths and ladders are; the Timeless Woods' ground.
+- **Tested on test 12** (sha1 300ba50c...): `final11.ps1 -Rom p12.gba` (22 runs), `fixes12.ps1` (the cavern, the
+  pictures, the loop save), `ground12.ps1` (make_painted.py's build: a boulder painted on grass, a boulder
+  painted away, a station floor tile made solid; both times, two stations, and a save from before the paint).
+  The editor's page: `?selftest` in headless Edge (dragging, arrows, crystals, picking, painting, undo, an area,
+  a box, a door refusing paint, and with `&apply` the save and rebuild). The user's own build is rebuild.py's
+  "(my placements 2)" from their placements.txt.
+- **Test 13 (2026-10-08): the terraces' pieces, and "Tidy the edges".** The user painted over a hundred tiles of
+  the crater with the new editor, most of them terrace corners, and wrote: "I have adjusted some tiles, maybe you
+  need to bake everything balance like corner of each tiles, don't make graphical glitch".
+  - **The terraces were built from the wrong family.** The General tileset has a cliff set per surrounding: rock
+    (104-109, 120-125), sand (128, 130), water (152, 154), and grass. `TERRACE` had the top corners 136 / 138 and
+    the round ends 122 / 125 (taken from layout 826 where they stand against the rock plateau 113): each shows a
+    sand-coloured corner on grass. And it had the grass set's round ends 124 / 145 where an edge turns inwards.
+    The grass set, read off every layout that uses the tileset (`patches/paldea/neighbours.py`: for a tile, the commonest
+    tiles above, below and beside it over all 845 layouts): 108 153 129 / 116 . 137 / 124 100 145, and 140 (a rim
+    from the left meets a side from above), 139 (mirror), 132 (a face from the left meets a side going down), 131
+    (mirror). The user had found 108, 129, 124 and 132 by eye; they had 122 for the right-hand end (still a sand
+    corner), 106 (rock) on three corners and no 131.
+  - **How to find a piece's family**: never by eye on a sheet. Count neighbours over the game's own layouts; a
+    piece that fits has the expected partner on each side hundreds of times.
+  - `world.py`: TERRACE is the grass set; `terrace_kind()` and `edge_piece()` are module functions;
+    `crater_levels()` and `crater_dirt()` give the sketch's levels and path; the waterfall's splash is 193 across.
+  - `tidy.py` (`crater(blocks, drawn, levels, dirt)`): works every edge piece out again from the shape, for
+    terraces (level from height: 3 / 5 / 7; a raised tile with lower ground beside it gets its piece, walking and
+    height; a terrace piece where no edge is becomes grass; steps and anything that is not plain ground or a
+    terrace piece stay), dirt paths (`edge_piece` over the dirt family; a path counts as going on under a terrace
+    edge the sketch drew over it) and puddles (200 431 201 / 216 319 210 / 208 217 209, behaviour 0x16: walked
+    through). On the map as built it changes nothing (asserted by hand: `try_tidy.py`), and it leaves the mound's
+    rock pieces (the Chasm's chunk) alone unless somebody painted them. Lakes are not tidied.
+  - The editor: "Tidy the edges" on the crater's tabs (POST /tidy, applied as one stroke, Ctrl+Z takes it back);
+    a check, a save and the opening message say how many edge tiles do not fit. The user's ground.txt was tidied
+    with the same code (48 tiles; their path, puddle and lamp kept; their file as painted is kept beside it).
+  - **Two editors on one port.** Python's HTTP servers set SO_REUSEADDR, and on Windows that lets a second
+    process bind a port another is listening on; each gets some of the connections. A test editor started while
+    the user's was open answered on "their" port. `editor.Server` binds exclusively (SO_EXCLUSIVEADDRUSE) and
+    takes the next port. Test editors are stopped by PID or by their own port, never by the default port.
+  - An editor left open keeps the code it was started with: after a change to the patch the user has to close
+    the black window and open it again, or a save from the old page rebuilds with the old pieces.
+- **Test 14 (2026-10-08): past the crater's edges.** The user: "increase the border of the map, cuz rightnow it got
+  cut off when ran on the border, notsure u understand or not".
+  - **What was cut off.** The screen shows 7 tiles either side of you and 5 above and below (the top and bottom
+    rows by half). The crater's ground comes within 4 tiles of its sides, 3 of its top and 4 of its bottom, so
+    3, 2 and 1 tiles past the edge come on screen. There the game draws the layout's border block, 2 x 2 tiles
+    picked by `(x & 1) + 2 * (y & 1)` in the map's own coordinates. Ours was a wood (470 471 / 468 469). It
+    could not go on with the land above (113, rows 7-10) and the wall's face (121, rows 11-12), which run out
+    through both sides: the cliff stopped dead against trees. The rim's wood (rows 0-6) has its tree middles on
+    odd rows and the border has them on even ones: the trees jumped a row at the edge. Row 0 was tree tops
+    drawn against the land above (494 495): a strip of sand with trees over it. Row 51 was trunks, with the
+    border's middles under them.
+  - **Strips joined as connections, not a bigger map.** A bigger map moves every x and y: placements.txt,
+    ground.txt, the saves made in the crater, the tests. Instead the game is given what lies past each edge the
+    way it is given the next route: `maps.Map.connect(side, offset, key)` writes the vanilla table (header
+    +0x0C -> count, pointer; 12 bytes each: side 1 south, 2 north, 3 west, 4 east; offset at +4, group +8,
+    number +9). On loading a map the game copies, from each joined map's layout, the 7 rows or columns nearest
+    the edge (8 columns on the east) into the 7 tiles it keeps round the map (its copy is w+15 by h+14); only
+    the blocks, drawn with the current map's tilesets, so one set serves both times. A north or south strip at
+    offset -7 and w+15 wide fills the corners too. Maps 35/101-104: north and south 67x7, west 7x52, east 8x52.
+    They have no events and no scripts; nobody enters them (every tile of theirs is shut, and the crater's
+    outer ring is trees and cliff).
+  - `world.beyond(blocks)`: every row goes on west and east, and every column north and south, with its last
+    two tiles again and again (a tree is two wide; two rows of a wood are a row of middles and a shared row).
+    `world.woods_on()` turns row 0's tops and row 51's trunks into the shared row (468 469), so the top and
+    bottom are a wood that goes on. The strips are made from the map as painted (ground.txt). They and the
+    connections are in the build's stamp: a save made in the crater on an earlier build reads the map again
+    (its saved view holds 0x03FF, "nothing here", past the edge, and that would be put back over the strips).
+  - `patches/paldea/margins.py <rom> <outdir>`: any map with the 7 tiles past each edge as the game fills them
+    (joined maps, then the border block). The other maps were looked at with it: the wall's border is its own
+    face, the rooms are indoors, the Timeless Woods' own border fits.
+  - The editor shows 4 tiles of it as a dim band round the two crater tabs. The page works it out by the same
+    rule, and `?selftest` holds that against the build's strips (1718 tiles, none differ).
+  - Tests: `test_steps_edges.lua` (the tiles the game holds past each edge, read from its own copy of the map,
+    after a warp and after walking to each edge, in both times; pictures), `test_edges_make.lua` and
+    `test_edges_load.lua` (a save at the west edge made on test 13 and on test 14, continued on test 14);
+    `_testrun/paldea/edges14.ps1`, and everything together `final14.ps1`.
+  - **The runner let go of the emulator while it still held the save.** `run.ps1` stopped it and returned; on a
+    busy machine the next `Copy-Item` of the base save failed ("a file with a user-mapped section open") and
+    that test ran on the previous test's save, and said ok. It waits for the process to exit now.
+  - **How to make scenery go on past a map's edge**: a border block only if two tiles by two can carry it on
+    every side; otherwise strips joined as connections. Before handing a map over, find how near the ground
+    comes to each edge (7 across, 5 up and down) and look at `margins.py`'s picture.
+- **Test 15 (2026-10-09): the Sealed Vault, and two item balls in the crater.** The user: "for the tinglu, chiyu,
+  wochien, can we new room for them and have a puzzle to solve to obtain them at around 15,1 ? cave entrace? and
+  have more item ball booster energy in the crater as well like 1-2 location", then "make sure u polish
+  everything as perfect as possible, but also beaware of the glitches bugs that can occur as well".
+  - **15,1** is the Crystal Cavern's second cave mouth (tile 774). The Mt. Coronet room it is copied from (36/82)
+    has a warp there to 36/94; ours had none, so it led nowhere. It is the cavern's warp 2 now, into the vault;
+    a crystal stands on it until the story is done (flag F_STORY_DONE, as on the ladder). The vault's way out is
+    a plain warp back to it (two MAP_DYNAMIC rooms in a row break the first: *Test 12*). The cavern's
+    decorative crystal at 15,2 stood in front of the mouth: out of the defaults, and out of older files
+    (`places.GIVEN_UP`).
+  - **The room**, 35/101 (the edge strips are 35/102-105 now), 17 x 18, drawn by `world.vault()` from the
+    Snowpoint Temple's pieces (36/75-79: General + 0x083DF8CC): double walls 898 / 896 / 891 905 892, the snow
+    ledge 889, floor 901 (903 ice below, 911 ice above), ICE 909 (behaviour 0x20), an ice boulder 899, a snow
+    patch 655 (General's), the way out 902 (floor, arrow warp south). Five niches one tile wide along the back
+    wall, a dais of floor, the mirror floor 13 x 9, a strip of floor, the way out in the bottom wall at 9,16. Tint
+    "crystal", like the cavern. Wo-Chien, Ting-Lu, Chi-Yu in niches 2, 11, 14 behind dark crystals; the great
+    tablet (hack sprite 13) in the middle niche; the Sword's niche (5) empty with a slat (sprite 12): Chien-Pao
+    is in the icy cave. Three stakes (sprite 23, the stone marker that stood for the Ruinous four up to test 10)
+    on the ice. Flags 0x43D8-0x43DA (story.F_SEALS): each hides a stake and its crystal; the stake's script
+    removes both (SE 42 ice crack, a shake, SE 41 ice break, the Pokemon's cry). Item balls: 0x43DC / 0x43DD
+    (story.F_BOOSTER). New flags checked like the old ones (script index, object hide flags, script bytes,
+    aligned literals, three saves); 0x43D7 and 0x43DB have chance matches and are skipped.
+  - **The puzzle** (built-in: boulders world.VAULT_ROCKS, patches VAULT_PATCHES, stakes in places.py) was found
+    by `patches/paldea/vault_search.py`: layouts thrown together and kept if the middle column is clear, no
+    straight slide from the dais or the strip runs into a stake, no place traps you, every stake can still be
+    pulled whatever was pulled before; then ranked by how they play (every order of the stakes). Eleven slides
+    at the least; the stake of the Vessel is reachable only after the stake of the Beads is pulled (the slide
+    on after pulling it reaches 12,7, the one place that leads to the Vessel's row).
+  - **Engine facts, seen in the game:**
+    - On ice the game retries the forced move every frame you stand there (DoForcedMovement on a collision calls
+      ForcedMovement_None and returns FALSE, and the next frame tries again). So **when what stopped you is
+      removed you slide on** the way you face: a stake pulled from 3,12 left the first build's player at 3,9.
+      check.py and the search play it so (`on()` in puzzle_states).
+    - A press on ice is a slide; a quick tap does not turn you in place. A is read while you stand still on ice.
+    - Step events (coord events) do not fire on ice tiles (FieldGetPlayerInput sets tookStep only off forced-
+      movement tiles), so nothing of the puzzle is a floor switch: the stakes are objects answered with A.
+    - An arrow warp takes you out the moment you stand on it holding its direction. The first build had the way
+      out at the foot of the clear middle column: a slide down holding Down left the room. It is one tile aside,
+      in the bottom wall, now (test: `{"hold", "DOWN", 150}` stays in the room).
+    - A save made standing on ice continues there; a save from another build's vault is read again (FRESH) and
+      put back on the same tile, facing as before.
+    - Reflections: ice is reflective; the mirrored sprite is drawn at priority 3, over the map's bottom layer and
+      under its middle one, so it shows on tiles of layer type covered or split (grass is covered: Koraidon's
+      feelers on the picnic, test 9) and is hidden by normal ones (the vault's floor). `check.layers()`; the
+      reflection rule now only concerns water, and only ground that shows it.
+    - **Object palettes**: the hack hands them out by tag from slots 4-9 (sSpritePaletteTags at 0x03000CF0;
+      0x094A356A) and frees none until the field is reloaded (a warp, a battle). A seventh tag goes to slot 10, an
+      eighth takes slot 10 from it. The first vault had 8 (three crystal colours): Ting-Lu stood there in Chi-Yu's
+      colours. The crystals are all the dark shard now, which shares the stake's palette (tag 0x1116): 6 tags.
+      check.py refuses a map whose things need more than `PALETTES` = 7 tags in one phase; both craters are at 7
+      after the story with their item ball. The harness step `{"pals", label}` logs the sixteen tags.
+  - check.py: `Ground.step` / `go` / `stand` (reach slides on ice); `check_puzzle` plays every state (stakes
+    standing x treasures there, from the door; a save from an older build may have any treasure caught):
+    nowhere to get stuck, every stake can be pulled in some order, a crystal closes its niche, the treasure can
+    be walked up to once it is gone; `puzzle_way` gives the shortest way (the editor's Check says how many slides,
+    the READ ME has it written out). `crowded()` is the old "15 on one screen" rule as a function.
+  - places.py: `MOVED` (Wo-Chien, Ting-Lu, Chi-Yu were in [Crystal Cavern]), `GIVEN_UP`, and `.notes` on what
+    parse() did to an older file; rebuild.py then writes placements.txt afresh and keeps the old one as
+    "placements - as it was before build N.txt". The editor has a "Sealed Vault" tab, says what an older file
+    had when it starts, and names ice in the tile list.
+  - Tests: walk.lua slides (a route is presses; a press has landed after 18 still frames); harness steps
+    `slide` (a press, released as soon as you set off), `hold`, `pull` (the stakes, in whatever order can be
+    reached), `pals`; `test_steps_vault.lua` (shut, open, caught, ice), `test_vault_old_make/load.lua` (a
+    cavern save from test 14), `test_vault_ice_make/load.lua` (an ice save from another build),
+    `test_steps_balls.lua`; `_testrun/paldea/vault15.ps1`, everything `final15.ps1`.
+  - Part 2 (Kitakami) is to look Japanese (the user: "can we have japanese house style for them to match
+    theme?"). The game has the buildings: Koga's Village 35/45 (thatched wooden houses; General + 0x083DF734)
+    and Celestic Town 36/10 (dark-roofed houses, a big wooden shrine; 0x089CBC6C + 0x08A6550C); the Bell Tower
+    35/9 and Bellchime Trail 35/74-75 have a pagoda's insides.
+  - Gotchas: `python -I` does not put the script's own folder on sys.path; a Git Bash heredoc turned "\n" into
+    a real line break in a search script (write such scripts with the Write tool).
+  - **rebuild.py gave the user's ROM a save that was not theirs.** It took the newest save with a game in it of
+    any Area Zero build, and the newest was the copy of the second save ("test 14 (before the door opens)")
+    that test 14 had put on the Desktop. Caught on test 15's handover (the save's checksum was the second
+    save's), the right save put in place; `newest()` now prefers the user's own builds and never takes a
+    second save.
+- **Test 16 (2026-10-09): the way in moved to Mossdeep City.** The user, with a screenshot: "change the entry of
+  blackhole and Jacq to Mosdeep city instead at where I stand in the picture here", then "make sure everything in
+  Mosdeep will work exactly the same since it has various event".
+  - The spot: the screenshot (1960x1256: 8.17 picture pixels a game pixel, 154 of the 160 rows) slid over the
+    ROM's render of 0/6 (`find_spot.py`, in the session's scratch): tile 68,33, the strip of grass at height 3
+    below the Space Center between the cliff and the sea, (66-70,33) and (68-70,32), stairs up at 66,32.
+    Defaults (places.py): the hole 68,32 (you come back out on 68,33, the user's tile), Jacq 70,32 facing it, the
+    ending's three on 67,33 / 69,33 / 70,33. 69,32 is the game's item ball (hack sprite 60, item 468, flag 0x4016,
+    script 0x08FE3DE6 in the hack's list of finditem scripts): fixed, nothing of ours on it.
+  - Mossdeep (header 0x08482560, events 0x08B0C3C0): its 29 objects copied as they are, ours 30-34. Its map
+    scripts were ON_TRANSITION alone, 0x0980BFE2, the hack's: clears 0x64-0x67, checks 0x88A and 0x1AD, shows or
+    hides the Space Center's group (21-25, flag 0x411F) and object 19 (0x4067), and ends with `end` on every path.
+    So ours (state, the stamp, who of ours is shown) ends with `goto 0x0980BFE2`: a `call` would never come back
+    from its `end`. ON_RESUME and ON_FRAME (the refresh, the ending) are ours alone. The build asserts the header,
+    the events, the scripts list and the first bytes of that script. Palette tags: Mossdeep's own five (0x1103-
+    0x1106, 0x110B) and ours give six. Our people's height is the ground's under them (`height_at`); Jacq and the
+    students face the hole / the tile you come home on (`toward`).
+  - The Timeless Woods keep map scripts only (transition, resume, refresh). A save made in them on an older build
+    holds Jacq, the hole and the students in its copy of the woods; its stamp is not this build's, so the woods
+    are read again from the ROM, where they are the game's own eight objects. The user's save is such a one.
+  - check.py: what is not ours to move (fixed, not open) now stands in the baseline the "can no longer be reached"
+    and "way in or out" findings are measured from. Mossdeep's own people shut off much of the city in the
+    checker's eyes (objects 10-14 stand in a row across 44,23-26 until flag 0x337, people in narrow ways), and all
+    of it was reported as ours to put right. Only what our things shut off besides is said; Jacq put on 67,33,
+    the strip's only way off, is still refused (tried).
+  - places.py: RETIRED sections ({"timeless woods": "mossdeep"}): an older file's [Timeless Woods] lines are
+    passed over with one note, and the five are not listed again as new.
+  - Story texts: Jacq says the Space Center saw the hole open; the hole "hangs in the air above the grass"; the
+    wall's way back hears the sea at Mossdeep; Jacq in Station 4 speaks of the hole in Mossdeep.
+  - Tests: `test_mossdeep.lua` with `_testrun/paldea/mossdeep16.ps1` and `mossdeep_compare.py`: the build against
+    the Gen 9 build without Area Zero (`c16.gba`), from p9.sav, kinds space (0x1AD set) / nospace / before (no
+    0x41D5) / save (a save standing in Mossdeep, and one surfing off the north shore at 20,3, each continued):
+    who is on the map (local id and sprite; 1, 3, 4 and 9 wander, so not where) and 14 flags at five stops, and
+    gPlayerAvatar's flags (harness step `avatar`): identical. `test_mossdeep_old_make/load.lua`: a save in
+    Mossdeep on test 15 continued, Jacq and the hole there after the refresh. The way in (test_steps.lua), before
+    Team Rainbow Rocket (test_steps_before.lua), the ending (test_story4/6/7, whiteout, save_before_door: the
+    finale ends on map 0/6), after the story (test_story9), the user's save (test_steps_continue.lua) and old
+    saves (old_save_load.lua, woods) rewritten for Mossdeep. Everything: `_testrun/paldea/final16.ps1`.
+    Woods expectations no longer ask for 0x43D4 (Jacq's hide flag): nothing in the woods sets it now; Mossdeep's
+    transition does, and test_steps_continue checks it there.
+  - The user, looking at the map guide's Mossdeep page with the ending's three drawn round the hole: "make sure
+    that after the ending of the mission, those new npcs would not block the way out". They do not (the ending
+    removes all four; only the hole stays): test_story4 and test_save_before_door now walk onto every tile of the
+    strip after the ending and up the stairs. map_guide.py: the Mossdeep page is a close-up (window round our
+    things, 3 picture pixels a game pixel; `ruled` numbers the tiles from the window's corner), people of a scene
+    only (when "ending" / "finale") are drawn at 45% and labelled "(only in the ending)", and a label pushed away
+    from its ring gets a line back to it.
+- **Test 17 (2026-10-09): Area Zero in the Journal, its legendaries in the Legends.** The user: "update the
+  journey game log as optional quest, so player knows what to do next", then "update the legendary checkbox as
+  well". `patches/paldea/journal_az.py`, called by paldea_patch.py after everything else; its data goes to
+  `0x09FE1000..0x09FE4438` (13 KB, a blob of its own in the ROM's free tail before the sprites' block; the
+  Area Zero block did not grow). The release's Journal and Quest Log are not touched: only this test build has the
+  rows.
+  - The journey log is the Journal (item 363, "A notebook of your journey. Use it to see what to do next."), which
+    opens the Quest Log; its four Journal chapters are the Journal's step table (`patches/journal/steps.py`).
+  - Seven rows after "Steven is waiting" (rows 61-67; Post-game 39 -> 46 rows): Area Zero: Jacq (opened by 0x41D5,
+    done 0x43AC), Penny (0x43AC / 0x43B1), sandwiches (0x43B1 / group: Arven, Great Tusk, Koraidon up, Iron Treads,
+    Miraidon up), Nemona (0x43B1 / 0x43B7), the four logs (0x43B1 / group: logs 1-4, Penny unlocks the lab), the
+    Zero Lab (0x43BD / 0x43C1), legends (0x43C1 / group: the fifteen caught, 0x43C3-0x43D1, which mean caught only
+    after 0x43C1). A group row's detail is the Journal's own group_tail: "Sandwiches: 2/5" and the next one
+    missing. Portraits: trainer pictures 31 / 194 / 218, Koraidon and Miraidon by species id (kind 1).
+  - The copy: a new step table (the ROM's 84 rows as they are, their texts and groups where they were, ours put in),
+    titles and Journal panel tables likewise; repointed: the step table's three literals (0x08FE563C, 0x08FEA3F4,
+    0x08FEAC7C), the titles' (0x08FEB248), PANES[0] (0x08FED35C); PAGES: Post-game rows and count +7, Sinnoh's and
+    Lost Artifacts' first row +7. Nothing depends on step numbers at run time and nothing goes to the save.
+  - **Optional rows.** The Quest Log's compute (0x08FEA31C) makes the first step not done after the last done
+    anchor the current objective, so a row of ours there would have taken "Return to Steven's Island" away, and a
+    row left behind gets the grey Side tag the user once read as done. A step row's spare byte 3 now marks an
+    optional row (1-based into a table of the flags that open them), and compute is replaced (8-byte trampoline at
+    its start, 0x08FEA31C, so the caller's lr is untouched; `compute2` in the blob): the same three passes, but
+    optional rows are never the current objective, and read "???" (4) until their flag is set, Active (2) while
+    not done, Done (1). Every other row gets the status it got before.
+  - **Legends**: Koraidon, Miraidon, the four Treasures of Ruin, Terapagos after the 92 (Dex order, 921-939 are
+    this build's numbers): a new table (the old rows as they are, row 0's "all N of them" texts with 99), a new
+    Legends panel table (PANES[1], 0x08FED360), rs_legends (0x08FEB23C) repointed, legend_all's `cmp r4, #92`
+    (0x08FEB220) -> 99, PAGES[4] rows/count +7. The species -> Dex table is the one speciesx moved (0x096B5F00,
+    through SpeciesToNationalPokedexNum's literal 0x0806D448), not questlog's NATDEX (0x08F50370, pre-speciesx:
+    species 1200+ read past its end). **Done/total print two digits (u8dec)**: the first build added all fifteen
+    (107) and the header read "44/!7"; the eight Paradox Pokemon are not legendary and stay in the Journal's
+    group only. Adding Ogerpon, the Loyal Three or Pecharunt (Part 2) needs a 3-digit count first.
+  - Tests: `test_journal_az.lua` (harness steps `journal`, `dex`, `qlog`), `_testrun/paldea/journal17.ps1` and
+    `journal_compare.py`: the stages of Area Zero's story on the build and on the Gen 9 build without it, with
+    p9.sav as it is (its story in Lost Artifacts) and with every Journal step after Rainbow Rocket undone (current:
+    Steven): every main row reads the same, the current objective is the same row, Area Zero's rows read as
+    planned, Post-game and Legends counts grow by exactly ours. Gotchas: the Pokedex bit of number n is bit n
+    (not n - 1) in the hack's arrays; p9.sav (from the Gen 9 test save) has the Gen 9 numbers caught already; the
+    Evolutions' grid count (V+0xC8+8) is not shown and varies run to run (row_status over 255 placeholder rows);
+    the harness's key is "SEL", not "SELECT"; its "hold" step waits for the field.
+- **Test 18 (2026-10-10): a legend caught or knocked out is gone.** The user: "when defeat the legendaries or
+  capture, such as walkignwake, koraidon... there should disappear not infinite reencounter". Up to test 17 one
+  knocked out stayed, to be tried again. Now the partners' scripts (Koraidon / Miraidon at the picnic) and the
+  thirteen legends' go to "gone" on B_CAUGHT (7) or B_WON (1): fade to black, removeobject (which sets the
+  object's own hide flag: the partner's caught flag; the legends also setflag their flag first), fade back - the
+  game's Common_EventScript_RemoveStaticPokemon. Ran (4), fled (6) and the rest leave it. The flags 0x43C3-0x43D1
+  now mean "caught or knocked out"; the Journal's group counts "Done:" and its text says each is met once.
+  Tests: test_story5 (Gouging Fire run from: stays; knocked out: gone; Koraidon, Walking Wake, Chien-Pao,
+  Terapagos gone, and still gone on coming back), test_steps_vault (Wo-Chien gone). Harness step `flee`: B
+  through the battle's opening lines (B goes on in text and does nothing in the action menu), then Right, Down, A
+  (Run), each once its frame has passed: the battle's callback is not BATTLE on every frame of its intro, and
+  a key tied to one exact frame was missed.
+- **Test 19 (2026-10-10): tiles for the craters taken from other maps.** The user: "if I want to decorate the
+  map, can u make the edit placement.bat for me? like I need more tiles as well"; of the ways offered they chose
+  "Pick from any map" for "The two craters". `patches/paldea/tiles.py`, a third file of the user's (`tiles.txt`:
+  `656 = 35/45 713`, our number = the map it came from and its metatile there) and the editor's "Take from another
+  map...". Without tiles.txt the build is test 18 byte for byte: nothing was rebuilt for the user.
+  - **A tileset** is 24 bytes: compressed u8, secondary u8, pad, then pointers to the picture cells (LZ77 when
+    compressed), the palettes (16 rows of 16), the metatiles (16 bytes: eight entries of cell 10 bits | hflip
+    0x400 | vflip 0x800 | palette row << 12), the attributes (u16: behaviour in the low byte, layer type in bits
+    12-15) and a callback (animations; 0 = none). A map draws with rows 0-5 of its primary set and 6-12 of its
+    secondary; each half has 512 cells and 512 metatiles; the last 8 secondary cells (1016-1023) are where an
+    opening door is drawn. General is `0x083DF704`, the craters' secondary (Petalburg's) `0x083DF71C`: 144
+    metatiles (512-655), 254 of its 504 cells referenced, callback 0. 413 maps have General as primary, over 36
+    secondary sets (`tiles.sources`); Celestic and the other Sinnoh / Hisui towns have a primary of their own
+    and are not offered. A few of the hack's tilesets have the compressed flag set and raw cells: `tiles.lz`
+    takes a first byte other than 0x10 as raw.
+  - **The craters' own secondary set** (`tiles.build` -> `tint.custom_secondary`): Petalburg's metatiles as they
+    were, the taken ones at 656-1023 with the numbers tiles.txt gives them for good (ground.txt keeps painted
+    tiles by number). Cells (LZ, never a distance of 1), metatiles and attributes go to the second blob
+    (JOURNAL_FREE, ahead of the Journal's data, whose addresses move with it: journal17 passes), the tinted
+    palettes and the 24 bytes to the main blob, once per time. A cell of the primary set drawn with a secondary
+    row needs no cell of ours unless its colours had to be renumbered.
+  - **The room: 433 cells and 75 colours.** The stations' houses keep 70 cells and rows 9 and 12 (the game draws
+    an opening door with the door metatile's rows: test_tiles_door, frame by frame the same as test 18 with every
+    other row repacked). The colours are what runs out: a row is 15 and a piece seldom uses a whole one, so they
+    are packed. First a source row at a time (the colours keep their indexes, most cells stay as they are), then
+    a cell at a time (tighter, costs cells); each first exact, then with shades one step (of 32) apart sharing a
+    colour, then two (`JOIN`). The first way with room for everything is used; the last one's reason is given
+    when none has. Koga's thatched house: 13 colours, 20 cells. A corner of Fortree (Pokemon Centre, a tree
+    house): 34, 66. Koga's house + all of Fortree + the top half of Lavaridge: 121 tiles, 213 cells, 74 colours
+    with shades a step apart, a cell at a time (this is tiles19's build). All three towns whole do not fit.
+  - Gotchas. (1) Shades may be joined only across pieces: the first try let any two colours within the
+    tolerance share one, and the straw of Koga's roof (shades a step apart, drawn together) came out flat. What
+    is placed together gets a colour of the row each (`pack.fit`). (2) Petalburg metatiles that use a row now
+    taken, or a cell now needed, are given up and leave the editor's list; never one that is on the ground
+    (`needed`: the craters' ids and DOOR_SHUT_TILE). (3) The places for a secret base (behaviours 0x90-0x9D) are
+    made plain: Secret Power on one looks for the base the map has there. Doors, cave mouths and ladders are
+    pictures: no warp event. Animations do not come along (callback 0). A taken cave floor (0x08, 0x0B) has wild
+    Pokemon on every step, as in a cave; the editor's brush says what a tile does (`DOES`). (4) The past's warm
+    tint turns a blue hot spring sage, as it does the crater's own pond: not a wrong colour. (5) The page: the
+    hint above the other map's picture changed its height when a drag began, and the picture jumped a row under
+    the mouse (fixed height). The selftest's save step moved Arven onto a pond the user has since painted (it
+    now tries a step west and stays if Check refuses). (6) The build's stamp does not need the taken tiles: a
+    save holds block numbers, tilesets are read from the ROM; painted blocks change it as before
+    (test_tiles_make / _load: a save from before, right below the painted house, continued).
+  - **Tested** on `p19x.gba` (tiles19.ps1 builds it from `_testrun/paldea/tiles19/`): `final16.ps1 -Rom p19x.gba
+    -Old p18.gba` (43 lines, all ok), `journal17.ps1 -Rom p19x.gba`, `tiles19.ps1` (pictures of three spots in
+    both times, the door against test 18, the save from before). The editor: `?selftest` and `?selftest&apply`
+    in headless Edge on a copy of the user's folder (the list of 413 places, a place by name, a box dragged on
+    its picture, the button, the brush put down, Check, the same box again taking nothing new, a second place,
+    the tidy-up, save and rebuild, the reload with the taken tiles in both craters' lists); `&shot=lib` and
+    `&shot=paint` with `--screenshot` for a look at the page. rebuild.py with tiles.txt, with a painted tile
+    missing from it, and with a map that does not exist.
+- **Test 19, part 2 (2026-10-10): objects' palettes given back (`patches/paldea/objpal.py`).** The user, with a
+  screenshot of Walking Wake on the channel above the waterfall in washed-out orange and white: "sometimes the
+  static legen such as walking wake, koraidon, etc.. will have inveted visual graphical glitch".
+  - **Why.** The hack's allocator (0x094A356A, reached from its two hooks at 0x094A3356 and 0x094A3362: spawning
+    an object and changing its graphics) looks for the tag in slots 4-9, else an empty one there, else writes it
+    into slot 10, and nothing is given back until the field is reloaded. After the story the past crater has
+    more kinds than six (red crystal 0x110D, time crystal 0x1111, Raging Bolt 0x112A, item ball 0x1105, Gouging
+    Fire 0x1129, Koraidon 0x1124, Walking Wake 0x1128, Arven...). The user's save, walked round the crater and
+    up the waterfall: Walking Wake was the seventh and got slot 10, and slot 10 did not hold its colours but a
+    copy of slot 4's (the red crystal, which stands by the ponds: something of the hack's writes slot 10 again,
+    the reflections most likely). So even the seventh kind was wrong, not only the eighth as noted for the
+    vault. Picture: `_testrun/paldea/out/ww_compare.png`.
+  - **The fix.** The hack's function starts with a jump (10 bytes: `014b1847c046` + word, it is 2 past a word)
+    to ours in the second blob: the tag's slot (4-9) if it has one, else an empty one (4-9), else one that no
+    sprite in use draws with (gSprites 0x02020630, 64 x 0x44: in use = bit 0 of +0x3E, palette = OAM attr 2 at
+    +4, top 4 bits), else slot 10 as before; then the tag into sSpritePaletteTags (0x03000CF0) and the palette
+    loaded by the hack's own 0x0808E91D (tag, slot: FindObjectEventPaletteIndexByTag + LoadPalette). A thing
+    that goes out of sight loses its sprite, so its slot comes back. The allocator is the hack's for every map:
+    any map with more than six kinds of people had the same fault.
+  - **check.py** counted kinds per map and phase (at most 7). Now `colours()`: at most 6 kinds within one
+    screen and its margin (TrySpawnObjectEvents' window, as `crowded()`), per phase; more than that and one
+    still falls to slot 10.
+  - Tested with the user's own save (their "(my placements 11)" and the same files built with the fix): round
+    the crater, Surf, Waterfall to Walking Wake (old: slot 10, wrong; new: slot 5, the time crystal's, which was
+    out of sight), down again past the dais, the picnic and the den (every object's slot holds its own tag;
+    pictures right). Test harness step `objpal` (each object's sprite and slot, the other sprites, the slots'
+    tags and first colours). final16, journal17 and tiles19 on builds with the fix.
+- **More gotchas (test 12)**
+  - Git Bash heredocs halve backslashes: an edit script fed through one wrote NUL bytes into check.py where
+    a backslash and a 0 were meant. Scripts with backslashes go through the Write tool.
+  - A metatile whose picture is on its second layer hides whoever stands in front of the tile below it. Look
+    at the layer type before using a tile next to where people stand.
+- **More gotchas (test 11)**
+  - A tile that looks like a shut door may be a door to the game (behaviour 0x69): look the behaviour up.
+  - A flag that means "somebody has been sent somewhere" is a second copy of the story's state, and a second
+    order of events will leave it wrong. Work such flags out from the first copy on the way into the map.
+  - `removeobject` on a save's first resume is how saved people are taken off a map; a hide flag alone leaves
+    the ones already in sight standing there.
+  - A hide flag that is worked out is only right after the next map script has run: straight after the ending
+    F_HIDE_RESIDENTS is still set, and cleared on the way into the station.
+  - Removing a map renumbers the ones after it and strands saves made in them. Empty it instead.
+  - The hack's message box turns white for one frame between two messages and when it closes; that is the
+    hack's own, in every conversation of the game.
+
+## DEXNAV BAR: THE ABILITY IT NAMES — 2026-10-08 — `patches/dexnavabil/`
+- Reported with a screenshot: the bar under a hunted Corvisquire read "-------" where the ability goes. The search
+  (`patches/dexnavchain`, in the v1.4 base) read a species' abilities from the base stats, +22 and +23, in two
+  places: reroll() to see whether there is a second slot to roll for, hud_text() to print `names[byte]`. Those
+  bytes are leftovers (*DexNav search and chain*, above): the game reads three u16 a species at 0x097A0000 through
+  GetAbilityBySpecies (0x0806B694 -> 0x09D73A80), and a Pokemon's slot bit (IV word bit 31) indexes that table. So
+  the Pokemon always had a real ability; the bar and the roll looked elsewhere.
+- What that did, over the 772 species in the wild table (0x08E17D50): 55 have 0 in the bytes (the Gen 8 ones) and
+  showed ability 0's name, "-------"; 129 more showed another ability's name in at least one slot (Bulbasaur's
+  bytes are 66 / 65, Blaze or Overgrow, and it is Overgrow / Overgrow; Riolu read Protean for Steadfast; byte 75,
+  vanilla's Shell Armor, is "Grassy Surge" in this hack's names, and its Shell Armor is 260); 46 species with two
+  different abilities were never given the second (35 of them the blank ones: 0 / 0 reads as "no second slot"); 5
+  were rolled between two slots that hold the same ability (harmless). No wild species has an empty second slot
+  where the old roll could pick it, so nothing was ever handed "no ability".
+- The fix is two `bl`s inside the dexnavchain blob, retargeted; no other byte of it changes (the blob is in the
+  v1.4 base, so it is hooked, as dexnavseen and dexnavscan do, not rebuilt):
+  * reroll's `bl basestats` (0x08FDE996) -> `slots_hook`. reroll only compares the two bytes it reads at +22 / +23
+    of what comes back (second != 0 and != first -> rndmod(2)), so the hook returns a pointer 22 bytes before one
+    of two constant pairs: 1, 2 for a species whose table row has two different abilities, 1, 0 otherwise.
+  * hud_text's `bl scopy` for the ability line (0x08FDED6A) -> `name_hook`, which drops the source it is given and
+    copies `names[table[3 * species + slot]]`, slot = state +7 (what apply_extras writes into the Pokemon). The id
+    is 16 bits: the hack's run past 255 (Shell Armor 260, Solid Rock 333).
+  Code and the four pair bytes: 0x08FF75D0..0x08FF7634 (after namingkb's table; that run is usable up to
+  0x08FF7700 - the gotcha at the end of *Fusion slots*).
+- Two choices worth keeping:
+  * The table is read directly (its address taken at patch time from the routine's own literal, 0x09D73A94), not
+    through GetAbilityBySpecies: that routine also stores what it found at 0x0203F008, the engine's "last ability
+    looked up", and the bar redraws on its own clock. 0x09D73A9C is the same lookup without the store, but gen9
+    turns it into "the ability the engine acts on" (an alias gives its base), which is the wrong name to print.
+  * The names come through the ROM header (0x080001C0) at run time. A literal holding 0x09D03068 would have been a
+    ninth word with that value: gen9 moves the name table, expects exactly eight, and stops.
+- Tested (`test_dexnavabil.lua`; `_testrun/abil/run.ps1` runs it hidden; the working save, Route 102) on six
+  species: Corvisquire, Bulbasaur, Riolu, Tirtouga, Krabby, Charmander. For each: 40 calls of reroll() (a
+  `callnative` script) give slot 0 only to a one-ability species and both slots to a two-ability one; for every
+  slot the bar's text (scratch +64) is the table's ability name; and the hunted battle (the patch put next to the
+  player, one step) brings that species with that slot bit and the engine's own 16-bit ability for the foe
+  (0x0203F002) equal to it. PASS three runs in a row. The unpatched working ROM, the control, fails 8 checks: its
+  bar reads "-------", "Blaze", "Protean", "Intrep.Sword", "Grassy Surge" and its roll never gives Corvisquire slot
+  1; its Pokemon are right. The same test passes on a Gen 9 build made on top (speciesx, gen9 with `check_gen9.py`
+  clean, and paldea all apply), where the names have moved. `test_dexnavui.lua` logs the same on both builds.
+- GOTCHA for tests that step onto the patch: the game's step scripts run before the encounter check, so one of
+  them can take the step and the hunted battle does not start (flags stay 0x09, the field is locked). Met here:
+  "The Repel ended... Use another?" on the first step after loading the working save, a Pokenav call, a script at
+  Route 102 (10, 6), the door at (7, 3). The test warps to (9, 6) before every case and does a case again when its
+  step goes to a script. In play it would leave you standing on the patch, which on_patch only notices on a step
+  onto it (read from the source, not played).
+- Chain: `dexnavabil` goes before `zhtext` (HANDOFF). `_testrun/rel18/rebuild_chain.py`, with it added, gives the
+  installed ROM byte for byte; against the ROM before, 108 bytes differ: the two `bl`s and the blob.
+- Installed 2026-10-08 (sha1 22806e2f...), backup "(before dexnavabil 2026-10-08)" (742ae12b...). In no release.
+  The Gen 9 test ROM and the Area Zero test builds were made before it and still have the old bar; they get it when
+  they are next rebuilt (the Gen 9 one differs from a rebuild in these 108 bytes only).
+
+## A PLAYER'S REPORT: FOUR THINGS — 2026-10-09 — `patches/shinyfade/`, `patches/evivpal/`, `patches/mistmsg/`
+- The report (RetroArch, mGBA core, dx11, fast-forward 5-6x): "EV/IV displayer has graphical bug when showing certain
+  pokemon sprites; golden health bar for shinies has some graphical bug; mist in the rusturf tunnel can cause
+  graphical bug; one time I was selecting something in my journal, the emulator got frozen". Each was looked for
+  in the dev mGBA with scripted tests, on the working ROM and, as controls, on the untouched original
+  (`roms/original`) and the translation-only ROM. Scratch work: `_testrun/report/`.
+- **Gold healthbox (ours).** shinybox's paint wrote the 16 gold colours into palette RAM and both palette buffers on
+  every battle frame. A fade works in the buffers, so the gold was put back at full brightness each frame and the
+  box stayed lit on a black screen through every fade (the Bag, the party, the end of a battle) - the palette RAM
+  write alone was enough, since it lands mid-frame after the VBlank copy. `shinyfade`: shiny_boxes' only
+  `bl paint` (0x08FDA15E) goes to paint2 (0x08FF7640..0x08FF76C4): the gold goes into the unfaded buffer when it is
+  not there, and into the faded one only while the stock box palette (tag 0xD6FF, found through
+  sSpritePaletteTags) is shown unfaded too - so whatever fades the plain box fades the gold one, normal and fast
+  fades alike, and a box made again after the Bag (faded buffer black, unfaded still gold) is put right as soon
+  as the screen is. Palette RAM is left to the VBlank. `test_shinyfade.lua` (wild battle, both battlers shiny the
+  way shinybox reads it; watches palette RAM colour 2 of the gold slot against the stock box's every frame into
+  the Bag, back, and while running away): PASS; the old build fails both fades (the gold 1.00 brighter, lit on
+  every black frame).
+  * gPaletteFade (0x02037FD4) in this ROM, as vanilla: +0 selected palettes, +4 bits 6-10 y, +6 bits 0-14 blend
+    colour and bit 15 active, +9 bits 0-1 mode. Not needed in the end; written down because it cost a look.
+- **EV-IV Display (the hack's own).** The screen (item 650, 0x09689000..; main task 0x0968A960, "show this
+  Pokemon" 0x0968A7C8, the picture 0x0968A6C0, each picture's slide task 0x09689590 with its sprite in data[2])
+  builds the next Pokemon's picture first and lets the old picture's task remove the old one on its next run. The
+  picture asked for its palette by tag, and the hack's palette tables (0x08F25520, shiny 0x08F27AA0; 8 bytes a
+  species, tag at +4) give species 1-439 their own number and the other 760 tag 1 (588) or 0 (172), shiny 501 /
+  500. LoadSpritePalette returns a tag that is loaded without loading it, so between two Pokemon with one tag
+  (any two from No. 440 on, mostly, or Bulbasaur and one of them) the new picture kept the old colours; the old
+  task then freed the slot under it. Found by fuzzing the screen (random D-pad at random moments; every settled
+  frame compared with a plain sweep of all 1,197 species - all of which draw correctly one at a time) and a
+  per-frame trace of the tags. `evivpal` rewrites the picture routine in place (0x0968A6C0..0x0968A743, one caller,
+  no pointer to it; 120 bytes + padding): a palette slot instead of a tag, 15, or 14 when the picture on screen has
+  15, through the game's own CreateMonPicSprite_HandleDeoxys (the Pokedex's way). The tables are left alone.
+  `test_evivpal.lua`: A -> B -> A for five pairs, the picture's 15 colours against a fresh open of each species:
+  PASS; the old build fails the three shared-tag pairs. Fuzz: 24 of 400 rounds wrong before, 0 of 700 after;
+  shiny and egg pictures pixel-identical to before.
+- **Mist (the hack's own).** Its field message box is see-through. ShowFieldMessage's task is chosen at 0x08DEDF2E
+  (reached from the trampoline at 0x080981BC): the hack's (0x08DEDE7A) unless the flash level is not 0 or its option
+  byte SaveBlock2+0xE68 is set, then the game's Task_DrawFieldMessage. The hack's task calls 0x08DEDE42: WIN0 over
+  the box, BLDCNT 0x1E41 / BLDALPHA 0x0710 written straight to the registers; at the end 0x08DEDED4 writes
+  0x1E40 / 0x080C. BLDALPHA is what the weather's see-through sprites use: in fog (weather 6, 9 - Rusturf Tunnel is
+  6) and the underwater haze (10, and 14 on the underwater maps) the fog turned nearly opaque while a message was
+  up; and 0x080C is the fog's own
+  value, so after any message ash and sandstorm (0x0010) and the haze (0x1004) were drawn wrong until a map load.
+  The see-through box also explains the black Yes/No box seen there. `mistmsg`: the two flash-level tests (the task
+  chooser 0x08DEDF34 and the text-colour prefix at 0x08DEDF04) load gSaveBlock1Ptr from one literal
+  (0x08DEE028, nothing else reads it), which now holds plain_box; `ldr r5,[r5]; adds r5,#0x30; ldrb r5,[r5]` became
+  `bl <the blob's bx r5>; mov r8,r8`. plain_box (0x08FF770C) answers like the flash level, and "plain" when
+  GetCurrentWeather is 6, 9, 10 or 14: the game's own white box with dark text, as in dark caves. The end routine's
+  register write (0x08DEDEE4) is `bl restore`: BLDCNT / BLDALPHA from SetGpuReg's copy (sGpuRegBuffer 0x03000818
+  +0x50, read as one word). Code 0x08FF7704..0x08FF7744, between the chance words 0x08FF7703 and 0x08FF7785.
+  `test_mistmsg.lua` (weathers 0, 1, 6, 7, 8, 9, 10, 14 by setweather, then Rusturf Tunnel): PASS; the old build
+  fails 9.
+  * Which weathers: a survey (`_testrun/report/weather_survey.lua`: every weather on Route 102, the OAM entries in
+    semi-transparent mode and the game's copy of BLDALPHA) - see-through sprites in 1 (3 clouds, 12 / 8), 6, 9, 10,
+    14 (20 fog sprites, 12 / 8 or 4 / 16), 7 and 8 (ash, sand: 16 / 0, drawn at full strength); none in the rest. A
+    message whites out 6, 9, 10 and 14; ash and sand only get a little lighter, the clouds of the one cloudy map
+    nothing to see, so those keep the see-through box.
+  * Every mist location (asked for after the first install, which had missed 14): `mistmaps.py <rom>` lists the maps
+    whose header weather is 6, 9, 10 or 14 from gMapGroups (0x08A54698 here, 38 groups, 789 maps) - 37: 15 fog
+    (Rusturf Tunnel, Mt. Pyre Summit, Phoebe's room, Seafloor Cavern 9, Cave of Origin B1F and two unused rooms,
+    Marine and Terra Cave ends, six of the hack's maps in groups 34-36), 2 diagonal fog (34/6, 35/36), 20 underwater
+    (14). No map uses 10. Only Mt. Pyre Exterior (24/21) turns fog on by script: three trigger tiles at (24-26, 21)
+    and its on-transition script above row 12 (both `setweather 6` at 0x08231FD2 / 0x08231FED); no other trigger
+    or map script sets a mist weather. `test_mistmaps.lua` warps into each of the 37, then into Mt. Pyre Exterior
+    from the summit and onto its trigger, and checks the registers with a message up and after: 39 of 39; the
+    first install fails the 20 underwater maps.
+  * GOTCHA: the hack carries the message-box blob four times - 0x08DEDE1E (live), 0x094A2C34, 0x09811A.. and
+    0x09F004.. - older copies with no caller from the game. The first fix went into 0x094A2C34 and changed nothing.
+    Find the live one from the vanilla function's trampoline, not from a search for the constants.
+- **Journal freeze: not reproduced.** `fuzz_questlog.lua` (in `_testrun/report/`) opens the Quest Log from the ring
+  or the Start menu and presses random keys with random holds, long ones too (fast-forward); it watches for an
+  emulator crash, the main loop standing still (SaveBlock2's play-time frame counter stops while frames go on),
+  and a screen B no longer leaves. 1.25 million frames, about 1,700 visits and 74,000 keys on the old and the new
+  build: nothing. Not tried: opening it from the Bag, and a save whose Quest Log shows other rows than the test
+  save's. Its first "freeze" was the fuzzer pressing A+B+START+SELECT, the soft reset; START is out of its keys.
+- Test-side lessons: on the working save the first step after loading is "The Repel ended... Use another?", and a
+  Pokenav call can take any step - tests that step onto something answer such scripts and try again. A frame
+  callback keeps running through the game's lag frames: the EV-IV display needs ~9 video frames for one switch,
+  and memory read inside them shows the half-done state.
+- Chain: the three go after `dexnavabil`, before `zhtext`. `_testrun/rel18/rebuild_chain.py` gives the scratch
+  build byte for byte (sha1 f0acd977...); 346 bytes differ from the ROM before them: 08DEDEE4 (6), 08DEDF06 (6),
+  08DEDF36 (6), 08DEE028 (4), 08FDA15E (4), 08FF7640..76C3, 08FF7704..7743, 0968A6C2..0968A743. speciesx, gen9
+  (`check_gen9.py` clean) and paldea still apply on top; `test_dexnavabil.lua` and `test_dexnavui.lua` unchanged.
+- Installed 2026-10-09 (sha1 3e352b3a...), backup "(before shinyfade evivpal mistmsg 2026-10-09)" (22806e2f...); the
+  underwater fix the same day (sha1 f0acd977...), backup "(before mistmsg underwater 2026-10-09)" (3e352b3a...).
+  In no release. The Gen 9 and Area Zero test builds are made from the working ROM and get these when rebuilt.
+
+## A SECOND REPORT: TEXT PAST THE BOX, EGG MOVES, CHASE — 2026-10-10 — `patches/textfix/`, `patches/eggmoves/`, `tools/text_overflow.py`
+- The reports: (1) "Chase's post-battle dialogue is still in Chinese"; (2) "a Sailor NPC in Slateport, near Captain
+  Stern, whose dialogue is too long and extends beyond the text box border"; (3) "Cosmic Power is a Gen 8 egg move
+  for Buneary but breeding with a male Smeargle fails - please check all Pokémon". Scratch work: `_testrun/report/`.
+- **Text past the box: the cause.** `translation/inserter.py` wraps a page at 34 characters (`wrap_page`), not at
+  a width. The field message box is 27 tiles, 216 px, and the font is proportional (widths at 0x086542E4, one byte
+  a glyph, 0x200 of them: the `F9 xx` extra symbols are entries 0x100 + xx; a space is 3 px, most letters 5-6). A
+  line of wide letters reaches 216 px before 34 characters. Past the edge the printer does not clip: the line
+  wraps round inside the window's row and draws over its own start (the sailor's "You should visit the Weather
+  Institute and ask around!" showed as "'yound!ould visit the Weather Institute ar"). The ▼ is drawn after the
+  last letter, so it is cut too when a line ends within 8 px of the edge - cut only, nothing is drawn over.
+- **The sailor**: Slateport Harbor (9/9), object 2 at (4,12), script 0x0820CC52, text 0x0820D08E - shown once the
+  game-clear flag 0x864 is set and flags 0x1BE / 0x1BF (Emerald's Kyogre and Groudon ones) are not both. Its
+  last page was one line of 288 px (the translation gave that page no break at all).
+- **The scan**: `tools/text_overflow.py <rom>`. Every text a script shows in that box - `0F 00 <ptr> 09 nn`
+  (msgbox: loadword 0 + callstd 0-6), `67 <ptr> 66` (message + waitmessage), trainerbattle (`5C`) intro and
+  not-enough-Pokémon texts - 9,965 of them, each line measured; trainer defeat texts (1,474, shown in battle)
+  apart: none is over, at 216 or at 208 px. `{PLAYER}` and `{RIVAL}` count as 42 px, the widest 7-letter name;
+  texts with a Chinese lead byte are skipped, a glyph the tool has no name for counts with its own width. A
+  wider net (any `0F 00 <ptr>`, any `67 <ptr>` in the hack's script block) adds 38 texts and nothing real (a
+  Pokédex description, a blank line). Result on the ROM before: 55 texts.
+- **The fix** (`textfix_patch.py`, two new lists; every page was chosen by hand from the tool's suggestion):
+  * `BREAKS`, 56 pages in 52 texts: only spaces and line breaks swap places (0x00, 0xFE, 0xFA), so each text
+    keeps its length and its address; the patcher refuses an entry that changes anything else, or whose old page
+    is not in the text exactly once. A page's first break is `\n`, the later ones `\l` (scroll), as the game's
+    own texts do - a page may gain a line that way. Where a page was re-broken, lines followed by the ▼ were kept
+    to 208 px. (Elsewhere 83 texts still have a line of 209-216 px before a scroll or a new page, 99 lines: the
+    arrow is hidden or cut there and nothing else happens; left alone.)
+  * `REWRITE`, two pages that get shorter (the bytes left over become 0xFF): "-------------GAME OVER-------------"
+    (0x09837591, Lilycove rooftop; it had 13 + 16 dashes, 225 px), and the tablet of the statue about the three
+    Regis (0x08BBF100, sign script 0x08A7FFBC). That text had **no 0xFF**: its last page ran straight on into
+    the text at 0x08BBF1B9 ("A battle? Of course, but I need to get ready first.", which the pointer table at
+    0x082EE83C names). "When gathers the three Pokémon," became "When the three Pokémon gather," - one byte
+    shorter - and the 0xFF went into the byte that freed, 0x08BBF1B8; the next text is untouched.
+- Checked before patching: all 54 texts are byte for byte what the v1.4 base has (no later patch writes them)
+  and none is in `zhtext`'s files, so `textfix`, which runs before `zhtext`, sees them as they are. Pointers into
+  the middle of the texts (every 4-byte value in the ROM that lands inside one): one real one, the msgbox at
+  0x0985D254 / 0x0985D262 -> 0x0985DE3B, further on than the bytes that change. 0x0985DB6F (Ever Grande) and
+  0x0985DC7A (map 35/54) end in the same bytes - one entry.
+- Tests (`_testrun/report/`): `showtext.lua` shows any text address in the real message box (a script with
+  loadword + callstd 4) with the player's name set to "MMMMMMW", a screenshot per press - all 58 pages were looked
+  at; `sailor.lua` warps to the Harbor and talks to the sailor. The tool on the new ROM: 0 texts.
+- **Egg moves: what the hack's table is.** 0x09D78128..0x09D7973C: `species + 20000`, that species' moves, ...,
+  0xFFFF. `eggcheck.py` / `eggmissing.py` compare every list with the official games' egg moves by version group
+  (PokeAPI's CSVs: `pokemon_moves.csv`, method 2). Of 381 lists: 296 are one game's list exactly (220 Sword/Shield's;
+  Pokémon that are not in Sword/Shield have BDSP's, USUM's or Scarlet/Violet's); 53 are such a list plus moves no
+  game gives by breeding - old event moves the author added (Pichu Volt Tackle / Petal Dance / Sing, Skitty Pay
+  Day, Charmander Block / Howl / Quick Attack, Magikarp Dragon Rage...); 30 mix two games' lists or leave some
+  moves out; two were broken. Regional forms have their own lists under their own species ids (Alolan Rattata
+  856, female Indeedee 1178).
+- **The two broken lists (the original hack's).** Mr. Mime (122) and Mime Jr. (492) had no marker. Where
+  `20122` belongs, after Goldeen's five moves, the table has 53 (Flamethrower), and where `20492` belongs, after
+  Bonsly's six, 107 (Minimize) - each followed by the Mimes' five moves (Hypnosis, Fake Out, Confuse Ray, Power
+  Split, Tickle; Sword/Shield's list). So those moves, and Flamethrower / Minimize, were read as Goldeen's and
+  Bonsly's, and the two Mimes had none. `eggmoves_patch.py` writes the two markers (0x09D78478, 0x09D78E40) after
+  asserting the move id there, the five moves after it, the species whose list it ran on from, and that the
+  species has no list yet. Goldeen and Bonsly are left with Sword/Shield's lists exactly.
+  `test_eggmoves.lua` (the game's own `_GiveEggFromDaycare`), before -> after: a Mr. Mime pair's Egg (a Mime Jr.)
+  with a father knowing Fake Out, Tickle, Hypnosis: none of them -> all three; mother knowing Confuse Ray, Power
+  Split: none -> both; Goldeen with a father knowing Flamethrower, Hypnosis, Haze: all three -> Haze only;
+  Sudowoodo pair (a Bonsly) with Minimize, Tickle, Curse: all three -> Curse only. The eleven older cases
+  read the same.
+- **Buneary and Cosmic Power: not a bug.** Buneary's list is Sword/Shield's nine (Circle Throw, Copycat, Double
+  Hit, Fake Out, Flail, Focus Punch, Sweet Kiss, Switcheroo, Teeter Dance); a Smeargle father passes Fake Out in
+  the test and not Cosmic Power. Cosmic Power is Buneary's egg move in X/Y to USUM and in BDSP; in Sword/Shield
+  it is TR44. The hack's tutor list (0x08FD80B8, 127 moves) is the TRs - Cosmic Power is entry 44 - and
+  Buneary's bit for it is set (0x09750000, 16 bytes a species). Which NPC teaches it was not looked for.
+  Giving every Pokémon the union of Sword/Shield's and BDSP's lists would add 511 moves to 133 species: a change
+  to what the game is, not a fix; not done.
+- **Not fixed: Duraludon (species 274) has no list.** Sword/Shield gives it Mirror Coat, Night Slash and Slash.
+  A list for it has to be appended, which moves the 0xFFFF (0x09D7973C; 418 bytes of 0xFF follow) and needs the
+  search bound raised wherever it is held (the literal 0x0B09 at 0x08070464, the readers at 0x080703F0 and
+  0x08070468, dexnavchain's 0x08FDEAE0). `gen9_patch.py` appends its own lists there and asserts the end and the
+  bound it found: add Duraludon's there, or teach that patcher to take both from the ROM first.
+- **Chase: already fixed.** Fortree City (0/4), (19,4); flag 0x4170 set and 0x4171 clear make him battle
+  (`chase.lua` plays it: hack flags above 0x4000 are not in SaveBlock1's flag array - set them with the script
+  commands `29` / `2A`). The line he says when beaten (0x0982CAE0 in the v1.6 ROM, Chinese there) is one of the
+  trainer lines `zhtext` translated for v1.8; on the current build everything he says is English. "Player
+  defeated PkMn Trainer Chase!" is Emerald's own wording, not a missing name.
+- Chain: unchanged (both are patches already in it). `rebuild_chain.py` gives sha1 71ed64dc...; 171 bytes differ
+  from the ROM before: 167 in the 54 texts (all of them space / break swaps but the two rewritten pages) and the
+  two markers. speciesx, gen9 (`check_gen9.py` clean) and paldea still apply on top.
+- Installed 2026-10-10 (sha1 71ed64dc...), backup "(before text overflow egg markers 2026-10-10)" (f0acd977...).
+  In no release. The Gen 9 and Area Zero test builds are made from the working ROM and get these when rebuilt.
+
+
+## OBJECTS' PALETTES GIVEN BACK — 2026-10-10 — `patches/objpal/`
+
+Reported on the Area Zero test build (screenshot: Walking Wake on the channel above the waterfall in a red crystal's
+colours): "sometimes the static legen such as walking wake, koraidon, etc.. will have inveted visual graphical
+glitch". A bug of the original hack, in every map.
+
+- **The hack's allocator.** Objects (people, Pokemon, item balls) get their sprite palette by tag from 0x094A356A,
+  called from the hack's two hooks at 0x094A3356 (spawning: `ldrh r0, [r7, #2]` = graphicsInfo->paletteTag) and
+  0x094A3362 (changing an object's graphics). It looks for the tag in slots 4-9 (sSpritePaletteTags 0x03000CF0),
+  else an empty one there, else writes it into slot 10, and loads the palette with 0x0808E91D (tag, slot:
+  FindObjectEventPaletteIndexByTag + LoadPalette). Nothing is given back until the field is loaded again. The
+  graphics info's paletteSlot means "by tag" for every slot but 0 (the player) and 10 ("special": loaded straight
+  into slot 10, no tag). In the field the general sprite palette allocator starts at slot 12 (weather 0x1200/0x1201
+  at 12/13, field effects at 14), so only objects use 4-10.
+- **Slot 10 is no good.** Measured with the user's own save on the Area Zero build: round the crater, Surf, then
+  Waterfall up to Walking Wake, the seventh kind. Its tag went into slot 10, and slot 10 held the red crystal's
+  colours (slot 4's) in gPlttBufferUnfaded, gPlttBufferFaded and palette RAM alike: something of the hack's writes
+  slot 10 again, most likely the reflections (the crystals stand by the ponds). So the seventh kind is already in
+  borrowed colours, and the eighth takes the tag from the seventh. Which one it hits depends on the way you walked.
+- **The fix** (`objpal.s`, 132 bytes at 0x08FEF600, in the unreferenced 0xFF run 0x08FED3C8..0x08FEFE00): the
+  hack's function starts with a jump to it (10 bytes, `014b1847c046` + word: it is 2 past a word; r3 is free at a
+  call; the rest of the old body stays and no longer runs). It looks for the tag in 4-9, then an empty slot in
+  4-9, then a slot in 4-9 that no sprite in use draws with (gSprites 0x02020630, 64 x 0x44 bytes: in use = bit 0
+  of the halfword at +0x3E, palette = top 4 bits of OAM attribute 2 at +4), and only then slot 10. A thing that
+  goes out of sight loses its sprite (RemoveObjectEventsOutsideView), so its slot comes back for the next kind.
+  With six kinds or fewer on a visit it chooses exactly as the hack did.
+- **What it cannot do.** TrySpawnObjectEvents runs before RemoveObjectEventsOutsideView in the same frame, so as
+  you walk the screens of two neighbouring tiles are briefly alive together; more than six kinds in that union
+  still fall to slot 10. In the game: `_testrun/objpal/busy_maps.py` (graphics info by template: the main table
+  0x08505620, the hack's own 0x0839CF00 + 0x24 * n for graphics 0x4E) finds eight maps with more than six kinds
+  (35/49 8, 37/104 8, 35/87 7, 35/40 7, 35/8 7, 34/94 7, 26/40 7, 34/42 7) and at most eight within one screen.
+  check.py of Area Zero now refuses more than six kinds within one screen of any tile (`colours()`).
+- **The test harness** (`patches/paldea/test_paldea.lua`, used for the game itself too): `PALWATCH=1` watches every
+  sprite in use in slots 4-10 each frame (its slot's tag must not change while it lives) and every 8 frames whether
+  the slot shows that tag's colours (the field palette table through the literal at 0x0808E8BC; the copy keeps
+  vanilla's zero row 35 inside it, so a search must stop at 0x11FF only; only while the player's slot is not being
+  faded, and only if wrong at two looks running). It flags Walking Wake on the old Area Zero build and nothing on
+  the fixed one. Steps `objpal` (each object's sprite and slot, the slots' tags and colours), `roam` (walk about
+  with a fixed round of keys, B through talk, battles won) and `seed` (gRngValue set: the hack seeds it from the
+  clock, so two runs only match picture for picture from a common seed; a map load can still draw on it
+  differently, through the clock's events, and then people step and turn otherwise).
+- **Tested.** `_testrun/objpal/rebuild_chain.py` (the chain with `objpal` before `zhtext`) gives the same bytes as
+  objpal_patch.py on the working ROM (sha1 f5ee5822...); without objpal it gives the working ROM before (71ed64dc...).
+  `_testrun/objpal/objpal_tests.ps1`: from the working ROM's save, the same keys on the ROM before and after, at
+  the first door of the eight busy maps (4,000 frames each) and of eleven towns (2,400), the watchdog on: all 38
+  runs finished; the eleven towns and six busy maps the same picture for picture (36 or 23 pictures each); 35/8
+  and 26/40 differ by people's steps and turns only (the same slots and tags in both at every dump; the roam went
+  through a door on 35/8), and the watchdog's one finding, a sprite of the hack's own in slot 10 on 37/104 (tag
+  0x27F9, callback 0x081731FD: not an object), is the same in both. Three busy maps had none of their people out
+  in that save (35/49, 34/94, 34/42: story flags). The seventh-kind case itself is the Area Zero one (the user's
+  save, Surf and Waterfall up to Walking Wake): the old build flagged, the new one and the Area Zero build made
+  from the new working ROM clean. speciesx, gen9
+  (`check_gen9.py` clean) and paldea still apply on top; paldea sees the allocator in its base and leaves it
+  (`patches/paldea/objpal.py`, which brought the same code to the Area Zero build first, in its second blob).
+- Installed 2026-10-10 (sha1 f5ee5822...), backup "(before objpal 2026-10-10)" (71ed64dc...). In no release. The Gen 9
+  and Area Zero test builds are made from the working ROM: rebuilt, they take the allocator from it.
+
+## TORNADUS AND THUNDURUS ROAMED HOENN AFTER CONTINUE — 2026-10-10 — `patches/roamfix/`
+
+Asked by the user: "can u make sure that tornadus can be encountered correctly with news tracker".
+
+- **How the storms work** (the hack's own, traced here for the first time). The Valley Windworks researcher
+  (36/54, object 2 at 10,12, script 0x0987A93F): with 0x42E1 set he is done; `callnative 0x08FF0611` is
+  GetSetPokedexFlag(0x8005, 0x8004) -> 0x800D (caught 645: the Drifloon gift and 0x42E1; then 641 and 642).
+  First talk (0x42DE clear): `callnative 0x08FF1731` returns the active roamer's species (SaveBlock1 + 0x31DC:
+  species +8, hp +0xA, level +0xC, active +0x13), and if there is one he only says "What lovely weather" -
+  the game has one roamer slot, so while Latias or Latios still roams Hoenn the storms cannot start.
+  Otherwise `setvar 0x8004, 2; special 299` and 0x42DE. Tornadus caught and Thundurus not: mode 3. Both: the
+  Celestic shrine hint and 0x42E0. Played (`_testrun/tornadus/steps_block.lua`): with Latios active he says his
+  one line, 0x42DE stays clear and Latios stays the roamer. Read from the script, not played: a storm that is
+  knocked out is set inactive as any roamer (vanilla), and with 0x42DE set and it not caught he only says "I'm
+  counting on you!" - nothing starts it again.
+- Special 299 is the game's InitRoamer (0x08161CBC). Its CreateInitialRoamerMon is a trampoline (0x08161B94) to
+  the hack's 0x09F06118: mode 0 Latias (407), 1 Latios (408), 2 Tornadus (0x2B6 = 694), 3 Thundurus (0x2B7 = 695),
+  Lv 40. For 2 and 3 it writes map group 0x24 into sRoamerLocation (0x0203BC86: group, map) and takes the map
+  from the hack's Sinnoh table, 0x09F0AACC: 27 rows of 6 bytes like the game's Hoenn table (0x085CEC30, 20
+  rows): Routes 201-223 (36/15 ... 36/42), each with the routes it moves on to (0xFF = none). All 27 have wild
+  Pokemon; Routes 219, 220 and 223 on water only. The game's RoamerMoveToOtherLocationSet (0x08161D00) and
+  RoamerMove (0x08161D54) are trampolines to the hack's 0x09F062D0 and 0x09F06340, which pick the Sinnoh table
+  when the group byte is not 0 (a warp: any other row; a walk onto another map: 1 in 16 any row, else one of the
+  row's neighbours, never the map two back in the history). IsRoamerAt (0x08161DE8) and TryStartRoamerEncounter
+  (0x08161EDC: on the roamer's map, one wild battle in four) are vanilla. The News Tracker (item 695,
+  0x09F063F0) prints the species, "Sinnoh" or "Hoenn" by the group byte, and the map's section name.
+- **The bug.** sRoamerLocation is EWRAM and not in the save. After Continue the group byte is 0, the first move
+  (Continue moves the roamer once) picks a Hoenn row, and from then on Tornadus or Thundurus is a Hoenn roamer:
+  "The roaming Tornadus is located in Hoenn on Route 130", met there (mostly sea routes). In one sitting
+  everything was right. The working ROM's own test save had Tornadus active at 0/43 on loading.
+- **The fix** (`roamfix.s`, 88 bytes at 0x08FEF700): the two trampoline words (0x08161D04, 0x08161D58) point at
+  stubs that write the group 0x24 if the roamer is active and its species is 694 or 695, then go on to the
+  hack's routines (both take no arguments; lr is put back before the jump). Latias and Latios, and no roamer at
+  all, pass through untouched. Nothing is saved.
+- **Tested** (`patches/roamfix/test_roamfix.lua`, steps for `patches/paldea/test_paldea.lua`, whose new steps
+  are `roamer`, `clearroamer`, `setroamer`, `script`, `tracker` - the News Tracker used from the SELECT ring, its
+  message read from gStringVar4 - and `hunt`): the researcher starts Tornadus on a Sinnoh route; the tracker
+  names that route each time (after a warp, on your own route, after the battle); it is met in the grass of
+  Route 201 at the 3rd battle, Lv 40, and moves on; after a save, a reset and Continue it is still in group 36,
+  the tracker says Sinnoh, and it is met again (2nd battle); Thundurus the same through a reset; Latios stays in
+  Hoenn before and after. With `OLD=1` on the ROM before: Tornadus "in Hoenn on Route 122", Thundurus "on Route
+  118" after the reset. `_testrun/tornadus/steps_none.lua`: no roamer, warps, walking in three places, a save
+  and a reset: nothing changes, "No news received". The chain with `roamfix` after `objpal` gives the same bytes
+  as the patcher on the working ROM (72ca49d2...); speciesx, gen9 (`check_gen9.py` clean) and paldea apply on top.
+- Installed 2026-10-10 (sha1 72ca49d2...), backup "(before roamfix 2026-10-10)" (f5ee5822...). In no release.
+- Not changed, worth knowing for the guide: the storms cannot start while a Hoenn roamer is still active; a
+  storm that is knocked out does not come back; on Routes 219, 220 and 223 it is met only while surfing.
+
+## A SPRITE'S MISSING PICTURE COPIED OVER VIDEO MEMORY — 2026-10-11 — `patches/sprframe/`
+
+A player's report on v1.8 (Pizza Boy A, a phone, fast-forward on), with a picture: "Hisui Region visual glitch -
+it gets fixed only after I battle a pokemon, then again it is cooked again". Prelude Beach (37/104) from (18,24):
+the ground in blue and green stripes on black, the palms and the water right, the player and most people gone, one
+person as coloured noise.
+
+- **The cause** (the hack's own; the same bytes in the original ROM). A sprite that is not drawn from a sheet has
+  the picture of animation frame n copied from `images[n]` = {address, u16 size} of its picture table: the game's
+  RequestSpriteFrameImageCopy (0x08007488) queues {address, where in sprite memory, size} in sSpriteCopyRequests
+  (0x02021838, 12 bytes each, the count at 0x02021835) and ProcessSpriteCopyRequests (0x0800742C) does the copies
+  in the vertical blank with the BIOS's CpuSet. Nothing checks n against the table's length. Some of the hack's
+  wandering wild Pokemon (graphics id 78 with the template's fourth byte N: the record at 0x0839CF00 + 0x24 * N)
+  have a picture table shorter than the animation table they are given. The one at sea off Prelude Beach (local
+  id 8, N = 0x23, record 0x0839D3EC) has 3 pictures at 0x092979F4 and the 7-frame table 0x085090B0 (0-2 facing
+  south / north / west, 3 and 4 walking south and north, 5 and 6 walking west and east). After its three pictures
+  come 14 bytes of 0xFF and the sprite's own graphics, so frames 3 to 6 read {0xFFFFFFFF, 0xFFFF},
+  {0xFFFFFFFF, 0xFFFF}, {0, 0} and {0x22BB0000, 0xB000}. The one on the sand by (25,21) (local id 13, N = 0x36) has
+  7 pictures and a 9-frame table: frames 7 and 8 read {0x05300200, 0x0B90} and {0xE0FF28E0, 0xE039}.
+- **What a copy does.** It starts at the Pokemon's own picture (sprite cell T) and runs on: over the pictures of
+  every sprite after it; from 0x06018000, which is sprite memory again, over every sprite before it; and from
+  0x06020000, which is 0x06000000 again, over the first cells of the map's first tileset. A sprite heals when it
+  next changes its frame (people who stand still do not); the tileset is loaded once per field and stays as it is
+  until a battle, a menu or a door rebuilds the field - "fixed only after I battle".
+- **Which copies are made depends on the BIOS.** A real BIOS (and mGBA's) refuses a CpuSet whose source starts
+  or ends below 0x02000000. Measured in mGBA on the working ROM (the harness's BADCOPY, video memory before the
+  call against the next frame):
+
+      {0xFFFFFFFF, 0xFFFF}   65,534 bytes   refused (the end wraps round to 0x0000FFFD)
+      {0xE0FF28E0, 0xE039}   57,400 bytes   refused
+      {0x22BB0000, 0xB000}   45,056 bytes   made: 992 to 1008 of the 1024 sprite cells changed - every sprite on
+                                            screen a block of stripes (mGBA answers BA FF FF FB for memory that is
+                                            not there)
+      {0x05300200, 0x0B90}    2,960 bytes   made: palette memory over the Pokemon's own cells and the next 92 -
+                                            it and its neighbours as coloured noise
+
+  So on a console and in mGBA the bug is sprites that turn to stripes or noise for a moment (and stay so if they
+  stand still); the tileset is reached only if T is 640 or more. An emulator whose BIOS does not refuse (Pizza
+  Boy's own) makes all four, and the 65,534-byte one from cell T ends at 0x06020000 + 32 * T - 2.
+- **The report's picture, to the byte.** From a dump of video memory at the same spot (the harness's `vram` step)
+  and the picture (`_testrun/tornadus/locate.py`, `forensic.py`, `inverse.py`, `ticks.py`, `simulate.py`): the
+  stripes' colours do not follow each tile's palette, so they are not the ground's tiles alone - they are the map's
+  empty top layer (BG1, cell 0, palette 0: index 11 is that blue, 15 that green) over ground cells that hold the
+  same bytes and so show black between. Every row of cells 0 to 91 holds BB 00 FF 00, up to and with byte 0xB7D;
+  byte 0xB7F is the tileset's own (one tan pixel pair per sand tile, the last byte of cell 91); cells from 96 on
+  are right. 0xB7E bytes = 32 * 92 - 2: a 65,534-byte copy from sprite cell 92. Drawn with those bytes the dump
+  gives the report's picture (85% of the screen within tolerance; `_testrun/sprframe/report_explained.png`).
+- **How it was found** (it does not show in an ordinary walk in mGBA: 0 findings from the tile and sprite
+  watchdogs in 60,000 frames). mGBA's own log, written to a file (`run.ps1 -MoreArgs "-l 79 -C logToFile=1 -C
+  logFile=<path without spaces>"`), had 22,528 lines "Bad memory Load16: 0x22BB0000.." in a row, a few times per
+  run on the water. A read watchpoint there (the harness's `WATCHADDR=r:22BB0000`) stopped inside the BIOS with
+  r1 = 0x06010480, r2 = 0x5800 and 0x0800745D on the stack - ProcessSpriteCopyRequests - and the sprite whose
+  animation was at frame 6 with a 3-picture table was local id 8.
+- **Where else** (`_testrun/sprframe/survey.py`: every walking map object, its record's pictures counted against
+  the frames of animations 0-7). Eleven objects on seven maps; nine can have a copy made on some emulator, and
+  seven of those are Hisui's wandering Pokemon: 37/103 local 15; 37/104 locals 8 and 13; 37/105 locals 4, 6 and 15;
+  37/106 local 6 - hence "Hisui Region". Also 36/27 local 22 (a 1-picture record that walks a route; its missing
+  frames are refused by a real BIOS). 34/79 local 6 is listed with pictures of another size than its record
+  says: not looked into.
+- **The fix** (`sprframe.s`, 60 bytes at 0x08FEFA20). The 8 bytes of ProcessSpriteCopyRequests at 0x08007454
+  (`ldrh r2, [r2, #8]; lsrs r2, r2, #1; bl CpuSet`) are `ldr r3, [pc, #0]; bx r3; .word guard`. The guard makes the
+  copy (its own `svc 0x0B`, at 0x08FEFA4E) only if the address is in 0x02, 0x03, 0x08 or 0x09, the size is 1 to
+  0x1000 and where + size is not past 0x06018000; then it goes back to 0x0800745C. A dropped frame leaves the
+  sprite's picture as it was: those Pokemon glide in a standing picture (for a third of a second in the one of
+  the way they faced before). The copies the game really makes are 0x40 to 0x800 bytes from the ROM or, for a
+  Pokemon's battle picture, from EWRAM.
+- **Tested** (`patches/sprframe/test_sprframe.lua`, steps for `patches/paldea/test_paldea.lua`: ten seconds
+  beside local 13 on the sand, Surf out to local 8, fifteen seconds there). Without the fix 13 of 5,742 copies
+  were bad ones; with it 19 bad ones were asked for, none was made, and the 5,720 good ones asked for were all
+  made; the tileset's cells as they were. `_testrun/sprframe/sprframe_tests.ps1`: the objpal tests' 19 maps, the
+  five Hisui maps, a walk with the menus (R, SELECT, START, L) and Surf with wild battles - 26 runs, 40,950 copies
+  asked for, 55 bad ones dropped (Prelude Beach and Coronet Highlands), 40,895 made, every run finished. The chain
+  with `sprframe` after `roamfix` gives the same bytes as the patcher on the working ROM; speciesx, gen9
+  (`check_gen9.py` clean) and paldea apply on top.
+- Installed 2026-10-11 (sha1 7d2700d8...), backup "(before sprframe 2026-10-11)" (72ca49d2...): 68 bytes in two
+  places. In no release, and not in the Area Zero test builds (their Gen 9 base is older).
+- **For the harness** (`patches/paldea/test_paldea.lua`). This mGBA build's breakpoints and watchpoints do call
+  back (`_testrun/tornadus/wp`: the skill said they did not). New: `WATCHADDR=r:<hex>` (registers, stack, every
+  sprite's animation frame and what its table holds for it, a picture and a dump on the next frame);
+  `BADCOPY=1` (a breakpoint on the copy: the bad ones by kind, what each changed, the good ones by size; on a ROM
+  with the fix `BADCOPY_AT` and `BADCOPY_IN` are the two addresses the patcher prints, `BADCOPY_MUST=none|some`
+  the verdict); `BIGWRITE=1` (4 KB blocks of video memory and EWRAM changed in one frame: noisy, every step moves
+  ten of EWRAM's); steps `vram`, `cells` (keep / check the tileset's first 400 cells), `lockstate`.
+  Gotchas: PowerShell variables ignore case - a parameter `$Mgba` in run.ps1 was overwritten by its own `$mgba`
+  (the emulator's path), which then went into the argument list and the script never ran; values passed with
+  `-Extra` stay in the PowerShell session for the next run of the same command (an `OLD=1` leaked into the
+  run after it); a script that walks a wanderer (`lockall`, `applymovement`) stalls one run in three, fix or no
+  fix; Surf is fast in this game, so the harness's `step` goes two tiles on water - `slide` goes one.
+
+## ONE ROM: GEN 9 AND AREA ZERO IN THE WORKING ROM — 2026-10-11
+
+The user, after being handed the main game and looking for Area Zero in it ("where the hex is area zero???????"):
+"everything should be into one rom now? area zero plus everything fix, change?" Until then the working ROM was
+the main chain's result and Gen 9 and Area Zero lived in test builds on a base from v1.8.
+
+- **What the working ROM is now.** The main chain (v1.4 archive, shinybox, the 42 patches to `zhtext`: sha1
+  7d2700d8..., the game as every release up to v1.8 was) + `speciesx` (b27a7f0e...) + `gen9` with the Crest ROM
+  (1e46d50d...) + `paldea` with the user's own `placements.txt` and `ground.txt` from `roms/test-paldea` (no
+  `tiles.txt` yet) = sha1 725e63e2.... 793,403 bytes differ from the main game alone. `rebuild_chain.py`
+  (`_testrun/rel18`, `_testrun/objpal` and `_testrun/full`: one file now) runs those three steps after the main
+  chain, keeps the main chain's stage, and `--main` stops there; from v1.4 it gives the working ROM byte for byte.
+  `_testrun/full/build.py <main rom> <out dir>` does the three steps alone and also makes the test companions
+  (Area Zero with the built-in placements; Gen 9 without its battle effects).
+- **The Gen 9 base** (`roms/test-gen9/Hyper Emerald - Gen 9 test.gba`, what `patches/paldea/rebuild.py` builds
+  on) is that 1e46d50d... now, so every "(my placements N)" the user's editor makes has every fix of the main game.
+  "(my placements 13)", made by rebuild.py right after, is the working ROM byte for byte.
+- **Two names for one ROM, because of the user's emulator.** It loads the last save state of a ROM by itself when
+  a ROM of that file name is opened, and keeps saves on the Desktop by ROM name. Under the working ROM's name it
+  has the main game's save (75:26 of play, 30 Sept) and a state of 9 Oct (77:07, Route 116, Area Zero not begun);
+  under "(my placements 12)" the newest save of the same game (77:56, Area Zero's story finished). All are one
+  trainer (Jude, id 3416EBE4): the game forked on 8 Oct when Area Zero's test builds began. Their files are not
+  touched: "(my placements 13)" has a copy of the 77:56 save (rebuild.py: beside the ROM and on the Desktop), the
+  working ROM's name keeps what it had. The 9 Oct state was tried on the new ROM (a copy of it:
+  `_testrun/full/steps_state.lua`): it loads, walks, opens the Start menu as on the old ROM, and in Mossdeep
+  Jacq and the hole stand - so that branch of their game can begin Area Zero too.
+- **Tested before it was installed** (`_testrun/full/tests.ps1` -> `tests.txt`):
+  1. Area Zero with the built-in placements on the new base (`p21.gba`): the whole of `final16.ps1` (story 1-9,
+     the craters, the vault, old saves, Mossdeep against the game without Area Zero, the user's save) and
+     `journal17.ps1` - every line ok.
+  2. The one ROM itself: the user's save continued; their crater walked, Surf and Waterfall up to Walking Wake
+     (11,817 sprite picture copies, none bad; the palette watchdog silent); `sprframe`'s test (14 bad copies asked
+     for, none made), `roamfix`'s, a walk on four maps, the menus on Prelude Beach.
+  3. Gen 9's battle effects (`moves.ps1`, the build without `gen9.s` against the one with): the 116 lines of
+     8 Oct's record, to the letter.
+  `check_gen9.py` clean (440 literal words repointed).
+- Installed 2026-10-11. Backups in `archive/`: "(before Gen 9 and Area Zero 2026-10-11)" (7d2700d8..., the main
+  game alone - what a release without Area Zero is still made of) and "Hyper Emerald - Gen 9 test (the base until
+  2026-10-11, on v1.8)" (cd311786...). In no release: ask before Gen 9 or Area Zero goes into one.
+- **From here on.** A fix for the main game: write the patcher as before (it runs on the working ROM as it is;
+  its place in the chain stays before `zhtext`), then `rebuild_chain.py` for the proof, the new Gen 9 base into
+  `roms/test-gen9`, and `python -I patches/paldea/rebuild.py` so the user gets a "(my placements N)" with it -
+  that file, not the working ROM's name, is the one to open for them. When the user saves placements in the
+  editor, their newest "(my placements N)" is ahead of the working ROM until the chain is run again.
+  The main ROM's own test save (`roms/current/....sav`, 75:00) is still what the main game's tests start from.
+
+## JACQ BEFORE THE HOLE — 2026-10-11 — `patches/paldea/`
+
+The user: "next before the blackhole paldea appears, we should at least have Jacq standing there talkign about
+taking students on trip or something to at least make ppl know before hand there is something like a
+foreshadowing? got me??"
+
+- **What changed.** Jacq (Mossdeep's local 30, on his tile from placements.txt) is shown from the start of the
+  game; up to now he came with the hole. `mossdeep_state` (run on the way into Mossdeep and on resume): Jacq's
+  hide flag 0x43D4 is cleared unless the stage is 4 (the ending is over: he lives in Station No. 4); the hole's
+  0x43AB is cleared only with 0x41D5, as before.
+- **What he says** (`story.py`; script `jacq`). Before 0x41D5: `JACQ_EARLY`, four pages (who he is, the three
+  students "off around the island somewhere", "We came for the sky ... the air over this shore has been restless
+  lately. As if something were pressing on it from the other side", "It's probably nothing!"), which sets the new
+  flag 0x43E2 (`F_MET_EARLY`); after that `JACQ_EARLY_AGAIN`, one line. With the hole open: if 0x43E2 is set,
+  `JACQ_INTRO_KNOWN` ("You! The Trainer from before! ... The restless sky, remember?") stands for the first three
+  pages of `JACQ_INTRO` and its last four follow; if not, `JACQ_INTRO` as it always was. Either way 0x43AC and
+  stage 1, then `JACQ_AGAIN`. Nothing else of the story reads 0x43E2.
+- **The flag.** 0x43E2 (SaveBlock2 + 0x70, bit 2) passed the checks the others did, now a script:
+  `_testrun/full/flagcheck.py <rom without Area Zero> <flags>` (no script command 29/2A/2B with it anywhere in
+  the ROM, no aligned word, no object hidden by it, not in the script index, clear in four saves). 0x43DE-0x43E1
+  each have one chance match and are skipped, as 0x43D7 and 0x43DB were.
+- **Older saves.** `STAMP_SALT` 12 -> 13. A save made in Mossdeep before 0x41D5 on the build before has Jacq's
+  hide flag set; on Continue the map's people are put back before ON_RESUME works the flag out, so he came only
+  with your first step. With another stamp the map is read again on Continue (the mechanism of test 11), and he
+  stands there at once.
+- **Not changed:** placements.txt, ground.txt, `check.py` (before the hole is the story's phase without the hole:
+  fewer things on the same tiles), the Journal (its Area Zero rows still begin with 0x41D5), Mossdeep's own 29
+  objects and scripts.
+- **Tested** (`patches/paldea/test_jacq_early.lua`, `_testrun/paldea/jacq22.ps1` on `p22.gba`): early (Jacq and
+  no hole; his talk, the second line, nothing to press where the hole will be; then 0x41D5: the hole on the way
+  in, "You! The Trainer from before!", asked in, through the hole to the wall), late (never met: the old first
+  talk, 0x43E2 clear), done (after the ending: the hole alone), a save of the build before made in Mossdeep before
+  0x41D5 and continued. Then all of `final16.ps1` and `journal17.ps1` (`test_steps_before.lua` now expects Jacq
+  alone there; "mossdeep, before" still reads as the game without Area Zero once our objects are left out), the
+  user's save continued on their build, and `sprframe`'s test on it. Every line ok. The message boxes were looked
+  at (`_testrun/full/jacq_pages.png`): every page fits.
+- Installed 2026-10-11: the working ROM is 4bfe13d2... (the chain gives it byte for byte), backup "(before Jacq's
+  early scene 2026-10-11)" (725e63e2...); "(my placements 14)" is the same ROM. The user's own games are past
+  Team Rainbow Rocket, so they cannot meet the scene there: pictures in `roms/test-paldea/Jacq before the hole
+  (pictures).png`.
+
+## WAS THE SPACE GEN 9 AND AREA ZERO TOOK REALLY FREE? — 2026-10-11 — `_testrun/space/`
+
+The user: "wanna make sure for the gen9 and paldea area zero, have u used the actual free available space? like I
+heard some FF 00 might not be acatually availabe for some reasons". Checked again from nothing, three ways, on
+the working ROM of before they went in (archive, "before Gen 9 and Area Zero 2026-10-11", 7d2700d8...).
+
+- **What they wrote** (`regions.py <main> <one ROM> <the hack's own ROM>`): 794,430 bytes in 295 stretches.
+  790 KB of it on blank space, in seven areas, each blank in the main game AND in the hack's own ROM (so nothing of
+  ours had been there before either):
+
+      0968D000..096C4A00  228 KB  00   the species tables' new home (speciesx); the zero run is 0968D000..096FFF00
+      097A1C21..097A1D04  227 B   00   ability rows 1200-1237, straight after the ability table (zeros to 09800000)
+      09A10000..09AB810C  688 KB  00   Gen 9 pictures, cries, data, code; the zero run is 099E5508..09D00000 (3.2 MB)
+      09D89012..09D89089  119 B   00   move rows 938-947, straight after the move table
+      09FBC400..09FCC424   66 KB  FF   Area Zero's maps, scripts, text   } all three in the FF run from 09F82519
+      09FE1000..09FE446C   13 KB  FF   Area Zero's Journal rows          } to the end of the ROM (515 KB in the
+      09FF1000..09FFB608   42 KB  FF   Area Zero's sprites               } hack's own ROM)
+
+  The move table is the telling one: 938 rows of 12 bytes end at 09D89011, the zeros go on to 09D89419, and
+  938 + 86 = 1,024 rows end exactly there - the author left the table room for 1,024 moves, and rows 938-947 are
+  that room.
+- **The rest, 3,400 bytes, are edits inside existing tables**, each an unused or placeholder row filled or a
+  pointer moved: 440 literal words and the ROM header's table pointers (speciesx / gen9: `check_gen9.py` accounts
+  for every one); 38 cry rows that pointed at the placeholder cry 08747790 (two tables, 08F49714 and 08F4CF54);
+  trainer rows that were the dummy "Seed" entry (09257140...); the hack's sprite table's slots 240-253, which
+  held 0x0F filler (0839F0C0...), and 125-127, 212, 225, 227; map section 186's name (0900AD50); and three wild
+  headers written over the wild table's own FF padding after its end row, the end row moved down (08E19128).
+- **Does anything point there?** (`refs.py`, `script_refs.py`.) No word of the ROM header and no literal that code
+  loads holds an address inside any of the seven (speciesx_patch.is_pointer). Of the 5,439 scripts reachable from
+  the maps' events (86,933 commands, 25,677 address fields) none holds one. A few hundred words elsewhere read as
+  such addresses by chance - inside pictures and tunes, at any byte offset; expected in 32 MB.
+- **Does the game ever read it?** The decisive test (`watch.ps1`, the harness's new `WATCHRANGES`): the game
+  without Gen 9 and Area Zero played with a read watchpoint on each area: the Pokedex (list, a page, the area
+  map), the party, a summary's pages, the Trainer Card; Prelude Beach with R, SELECT, START and L; Surf with wild
+  battles; the Windworks researcher, the News Tracker, battles on Route 201, three saves, resets and Continues;
+  walks on eight maps in four regions. Twelve runs: **0 reads in every area.** Two control stretches watched the
+  same way were read 89,788 times (the species' base stats, by code) and 3,245,898 times (the first tileset's
+  animation frames, by DMA), so the watchpoints see both kinds of read.
+- **What this does not prove:** a path of the game nobody walked in those runs (a late event, a rare screen) could
+  still read there; nothing found suggests one. And one use of blank space is outside the game altogether: a
+  bootleg cartridge without a battery keeps its save in the last part of the ROM chip, so a 32 MB hack whose end
+  is in use (ours is, up to 09FFB608) cannot be patched for those. Emulators and ordinary flash carts are not
+  affected.
+- **What lies next to each area** (the user: "the neighbour of those FF00, are all free space right? like not
+  exactly next to something important?" and "this is a huge project so I want to take more cautious").
+  `neighbours.py <main> <one ROM> <the hack's own ROM>`: from the first and the last byte we changed in each area,
+  the blank bytes to the nearest byte that is not 00 or FF, in the game as it was before:
+
+      area                      blank left before ours            blank left after ours
+      species tables' new home  7,028 (data ends 0968B49C)        243,621 (code at 096FFF00)
+      ability rows 1200-1237    none: the table's next rows       385,788 (code at 09800000)
+      Gen 9 data                174,840 (data ends 099E5507)      2,391,798 (data at 09D00000)
+      move rows 938-947         none: the table's next rows       913 (data at 09D8941A)
+      Area Zero maps            128 (our Quest Log's picture)     26,076 (our English texts, 09FD2A00)
+      Area Zero Journal rows    16,846 (fusionfix ends 09FDCE38)  43,924 (Area Zero's sprites)
+      Area Zero sprites         43,924 (the Journal rows)         18,936 (the end of the ROM)
+
+  The two with none are meant to touch: 097A0000 + 1200 x 6 = 097A1C20 and 09D86419 + 938 x 12 = 09D89011 are
+  where those tables end, and a row for species 1200 or move 938 has to be the next row or the game would not
+  find it. The data before Area Zero's maps is ours: the Quest Log's chapter grid, a raw picture of a fixed
+  0x4380 bytes at 09FB8000 (read by size, no end mark); its patcher's limit said 09FBF800 and now says 09FBC380,
+  where Area Zero's guard begins.
+  Before matters more than after: the first blank bytes after a text or a list can be its end mark. Every build
+  already refuses to go on otherwise: speciesx and gen9 assert their whole range is zero (and gen9 that move rows
+  938 on, their animations and the species slots are blank), paldea that each of its three blocks is 0xFF from
+  0x80 bytes before it.
+  A first try at the same list for every patch of the project (`neighbours_all.py`) is not usable as it is: the
+  hack's own ROM has blank stretches inside text slots, and the translation's in-place text counts as "next to
+  data" there by nature. It needs telling a text slot from free space before it says anything.
 
 ## MEGA STONES READ FROM THE ROM — 2026-10-11 — `tools/build_mega_stones.py`
 - **Corrected 2026-10-12:** the bullet below that says nothing shows on the map is wrong, and so is every
@@ -2781,6 +4350,151 @@ not allowed".
   the size from `data-w`/`data-h` when there is no thumbnail); a Mega form's Pokédex page says where its stone is;
   search has an entry a stone. 21 browser checks; the TM, Pokédex and general suites still pass.
 - Not rechecked: the Z-Crystal and Plate rows of the same guide are still from community lists.
+- Published 2026-10-11: public repo commit 2cd6ecc, built in the public checkout (the dev site has unreleased edits
+  of other work in it, so only this change's files were copied across); `infinityfree/` rebuilt from the same.
+
+## THE BUILT ROM IN THE DEV REPO — 2026-10-12
+
+The user: "push to dev repo, include the rom itself so that I can work easily no need to patch left and right".
+
+- `rom/Pokemon Hyper Emerald v5.7 - Full English Modern.gba` (4bfe13d2..., the working ROM), `rom/placements.txt`
+  and `rom/ground.txt` (what its Area Zero was built with), `rom/README.md`. `.gitignore` lets that one `.gba` in.
+- The dev repo (`dev`, Nn-Exe/hyper-emerald-qol-dev) is private; the public one (`origin`) must never get the
+  game. Three locks: `mirror_public.py` (which copies every file git knows across for a release) leaves out `rom/`
+  and anything ending in .gba / .sav / .ss0-9 / .bak; `.git/hooks/pre-push` refuses a push to any remote but the
+  dev repo if a commit being sent adds or changes such a file (tried by hand: `main` to the public repo refused,
+  as an update and as a new branch; a release branch to the public repo and `main` to `dev` let through);
+  and `main` tracks `dev/main` instead of `origin/main`, so an editor's "sync" goes to the private repo. The hook
+  is not in the repo: a fresh clone has none.
+- Pushed 2026-10-12 as seven commits on `main` (dbc0a30..d2e0aaa): the patches since v1.8, speciesx + gen9, paldea,
+  the documents, the v1.8 release files, the ROM, the guide site and tools. Everything the working copy held went
+  up, the other sessions' site work with it. Checked first: no save, no token, no account email among the 1,702
+  files; on GitHub afterwards: `rom/` is in the dev repo and the public repo has none.
+- Gen 9 and Area Zero are now files git knows, so the next public mirror would carry their source across: that is
+  the release question still to be asked.
+
+## THE SUMMIT: A LOST ATTEMPT ENDED THE QUEST — 2026-10-12 — `patches/summitfix/`
+- Reported (a player, Pizza Boy, Quest Log "The summit: Active" with Kitty's fish Done): "I battled the girl on top
+  of the highland, I didn't understand what to do so I just defeated her every time until I was brought back;
+  now my nameless stone is gone."
+- The scripts (all the hack's own; listed with a small command lister over tools/romdata/scripts.py's tables):
+  * guard, Hisui 37/106 objects 1-2, 0x098B201D: `checkitem 745`, flag 0x4319, not 0x4323 -> two yes/no boxes
+    ("Best not to approach the summit?" No, "Do you really want to head for the summit?" Yes) -> warp 35/10.
+  * Moonbow Dome 35/10 object 0, 0x098C5E66: setflag 0x273, 0x276; trainer 1304 twice (outcome > 1 -> 0x098C5F06,
+    the way down); the stone glows; 0x098C60FA: setflag 0x278, trainer 1340 - outcome > 1 (she won) -> 0x098C5F66
+    (the Rainbow Ring, trainer 1341, which must be won, then `setwildbattle 1025, 70`, setflag 0x4323,
+    removeitem 745, warp out); a win -> VAR 0x4002 += 1, at 3 -> 0x098C6143 "I'm getting a bit bored" -> the
+    way down; else her "Hourai Elixir" line and 0x098C60FA again.
+  * the way down, 0x098C5F06: the Galaxy Team message, clearflag 0x273/0x276/0x278, **removeitem 745**
+    (0x098C5F19), heal, warp 37/106.
+  * Kitty, Steven's Island 35/8, 0x098B1F85: `checkitem 744` -> eats it, removeitem 744, additem 745. No flag.
+    Items 744 and 745 are Key Items; 744's only source is the Prelude Beach ball (hide flag 0x4322).
+  Nine older copies of the dome script lie at 0x098B2xxx-0x098B8xxx (their removeitem / setflag 0x4323 show up
+  in a byte search); no map entry point reaches them.
+- Checked in the emulator on the current game: a loss to trainer 1340 (the party at 1 HP with no PP) gives
+  outcome 2, no black-out, and the script goes on at 0x098C5F77 into the battle with 1341. So the way through is:
+  win twice, lose once, win once.
+- The patch: 0x098C5F19 -> five nops; Kitty's `checkitem 744` (0x098B1F87) -> `goto` a script in free space
+  (0x08FF8B40: her own fish check first; then 0x4323 set, 0x4322 clear or the stone present -> her greeting
+  0x098B1F97; else a line and `additem 745`); the "bored" loadword (0x098C6145) -> a new text. Free space
+  0x08FF8B40..0x08FF8CEF, in itemdesc's pointer-free window (it ends at 0x08FF8B06; the window runs to 0x08FF9400).
+- GOTCHA (test): flags from 0x4000 up are not in the vanilla flag array - writing SaveBlock1+0x1270+(n>>3) for
+  0x4322 set nothing (and scribbled on the save copy). The test sets them with setflag / clearflag in a script
+  and reads them back with a checkflag script into VAR 0x8004 / 0x8005.
+- Tested (`test_summitfix.lua`, seven cases, the unpatched game as control): the way down and the "bored" exit
+  keep the stone (old: gone) and land on 37/106; Kitty gives a stone when the fish is taken and there is neither
+  fish nor stone and the summit is not done (old: nothing), and not when the stone is there, the summit is done or
+  the fish was never taken; her trade for a Dried Fish is as before. `tools/text_overflow.py`: the same report
+  before and after.
+- In the chain it is after `sprframe`, before `zhtext` (43 patches; the main game 7d2700d8... -> 29d20002...). It
+  changes 440 bytes, and the same 440 whether it runs there or on top of the finished game (compared byte for
+  byte), which is how `rom/` was updated on the Mac, where `gen9` cannot run (no Crest ROM): 4bfe13d2... ->
+  36c0f986.... The other PC's `rebuild_chain.py` needs `summitfix` added after `sprframe` and must then give
+  36c0f986... for the full game.
+- **Done on the Windows PC, 2026-10-12** (after `git pull`). The patcher run there on its working ROM (4bfe13d2...)
+  gave 36c0f986...; with `summitfix` after `sprframe` in the three copies of `rebuild_chain.py` the whole chain
+  from the v1.4 archive gave 36c0f986... too (the main game alone 29d20002..., the Gen 9 base 0ce62833...).
+  Its free space checked as the user asks: 08FF8B40..08FF8CEF was 0xFF there and in the hack's own ROM; 58 blank
+  bytes before it (itemdesc ends 08FF8B05), 18,609 after; no word of the ROM at any byte offset reads as an
+  address inside it; the game before the fix played with a read watchpoint on it (the menus, Prelude Beach with
+  R / SELECT / START / L, walks in Mossdeep and on Coronet Highlands): 0 reads. Four of the test's cases run there
+  (down: the stone stays; kitty_lost: she gives one; kitty_has and kitty_done: she does not). Installed: the
+  working ROM, the Gen 9 base, and "(my placements 15)" from `rebuild.py`, all 36c0f986...; backups "(before the
+  summit fix 2026-10-12)" and "Gen 9 test (the base of 2026-10-11, before the summit fix)". The user's save
+  continued on it (`test_steps_continue.lua`).
+- Not done: the Journal's step text still does not say that she has to win once. It is in the Journal / Quest
+  Log data, early in the chain, so changing it means a full rebuild with `gen9`.
+- Installed on the Mac 2026-10-12: the working ROM there (the 2026-10-07 build, 6ef5c8d9...) became the full
+  game with this fix (36c0f986...); backup "(before the full game + summit fix 2026-10-12)".
+
+
+## THE TIME RIFT — 2026-10-12 — `patches/paldea/`
+- The user wanted something more unique than the pale time crystals in the two craters. From three mock-ups made
+  on the Mac they chose B, the wide rift ("wide rift is perfect"), and it was tried there on top of the finished
+  game (`rom/unreleased/time-rift/`: the Mac cannot build Area Zero). Then, of the game on this PC: "what doesn't
+  it have new timerift replaced crystal in paldea?" - it had never been built in. Now it is.
+- What it is: a tear in the air, 32x32, the other time seen through it - cold blue in the past crater (35/90),
+  warm amber in the future one (35/91) - shimmering through four pictures. `sprites/rift.py` draws it (the trial
+  kit's `rift_art.py`: the files it writes are the kit's, byte for byte). `rift_cold.4bpp` and `rift_warm.4bpp`
+  are the same 0x800 bytes; the two `.gbapal` differ.
+- `mons.py`: a fourth kind, `KINDS[0x800]` = 32x32, four frames, an entry copied from Suicune's like the 32x32
+  Pokemon. Identical pictures are stored once (both rifts: 0x09FFB450, 2,048 bytes). The frame table has the nine
+  entries the standard animations count (pictures 0 1 2 3 0 1 2 3 0), so no animation can ask for a picture that
+  is not there (*A sprite's missing picture copied over video memory*). The animation table (0x09FFBD34) is 24
+  pointers to one loop (0x09FFBD20): ANIMCMD_FRAME(n, 9) for n = 0..3, then ANIMCMD_JUMP(0) (0xFFFE). The entry
+  keeps the hack's "inanimate" bit (byte 12, 0x40; the byte is 0x52): the thing never turns.
+- `paldea_patch.py`: `SPRITES["rift_past"]` = slot 254 (0x0839F2B8), palette tag 0x1136; `["rift_future"]` = slot
+  255 (0x0839F2DC), tag 0x1137; each crater's two time objects take their era's slot. The hack's sprite table has
+  no spare entry left (240-255 are all Area Zero's). Entry 126 (the pale shard, tag 0x1111) is still written: a
+  save holds its own copy of a map's objects until the stamp makes the game read them again. `STAMP_SALT` 13 ->
+  14 for that: a save made beside a crystal shows the rift on Continue.
+- GOTCHA: at first the rift did not shimmer - thirty pictures, one frame. The rifts were among `mon_slots`, the
+  slots whose objects get "face down" as their movement type, and `FaceDirection` (the sprite callback 0x0808FD8D)
+  sets `sprite->animPaused`. A thing with an animation of its own needs movement type 0 (MovementType_None,
+  callback 0x0808F3E1): the `rift_*` keys are left out of `mon_slots`, like the recorder.
+- Words: story.py's six lines that said crystal (TIME_CRYSTAL_FIRST "A tear hangs in the air, shimmering. ...";
+  TO_FUTURE / TO_PAST "Through the rift, ... Step through?"; Arven's two "The rifts in the air will take you.";
+  Turo's log "If the rifts down here open onto time ...") and the Journal's step ("Step through a time rift to
+  the future, ..."). The names in the code (TIME_CRYSTAL_*, time1, time2, F_RIPPLE_SEEN) are as they were.
+- placements.txt: the two are "time rift 1" and "time rift 2" (`places.THINGS`, kind "rift", 32x32 for the editor
+  and check.py). `places.ALIASES` reads "time crystal 1 / 2" as the same things, without a note, so the user's
+  file is not written afresh (compared after `rebuild.py`: untouched); the editor writes the new names the next
+  time it saves. The editor's ?selftest (`_testrun/rift/editor_selftest.py`: the editor on a copy of the folder,
+  Edge without a window) drags "time rift 1" and ends "SELFTEST DONE"; the map guide draws both rifts.
+- A rift moved to water with the editor (tried on copies of the user's folder): beside the pond check.py refuses
+  it like a Pokemon ("too close to water": its reflection would lie on the grass); on the pond (33,17) it is let
+  through, and in the game it stands on the water with a pale blue mirror image under it in both times (the
+  reflection is drawn from the rift's own tiles in palette slot 1), 819 picture copies, none bad
+  (`_testrun/rift/steps_pond.lua`, `rift_on_pond.png`). The positions built in and the user's have no water near.
+- Space, checked as the user asks (`_testrun/rift/space.py`, `_testrun/paldea/rift23b.ps1`):
+  * The sprites' block grows from 0x09FFB608 to 0x09FFBF5C: 44,892 of the 45,056 bytes kept for it, 164 left
+    (another sprite means a longer block; the 16,548 bytes after it, to the end of the ROM, are blank). The 2,388
+    new bytes were 0xFF in the game before and in the hack's own ROM, as is everything from there to the end of
+    the ROM. Of the ROM's words at any byte offset eight read as an address in 0x09FFB608..0x09FFC000 (one on a
+    4-byte boundary, inside graphics at 0x089AE364); none is a pointer (speciesx's `is_pointer`).
+  * Sprite entries 254 and 255 (0x0839F2B8..0x0839F2FF) were the table's 0x0F filler in both ROMs, and none of the
+    game's 5,818 map objects is drawn with slot 254 or 255.
+  * Read watchpoints. The game before the rift (36c0f986...), on 0x09FFB608 to the end of the ROM - the crater
+    with Surf and Waterfall, both time crystals through and back, the menus: 0 reads (the sprites' block before
+    it, as the control: 12,938, 3,302 and 1,048). The game with the rift, on 0x09FFBF5C to the end: 0 reads; on
+    the rift's own 2,388 bytes: 35,678 and 100,320.
+  * All else that differs between the two ROMs (50,463 bytes in 51 stretches) lies in Area Zero's own areas (its
+    data at 0x09FBF84A..0x09FCC42F and its Journal rows, moved along by the new words; the sprites' block) or is
+    a pointer of ours into them.
+- Tested (`test_rift.lua`; `_testrun/paldea/rift23.ps1` and `rift23b.ps1`; hidden, with the picture-copy guard's
+  count and the palette watchdog): look - both rifts in both times are 32x32 and show four different pictures
+  within a few frames, through and back lands on the same tile, 2,039 picture copies, none bad; busy - the rift
+  met after a walk past the crater's other kinds of thing, after the story (7,757 copies; no sprite in another's
+  colours); a save made below the dais's crystal on the build before, continued: the rift stands there and takes
+  you through; Jacq's three scenes and a save from before them; the whole Area Zero list (final16, journal17: all
+  ok). On the user's own placements: their save continued, their crater with Surf and Waterfall (12,003 copies,
+  none bad), both rifts, and sprframe's own test (22 bad copies asked for on Prelude Beach, none made). Two lines
+  of the first batch read BAD and were the tests' own mistakes, run again right in the second: an expectation
+  that the far rift is on the map from the dais (it is too far to be made), and the Jacq save test given the
+  build that already has his early scene as its "before".
+- Installed 2026-10-12: the chain from the v1.4 archive gives 52db9719... (the main game alone 29d20002... and the
+  Gen 9 base 0ce62833..., both as before); the working ROM, `rom/` and "(my placements 16)" from `rebuild.py` are
+  that file; backup "(before the time rift 2026-10-12)". In no release.
 
 ## THE MEGA STONES AND TMS CAN BE SEEN; OBJECTS NOBODY CAN REACH; Z-CRYSTALS AND PLATES — 2026-10-12
 - **The mistake.** The section above concluded that Mega Stones and TMs sit on invisible objects, because graphics
@@ -2829,3 +4543,668 @@ not allowed".
 - Site: `<TotemList />`, `<ItemPlaceList list="plates|crystals" />`; 196 pictures, 0.98 MB; 29 browser checks.
 - Still from community lists on that guide page: the key items table (the Quest Log's list disagrees with it on
   the Mega Bracelet and the Z-Power Ring), shops and tutors, the HM paragraph.
+
+## THE VERSION NUMBER: 1.9 — 2026-10-12 — `patches/qolversion/`
+- Asked: "change number to 1.9 ver". `QOL = "1.9"` in `qolversion_patch.py`: the Option screen's title reads
+  "Ultra Emerald v5.7 +QoL1.9 (Standard)" (one string a difficulty, in the block at 0x08FF24C0).
+- The patch sits mid-chain, so the whole chain was rebuilt (`_testrun/rel18/rebuild_chain.py`). First unchanged, as
+  a control: 52db9719..., the installed game byte for byte, so the repository as it stood (the time rift's
+  uncommitted files included) was the game. Then with 1.9: d7e673b3... (the main chain alone 64db7201..., the Gen 9
+  base 935553a0...). It differs from the game before in four bytes, 0x08FF24E0, 0x08FF250D, 0x08FF253B and
+  0x08FF2569: 0xA9 "8" -> 0xAA "9". Both digits are 6 px wide; no new space is taken.
+- Looked at in mGBA (hidden, `_testrun/v19/run_option.ps1`, the expgain test's save): the title fits its bar, and
+  the test's three battles give EXP, none, EXP as before.
+- Installed: the Gen 9 base in `roms/test-gen9`, "(my placements 17)" from `rebuild.py` (the same file as the
+  chain's result), the working ROM and `rom/`. Backups in `gba-trans/archive`: "(before v1.9 2026-10-12)" and the
+  Gen 9 base "(the base of 2026-10-12, on QoL 1.8)".
+- The number only. No release was made: `release/` still holds v1.8's patch, the site's `PATCH_VERSION` is 1.8,
+  HANDOFF's "last published release" is v1.8. A v1.9 release needs the user's word on Gen 9 and Area Zero first.
+
+## THE GOLD HEALTHBOX KEPT ITS PALETTE — 2026-10-13 — `patches/goldbox/`
+- The report: "the shiny box sometimes still disappear" (after shinyfade, 2026-10-09). Looked for by playing wild
+  battles on Route 102 with every battler made shiny the way shinybox reads it (gBattleMons[n].otId =
+  personality), each battler given the same move every turn (ids 1, 2, 3 ...), and on every frame each visible
+  healthbox looked at: the slot its sprite is on and colour 2 of that slot in palette RAM
+  (`_testrun/shinybox2/sweep.lua`, in the patch folder as `test_goldbox.lua`).
+- **Wild battles are double ones at random**: the hack's code at 0x09D60CA0 (called from 0x09D60C94, with the
+  second wild Pokemon at 0x020247A8) sets bit 0 of gBattleTypeFlags (0x02022FEC) before the battle starts. (The
+  test's way of running - DOWN, RIGHT, A at the action menu - did not end a double one; not looked into. It
+  leaves one by letting the wild Pokemon faint.)
+- **Sprite palette slots in a battle** (sSpritePaletteTags 0x03000CF0; gReservedSpritePaletteCount 0x0300301C = 4):
+  0-3 the four battlers' own (untagged; 2 and 3 unused in a single battle), 4 healthboxes (0xD6FF), 5 HP bars
+  (0xD704), 6 and 7 the hack's (tags 0x1234, 0x2345: sprites with callbacks 0x09D608C5 / 0x09D605E1), 8 our type
+  badges (0x5E62), then one ball palette per battler that stays loaded (0xF12D, 0xF10D, 0xF109, 0xF129 in the
+  runs here: two in a single battle, four in a double one). Free for everything else: 11-15 in a single battle,
+  13-15 in a double one. Our quick-ball widget takes two more at the action menu of a wild single battle (0x5E5E,
+  0x5E5F: freed when the menu closes), lmoveinfo one at the move menu (0x5EB0).
+- **Bug 1: the gold slot was never claimed.** shinybox took "the highest slot from 15 down whose tag is 0xFFFF"
+  on every frame and painted there, tag left free. LoadSpritePalette gives out the lowest free slot, so the two
+  meet when an animation needs all that is left: in a double battle the third palette of a move animation went
+  into slot 15, over the gold, and shiny_boxes then found no free slot and "left every box as it is" - on slot
+  15, in the animation's colours - until the animation freed it. Moves 1-118 in a double battle: 51 moves, 57,052
+  of 666,854 healthbox-frames drawn in colours that were not the box's (7, 8, 9 the punches, 40 Poison Sting, 47
+  Sing, 71 Absorb, 72 Mega Drain, 75 Razor Leaf, 85 Thunderbolt, 86 Thunder Wave ...; and once Leech Seed is on
+  the field its drain, three palettes, every turn). In a single battle: none.
+- **Bug 2: status icon colours.** The game's UpdateStatusIconInHealthbox writes the icon's colour to index 12 +
+  battler of the palette slot the box's sprite is on (both buffers; four boxes, one palette, four colours). The
+  stock palette is stored with placeholders there (0x7C00, 0x03E0, 0x001F, 0x7E4D), and paint / paint2 put the
+  whole ROM palette back every frame: PAR (0x0EF7) showed green on battler 1, SLP (0x4694) pure blue on battler
+  0. (PSN / TOX 0x6198, BRN 0x29DC.)
+- **goldbox.s**, 1,164 bytes at 0x08FEE400 (entries: +0 gold_pass, +2 LoadSpritePalette, +4 AllocSpritePalette,
+  +6 ti_load):
+  * `gold_pass` replaces shiny_boxes (typeicons' pool word 0x08FDAB5C; shinybox's shiny_boxes / paint and
+    shinyfade's paint2 are no longer called). While a shiny battler's box exists it claims the highest free slot
+    from 15 down to 10 with tag 0x5E63, copies the stock palette there as it is (both buffers) and gives the slot
+    back when no shiny battler has a box. Every frame: unfaded colours 0-11 from the stock palette with colour 2
+    = 0x1F5F; faded = unfaded while the stock palette's faded and unfaded agree, else left to the fade
+    (shinyfade's rule). For each box body the status colour (12 + battler) is copied from the slot the box is on
+    to both palettes, so it is right whichever the box is on next. A battler counts as shiny only if its species
+    is not 0 (before, the blank gBattleMons of the first frames read as shiny and the boxes were painted and
+    unpainted).
+  * A box the game has moved to another slot (the level-up flash, AnimTask_LoadHealthboxPalsForLevelUp 0x08170920,
+    copies the box palette to a new slot and puts the box on it): a shiny battler's goes straight back to the
+    gold when that slot is 10 or more (the flash then does not show on it, as before); below 10 (it gets slot 8
+    when the badges have given it up) it stays, flashes, and the game puts it back itself. A plain box on a slot
+    somebody owns is left alone - before, shinybox pulled every box back to slot 4 each frame, so no level-up
+    flash showed at all.
+  * `load_pal` / `alloc_pal`: the game's LoadSpritePalette (0x08008744) and AllocSpritePalette (0x080087D4), whole,
+    behind 8-byte trampolines at their starts. Same code, but when IndexOfSpritePaletteTag(0xFFFF) finds nothing
+    they call `make_room`: the type badges' slot first (the badge sprites, callback 0x08FDA9CB, are made
+    invisible), then the gold's (its boxes go to the stock palette, status colours carried), each also set right
+    in this frame's OAM buffer; 0xFF only if neither is loaded. The original hack had four free slots in a double
+    battle; typeicons had taken one for good and the gold squatted on another. Now both are given back on demand.
+  * `ti_load` is what typeicons calls for its palette (its pool word 0x08FDAB74): it loads only if a slot is
+    free - two while a move animation has palettes loaded (tags 0x2710-0x2B0F), so that it does not take back,
+    mid-animation, the slot the animation asks for next - puts every badge sprite on the slot it got, and
+    otherwise hides the badges and returns 0xFF.
+- GOTCHAs:
+  * gMain.oamBuffer is gMain + 0x38 = 0x030022F8 (LoadOam 0x08007188 says so). The first build had + 0x3C; the
+    test compared the buffer with OAM itself and found them never equal. With the right address: equal on about
+    three frames in four.
+  * A move animation's script runs from the battler controllers, in callback1 - BEFORE BattleMainCB2 builds the
+    OAM buffer - so a palette taken there is seen by the same frame's gold_pass and typeicons. A task run by
+    RunTasks comes after the buffer is built: that is what the OAM fix in make_room is for.
+  * keystone pads `.align 2` in Thumb code with 00 BF, the Thumb-2 nop. The patcher puts a `mov r8, r8` before
+    each pool when it is needed (PADA / PADB / PADC), so the assembler has nothing to pad.
+  * The first place chosen for the code, 0x08FEE000, has an aligned word reading 0x08FEE20B in the chain's ROM
+    before zhtext - two Chinese characters of a text zhtext replaces (0x08224C28). On top of the finished game
+    the check passed; in the chain it did not. 0x08FEE400..0x08FEEA00 is clear in both.
+  * "wrong for 1 frame" in the first runs was the test: on the frame gold_pass moves a box, palette RAM still has
+    the slot's old colours until the vertical blank. The test now also checks what was DRAWN: OAM against
+    palette RAM, by the tile numbers of the boxes and the badges.
+- Space, checked as the user asks (`_testrun/shinybox2/space.py`, `watch.ps1`): 0x08FEE400..0x08FEE88B was 0xFF in
+  the game before and in the hack's own ROM; 4,152 blank bytes before it (the Quest Log ends at 0x08FED3C8),
+  3,444 after (objpal's allocator at 0x08FEF600). Words of the ROM that read as an address in
+  0x08FEE400..0x08FEEA00: 16 at odd byte offsets, none on a 4-byte boundary, none a pointer; of 87,801 script
+  commands walked none holds an address there. Read watchpoints on it while the game of before was played -
+  moves 1-40 in a double and in a single battle, the Bag, ball throws, the level-up flash, the menus, the user's
+  crater with Surf and Waterfall, the menus on Prelude Beach: 0 reads in all eight (the controls beside it:
+  shinybox's pool 32,626 to 1,725,801 reads, the tileset animation frames 6,963 to 1,988,863). The other bytes
+  that change: 8 at each of the two functions' starts (the hack's own ROM has the vanilla code there) and the
+  two words of typeicons' pool.
+- Tested on the build (`_testrun/shinybox2/final.ps1`, `everything.ps1`; hidden):
+  * moves 1-118, double, every battler shiny: 654,131 gold box-frames, 976 plain (Sing, four palettes), none in
+    wrong colours (0 of 655,107 drawn boxes; 0 of 299,870 drawn badges); the badges hidden during 51 moves; 0 of
+    1,142 palette requests went without a slot. Single: 175,162 gold, nothing hidden, nothing plain.
+  * moves 150-250, double: plain during Tri Attack, Belly Drum, Heal Bell and DynamicPunch (four palettes), the
+    badges hidden during 11 moves, none drawn wrong. Belly Drum and Heal Bell ask for a FIFTH palette and get
+    none (8 requests): that is the hack's own limit - four free slots in a double battle - not ours. (The test's
+    driver stalls from Torment, move 259, on: a move it may not repeat. Not looked at further.)
+  * status icons, single and double: PAR 0x0EF7, TOX 0x6198, BRN 0x29DC, SLP 0x4694 on gold boxes, the same as on
+    plain ones (`test_goldbox_status.lua`; the game of before: 0x03E0 / 0x001F / 0x7C00).
+  * a quick ball throw and catch (single), into the Bag and back (single, double), the level-up flash (double,
+    shiny and not), shinyfade's own fade test: PASS / nothing wrong drawn.
+  * the one ROM's regression list (`_testrun/full/tests_goldbox.ps1`: Area Zero's story start to end, the old
+    saves, the user's save and crater, sprframe, roamfix, the walks, the menus, Gen 9's battle effects): the same
+    results as on 2026-10-11, but for one damage roll - Ivy Cudgel (Fire) 224 where it was 252, the random factor
+    0.89 for 1.00; with five other seeds the two builds deal the same.
+- Seen while testing, in the game of before too, not looked into: with every battler using Fire Punch after six
+  other moves in a double battle, the flames around the target are drawn as cream blocks for some frames
+  (`_testrun/shinybox2/s7_cream.png`); and during a level-up flash the foe's type badges are partly behind its
+  box.
+- In the chain after `summitfix`, before `zhtext` (44 patches; the three copies of `rebuild_chain.py` have it).
+  The same bytes in the chain and on top of the finished game (compared: 8c155ddc... both ways; the main game
+  alone ffce047a..., the Gen 9 base f43e0a2b...). Installed 2026-10-13: the working ROM, `rom/`, the Gen 9 base in
+  `roms/test-gen9` and "(my placements 18)" from `rebuild.py`; backups "(before goldbox 2026-10-13)" and "Gen 9
+  test (the base of 2026-10-12, before goldbox)". In no release.
+
+## THE HACK'S OWN BALLS WERE NEVER LET GO OF — 2026-10-13 — `patches/ballfree/`
+- The user, after goldbox: "more than that especially when heal in battle". They were right and goldbox's test was
+  wrong: it wrote every battler's hit points to the maximum on every frame, so a move that heals failed ("HP is
+  full") and its animation never played. (And the game copies hit points and the held item back from the party's
+  data at the action menu: a test cannot hold them in gBattleMons.) With the party as the save has it (the lead at
+  160/346) heal and drain animations play, and most load FOUR palettes in a double battle.
+- **The bug** (the original hack's). It has 27 kinds of ball: sheets 0x09F097E4, palettes 0x09F096E4 (tags
+  0xD6D8-0xD6E3 for the game's twelve, 0xF100-0xF10E for ids 12-26), the opening sparkle's sheets 0x09F092E4 and
+  palettes 0x09F091E4 (0xD6EC-0xD6F7, 0xF120-0xF12E); 32 entries each, the last five a copy of the first.
+  LoadBallGfx (0x08076A78) and LoadBallParticleGfx (0x08171D60) load sheet and palette when the sheet's tag is not
+  loaded. The two clean-ups still count to twelve: HandleBallAnimEnd (0x08075FD4) calls FreeBallGfx(0..11) when no
+  battler has a ball in the air (`cmp r4, #11` at 0x080760DA), DestroyBallOpenAnimationParticle (0x08172944) frees
+  sparkle sheets and palettes 0..11 when the last sparkle is gone (`cmp r6, #11` at 0x081729C6). So a Pokemon sent
+  out of a ball from id 12 on left 12 + 8 tiles and TWO palette slots loaded until the battle ended (the save's
+  Swampert: ball 25, tags 0xF10D / 0xF12D; Necrozma and a thrown Quick Ball: ball 21, 0xF109 / 0xF129). Those were
+  the four tags goldbox's notes call "one ball palette per battler".
+- **The fix**: both counts to 26 (0x0B -> 0x1A, two bytes). FreeBallGfx does nothing for a ball that is not
+  loaded. The test before the second loop ("is a sparkle task still running?", 12 entries of the task table
+  0x09F08E44) needs no change: every ball from 12 on uses entry 0's task (0x08171E51).
+- After it a battle's tag table reads D6FF D704 1234 2345 5E62 and the gold's 5E63 at 15: slots 9-14 free in a
+  double battle (13-15 before).
+- How wild battles become double ones (needed for the tests): 0x09D60C48 - if the grass you stand in has behaviour
+  0x0D (0x09D60C10) and 0x09D4B2B0(30) says so (RandomRange(100) < 30, 0x09D380E4) it makes a second wild Pokemon
+  and sets bit 0 of gBattleTypeFlags. In one run of the game that number hardly changes (sixty double battles
+  running, or none): the test sets what the function draws (a breakpoint at 0x09D4B2BA writes r0: 0 double, 99
+  single).
+- Tested (`_testrun/shinybox2/final2.ps1`, `final3.ps1`; `patches/goldbox/test_goldbox.lua` is the watcher; hidden):
+  * 39 heal, drain and heavy moves, double, every battler shiny. The game of 12 October: 61,888 of 233,608
+    healthbox-frames drawn in colours that were not the box's, during 21 of the moves. goldbox alone (build 18):
+    none drawn wrong, but the gold plain on 21,688 frames during 11 moves and the badges hidden during 20. With
+    ballfree: gold on all 149,195, the badges never hidden, no palette request without a slot. Single: the same
+    (the game of before: Belly Drum and Heal Bell, 680 frames).
+  * every move, double: 1-259 gold on all 1,163,140 frames (the game of before, the same moves: 76,036 of
+    1,503,380 drawn wrong, 34 moves); 261-944 plain on 566 frames, all Sparkle Aria (627: eight palettes). Single,
+    all moves: plain during nine - Sparkle Aria, the Max Moves 868-873 and the three moves after them in that
+    battle (874-876); Max Drum Solo and Max Hydrosnipe ask for more palettes than there are at all.
+  * a Hyper Potion from the Bag (single, double), a Pokemon taken back and another sent out after the balls were
+    freed (the thrown ball the same picture as on the game of before, frame by frame), ball throws, the level-up
+    flash (it shows on a shiny's box now: the copy lands on slot 9), the Bag, shinyfade's test: nothing wrong.
+  * the one ROM's regression list (`_testrun/full/tests_ballfree.ps1`): the same as goldbox's, line for line.
+  * Not tested: Leftovers and the berries (the test could not make a battler hold one).
+- **OPEN, not fixed - the hack leaks sprite tiles.** Sheets of 32 tiles tagged 0x2345 and 0x2347 (the hack's:
+  {0x09D77F74, 0x400, 0x2345} at 0x09D77CFC, {0x09D77DFC, 0x400, 0x2347} at 0x09D77D04; its sprite's callback
+  0x09D605E1) are loaded again and again during a battle and never freed: eleven to thirteen of them after ten
+  turns of a double battle with the save's party, 6 to 18 of the 1,024 sprite tiles left. Then a move's sheet
+  does not fit and its sprites show whatever is at tile 0 - Celebrate's confetti (Flatter's, 12 tiles) drew
+  pieces of the healthbox in the test's ten-move battle on 2 of 4 runs with ballfree and 0 of 8 without (the old
+  game had 18 tiles left at that point, enough by a few), and the "cream blocks" for Fire Punch's flames seen on
+  both builds are the same thing. What loads those sheets was not looked for (once a turn or so: the move menu?).
+- OPEN: Flatter (260) stops the game at "used Flatter!" in a double battle, on the game of before too (not in a
+  single one). Beat Up (251) stalled the single-battle run of the test; not looked at.
+- In the chain after `goldbox`, before `zhtext` (45 patches; the three copies of `rebuild_chain.py`). The same
+  two bytes in the chain and on top (compared: adcc2707... both ways; the main game alone and the Gen 9 base
+  27b6fa53...). Installed 2026-10-13: the working ROM, `rom/`, `roms/test-gen9` and "(my placements 19)"; backups
+  "(before ballfree 2026-10-13)" and "Gen 9 test (the base of 2026-10-13, before ballfree)". In no release.
+
+## THE MOVE MENU ATE THE SPRITE TILES — 2026-10-13 — `patches/sheetonce/`
+- Found while testing goldbox and ballfree: in a long battle a move's sprites came out as blocks (Fire Punch's
+  flames, Celebrate's confetti). The user: "yeah" (fix it).
+- **The bug** (the original hack's; its own untouched ROM does the same with the same save). The move menu shows a
+  small sprite beside the player's healthbox - the Mega Evolution icon (at 130,90; callback 0x09D605E1; palette
+  tag 0x2345). Each time the menu opens, the hack's routine at 0x09D6077C destroys that sprite and makes it again:
+  DestroySprite (0x080070E9), LoadSpritePalette of {0x09D77CCC.., 0x2345} (0x09D77D1C), LoadCompressedSpriteSheet
+  (0x08034531) of one of four 32-tile sheets at 0x09D77CF4 (tags 0x2346, 0x2345, 0x2347, 0x2348: which one goes by
+  the battler and its kind of change), CreateSprite of the template that goes with it (0x09D89470 + 0x18 * n).
+  Nothing frees the sheet, and LoadSpriteSheet (0x080084F8) does not look whether its tag is loaded: every
+  opening took 32 more of the 1,024 sprite tiles. Measured (`_testrun/shinybox2/leak.lua`: a breakpoint on
+  LoadSpriteSheet and on FreeSpriteTilesByTag, the free bits of sSpriteTileAllocBitmap 0x02021B3C): a single
+  battle 543 free at the first menu, 287 after the menu was opened and shut eight times; a double battle 430,
+  then 64 fewer every turn (two menus), 110 after five turns. No call of FreeSpriteTilesByTag for those tags at
+  all. When a move's sheet no longer fits, LoadSpriteSheet returns 0, the animation's sprites get tile start
+  0xFFFF and are drawn from tile 0 on: the first healthbox's tiles, in the animation's palette.
+- **The fix**: the routine calls through a pool word (0x09D60848, loaded by the one instruction at 0x09D607F8);
+  it points at load_once (sheetonce.s, 48 bytes at 0x08FEE100), which asks GetSpriteTileStartByTag (0x08008621)
+  first and calls LoadCompressedSpriteSheet only if the tag is not loaded. Each tag has one picture (the patcher
+  checks: four tags, four pictures), so the sheet that is there is the right one. The sheets go with everything
+  else when the battle screen is torn down.
+- Tested (hidden): the menu opened and shut eight times in a single battle - 539 tiles free every time, the
+  menu's picture the same at the first and the eighth opening, pixel for pixel; ten turns of a double battle -
+  398 free after turn 1 (the second battler's icon), 398 after turn 10; the ten-move battle in which Celebrate's
+  confetti broke - three runs, its sheet loaded each time (350 tiles free), nothing drawn from another sprite's
+  tiles; the 39 heal and drain moves in a double battle with every battler shiny - gold on all 238,740 frames;
+  Gen 9's battle list (`moves.ps1`, the move menu in every case) - the same 116 lines as before.
+  Not run on this build: the every-move runs and the whole regression list (`_testrun/full/tests_sheetonce.ps1`
+  is ready).
+- Space, as the user asks: 0x08FEE100..0x08FEE140 is 0xFF in the game before and in the hack's own ROM, inside the
+  blank run 0x08FED3C8..0x08FEF600 (3.4 KB of blank before it, goldbox 0x2D0 after it); no word of the ROM at any
+  byte offset reads as an address in it; read watchpoints on it while the game before was played (twelve moves in
+  a double battle, the menus): 0 reads. The only other change is the hack's pool word.
+- In the chain after `ballfree`, before `zhtext` (46 patches; the three copies of `rebuild_chain.py`). The same
+  bytes in the chain and on top (2db23aa2... both ways; the Gen 9 base a8bd70c0...). Installed 2026-10-13: the
+  working ROM, `rom/`, `roms/test-gen9` and "(my placements 20)"; backups "(before sheetonce 2026-10-13)" and
+  "Gen 9 test (the base of 2026-10-13, before sheetonce)". In no release.
+- Still open: Flatter (260) stops the game at "used Flatter!" in a double battle (the game of before too).
+
+## THE REST OF GEN 9 (A TEST BUILD) — 2026-10-14 — `patches/gen9rest/`
+- Asked for: "can we fit whole Gen 9?", then "spread of Hoenn", "u decide what best for me with safe route",
+  "don't patch to the current yet, this will be like a test". Built on top of the working ROM (2db23aa2, after
+  gen9 and paldea), NOT in the chain: `roms/test-gen9full/Hyper Emerald - Whole Gen 9 test 1.gba` (7f4a9f2b...).
+  `python -I gen9rest_patch.py <working ROM> <out> <Crest_v1.0.F.gba>`; `check_gen9rest.py before after` audits
+  every changed byte (0 unexpected on test 1).
+- The safe route as chosen: no new battle-engine code. Moves are copies of moves the game has (template rows);
+  abilities are aliases (gen9's list, made longer); evolution methods the game lacks are levels or items.
+- **Species tables 1,280 -> 1,408** (`GROW_AT` 0x09AC0000): speciesx's 23 tables moved again by the same rules
+  (367 words + 4 field words + the 9 count sites, now 0xB0<<3 / 0x57F / 0x580). Slots 1238-1326: 85 species and
+  4 forms (Paldean Wooper 1323, Paldean Tauros 1324-1326, sharing numbers 194 / 128). Data 0x09B00000..0x09C286E8.
+  The ability table 0x097A0000 grows in place (zeros to 0x09800000).
+- **Moves 948-985** (`NEW_MOVES`): row = template's 12 bytes with the official type/power/acc/PP/category, then
+  overrides. Row bytes: effect, power, type, acc, PP, chance, target (0 one, 8 both foes, 32 all others),
+  priority, flags (0x01 contact, 0x02 Protect, 0x10, 0x20, 0x40 high crit), stat (byte 9: 16+n +1, 32+n +2,
+  144+n -1, 160+n -2; n 1 Atk 2 Def 3 Spe 4 SpA 5 SpD; effect 4 = the user, 5 = the target), category, an
+  effect argument (recoil 1/n for effect 19, the charge text for 71...). Some effects are keyed by MOVE NUMBER
+  in the engine and do not copy: Retaliate, Payback, Storm Throw, Frost Breath (effect 0). gen9's description,
+  Z-power and Max-power tables are found by content. All 38 used in battle (`test_moves.lua`; Mew does not obey
+  a givemon'd copy - not from the event; use Snorlax).
+- **Abilities**: aliases 256k + base (k from 1, the first blank name), the base's text; gen9's alias list
+  (0 terminated, one literal in gen9.s) copied longer. Run Away has 5 free ids, Illuminate 5.
+- **Items 770-775** from Thunder Stone's row (use) / Razor Claw's (held), hold effect cleared; Crest's pictures by
+  Crest's spelling (`AuspciousArmr`, `UnrmkblTeacup`, `Leader'sCrest`; Crest has no Metal Alloy: Metal Coat's
+  picture). Some Crest item palettes hold fewer than 16 colours: padded. Sold: the Lilycove clerk's list
+  (pokemart at 0x08F55BF8 -> 0x09865D20, 19 items, also on map 12/29) copied longer. The stone shops are
+  post-game (Steven's Island 35/37, Veilstone 37/30).
+- **Evolution methods of this game** (its table, 8-byte rows): 4 level, 7 item used, 16 level up knowing a
+  move, 18/19 level by day/night, 20/21 level up holding an item day/night, 22/23 by gender. The hack's own
+  GetEvolutionTargetSpecies is 0x09F0534C (0x0806D098 jumps there; it reads the method as a byte).
+  Test lesson: `test_gen9.lua`'s evolve mode sets the experience by the Slow group's formula: for any other
+  growth group the Pokemon is already past the level and the game never calls the evolution check
+  (`test_evolve.lua` uses the species' own group).
+- **The Pokedex past 960** (dexext.s):
+  * Flags: the hack's GetSetPokedexFlag 0x09257950 (vanilla callers reach it through 0x080C0664) gets an 8-byte
+    jump to dex_flag: below 960 exactly the old routine (mask table 0x0832A328, 4 bytes apart); 960+ in the save
+    stream's free margin, EXT 0x0203DA00: marker "DEX9" (0x39584544), 32 bytes seen, 32 caught (960-1215). No
+    marker = nothing seen; the first set clears the 64 bytes and writes the marker (old saves, save states).
+    ClearPokedexFlags' jump word 0x08084394 -> dex_clear (the hack's 0x092579D9, then the marker off).
+    The only direct readers of +0x560/+0x5D8 besides the routine are vanilla BAG copies (0x08076ECC link/record,
+    0x081ADC70 the Battle Pyramid's bag: it zeroes and restores the seen array there - the hack's own quirk).
+  * Limits: GetNationalPokedexCount 0x080C07F4 (literal 0x3BF at 0x080C080C -> 1024); the hack's list buffer
+    (Alloc 0x8FC at pool 0x09257914 -> 0xA20; blank fill 0x182..0x3C1 at 0x0925791C -> 0x409); eleven
+    `movs rX,#0xF0; lsls rX,rX,#2` (960) in 0x09257B96..0x09258168 -> `#0x81, #3` (1032).
+  * Entries 0x09250000 (960 x 32, code right behind) copied to 1,040 entries; 8 code literals repointed.
+  * Order tables (pool 0x09257FA0 height 0x09258580, FA4 name 0x09259480, FA8 weight 0x09258D00; 960 u16 each,
+    with zeros and junk, and none of 906-959): rebuilt with 1..1025, old order kept, new ones inserted by key.
+  * Four digits: CreateMonDexNum's digits 0x080BD194..0x080BD1CC -> dex_digits (from 1000: "1000" in place of
+    "No"+3); ConvertIntToDecimalStringN(…, 3) for the dex number at 0x080C025E (Pokedex page) and 0x081C2662
+    (summary) -> two 16-byte jumps in the dead body of the game's old flag routine (0x080C066C, 0x080C067C) ->
+    conv_dexnum (4 digits from 1000) / conv_dexnum_sum (also empties the summary's "No" 0x02021CC4 - the box
+    has no room for "No1000"). Words in sound data point at 0x080C0700-04 by chance (not used).
+- Tested (`_testrun/gen9rest`, the user's save): battle, catch (number 1000 set in EXT), summary, the Pokedex
+  list and all 85 pages, level and move evolutions, all 38 moves, save + fresh boot (EXT and a new species kept,
+  906-940 unchanged), the bag pictures. Not yet: walking to the wild spots, the shop on screen, item evolutions
+  in game, New Game, DexNav, double battles.
+- **Test 2 (2026-10-15), after the user: "bruh u have not tested shit? ... buy new item evolution at the clerk lily
+  and then game keeps restart when buying".** Three faults, none caught by test 1 (it never bought or used one):
+  * **The hack's shop guard.** BuyMenuTryMakePurchase's AddBagItem call goes through 0x080E0F00 -> 0x096FFF00
+    (the hack's own; speciesx's region stops just before it): it checks the item bought AND every id in the list
+    menu (8-byte rows from [task2 data], until an id >= 800) against a bitmap - byte 0x09E0FE5F - (item >> 3),
+    bit item & 7 (check 0x096FFF64, one literal at 0x096FFF88; 441 of 800 allowed: no Master Ball, Rare Candy,
+    Mega Stones, key items...) - that the name shown is the item's, and that sShopData->totalCost (at the list
+    buffer - 0xC0: it assumes ShopData's heap block lies just before the list) >= 50 * quantity; any failure
+    jumps to 0 (the only `movs r0,#0; bx r0` in the ROM) = a reset. Fix: the bits of 770-775 (byte
+    0x09E0FDFF -> 0xFC). Test harness lesson: opening the mart with a bare `pokemart` script puts the heap
+    elsewhere and trips the totalCost check even on the untouched ROM - test through the real clerk
+    (`test_martbuy.lua NPC=13,19,7,4 FACE=down`: Lilycove Dept. Store 13/19 or 12/29, object 4 at (7,6)).
+  * **Items past 178 cannot be used on a Pokemon.** PokemonUseItemEffects (0x0806BD28, vanilla) does
+    `if (item - 13 > 0xA5) return TRUE` before gItemEffectTable (0x0831E58C; words at 0x08063FDC, 0x0806BE90,
+    0x0806CE04, 0x0806D010, 0x081B6304/6B44/7D48). The hack's own use-evolution items are all <= 178. evoitems.s:
+    8-byte jump at 0x0806BE70 (r4 = item - 13, item at [sp,#0xC], r1 free; no branch lands in 0x0806BE72..7F),
+    the game's lookup for 13-178, the Thunder Stone's effect (0x0831E4FC: 00 00 00 00 80 00) for 770-774,
+    else back to "no effect" (0x0806BEF1). Held-item (20/21) and known-move (16) evolutions need nothing.
+  * **Dipplin's growth group**: PokeAPI gives Slow; Applin and Hydrapple Erratic. On evolving the game works the
+    level out again from the experience (Applin 30 -> Dipplin 31). GROWTH_FIX in gen9rest_data; the patcher
+    now asserts that every evolution pair shares a group.
+  * Tested: buying at the real clerk (King's Rock and 770-775, five each); every use-item from the Bag
+    (`test_useitem.lua`, the menus as a player goes); Bisharp + Leader's Crest, Dipplin + Dragon Cheer,
+    Girafarig, Dunsparce (`test_evolve.lua` HELD= KNOWS=; it computes the experience by the species' group).
+  * Test 2: `roms/test-gen9full/Hyper Emerald - Whole Gen 9 test 2.gba` (0f5a510e...) and "(DexNav open)"
+    (37cca4c2..., `dexnav_open_test.py`, made by another session for the test 1 build).
+
+## THE DEXNAV BAR'S ICON IN ITS OWN COLOURS — 2026-10-15 — `patches/iconpalfix/`
+- Reported on the whole Gen 9 test: "dexnav scan, sometimes mostly the pokemon img color is kinda inverted
+  especially on gen9". The fault is the main game's (not Gen 9's). The user: "OFC" (put it in the game). In the
+  chain after `sheetonce`, before `zhtext` (47 patches; the three copies of `rebuild_chain.py`); the chain differs
+  from 2db23aa2... in the one byte 0x080D2F35 (d9 -> e0). Installed 2026-10-15: the working ROM, `rom/` and
+  "(my placements 21)" are 40685de4..., `roms/test-gen9` 356a8bb6...; backups "(before iconpalfix 2026-10-15)" and
+  "Gen 9 test (the base of 2026-10-15, before iconpalfix)". Checked on the user's own save (placements 20's):
+  Route 102, Rookidee (icon palette 2) in the bar's slot tagged 0xDAC1 before, 0xDAC2 after; Grookey and Ralts
+  (palette 1) the same both ways.
+- The search bar (dexnavchain: litE_loadiconpal, the word at 0x08FDF034 - LoadMonIconPalette's only user in the
+  ROM) loads its icon's palette with LoadMonIconPalette (0x080D2F28), which still clamps `species > 412` to 260
+  (INVALID_ICON_SPECIES, icon palette 1); CreateMonIcon and FreeMonIconPalette (0x080D2F68) read the real species
+  (the hack removed their clamps). So for any species above 412 with icon palette 0 or 2, the bar loaded palette 1
+  (tag 0xDAC1) and the icon - asking for its own tag, not loaded - drew with that slot; and the palette was never
+  freed. Measured (`test_iconpalfix.lua`, palette slots and tags dumped with the bar up, Route 102): Nymble
+  (palette 0) in slot 15 tagged DAC1; after the fix DAC0, Grookey DAC1, Rookidee DAC2.
+- Fix: 0x080D2F34 `bls` -> `b` (01d9 -> 01e0). The patcher asserts the routine and that its palette-id literal
+  (0x080D2F60) is the header's 0x13C table.
+- Icon palette tags in this hack: 0xDAC0 + id (6 loaded by LoadMonIconPalettes, species use 0-2); the three
+  palettes equal Crest's 0-2 (checked), so the Gen 9 icons' own colours were right everywhere else.
+- Test GOTCHA: the field's orange cast on Route 102 late in a session is the hack's evening tint (the same on the
+  untouched ROM at the same moment): game time = RTC + the save's offset, not the PC clock.
+
+- **gen9rest test 3 (2026-10-15)** = test 2 + iconpalfix (`roms/test-gen9full/... test 3.gba` 28ffd40f...,
+  "(DexNav open)" c143ab36...). Tested at the user's word ("test for me"):
+  * The wild, 45/45 (`wild_cases.py` reads each placement's map, slot, rod, levels and tiles of the right
+    behaviour; `test_wild.lua` warps onto one, callnatives SweetScentWildEncounter 0x080B5579 or
+    FishingWildEncounter 0x080B5735 (hooked by the hack at its start; rod in r0, set by a breakpoint), and sets the
+    slot the game's own picker returns: a breakpoint on ChooseWildMonIndex_Land / _WaterRock / _Fishing (0x080B4AC8 /
+    0x080B4B84 / 0x080B4BD8) learns its caller's return address (the hack's TryGenerateWildMon 0x09D454FA; its
+    fishing 0x09F060CA) and overwrites r0 there. Results in `wild_results.txt`.
+  * Night evolutions: the hack's GetEvolutionTargetSpecies method 19 = hour 18..5 by 0x09F0527C (RtcCalcLocalTime,
+    then gLocalTime +2 = 0x03005CFA); `test_evolve.lua HOUR=` writes the hour after it is computed.
+  * Selling (`test_martsell.lua`): money SaveBlock1 +0x490 xor SaveBlock2 +0xAC; no guard on selling.
+  * New Game (`test_newgame.lua`, no .sav): dex_clear ran once, flags empty, marker 0; a wild Fidough sets 961 +
+    the marker.
+  * The normal DexNav (`test_dexnav.lua`): shadows for unseen, registration refused, then seen -> registered ->
+    the patch (state +28/+29) walked into under a Repel (var 0x4021; the patch's encounter passes Repel) -> the
+    species. Random walking meets ordinary encounters first (ORAS rules), which is not a fault.
+  * Doubles (`test_gen9rest_doubles.lua`, the double mode plus a party-screen step): 12 pairs, no freeze; the
+    harness cannot pick a second replacement when both of ours faint.
+
+## SIDE QUESTS RECHECKED — 2026-10-15 — `patches/sidefix/`, `patches/questlog/`
+
+The user: "recheck the side quests in journey, such as Ash's challenge and the note's sender, how does it work? and
+is it actually correct?", then "what about Galar gift?" and "the Lilycove Hall contest pass? the receptionist takes
+you to the contest right away". Every Side Content row's flag was checked against the scripts that set it (all are
+set where the row says), then the rows' conditions read script by script; the doubtful ones were played in mGBA.
+
+- **Ash's challenge (0x4302)**. Not Route 101 by itself: the rival in Birch's lab (1/4 object 2, `0x081FA3EC`; var
+  0x40D3 >= 2, then `0x098C0000`) needs 0x40C3, offers a battle, and on yes sets var 0x4060 = 0 and then var 0x409C =
+  10 (the usual rematch) unless 0x4302 is clear and 0x41D5 (Team Rainbow Rocket at the Mountain Top), 0x4300 (Hero
+  Greninja) and 0x4301 (Burning Soul) are all set: then Ash walks in, 0x409C = 11, `warp 0/16`. Route 101: ON_WARP_INTO
+  `0x0988C9D4` adds the rival (10) or rival, Ash and the passerby (11); ON_FRAME `0x081EBCD5` (0x4060 == 0) sets 0x4060 = 3
+  and runs the scene `0x0988CB19`: special 239 with 0x8015 = 1294 (Ash), 0x8005 = 1295 (the passerby), 0x8006 = the
+  rival (1296-1301 by starter and gender) - you and the rival against Ash and her. Won: the cartridge, the note,
+  0x4302. Lost: special 183 != 1, whiteout (`callasm 0x08FF2211`); talk to the rival again. Played: all three flags ->
+  Ash in the lab, Route 101, the scene up to the party choice; 0x4301 clear -> the rival's battle alone. 0x409C is left
+  at 11 after the scene (the rival's branch zeroes it, Ash's does not); harmless: the Hoenn League's hall zeroes it
+  (`0x09843446`), the Sinnoh League's hall too (`0x098753AE`), and so does a whiteout (`0x082718CC`), and nothing else
+  warps into Route 101.
+- **The note's sender (0x4303)**. 35/8 object 18 (local 19, 4,5, flag 0) in the top room of Steven's residence (reached
+  by 35/87, whose east end leads up). The map's ON_WARP_INTO `0x0983CCD4` removes local 19 while 0x4302 is clear.
+  Tested: absent before, present after, and not respawned by walking around the room. 0x4303 is set on the first word
+  (`0x0983D0BF`), the battle (trainer 1016) is a yes/no after it.
+- **The Burning Soul (0x4301)**. The sign (`0x0987B90B`, Magma Hideout 24/93 at 48,9) does nothing past its braille
+  unless 0x4297 (TM53 taken) and 0x864 are set, the party is exactly one Pokemon and special 329 (slot 0's species) is
+  157, Typhlosion. The flame creature's "will you leave?": Yes -> var 0x409C = 26, warp to Route 112, whose ON_FRAME
+  (`0x098520CF`) collapses the cave (0x42E2) on 26 or 27; No -> rounds 1-3 by the Crimson Apostle (`0x0987B9D4`,
+  temp var 0x4001, trainers 1155-1157), 27 at the end, then 0x4301. A lost round is an ordinary whiteout: 0x409C stays
+  0, the cave stays open, you start again (tested with a lone Typhlosion at 1 HP: map 36/9 after, 0x42E2 clear, Route
+  112 run). The row's "ONE try" was wrong.
+- **Magikarp (was 0x4118, now 0x4552)**. The gift is the "1230-year-old demon soul" in the same top room (object 10, 7,7,
+  `0x0988F037`: pay 1,996, trainer 1161, `givemon 129, 1`), not Route 210. Dawn on Route 210 (`0x0980977C`) sets 0x4118
+  after her first battle, and he checked 0x4118: Dawn first, no Magikarp ever. `sidefix` makes him check and set
+  0x4552, his trainer flag (id + 0x40C9 for ids above 0x357, NOTES *Lorelei*), so Dawn keeps 0x4118 to herself.
+  Older saves: one that got the Magikarp has 0x4552 (he was beaten); one that beat Dawn first can now get it.
+- **Blue's Galar team (0x40B9)**. 13/2 (Lilycove Museum 1F) object 10 (local 11, graphics 231, `0x0980B0DE`) stood at
+  3,0 inside the top wall with movement type 76 (invisible); 3,1 is wall too (collision 1, behaviour 0, no counter),
+  no script moves her and only the template points at her script: nobody could reach her (tested). `sidefix`: 3,2,
+  height 3, movement type 8. After a battle (trainer 858) her script runs nine `givemon` in a row - 1081-1089, Galarian
+  Mr. Mime, Stunfisk, Weezing and Corsola, Indeedee, Eiscue, Morpeko, Glastrier, Spectrier, all Lv15 - with no check of
+  room: past the party they go to the PC, past a full PC they are lost (as in the original). Not a choice of one.
+  Her lines: "Kalos" -> "Galar" (0x08B1443B; the Chinese said Kalos too), "Kotone" -> "Lyra" (0x0836E48E, the string
+  moves up two bytes; only its start is pointed at). Her defeat line's "Green:" stays: it is `zhtext`'s moved text
+  (0x09FD3184), and a shorter English there moves every later moved text; the hack's Blue / Green names are mixed
+  throughout anyway.
+- **Meltan (0x40CA)**: the Cove Lily Motel's Game Designer (13/1, `0x0981B76B`) after special 337 (`0x080C08E5`: Hoenn
+  Pokedex 1-200 all caught). **Kubfu or Rockruff**: 0x40F2 is set when Palmer (26/14, `0x09812E05`) is beaten, gift-less;
+  later talks give Rockruff for a 35+ singles streak (0x42DB, `0x09874AE1`), Kubfu with the Dark and Water Scrolls
+  for 35+ doubles (0x42DC, `0x09874B3A`), another Kubfu for all seven Gold Symbols (0x42DD, `0x09874BAB`). Three rows.
+- **Contest Pass (Key Items)**: the reception (13/4 object 0, `0x0821A554`) does `additem 266` only in a branch behind
+  special 93 (`0x0821A5CF`) that plain play does not take; talked to with no pass, it entered the contest (25/37) and no
+  pass appeared. The row is gone (`keyitems.py` says why).
+- **Putting the Quest Log text into the finished game on the Mac** (`patches/sidefix/questlog_on_top.py`). The
+  Quest Log's data is `questlog`'s, fourth in the chain, and the Mac cannot run `gen9`. The main chain built with the
+  old and the new texts differs in 32,925 bytes, all in the Quest Log's blocks (the PAGES counts at 0x08FEC615, PANES[3]
+  at 0x08FED368, Key Items 0x09F9A000, Side Content 0x09F9C000, the panel block 0x09FA0000), and the finished game holds
+  the old build's bytes in every one of them. GOTCHA: `paldea` (journal_az.py) copied the Journal's and the Legends'
+  panel rows into its own block (PANES[0] = 0x09FE2580, PANES[1] = 0x09FE3E28) with pointers to strings in the panel
+  block, and those strings move when Key Items or Side Content grow or shrink. The tool re-points those 539 words by
+  the string they pointed at - what `paldea` writes when it copies the new table on a full rebuild - and refuses if
+  anything else of the game points into the block. Checked: 576 pointers of the two copies read the same strings
+  before and after; 34 screens of the Post-game chapter (Area Zero's rows included) and the Legends are pixel for
+  pixel the same as on the game before; the main chain with `sidefix` changes 33,188 bytes and the finished game the
+  same bytes with the same values, plus the 570 of the re-pointed words.
+- **Tests** (`patches/sidefix/test_sidefix.lua`, on copies of the user's save; the battles are skipped by setting
+  0x273, which makes the hack count a lost trainer battle as won, with the party cut to one Pokemon at 1 HP): `blue`
+  - she stands at 3,2, A from below, a battle, 0x40B9, 1081-1085 in the party; `soul_dawn` (0x4118 set) - the fee, a
+  battle, a Magikarp, 0x4552 set, 0x4118 untouched; `soul_done` - his last line only. Controls on the game before:
+  Blue unreachable, no Magikarp. Quest Log screens of the changed rows and their A pages; Side Content 17/45 and Key
+  Items 38/54 on the user's save. `tools/text_overflow.py`: the same report before and after.
+- **Installed (Mac)**: the working ROM and `rom/` are 370503cf84100dc0aa44a8414dfc35bcf445911a (from `rom/`'s
+  40685de4...; the main game alone 048790b490633194a8314fd9f479a5ed63fb1ba0). Backup "(before side quest fixes
+  2026-10-15)" = 36c0f986..., what the Mac's working ROM was. The Windows PC: `sidefix` after `iconpalfix` in
+  `rebuild_chain.py`.
+- **The full rebuild, on the Mac** (the user brought the Crest ROM the same day: `rom/Crest_v1.0.F.gba`, sha1
+  e892062a..., git-ignored). From the v1.4 archive: the main chain (48 patches with `sidefix`), `speciesx`, `gen9`
+  (`python -I`, the Crest ROM), `paldea` (`python -I`, `rom/placements.txt`, `rom/ground.txt`). Without the fixes:
+  fee5c5cf... / 356a8bb6... (the Gen 9 base, as on the Windows PC) / 40685de4..., the Windows PC's game. With them:
+  c877c78b... / c919d3ba... / **370503cf...**, the game made with `questlog_on_top.py`, byte for byte. `gen9rest` on
+  the game without the fixes gives 28ffd40f... (Whole Gen 9 test 3) and `dexnav_open_test.py` c143ab36..., as on
+  the Windows PC; on the fixed game f71d606c... and e6d75ed6..., "Whole Gen 9 test 4" in
+  `rom/unreleased/whole-gen9-test/` (its `.sav` a copy of test 3's). The fixes change the same 33,758 bytes with the
+  same values in the game and in the Gen 9 test.
+- **Whole Gen 9 test 4, tested on the Mac** (the user: "can u full test especially gen9 related"). The tests of
+  `patches/gen9rest` and `patches/sidefix`, run on test 4 and on test 3 as the control, 600 runs, with
+  `tests/gen9mac/` (`gen_jobs.py` makes the list, `runner.py` runs twelve at a time in the headless mGBA):
+  * wild 45/45 (`wild_results.txt`'s placements) and Area Zero's three tables (Paradox Pokemon, Lv 63-67); a battle
+    with each of the 89 new slots (seeded: the two builds log the same); catch x6, summary x4, the Pokedex 906-1025,
+    a TM screen; 39 evolutions by level, move and held item; Greavard at every hour (evolves 18:00-5:59, not
+    6:00-17:59); 8 item evolutions; the 38 new moves (none hangs); buying 5 of each new item at the Lilycove clerk
+    (the right money, no reset); selling two; New Game (empty Pokedex, a Fidough sets 961 and the marker); the
+    DexNav (unseen refused, Fidough registered once seen, the search brings it); 12 double battles at Lv 100; save +
+    a fresh boot (the 960+ flags and the new species in the PC kept); sidefix's three cases.
+  * Everything passes on test 4, and test 3 gives the same except sidefix's cases (the old behaviour) and what the
+    power-on random seed decides (IVs, levels, abilities).
+  * Harness lessons (Mac): the headless mGBA does not call Lua breakpoints, so `test_wild.lua`'s slot is forced by
+    writing `movs r0, #slot; bx lr` over the game's slot picker in that run's copy of the ROM (the test's VECTOR /
+    GUARD / dex_clear lines never appear there); `test_martbuy_count.lua` logs the money and the Bag instead. New
+    Game must run with no `.sav` (else A is Continue). `test_dexnav.lua SEE=` is a species (Route 102 row 2 column 1
+    is Fidough). Species 274 is Gigantamax Duraludon, 1186 the one that evolves. Greavard's night: SaveBlock2
+    +0x9A (the clock offset's hours). Doubles at Lv 60 stop at the party screen when both of ours faint (the
+    script's limit, as on the Windows PC); at Lv 100 all 12 run through.
+- **The owned-Pokemon pass** (the user: "test all of this, especially owned, and also beaware of visual glitches"):
+  `tests/gen9mac/gen_jobs_owned.py` + four new tests, on test 4 and test 3, 647 runs, ~1,700 screenshots looked at.
+  * Breeding (`test_breed.lua`): each of the 89 new slots with Ditto in the Day Care (SB1 + 0x3030; the second
+    parent's steps set to 0xFE before each step, so every step is the game's own roll), the Day-Care Man's script
+    (0x08291C18; flag 0x433E set first, else his first talk is the Oval Charm), the Egg hatched by walking. 89/89:
+    each Egg the line's first stage (Annihilape -> Mankey, Kingambit -> Pawniard, Hydrapple -> Applin, Archaludon
+    -> Duraludon 1186, Clodsire -> Paldean Wooper, each Paldean Tauros its own breed); Gimmighoul and Gholdengo
+    never get one (no-Eggs group, 40 rolls). The hatch scene draws every one right.
+  * Rare Candy from the Bag (`test_candy.lua`: the Items pocket rewritten so one Rare Candy is last): 40
+    evolutions by level, known move, held item, Greavard at 22:00 (evolves) and 12:00 (does not).
+  * Party, summary (3 pages) and PC screens of all 89 (`test_screens.lua`), and every one shiny: no glitch; every
+    shiny palette differs from the normal one (Gimmighoul, Gholdengo, the Tauros breeds only slightly - Crest's
+    palettes). GOTCHAs: the summary closes onto "Do what with this PKMN?" (B again); the PC opens on slot 1.
+  * Each one fighting (`test_fight2.lua`): MODE=own, its four Lv 100 moves chosen on the menu with the D-pad (writing
+    gBattleMons' moves does not stick: the menu keeps the old), both sides' HP held every frame; MODE=foe, it as
+    the wild one against our Blissey. 178 runs, no hang. Not faults: Roar / Circle Throw end a wild battle
+    (Fuecoco, Tarountula, Spidops: rerun from the next move), Beat Up hits once with one party Pokemon, Population
+    Bomb hits 2-5 (gen9rest's Bullet Seed copy; 2-4 counted), "Blissey's Volt Absorb" after Pawmo's Entrainment.
+    Jolteon and Pawmo's electric moves hit on test 4, test 3, the main game and v1.4.
+  * Everything the same on test 3. Not covered: the foe mode's shots mostly catch our Blissey's turn (its Splash
+    does not stick either), so the foes' own animations were seen less; the moves they used show in the PP logs.
+
+## WHOLE GEN 9 TEST 5: THE POKEDEX IN OFFICIAL ORDER, EGG MOVES — 2026-10-15 — `patches/gen9dex/`, `patches/gen9egg/`
+- Asked for: "for order of pokedex, reorder only gen9, don't touch the original rom since I don't wanna risk bugs also
+  beaware of area zero implementation as well", then an 8-point test list ("test this but don't mind about other
+  emulators"). Test build only: `gen9rest` -> `gen9dex` -> `gen9egg` (-> `gen9rest/dexnav_open_test.py` for the
+  twin). `rom/` and the main chain are not touched. Test 5: f71d606c (test 4) -> 33ee387f..., DexNav open 29fbf86d....
+- **gen9dex** (`gen9dex_patch.py`, `gen9dex.s`): the 120 Gen 9 Pokemon get their official numbers (gen9's 38 slots sat
+  at 906-940, gen9rest's 85 from 941). What holds a number: SpeciesToNationalPokedexNum's table (literal 0x0806D448;
+  Ogerpon's masks share 1017, Paldean Wooper / Tauros keep 194 / 128), gen9rest's 1,040-row entries table
+  (0x09C1EB64, rows 906-1025 permuted), the three order tables (height / name / weight, words 0x09257FA0/4/8:
+  numbers renamed; the name table's Gen 9 numbers re-sorted by the game's charset, case folded - gen9rest had used
+  Python's order, so "-" sorted before letters and Chi-Yu, Wo-Chien, Houndstone stood one off), and Area Zero's
+  Legends rows (literal 0x08FEB23C -> 0x09FE37E8, 100 rows; 7 renamed: 921->1001 ... 939->1024, still in order).
+  Nothing else stores a number (DexNav, summary, list, counts, Quest Log ask at run time).
+  The saves' marks: the hack's GetSetPokedexFlag (0x09257950, gen9rest's 8-byte jump) now jumps to dexmig_entry
+  (0x09C28900): when dexext's marker word (EXT 0x0203DA00) is not "DEXA" (0x41584544; gen9rest's marker word in its
+  code, 0x09C28710, was "DEX9" and is now DEXA), the old marks of 906-1032 (the area only with the old marker) are
+  read into a 32-byte stack bitmap, the new numbers' bits cleared (SB1 906-959 both arrays, the whole area), the
+  marker set, each mark written at map[old - 906] (u16 table 0x09C28800). One way: a migrated save shown in the main
+  game would put Gen 9 marks on the wrong Pokemon.
+  The page's number: PrintMonInfo (0x080C025E) prints "{NO}{CLEAR 1}" (0x085E8D4F, 5 bytes) then the number through
+  a 16-byte veneer at 0x080C066C whose word pointed at gen9rest's conv_dexnum (four digits from 1000); with the name
+  at x 132 the fourth digit touched it ("No1014Okidogi"). The word now points at page_num (0x09C28BC0): from 1000,
+  r0 -= 5 (the digits over the No mark), then conv_dexnum. The new-entry page after a catch is the same routine.
+- **gen9egg** (`gen9egg_patch.py`): only Frigibax had egg moves (gen9's); gen9rest added none. The table
+  (0x09D78128: species + 20000, moves, 0xFFFF; full, 408 bytes after it) is copied to 0x09C29000 with 41 lists
+  added (Scarlet/Violet's "egg", mapped with gen9rest's own move() rules: none left out); its three words
+  (GetEggMoves 0x080703F0, BuildEggMoveset 0x08070468, the DexNav's egg-move picker 0x08FDEAE0 - it scans to the
+  0xFFFF) repointed and GetEggMoves' bound (0x08070464) 2830 -> 3045. Longest list 12 (the buffer holds 32).
+- **Tests** (`tests/gen9mac/`, Mac headless mGBA, test 4 as the control):
+  * `test_pokedex.lua` (KEYS script; MARKER for test 4): list, five orders, 120 pages + area maps; per species the
+    page equals test 4's but for the number, the area maps all equal (two differ only in the blink phase). Waits
+    of 90 frames lose UP presses on the page (slide animation): 320+ is safe. `test_ql_legends.lua`: the 99
+    Legends rows on test 4 and test 5 with the same save, pixel-identical (the Quest Log must be registered to
+    SELECT: SB1+0x496 = 363, then test_ql_panes' ring keys). `test_catchdex.lua`: catches set the new number only
+    (B pressed at the action menu can run from the battle - outcome 4). `test_newgame_dex.lua`: New Game.
+    `test_dexmig.lua`: the three save kinds.
+  * `test_tm.lua`: the TM pocket is 0x0203D308 (130 slots); the Bag SHOWS it sorted by TM number (item 378 + n =
+    TMn, index n - 1; HMs 498-505 = 120-127), not in slot order - the first run picked the wrong TMs from row 62 on.
+    The routine is the hack's 0x08FD7C70 (bit n of the 16-byte row). 254/254, "Learned" read as not able.
+  * `test_relearn.lua`: CB2_InitLearnMove (0x081606A1) set as callback2 with 0x8004 = slot; sMoveRelearnerStruct
+    pointer 0x0203BC34, moves +0x12, count +0x110 (with Cancel; not vanilla's +0x114). This game's relearner lists
+    level-up moves only (Bulbasaur, Pichu, Mudkip: no egg moves).
+  * `test_breed.lua EGGMOVE=`: 42/42 on test 5, 1/42 (Frigibax) on test 4.
+  * `test_movetext.lua`: summary page and L panel for 938-985; 986/987 are empty ids (gen9rest adds 38, not 40: its
+    docstring said 40 - corrected). Comeuppance copies Metal Burst's priority -5 (the hack gives Counter, Mirror Coat
+    and Metal Burst -5).
+  * `test_switch.lua`: switch out and back in (the battle's party screen lists the one out first: DOWN both times).
+  * `test_ability.lua` / `test_healer.lua`: the 22 stand-ins against controls (ABIL=0 or the other ability slot;
+    SEED set before the Pokemon are made, PINRNG for damage). In battle a stand-in is its template's id (gen9's
+    alias pairs 0x09B00764 map 16-bit ids to the template), so battle messages name the template ("Oinkologne's
+    Mummy!"). GOTCHAS: HP written at the action menu is put back from the party a few frames later - write it 8
+    frames after; givemon may roll the hidden ability (Farigiraf with seed 999 got Sap Sipper); the hack's Sand
+    Force boosts Rock moves x1.3 with no sandstorm (Rocky Payload, and so the old holders too).
+  * `test_dexnavall.lua` + `gen_jobs_dexnav.py`: register with the D-pad on the DexNav's own cursor (the ui block
+    from the task's data[0..1]), then a breadth-first path over gBackupMapLayout (0x03005DC0) to the patch. 68/68
+    (45 placements, 23 Area Zero species) brought the registered species; no battle begun on a patch ever brought
+    another. Harness lessons: A on the Pokemon being hunted STOPS the search; Repel (var 0x4021) asks the first
+    non-Egg party Pokemon's level - set every slot to 100; a patch can come up out of reach (Mirage Tower: behind
+    a 0x60 tile) - search again; warping onto water makes the player surf.
+  * v1.8 saves (`test_oldsave.lua`): v1.8 rebuilt exactly - a0125f7's patches up to `namingkb`, then `zhtext`, the
+    release hpatch's runs laid over it (they bring `fusionfix`, which v1.8 has) and the 169 bytes that later
+    textfix / zhtext edits had changed put back from the v1.4 archive: sha1 ade383ba = CHECKSUMS.txt. v1.8 does not
+    have `dexnavabil`, `shinyfade`, `evivpal`, `mistmsg`, `objpal`, `roamfix` or `sprframe`, though that commit's
+    README lists the last three before `zhtext`. Three older saves of the user's saved in it; each dumped on v1.8
+    and on test 5: equal but for the DEXA marker; saved in test 5 and loaded again: equal.
+  * `test_soak.lua`: random input weighted by where the game is (field: mostly walking; battle: mostly A; menus:
+    A / B / D-pad), a warp every 9,000 frames through the 43 DexNav spots, a hash of OAM + palettes + BG scroll
+    every 60 frames (unchanged 2,400 frames under input = suspected, 9,000 = frozen) and the pc checked every frame.
+    16 runs x 120 game minutes (test3.sav x6, PARTY9 x4, the three v1.8 saves x2): 4,568 battles, 634 warps, 67
+    different callbacks, no suspected freeze, no crash. 120 minutes take ~140 s headless.
+
+## PLAYING THE STORY BY HAND, FROM NEW GAME — 2026-10-15 — `tests/gen9mac/test_play.lua`, `tests/gen9mac/play/`
+- Asked for: "can u start new game and play each flag script in order to test everything for me? imitate by hand???
+  the release will be whole gen9+ area zero". Stopped by the user the same day ("stop the testing for now I think
+  it is ready") after the first two Journal steps and most of the third, on Whole Gen 9 test 5.
+- Played from New Game through the game's own scripts: the truck, the clock (the hack's difficulty choice runs in
+  it), the TV, the rival's house, Birch and the starter (the bag's first ball is Charmander; Pikachu-LG comes as a
+  second Pokemon), the lab (0x0860), the rival on Route 103 and the Pokedex (0x0861), Norman and Wally's catch
+  (var 4057 0 -> 2 -> 3, 4085), Route 102 round the Cut tree through the Timeless Woods (34.67), Scott, Route 104,
+  Petalburg Woods' Aqua grunt, Rustboro (a battle by the gym door the hack added: flag 0x273 set for it) and
+  Roxanne's gym - Roxanne (Shuckle Lv 18 and species 1139) not beaten yet. ~90 wild and trainer battles, Gen 9 in
+  the early grass (Lechonk, Squawkabilly, Tarountula). Every scene set its flags and vars; in-game saves load.
+  No fault of the game found; everything that went wrong was the driver's, fixed as it was found.
+- Worth knowing (not faults): before Cut, the only way west from Route 102's east half is the Timeless Woods (a Cut
+  tree, gfx 82, at 11,7); Petalburg Woods has Cut trees too (the way north is the corridor of the grunt scene);
+  Roxanne's team is far stronger than vanilla's for a Fire starter.
+- The driver (its header lists the actions): GOTCHAS it hit - door tiles have collision bits (the goal tile skips
+  collision and elevation); ledges are one-way jumps; elevation: 0 and 15 go with anything, else equal; people load
+  only near the camera (walk toward the map's template position); the truck's exit is an arrow warp (hold the
+  direction ~24 frames); the save menu's text prints letter by letter and a second save asks "overwrite?" (A while
+  the field is held, stop when free); the Start menu's cursor is 0x0203760E (count +1, entries from 0x02037610, Save
+  = 5); the battle action menu keeps its cursor (UP, LEFT before FIGHT; check HandleInputChooseMove 0x08057BFD);
+  B in the evolution scene stops it; a screen inside a battle is not the end of the battle; HP written at the
+  action menu is put back; the relearner, party menu and other screens: the SCREENS table. Speed: the map is read
+  once per map (emu:readRange) and behaviours cached per layout.
+
+## THE QUEST LOG'S GEN 9 ROWS, AND THE WHOLE OF GEN 9 IN THE GAME — 2026-10-15 — `patches/gen9journal/`
+- Asked for (one message): "pull from dev repo and two adjustments, 1. at the battle scene, at L to see move info,
+  change the name to like magnifier icon instead so it will be L magnifier cuz the text too long and cover some
+  pokemon sprite 2. update the journey logs to include gen9 in terms of legendary and side quests / then patch to my
+  current rom, including every fix and whole gen9". Their choices: Legends "The 20 Paradox" and "Kitakami ones as
+  locked"; Side Content "Area Zero extras".
+- **The game** is now the main chain (48 patches, `sidefix` included) + `speciesx` + `gen9` + `paldea` (the user's
+  placements) + `gen9rest` + `gen9dex` + `gen9egg` + `gen9journal`: sha1 ca71db7b... in the working ROM, `rom/` and
+  "(my placements 22)". Without `gen9journal` and today's two small changes it is exactly the Mac's Whole Gen 9
+  test 5: the difference of `54_gen9egg` to test 5 is the same 15,408 bytes in 12 runs as `51_paldea` to `rom/`'s
+  370503cf (the tag's picture, 429 bytes at 0x09FDC449; `paldea`'s script block one `setflag` longer from
+  0x09FC47B1; the 13 words that point into that block, among them the three wild headers at 0x08E19128).
+  `rebuild_chain.py` (all three copies) and `patches/paldea/rebuild.py` run the four steps after `paldea`;
+  `rebuild.py` gives the same bytes. The main game alone is bf8a9d28... (the tag).
+- **The tag** (`lmoveinfo/art.py`, `hud()`): the pill is 30 pixels wide (was 61) - the white L key and a 10x10
+  magnifying glass (white ring and handle, light-blue lens, a glint). Same sprite size (64x32), same tiles count,
+  nothing else in `lmoveinfo` changes. Holding L still shows the panel (a tap does not: it is shown while L is held).
+- **Nemona's rematch** (`paldea_patch.py`, `nemona_home`): `setflag 0x43E4` right after her `trainerbattle`. A
+  single battle's script goes on after the command only when it is won (a loss whites out), so the flag means
+  "rematch won". 0x43E4 was checked free as the others were (no set/clear/check bytes for it in the ROM, no map
+  object's flag, no aligned word, not a trainer flag; 0x43E3 has two chance `setflag` byte runs and is skipped).
+- **Legends.** `paldea` (journal_az) gives the chapter 100 rows (row 0 + 92 + Area Zero's 7) and `gen9dex` renames
+  the 7 to official numbers; `gen9journal` runs last, so every number it meets is the official one and nothing
+  after it renames rows. New table: row 0 (its texts with 119), the 92 as they are, the 27 Gen 9 rows sorted by
+  number (the 7 rows kept byte for byte, 20 new), then the 5 locked rows; PAGES[4] = {0, 125, 119, 1};
+  `legend_all`'s `cmp r4, #NLEG` (0x08FEB220) 119. Where texts: the twelve wild Paradox Pokemon from the ROM's own
+  wild tables (`paldea`'s three headers at 0x08E19128: past, future, icy cave - checked by their Titans' and the
+  Frigibax line's presence), levels 63-67 read there; Iron Bundle is in two (the future's grass and the icy cave);
+  the eight that stand on the map from `story.LEGENDS` (what `paldea` placed them by). Hints name no Pokemon.
+- **Locked: status 10.** A Legends row whose second halfword is 1 is Locked. `row_status`'s legend branch
+  (rs_legend) is reached by an 8-byte trampoline at 0x08FEB0F0 (its `lsls r1,#4; ldr r2,rs_legends; ldrh r4,[r2,r1];
+  adds r0,r4,#0`; 4-aligned; r3 is free there): `lk_hook` does the same through the literal, then for a marked row
+  `movs r0,#10; pop {r4, pc}` (row_status pushed {r4, lr}), else back to 0x08FEB0F8. The four tables indexed by
+  status get an eleventh entry in copies: NAMEFG (literal 0x08FEA898) 5 = dim, TAGFG (0x08FEA89C) 5, TAGS
+  (0x08FEA8A0) "Locked", STSHOW (0x08FEB244) 1 = the title shows. Every other reader of a status was checked: the
+  panel draws a silhouette when the pane row's byte 1 is set (the locked rows set it, as "Gotta catch" does; status 9
+  never comes) and its "where" text for anything but 7; the detail (A) shows the where text; the header, the grid
+  and Gotta catch count status 1 only; ICONS and STCOLOR are no longer read by anything.
+- **Three digits.** u8dec (the Journal's, 0x08FE55DE, not 4-aligned) printed 0-99: 119 came out with 0xAC as its
+  tens digit. A 10-byte trampoline at its start with r2 (`ldr r2,[pc,#4]; bx r2; mov r8,r8; .word`: u8dec used r2
+  anyway, and r3 is left as it was for its callers) to `u8dec3`: hundreds, then the tens always once there were hundreds, then the
+  ones; below 100 the same bytes as before. Callers: the Journal (two), the Quest Log's header (four), grid (two)
+  and badge case. The number buffer (V+0xE0, scratch to V+0xF0) holds "119/119" + end.
+- **Side Content.** Ten rows after the 45, before the Badges (which share the table and start at its PAGES first
+  byte: 45 -> 55): the four logs (F_LOGS), Arven's sandwiches (0x43B5, and 0x43B6 as the second flag in marks bits
+  1-15), Nemona's rematch (0x43E4), a row per Sealed Vault stake (a row checks two flags at most: 0x43D8, 0x43D9,
+  0x43DA), Booster Energy (0x43DC + 0x43DD; its picture the item's icon). New SIDES (rs_sides 0x08FEB230, the one
+  word) and Side info-panel table (PANES+12), PAGES[6] {0,55,55,3}, PAGES[7] {55,8,8,3}.
+- **Space**: 0x09FE8000..0x09FEC0F4 (16,628 bytes) of 0x09FE8000..0x09FF0000. The hack's own ROM is 0xFF from
+  0x09F82519 to its end; `paldea`'s Journal block before it ends at 0x09FE4468 (15,256 blank bytes between) and
+  its JOURNAL_END is now 0x01FE8000, so it cannot grow into ours; after ours, 0xFF to `paldea`'s sprites at
+  0x09FF1000 (20,236 bytes). About 130 words in the ROM read as an address inside the 32 KB - all in pictures and
+  sound data (0x086C..., 0x0980...); none is a word of the ROM header or a literal that code loads
+  (`speciesx_patch.is_pointer`, which the patcher asserts). Not checked: a read watch of the area while playing
+  without the patch (2026-10-11's runs watched other areas).
+- **Tested** (`test_gen9journal.lua`, a steps file of `paldea/test_paldea.lua`, on a copy of "(my placements
+  21).sav"; three harness commands added: `dex9` - Pokedex marks for numbers 960+ in gen9rest's block once the
+  marker is "DEXA", `clear` too; `qcard` - the grid's cursor; `lmove` - FIGHT, L held, pictures): the first opening
+  moves the save's marks (gen9dex) and the grid reads Legends 68/119, Side Quests 25/55, Badges 8/8; the Gen 9 rows
+  Done / Seen / "???" with silhouette and hint as their marks say; the five Locked rows dim with a silhouette and
+  "Location: Kitakami"; every Legends row caught -> "Gotta catch 'em all!" Done, 119/119, the Locked rows not
+  needed; the ten Side rows and their details; Nemona's rematch in Station No. 3 (35/97): 0x43E4 clear before, set
+  after winning; a wild Iron Hands: the new tag, L held -> the panel, let go -> the tag. GOTCHA of the test: list
+  presses 8 frames apart got lost while a long list redrew (14 is safe).
+- On the user's save the three vault stakes read "To do" though Wo-Chien, Ting-Lu and Chi-Yu are caught: they were
+  caught at the Sealed Shrine of the tests up to 10, before the vault (test 15), so their stake flags were never set
+  and the stakes still stand in that game's vault. The rows are right about that game; pulling the stakes ticks them.
+- **Evolutions (2026-10-16).** The user, after the above: "evolution line?". `questlog` builds the Evolutions chapter
+  early in the chain (`evolutions.py` + `tools/romdata/forms.py`, 1,200 species, regions to Galar), so no Gen 9
+  family was in it - not even the Frigibax line of 11 October - and Primeape, Paldean Wooper, Bisharp, Applin and
+  Duraludon did not show their Gen 9 evolutions. `gen9journal` builds it again from the finished game with the same
+  code, its module constants pointed at this build's tables: EVOS / NATDEX / NSPECIES (forms.py and evolutions.py)
+  = gen9rest's copies (its layout from 0x09AC0000 in speciesx's table order, 1,408 rows; checked against the header
+  words 0x128 / 0x138 / 0x144 / 0x1BC, the National Dex literal and two evolution rows). Names: the Gen 9 slots
+  in full through `species_display.FORMS` (from gen9_data / gen9rest_data's keys; the ROM cuts to ten letters),
+  the six new items through `display_names.ITEMS_BY_ID`, moves moves.json lacks from the ROM's move-name table
+  (`evolutions.EXTRA_MOVES`, a new hook, empty in the main chain); a Paldea region (906-1025) in `REGIONS` (no
+  effect on the main chain: nothing there); Bisharp's two Leader's Crest rows (by day, by night) shown as one.
+  Written in place at 0x09F82600 (the old data 41,416 bytes, the new 44,920, of 0xDA00 up to the Legends' blob at
+  0x09F90000; the region's first word is the table every literal reaches it by); the row count (365 -> 400) in its
+  three literals 0x08FEBA68 / 0x08FEBC94 / 0x08FEBE10. Nothing outside the region points inside it (checked as
+  real pointers). The main chain's result is unchanged (bf8a9d28), and every page of the old 365 is the same line
+  for line except Mankey's, Wooper's, Pawniard's, Applin's and Duraludon's (each with its Gen 9 Pokemon); Girafarig,
+  Dunsparce and Tauros (its three Paldean forms) have pages now. Game: 65b5a7f6..., "(my placements 23)".
+  Tested (`test_gen9evolutions.lua`; harness command `evosel`: the list's cursor V+0xFC / top V+0xFE): the
+  changed and new pages from the user's save (unseen families are shadows) and with every Gen 9 number seen,
+  the header (268/400, then 301/400), the last row; `test_gen9journal.lua` again on the final ROM.
+
+## RELEASE v1.9 — 2026-10-16
+- Asked for: "push to release repo", then "Full v1.9 release" (Gen 9 and Area Zero had been cleared to go public
+  the same morning: "Yes, both public"). The game is the working ROM, sha1 65b5a7f6... (the chain from the v1.4
+  archive gives it byte for byte).
+- `release/hyper-emerald-en-qol.hpatch` (3,215,517 bytes, 9,046 runs) and `release/CHECKSUMS.txt`: applied to
+  `Hyper EMR LA v5.7 bugfix 2.gba` (f785bed9...) it gives 65b5a7f6.
+- Public commit: the dev working copy mirrored as for v1.8, but without `site/` and the built `docs/` (only the
+  hand-kept NOTES, DEXNAV-PROGRESS and showcase cross); the site's release switch made in the public checkout itself
+  (`RELEASED_VERSION` = '1.9', the v1.9 card's note, Install's callout and "+QoL1.8", two FAQ answers) and built
+  there: six pages change. The public `.gitignore` kept, with the one rule Area Zero's sprite sources need.
+- README: the Gen 9 and Area Zero rows, the v1.9 showcase GIF, the one-way save note, the Gen 9 credits (Pokémon
+  Crest, PokeAPI, pokeemerald-expansion).

@@ -17,7 +17,6 @@ export const RELEASES: Release[] = [
     date: '2026-10-16',
     summary:
       'The whole of Generation 9 and Area Zero, a Paldea area behind a black hole in Mossdeep City, with the Quest Log following both; and fixes for bugs of the original hack, from Hisui’s striped ground and roaming storms to battle graphics, text that ran off the box and side quests that could not be finished.',
-    note: 'Not released yet: this site already describes v1.9, but the patch file in the repository still builds v1.8 until v1.9 is published. A save opened in v1.9 cannot go back to v1.8.',
     changes: [
       ['Added', 'Every Gen 9 Pokémon: 127 new slots at their official Pokédex numbers, Sprigatito No. 906 to Pecharunt No. 1025, Paldean Wooper and the three Paldean Tauros included, each with its English Pokédex entry. The newer ones live in the wild all over Hoenn; none of the game’s own Pokémon were taken out to make room.'],
       ['Added', 'Gen 9 evolutions, older families’ too: Primeape → Annihilape, Girafarig → Farigiraf, Dunsparce → Dudunsparce, Bisharp → Kingambit, Applin → Dipplin → Hydrapple, Duraludon → Archaludon, Paldean Wooper → Clodsire. The six new evolution items are sold at the Lilycove Department Store, 4F. Gen 9 Pokémon that hatch from Eggs have their egg moves.'],

@@ -1,0 +1,33 @@
+-- After the ending the four of them live in the research stations: Penny in No. 1 (what the cameras see), Arven
+-- in No. 2 (his sandwiches heal), Nemona in No. 3 (a rematch), Jacq in No. 4. Before the ending only Penny is
+-- in one.
+STEPS = {
+  {"setup", fresh = true, set = {0x41D5, 0x43AC, 0x43AD, 0x43B1, 0x43B2}, stage = 2},
+  {"warp", 35, 93, 8, 6},
+  {"expect", "nobody_in_2_yet", on = {0x43D5}, gone = {1}},
+  {"warp", 35, 92, 8, 6},
+  {"expect", "penny_in_1", here = {1}},
+  {"setup", fresh = true, set = {0x41D5, 0x43AC, 0x43AD, 0x43B1, 0x43B2, 0x43B3, 0x43B4, 0x43B5, 0x43B6,
+                                 0x43B7, 0x43B8, 0x43B9, 0x43BA, 0x43BB, 0x43BC, 0x43BD, 0x43BE, 0x43C0, 0x43C1},
+   stage = 4},
+  {"warp", 35, 92, 8, 6},
+  {"expect", "penny_home", off = {0x43D5}, here = {1}},
+  {"walk", 8, 5, "on", "to_penny"}, {"face", "UP"}, {"shot", "penny"}, {"a"}, {"mash", "penny_home", 35092},
+  {"warp", 35, 93, 8, 6},
+  {"expect", "arven_home", here = {1}},
+  {"walk", 8, 5, "on", "to_arven"}, {"face", "UP"}, {"shot", "arven"}, {"a"}, {"mash", "arven_home", 35093},
+  {"warp", 35, 97, 8, 6},
+  {"expect", "nemona_home", here = {1}},
+  {"walk", 8, 5, "on", "to_nemona"}, {"face", "UP"}, {"shot", "nemona"}, {"a"}, {"fight", "nemona_rematch", 35097},
+  {"face", "UP"}, {"a"}, {"fight", "nemona_rematch2", 35097},
+  {"warp", 35, 98, 8, 6},
+  {"expect", "jacq_home", here = {1}},
+  {"walk", 8, 5, "on", "to_jacq"}, {"face", "UP"}, {"shot", "jacq"}, {"a"}, {"mash", "jacq_home", 35098},
+  {"warp", 0, 6, 66, 31},
+  {"expect", "mossdeep_after", map = 6, gone = {30, 32, 33, 34}, here = {31}},
+  {"shot", "mossdeep_after"},
+  {"warp", 34, 67, 20, 13},
+  {"expect", "woods_as_the_game_has_them", map = 34067, gone = {9, 10, 11, 12, 13}},
+  {"shot", "woods_after"},
+  {"finish"},
+}

@@ -25,7 +25,11 @@ callbacks:add("frame", function()
       return
     end
     bootF = 0
-    if f % 60 == 0 then tap(K.START) elseif f % 60 == 30 then tap(K.A) end
+    -- BOOT_QUIET_FIELD (set by a harness before this file): no keys once the field is up, for saves whose map
+    -- runs a script of its own on the first frame (a key landing on the frame it ends would open a menu)
+    if not (BOOT_QUIET_FIELD and cb2() == OVERWORLD) then
+      if f % 60 == 0 then tap(K.START) elseif f % 60 == 30 then tap(K.A) end
+    end
     if f > 6000 then w("boot failed cb2=" .. string.format("%08X", cb2())); done() end
     return
   end

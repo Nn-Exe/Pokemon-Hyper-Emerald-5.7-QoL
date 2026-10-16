@@ -1,0 +1,27 @@
+-- The story, part 1: Penny in Station 1 and its log, down into the past, Arven, Station 2's log, the Titan Great
+-- Tusk (two battles, the Sour Herba Mystica), Arven's sandwich: Koraidon on its feet.
+STEPS = {
+  {"setup", fresh = true, set = {0x41D5, 0x43AC}, stage = 2},
+  {"warp", 35, 89, 14, 14},
+  {"walk", 11, 20, "on", "to_s1"}, {"step", "UP", 1}, {"mash", "into_s1", 35092},
+  {"shot", "station1_penny"},
+  {"walk", 8, 5, "on", "to_penny"}, {"face", "UP"}, {"a"}, {"mash", "penny_first", 35092},
+  {"walk", 1, 4, "on", "recorder1"}, {"face", "UP"}, {"a"}, {"mash", "log1", 35092},
+  {"flags", 0x43B0, 0x43B1, 0x43B8, 0x43BE, 0x43C0, 0x43C2, 0x43C5},
+  {"walk", 9, 8, "on", "s1_exit"}, {"step", "DOWN", 1}, {"mash", "s1_out", 35089},
+  {"walk", 18, 26, "on", "wall_down"}, {"step", "UP", 1}, {"mash", "to_past", 35090},
+  {"shot", "past_arrive"},
+  {"walk", 37, 43, "act", "to_arven"}, {"face_to", 37, 43}, {"shot", "arven"}, {"a"}, {"mash", "arven_first", 35090},
+  {"walk", 39, 43, "on", "to_koraidon"}, {"face", "UP"}, {"shot", "koraidon"}, {"a"}, {"mash", "koraidon_weak", 35090},
+  {"walk", 22, 21, "on", "to_s2"}, {"step", "UP", 1}, {"mash", "into_s2", 35093},
+  {"expect", "nobody_lives_here_yet", gone = {1}},
+  {"walk", 1, 4, "on", "recorder2"}, {"face", "UP"}, {"a"}, {"mash", "log2", 35093},
+  {"walk", 9, 8, "on", "s2_exit"}, {"step", "DOWN", 1}, {"mash", "s2_out", 35090},
+  {"walk", 8, 35, "on", "to_titan"}, {"face", "UP"}, {"shot", "titan"}, {"a"}, {"fight", "titan_past", 35090},
+  {"flags", 0x43B3, 0x43D2},
+  {"shot", "den_after"},
+  {"walk", 37, 43, "act", "to_arven2"}, {"face_to", 37, 43}, {"a"}, {"fight", "sandwich", 35090},
+  {"flags", 0x43B5},
+  {"shot", "koraidon_up"},
+  {"finish"},
+}

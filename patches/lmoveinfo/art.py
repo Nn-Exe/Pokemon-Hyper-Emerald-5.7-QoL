@@ -33,10 +33,26 @@ def text(px, x, y, s, colour):
     return x
 
 
+# A magnifying glass, 10x10: 1 the white ring and handle, 2 the lens (light blue), 3 a glint (2026-10-15: the user,
+# "change the name to like magnifier icon instead so it will be L magnifier cuz the text too long and cover some
+# pokemon sprite" - the tag was "[L] Move Info", 61 px wide)
+MAGNIFIER = ["0011110000",
+             "0122221000",
+             "1232222100",
+             "1222222100",
+             "1222222100",
+             "1222222100",
+             "0122221100",
+             "0011111110",
+             "0000000111",
+             "0000000011"]
+
+
 def hud():
-    """64x32; the tag is rows 0-13: a dark pill, a white L key, "Move Info" in white."""
+    """64x32; the tag is rows 0-13: a dark pill, a white L key and a magnifying glass (the rest stays clear, so the
+    tag covers as little of the Pokemon behind it as it can)."""
     px = [[T] * 64 for _ in range(32)]
-    w = 61
+    w = 30
     for y in range(14):
         for x in range(w):
             corner = (x in (0, w - 1) and y in (0, 1, 12, 13)) or (x in (1, w - 2) and y in (0, 13))
@@ -50,7 +66,10 @@ def hud():
                 continue
             px[y][x] = WHITE
     text(px, 6, 3, "L", DKBLUE)
-    text(px, 16, 3, "Move Info", WHITE)
+    for y, row in enumerate(MAGNIFIER):             # the glass, right of the key
+        for x, c in enumerate(row):
+            if c != "0":
+                px[2 + y][16 + x] = {"1": WHITE, "2": BLUE, "3": WHITE}[c]
     return px
 
 

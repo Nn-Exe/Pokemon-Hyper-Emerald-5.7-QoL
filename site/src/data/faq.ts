@@ -17,7 +17,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'Is Gen 9 in the game?',
-        a: `In v1.9, yes (this site describes it ahead of its patch file): every Gen 9 Pokémon at its official Pokédex number, the newer ones wild all over Hoenn, and the Paradox Pokémon and legends in ${link('/guides/area-zero/', 'Area Zero')}, a Paldea area that opens in Mossdeep City after Team Rainbow Rocket. Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt cannot be met: they live in Kitakami, which the game does not have.`,
+        a: `Yes, since v1.9: every Gen 9 Pokémon at its official Pokédex number, the newer ones wild all over Hoenn, and the Paradox Pokémon and legends in ${link('/guides/area-zero/', 'Area Zero')}, a Paldea area that opens in Mossdeep City after Team Rainbow Rocket. Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt cannot be met: they live in Kitakami, which the game does not have.`,
       },
       {
         q: 'Is the hack complete?',
@@ -37,7 +37,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'How do I know which version I am on?',
-        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.8” followed by your difficulty with the patch file in the repository today. v1.9, which this site already describes, will read +QoL1.9.',
+        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.9” followed by your difficulty.',
       },
     ],
   },

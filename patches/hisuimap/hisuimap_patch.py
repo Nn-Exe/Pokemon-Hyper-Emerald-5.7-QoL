@@ -2,8 +2,11 @@
 usage: python hisuimap_patch.py <in.gba> <out.gba>
 
 Used anywhere in Hisui, the Sinnoh Map now shows a Hisui town map instead of saying there is no map: a
-marker on the area you are in, A on a red square flies you there with Mingyao's own Braviary script (the same
-one her menu runs), B leaves. Everywhere else it is the Sinnoh Map as before.
+marker on the area you are in, B leaves. Everywhere else it is the Sinnoh Map as before.
+2026-10-08: no flying from the Hisui map any more (HISUI_FLY). The user: "prohibit the use of flying Hisui, since it
+can skip several flags cuz the game bug, still open the map". Mingyao's blocks check nothing, so A on a red square
+took you anywhere in Hisui ahead of the story. The map still opens and names every square; A there does nothing,
+as on a Sinnoh route. Her own menu is the game's and is untouched.
 2026-09-30: on both maps a red box moves freely, a square at a time, as on the Hoenn map (it used to hop from
 place to place); the name box names the place the square belongs to, from a 30x20 grid per region worked out by
 grid.py; A flies from the box. The grids and the box sprite live at 0x08FF7800.
@@ -22,7 +25,8 @@ number instead of section (the patch checks nothing else uses 104). Its places a
     37/105 Firespit Island       Mingyao 0x0989AE5E      37/108 Temple of Sinnoh    on foot, no fly
 
 Each Mingyao block is `showmonpic Braviary; waitbuttonpress; hidemonpic; warp 37.<map> 1` with no flag check,
-so every red square works from anywhere in Hisui, as her menu does: her Braviary appears, A, and you are there.
+so every red square worked from anywhere in Hisui, as her menu does: her Braviary appeared, A, and you were there.
+That is what HISUI_FLY = False turns off.
 
 Also: the two destinations her menu (multichoice 137) still showed in Chinese are now "Deertrack Heights"
 and "Snowfall Hot Spring".
@@ -60,6 +64,8 @@ PLACES = [
     (103, "Deertrack Heights", 6, 12, 0x0989AE4D),
     (104, "Prelude Beach", 10, 14, 0x0989AE3C),
 ]
+
+HISUI_FLY = False                               # A on the Hisui map flies (see the top: off since 2026-10-08)
 
 MINGYAO_LIST = 0x098031A8                       # multichoice 137: five {text, id} entries
 MINGYAO_FIX = {1: (0x098365E1, "Deertrack Heights"), 3: (0x098365F3, "Snowfall Hot Spring")}
@@ -172,7 +178,10 @@ def build(inp, outp):
         put("H_TILES", hisui_tiles, 4)
         put("H_MAP", open(os.path.join(HERE, "hisui.tilemap.bin.lz"), "rb").read(), 4)
         put("H_LOC", b"".join(bytes((n, x, y)) for n, _, x, y, _ in PLACES) + b"\xFF")
-        put("H_FLY", b"".join(struct.pack("<BBHI", n, 0, 0, blk) for n, _, _, _, blk in PLACES if blk) + b"\xFF", 4)
+        fly = bytearray(b"".join(struct.pack("<BBHI", n, 0, 0, blk) for n, _, _, _, blk in PLACES if blk) + b"\xFF")
+        if not HISUI_FLY:                       # the table ends at once (its first key the 0xFF end mark): no place
+            fly[0] = 0xFF                       # is a fly stop. Same size, so nothing after it moves.
+        put("H_FLY", bytes(fly), 4)
         put("H_NAMES", b"".join(struct.pack("<B3xI", n, a["NAME_%d" % n]) for n, *_ in PLACES) + b"\xFF", 4)
         put("REGION_SINNOH", struct.pack("<7I", s_pal, s_tiles, s_map, s_loc, s_courier, 0, fa["GRID_SINNOH"]), 4)
         put("REGION_HISUI", struct.pack("<7I", a["H_PAL"], a["H_TILES"], a["H_MAP"], a["H_LOC"], a["H_FLY"], a["H_NAMES"],

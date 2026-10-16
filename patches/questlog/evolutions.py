@@ -31,7 +31,11 @@ HISUIAN_PILL = 753
 EEVEE, EEVEE_EVOS = 133, 0x01F0B4A0     # Eevee has ten: GetEvolutionTargetSpecies (0x09F0534C) reads this table
 ROMDATA = os.path.join(HERE, "..", "..", "tools", "romdata", "out")
 REGIONS = [("Kanto", 1, 151), ("Johto", 152, 251), ("Hoenn", 252, 386), ("Sinnoh", 387, 493),
-           ("Unova", 494, 649), ("Kalos", 650, 721), ("Alola", 722, 809), ("Galar", 810, 905)]
+           ("Unova", 494, 649), ("Kalos", 650, 721), ("Alola", 722, 809), ("Galar", 810, 905),
+           ("Paldea", 906, 1025)]           # (only the whole Gen 9 build has numbers there: gen9journal rebuilds
+                                            # the chapter on it, with the tables' addresses of that build)
+EXTRA_MOVES = {}                            # move id -> name for moves moves.json does not have (gen9journal: the
+                                            # Gen 9 moves); empty in the main chain
 ROW_W = 221                             # the list: the name from x 13, the tag ends at x 234, 6 px apart
 PANE_W = 158                            # the info panel's text column
 MAX_ROWS = 99                           # the header's count (the Journal's u8dec) has two digits: a longer
@@ -176,6 +180,8 @@ def families(rom):
     spname = names(rom)
     moves = {int(k): move_display(v["name"] if isinstance(v, dict) else v)
              for k, v in json.load(open(os.path.join(ROMDATA, "moves.json"), encoding="utf-8")).items()}
+    for k, v in EXTRA_MOVES.items():
+        moves.setdefault(k, v)
     places = {int(k): v["name"] for k, v in
               json.load(open(os.path.join(ROMDATA, "mapsections.json"), encoding="utf-8")).items()}
     exists = {sp for sp in range(1, NSPECIES) if F.is_species(rom, sp, NAMED_FORMS)} - set(F.TRAINER_ONLY)

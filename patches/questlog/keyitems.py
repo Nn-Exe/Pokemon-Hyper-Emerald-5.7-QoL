@@ -11,7 +11,9 @@ Sources are the game's scripts (tools/romdata/scripts.py now indexes giveitem: c
 in the Key Items pocket with no source in any script are left out: the FireRed leftovers (Oak's Parcel, Poké
 Flute, Secret Key, Bike Voucher, Card Key, Lift Key, Silph Scope, Bicycle, VS Seeker, TM Case, Berry Pouch,
 Teachy TV, Tri-Pass, Rainbow Pass, Tea, Ruby, Sapphire, Gold Teeth), the Abandoned Ship's room keys, Red Orb 2,
-Blue Orb 2, the Wishing Chip and item 644 (still a Chinese name).
+Blue Orb 2, the Wishing Chip and item 644 (still a Chinese name). Also left out: the Contest Pass - the Contest
+Hall reception's script has an additem for it (0x0821A5D7), but in a branch normal play never takes; the receptionist
+enters you without one (checked in mGBA, 2026-10-15).
 """
 
 KEYITEMS = [
@@ -55,8 +57,6 @@ KEYITEMS = [
     (375, 0, "Magma Emblem", "The summit of a mountain of graves, after the teams have been.",
      "From the old woman at the summit of Mt. Pyre."),
     (273, 0, "Pokéblock Case", "A contest hall in a seaside city.",
-     "From the Contest Hall reception in Lilycove City."),
-    (266, 0, "Contest Pass", "A contest hall in a seaside city.",
      "From the Contest Hall reception in Lilycove City."),
     (372, 0, "Powder Jar", "Someone in a port city talks about Berries and medicine.",
      "From the man in Slateport City who talks about Berry Powder."),

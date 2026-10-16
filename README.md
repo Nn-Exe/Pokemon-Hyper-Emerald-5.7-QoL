@@ -5,12 +5,13 @@ English translation and modern quality-of-life features for the Chinese Pokémon
 
 No ROMs or saves are included. You apply the patch to your own copy of `Hyper EMR LA v5.7 bugfix 2.gba`
 (the Chinese hack, **not** vanilla Pokémon Emerald; see [Which ROM do I patch?](#which-rom-do-i-patch-read-this-first)).
-Existing saves keep working.
+Existing saves keep working. **v1.9** adds the whole of Generation 9 and **Area Zero**, a Paldea area with its own story.
 
 > **Heads-up:** this is a fan patch on top of a large ROM hack. It is tested, but it may still contain glitches or
 > bugs. Keep a backup of your `.sav`, and please report anything odd you run into.
 
 <p align="center">
+  <img src="docs/showcase/showcase-v1.9.gif" width="720" alt="v1.9: a wild Gen 9 Pokémon, Area Zero's black hole and time rift, Paradox Pokémon, the new evolution items, move info on L, the Quest Log's Gen 9 Legends, Evolutions and side quests">
   <img src="docs/showcase/showcase-maps-travel.gif" width="720" alt="Maps, travel and field: the Sinnoh, Hisui and Hoenn maps, faster surfing, Auto Run, HMs without the Pokémon">
   <img src="docs/showcase/showcase-bag-menus.gif" width="720" alt="Key items, Bag and menus: the key-item ring, PC anywhere, 200 item slots, Instant text">
   <img src="docs/showcase/showcase-battle.gif" width="720" alt="Battle: type badges, move effectiveness, gold box on shinies, quick ball throw">
@@ -23,6 +24,8 @@ Existing saves keep working.
 
 | Feature | Controls | Showcase |
 |---|---|---|
+| **Generation 9** (v1.9) — every Gen 9 Pokémon at its official Pokédex number (Sprigatito No. 906 to Pecharunt No. 1025), Paldean Wooper and the three Paldean Tauros included, with English Pokédex entries, Gen 9 moves, abilities and egg moves. The newer ones live in the wild all over Hoenn (none of the game's own Pokémon were taken out); older families evolve on (Primeape → Annihilape, Bisharp → Kingambit, Applin → Dipplin → Hydrapple, Duraludon → Archaludon, Girafarig, Dunsparce, Paldean Wooper), with six new evolution items at the Lilycove Department Store. Some new moves and abilities work like ones the game already has and do a little less than in Scarlet and Violet. | — | |
+| **Area Zero** (v1.9) — once Team Rainbow Rocket is beaten, a black hole opens beside Jacq in Mossdeep City. Behind it: Paldea's Great Crater in the past and in the future, joined by time rifts; a story with Penny, Arven and Nemona, the Titans and the Zero Lab; then Koraidon, Miraidon, the Paradox Pokémon, the Treasures of Ruin and Terapagos to catch, once each. The Quest Log follows it: Area Zero steps in the Journal, 119 Legends, ten side quests, every Gen 9 evolution line. | — | |
 | **Full English text** — ~6,000 leftover Chinese strings translated over two passes: post-game and Lost Artifacts (Volo/Arceus) story, Sinnoh, every Pokédex entry (905 species), items, abilities, moves, Battle Frontier and trainer dialogue. | — | ![](docs/showcase/pokedex.gif) |
 | **Bag sort** — cycles type → name → amount, with a message in the description box. | **START** in the bag | ![](docs/showcase/bag-sort.gif) |
 | **Bag stack cap 999** — every pocket holds up to 999 per item (was 99). | — | ![](docs/showcase/bag-999.png) |
@@ -46,9 +49,9 @@ Existing saves keep working.
 | **Day/Night On / Off** — the game tints the screen by the hour (orange in the evening, pink, then blue at night). Set it to Off in the Option menu to keep the daytime colours at any hour; the clock and everything timed by it carry on, and On shows the right colours for the hour again at once. | Option menu, 7th row (B leaves the menu) | |
 | **Exp. Gain On / Off** — the hack's own switch for experience, now named for what it does. It was the row labelled "Sound: Mono / Stereo": choosing Stereo stopped every Pokémon gaining experience (and changed nothing you could hear). On gives experience as usual; Off gives none, for level caps and challenge runs. A save left on "Stereo" shows Off - switch it On. | Option menu, 4th row | ![](docs/showcase/option-expgain.png) |
 | **English naming keyboard** — the screen where you type a nickname, your name or a PC box name has three English pages: UPPER (A–Z, basic punctuation, ♂ ♀, 0–9), lower (the same in lowercase) and others (digits and symbols, with the PK MN glyphs). The page of Chinese characters is gone, the page button reads UPPER / lower / others and the B button BACK, as in Emerald. A blank key types a space. | Any naming screen; **SELECT** turns the page, **START** jumps to OK | ![](docs/showcase/naming-keyboard.png) ![](docs/showcase/naming-keyboard-lower.png) ![](docs/showcase/naming-keyboard-others.png) |
-| **Move info (hold L)** — while you choose a move, hold **L** and a panel slides in from the left with the highlighted move's name, exact Power and Accuracy, Physical / Special / Status, whether it makes contact, its Priority and the chance of its extra effect. It follows the cursor and slides away when you let go; a small "[L] Move Info" tag above the move box reminds you it is there. | **L** in the move list | |
+| **Move info (hold L)** — while you choose a move, hold **L** and a panel slides in from the left with the highlighted move's name, exact Power and Accuracy, Physical / Special / Status, whether it makes contact, its Priority and the chance of its extra effect. It follows the cursor and slides away when you let go; a small tag above the move box, an L key and a magnifying glass, reminds you it is there. | **L** in the move list | |
 | **DexNav search & chain** — on the DexNav screen the red ring picks a species and **A** (the green SEARCH button) registers it, dropping you straight back to the field; on the species being hunted the button reads STOP and the top bar says "Hunting: ...". A framed bar at the bottom of the field shows what you are hunting: its icon, a 0–3 star rating (how many perfect IVs it will have), the level and ability it will have, **No.** — how many you have caught or beaten in a row — **SL**, that species' Search Level, and an arrow toward the shaking patch (sideways until you are lined up, then up or down). Works like Pokémon Unbound's DexNav: every encounter of the tracked species raises its Search Level (0–999, kept across restarts, never reset), which raises the odds of an egg move (up to 83%), a held item (up to 12%) and perfect IVs (the stars — rarer than Unbound, and a chain of 10 / 20 is needed for 2 / 3 stars; one time in 500 all six are perfect, shown as three gold stars), and adds shiny rolls (about 0.33% at SL 255 and 0.61% at SL 999; the Shiny Charm multiplies that by 5). **While hunting a Land or Water species, a patch near you shakes** (with the Pokémon's cry when it appears) — rustling grass, a ripple on water, dust on a cave floor or sand. Step on it to meet the hunted Pokémon (Repel doesn't stop it); every other tile gives the map's normal Pokémon. Fishing species surface as a water ripple too (surf onto it); Rock Smash hunts work on Rock Smash encounters instead. The chain adds +1 level per 5 in a row and extra shiny rolls on the 50th and 100th. As in Omega Ruby / Alpha Sapphire, running, losing, the Pokémon fleeing, walking away from the patch (which also ends the search — register again), leaving the area or getting into any other battle (a normal wild Pokémon included) ends the chain, and closing the game resets it. The DexNav does not hand out hidden abilities. | **R** in the field (or START → **DexNav**), D-pad to choose, **A** to register — **A** on the registered one unregisters | ![](docs/showcase/dexnav-ui-hunting.png) ![](docs/showcase/dexnav-register.gif) ![](docs/showcase/dexnav-patch.gif) ![](docs/showcase/dexnav-bar.png) ![](docs/showcase/dexnav-gold.png) |
-| **Sinnoh map** — the **Sinnoh Map** key item (the hack's unused Town Map, renamed and handed to you automatically) opens a map of Sinnoh with a blinking marker on the area you're in and its name in a box. A red box moves freely over the map, a square at a time (keep holding to run), as on the Hoenn map when you fly: its name box names the town, route or lake under it, and **A flies you to any town whose courier you've already used** — it runs that courier's own script, so the rules are exactly the couriers' (towns you haven't reached yet are greyed and won't take you). Its own screen, so the Hoenn map, the Pokénav and Fly are untouched. In Hoenn it says so rather than showing the wrong region. **In Hisui it shows Hisui**: A on a red square flies you with Mingyao's Braviary. | **Sinnoh Map** in Key Items, or register it to **SELECT**; D-pad moves the box, A flies, B closes | ![](docs/showcase/sinnoh-map.png) ![](docs/showcase/sinnoh-map-cursor.png) |
+| **Sinnoh map** — the **Sinnoh Map** key item (the hack's unused Town Map, renamed and handed to you automatically) opens a map of Sinnoh with a blinking marker on the area you're in and its name in a box. A red box moves freely over the map, a square at a time (keep holding to run), as on the Hoenn map when you fly: its name box names the town, route or lake under it, and **A flies you to any town whose courier you've already used** — it runs that courier's own script, so the rules are exactly the couriers' (towns you haven't reached yet are greyed and won't take you). Its own screen, so the Hoenn map, the Pokénav and Fly are untouched. In Hoenn it says so rather than showing the wrong region. **In Hisui it shows Hisui** with the marker on where you are, to look at: there A does nothing (flying from it let you skip ahead of the story). | **Sinnoh Map** in Key Items, or register it to **SELECT**; D-pad moves the box, A flies, B closes | ![](docs/showcase/sinnoh-map.png) ![](docs/showcase/sinnoh-map-cursor.png) |
 | **Journal** — a key item, handed to you automatically, that tells you what to do next in the story, from Prof. Birch to Volo: the Hoenn story, the post-game missions on Steven's Island, Sinnoh and the Lost Artifacts quest. It reads the progress flags the game already keeps, so it never gets out of step and saves nothing of its own. For tasks you can do in any order it adds a progress line and what's left: the Sinnoh Gym Leaders still to beat, the Tapu trials, and the next of the 17 Plates with a hint to where it lies. Every step was traced in the game's own scripts, and it copes with things done out of order (Giratina battled early, a step skipped). | **Journal** in Key Items, or register it to **SELECT** | ![](docs/showcase/journal.png) ![](docs/showcase/journal-plates.png) ![](docs/showcase/journal-bag.png) |
 | **Quest Log** — using the Journal opens a chapter grid (each chapter with its done/total), then a mission list in the style of Pokémon Unbound (status tags, and an info panel with a portrait, location and text for the selected row) of the whole story, one chapter a page (Hoenn, Post-game, Sinnoh, Lost Artifacts): a tick on what you have done, a red arrow on the current objective, a diamond on side objectives you can do in any order, and **???** for what is still ahead, so nothing is spoiled. **A** on a row reads the full objective (with the gyms, trials or Plates still missing); the header counts what is done in that chapter. It uses the Journal's own rules, so the two never disagree. A fifth chapter, **Legends**, lists every legendary and mythical Pokémon in National Dex order (with a silhouette): ticked once caught, named once seen, with where to find it. Its first row, **Gotta catch 'em all!**, is ticked with a Master Ball once you have caught them all. The Legends include the Ultra Beasts. A sixth, **Key Items**, lists the 55 key items in story order, named from the start (dimmed until you have them), ticked once you have them, with where each comes from. A seventh, **Side Content**, ticks off the Hisuian trades, gift Pokémon, other regions' hidden starters and side stories, with a red star on the ones whose Pokémon is always shiny. A ninth card, **Evolutions**, lists every evolution family SoulGold-style: the family's icons, a Pokédex-style list, and every step with its method, and every other form with how you get it: Mega Stones, Max Soup for Gigantamax, held items, signature moves, abilities, Bag items and fusions, plus regional and gift forms (families you haven't seen show as shadows). | **Journal**, or **R** in the Start menu (the "R Journal" box at the top left); then **L/R** or **←/→** chapter, **↑/↓** row, **A** read, **B** close | ![](docs/showcase/questlog-menu.png) ![](docs/showcase/questlog-grid.png) ![](docs/showcase/questlog-panel.png) ![](docs/showcase/questlog-panel-legends.png) ![](docs/showcase/questlog-legends.png) ![](docs/showcase/questlog-keyitems.png) ![](docs/showcase/questlog-side.png) ![](docs/showcase/questlog-detail.png) |
 | **English NPC names** — the last Chinese names in fixed-width tables are now English: all 90 Battle Tent trainers (their official names, slot for slot), two Battle Frontier trainers, six post-game story trainers (Ash, Blue, Brendan…) and the partner-name words. | — | |
@@ -94,7 +97,7 @@ The site is an [Astro](https://astro.build) project in [`site/`](site/); `npm ru
    python tools/romdiff.py apply "Hyper EMR LA v5.7 bugfix 2.gba" release/hyper-emerald-en-qol.hpatch "Hyper Emerald v5.7 EN+QoL.gba"
    ```
    The tool refuses to run on the wrong original and verifies the result's checksum.
-3. Play in mGBA, RetroArch (mGBA core) or any GBA emulator. Your existing `.sav` works unchanged: emulators match saves by ROM file name, so name the new ROM like the old one or rename the save.
+3. Play in mGBA, RetroArch (mGBA core) or any GBA emulator. Your existing `.sav` works unchanged: emulators match saves by ROM file name, so name the new ROM like the old one or rename the save. Keep a copy of a v1.8 save before you open it in v1.9 (see [Save compatibility](#save-compatibility)).
 
 ### Cheats (optional)
 - mGBA: copy `cheats/OHKO.cheats` next to the ROM and rename it to `<rom name>.cheats`; it loads automatically.
@@ -109,8 +112,10 @@ grunts on Allearth Forest (map 34/41) that no script in the game refers to.
 ## Save compatibility
 
 Game code that touches the save format is untouched. The new features keep their state in bytes the game never used
-(register slots, auto-run flag). Battery saves (`.sav`) transfer between the original hack, the translation-only builds
-and this build in either direction. Emulator save *states* (`.ss0`) do not transfer between different ROM builds.
+(register slots, auto-run flag). Battery saves (`.sav`) of the original hack, the translation-only builds and v1.8
+load in v1.9. **A save opened in v1.9 should not go back to an older version**: v1.9 moves the Gen 9 Pokédex marks to
+the official numbers, and older versions do not know the new Pokémon. Emulator save *states* (`.ss0`) do not transfer
+between different ROM builds.
 
 ## Known limitations
 
@@ -170,11 +175,11 @@ python patches/hisuimap/hisuimap_patch.py   out35.gba out36.gba   # Hisui on the
 python patches/dexdesc/dexdesc_patch.py       out36.gba out37.gba   # Pokedex descriptions clear of the frame
 python patches/ovalcharm/ovalcharm_patch.py   out37.gba out38.gba   # Oval Charm from the Day-Care Man
 python patches/flyicons/flyicons_patch.py     out38.gba out39.gba   # red squares for every Fly spot on the Hoenn map
-python patches/eggmoves/eggmoves_patch.py     out39.gba out40.gba   # room for every egg move
+python patches/eggmoves/eggmoves_patch.py     out39.gba out40.gba   # room for every egg move; Mr. Mime's and Mime Jr.'s lists
 python patches/expshare/expshare_patch.py     out40.gba out41.gba   # Exp. Share on/off
 python patches/bagslots/bagslots_patch.py     out41.gba out42.gba   # Items pocket 100 -> 200 slots
 python patches/itemdesc/itemdesc_patch.py     out42.gba out43.gba   # item description fixes (TM75)
-python patches/textfix/textfix_patch.py       out43.gba out44.gba   # same-length text typo fixes
+python patches/textfix/textfix_patch.py       out43.gba out44.gba   # same-length text fixes: typos, lines too wide for the box
 python patches/hmfree/hmfree_patch.py         out44.gba out45.gba   # HMs usable without a Pokemon that learns them
 python patches/instanttext/instanttext_patch.py out45.gba out46.gba  # a 4th Text Speed: Instant
 python patches/fastsurf/fastsurf_patch.py     out46.gba out47.gba   # hold B to surf twice as fast
@@ -190,8 +195,30 @@ python patches/rngseed/rngseed_patch.py       out55.gba out56.gba   # random num
 python patches/expgain/expgain_patch.py       out56.gba out57.gba   # Option menu: "Sound" is the EXP switch - Exp. Gain On / Off
 python patches/namingkb/namingkb_patch.py     out57.gba out58.gba   # naming screen: an English keyboard
 python patches/fusionfix/fusionfix_patch.py   out58.gba out59.gba   # fusions: a slot left "taken" with nothing to split
-python patches/zhtext/zhtext_patch.py         out59.gba out60.gba   # the leftover Chinese text and names
-python tools/romdiff.py create original.gba out60.gba release/hyper-emerald-en-qol.hpatch
+python patches/dexnavabil/dexnavabil_patch.py out59.gba out60.gba   # DexNav bar: the ability the Pokemon really has
+python patches/shinyfade/shinyfade_patch.py   out60.gba out61.gba   # gold healthbox: fades with the screen
+python patches/evivpal/evivpal_patch.py       out61.gba out62.gba   # EV-IV Display: every picture in its own colours
+python patches/mistmsg/mistmsg_patch.py       out62.gba out63.gba   # message box in mist: the fog stays as it is
+python patches/objpal/objpal_patch.py         out63.gba out64.gba   # people on the map: a palette nobody shows is given back
+python patches/roamfix/roamfix_patch.py       out64.gba out65.gba   # Tornadus and Thundurus stay in Sinnoh after Continue
+python patches/sprframe/sprframe_patch.py     out65.gba out66.gba   # a sprite's picture frame that does not exist is not copied
+python patches/summitfix/summitfix_patch.py   out66.gba out66b.gba  # the summit: a lost attempt keeps the nameless stone
+python patches/goldbox/goldbox_patch.py       out66b.gba out66c.gba # gold healthbox: a palette slot of its own, status icon colours
+python patches/ballfree/ballfree_patch.py     out66c.gba out66d.gba # the hack's own Poke Balls are let go of after their animation
+python patches/sheetonce/sheetonce_patch.py   out66d.gba out66e.gba # the move menu's sprite sheet is loaded once, not on every opening
+python patches/iconpalfix/iconpalfix_patch.py out66e.gba out66f.gba # the DexNav bar's icon in its own colours
+python patches/sidefix/sidefix_patch.py       out66f.gba out66g.gba # Blue's Galar gift reachable; the demon soul's Magikarp off Dawn's flag
+python patches/zhtext/zhtext_patch.py         out66g.gba out67.gba  # the leftover Chinese text and names
+python tools/romdiff.py create original.gba out67.gba release/hyper-emerald-en-qol.hpatch
+# the working ROM goes on from out67.gba since 2026-10-11 (in no release yet):
+python patches/speciesx/speciesx_patch.py     out67.gba out68.gba   # room for 80 more species
+python patches/gen9/gen9_patch.py             out68.gba out69.gba Crest_v1.0.F.gba   # the Gen 9 Pokemon, moves, Booster Energy
+python -I patches/paldea/paldea_patch.py      out69.gba out70.gba placements.txt ground.txt   # Area Zero (the two files: roms/test-paldea)
+# and since 2026-10-15 the whole of Gen 9:
+python -I patches/gen9rest/gen9rest_patch.py  out70.gba out71.gba Crest_v1.0.F.gba   # the other 85 Gen 9 Pokemon, in the wild over Hoenn
+python -I patches/gen9dex/gen9dex_patch.py    out71.gba out72.gba   # Gen 9 at its official Pokedex numbers
+python -I patches/gen9egg/gen9egg_patch.py    out72.gba out73.gba   # Gen 9 egg moves
+python -I patches/gen9journal/gen9journal_patch.py out73.gba out74.gba   # the Quest Log's Gen 9 Legends and Side Content rows
 ```
 
 ## How it was built (for other ROM hackers)
@@ -235,4 +262,8 @@ hack are not covered and are not distributed here.
 - Hyper Emerald: Lost Artifacts is the work of its original Chinese authors; this repository only distributes a patch.
 - **All the credits for the previous translation and for fixing the earlier bugs go to Luciano Fire, Helper, and Gustavo Neves.** Their community English translation (up to Champion Island) was the starting point for this build; everything here is layered on top of their work.
 - The in-battle type badge art is from the ROM hack **SoulGold** (s0ulg0ld v1.1.1); credit to its authors.
+- Gen 9 (v1.9): the Pokémon's battle pictures, icons and cries come from the ROM hack **Pokémon Crest**, a
+  pokeemerald-expansion build (that project's community sprites and the official games' cries); their stats, moves and
+  Pokédex text are Scarlet and Violet's official data, taken from **PokeAPI**; Area Zero's walking sprites are
+  **pokeemerald-expansion**'s. Credit to their authors.
 - Tools: mGBA, Capstone, Keystone, Python.

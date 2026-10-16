@@ -6,7 +6,7 @@ export const GAME_VERSION = 'v5.7';
 export const PATCH_VERSION = '1.9';
 /** The version release/hyper-emerald-en-qol.hpatch builds. While it is behind PATCH_VERSION the site describes a
  *  version whose patch file is not out yet, and says so wherever it talks about the download. */
-export const RELEASED_VERSION = '1.8';
+export const RELEASED_VERSION = '1.9';
 export const PATCH_PENDING = RELEASED_VERSION !== PATCH_VERSION;
 export const UPDATED = '2026-10-16';
 export const TAGLINE =
