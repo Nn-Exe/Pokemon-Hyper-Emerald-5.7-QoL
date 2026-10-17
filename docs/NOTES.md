@@ -5208,3 +5208,17 @@ set where the row says), then the rows' conditions read script by script; the do
   there: six pages change. The public `.gitignore` kept, with the one rule Area Zero's sprite sources need.
 - README: the Gen 9 and Area Zero rows, the v1.9 showcase GIF, the one-way save note, the Gen 9 credits (Pokémon
   Crest, PokeAPI, pokeemerald-expansion).
+
+## THE SHINY CHARM IS NOT IN THE PC — 2026-10-17 — guide text only
+
+- The guide said the PC starts with a Shiny Charm (install, mechanics, Hoenn walkthrough, legendaries; since the
+  Astro rebuild of 2026-10-03). Wrong. The new-game PC table is at `0x0837F790` (its one pointer is in the literal
+  pool at `0x0816AE54`): EV-IV Display (650) and the six Power items (740, 735, 736, 739, 737, 738), x1 each, then
+  0,0. Same bytes in the original v5.7 bugfix 2 and in our builds; no patch touches it.
+- The Shiny Charm (119) is an item ball the original hack put on Route 118 (map 0/33), object local id 22 at 4,16,
+  script `0x08FE4222` (finditem), flag 0x4022, extended sprite 0x3C (the TMs' ball). item_sources.scan finds no
+  other source.
+- It needs Surf. The ball and the tile below it (4,17) are a two-tile strip: the building to the west, a cliff
+  row (y 15) to the north, sea (behaviour 0x15) east and south. A walk that only checks collision passes over the
+  water (collision 0, elevation 1): check elevation and water behaviours too. From the beach (11..13,15) you surf
+  west and land on 4,17 (elevation 3, no object: CanStopSurfing), then face the ball.
