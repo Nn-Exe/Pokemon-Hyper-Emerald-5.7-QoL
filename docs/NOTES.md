@@ -5222,3 +5222,22 @@ set where the row says), then the rows' conditions read script by script; the do
   row (y 15) to the north, sea (behaviour 0x15) east and south. A walk that only checks collision passes over the
   water (collision 0, elevation 1): check elevation and water behaviours too. From the beach (11..13,15) you surf
   west and land on 4,17 (elevation 3, no object: CanStopSurfing), then face the ball.
+
+## THE MEGA BRACELET COMES FROM STEVEN, NOT FROM MOM — 2026-10-19 — guide text only
+
+- A player talked to Mom after Norman and got the Amulet Coin, where the guide promised the Mega Bracelet
+  (mechanics, Hoenn walkthrough, the key items table). The guide was wrong, and the line it quoted from her ("…such
+  a precious band, so he left it with me!") is in neither the v1.9 release (65b5a7f6) nor the working ROM.
+- Mom (Littleroot 1/0 and 1/2, local 1, script `0x082929C5`): with flag 0x86B (fifth badge, set in Norman's
+  script) and 0x85 clear she gives item 189, the Amulet Coin, and sets 0x85. No branch gives item 120.
+- The Mega Bracelet (120) is Steven's, on Route 118 (0/33): three triggers at 42,3, 44,11 and 45,11 (var 0x4071 ==
+  0) under the Route 119 connection (north edge, offset 40), scripts `0x098266FF`, `0x098267A8`, `0x09826780`.
+  Each checks flag 0xD1. Clear: "There's an explosion at the power plant… I should go see Wattson…" and the
+  player is walked back. Set: Steven's speech (`0x09826321`, "As my thanks for helping with Wattson's power plant
+  problem…"), giveitem 120, var 0x4071 = 1.
+- Flag 0xD1 is Wattson's (Mauville City 0/2, local 8 at 28,9, script `0x081DF73A`; hidden by flag 0x390 until
+  Norman's script clears it): the Basement Key (271) and flag 0xD0 first; New Mauville's switch (24/53, 33,6) sets
+  var 0x40BA = 2; back at Wattson, TM80 Volt Switch (457) and flag 0xD1.
+- Later the bracelet goes away once: Zinnia's Granite Cave script (24/7, `0x09817AE6`) removes item 120 after her
+  battle, and Zinnia gives it back at Meteor Falls (24/107, local 15). The in-game Quest Log's row
+  (`patches/questlog/keyitems.py`) already said "a route east of Mauville".
