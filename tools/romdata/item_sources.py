@@ -160,6 +160,11 @@ PLACES = {
     (37, 91): "Pastoria City · Gym",
     (37, 92): "Sunyshore City · Gym",
     (37, 93): "Veilstone City · Gym",
+    # rooms the hack added, named by the sign beside their door (Floaroma Town 36/4 at 17,34; Hearthome City 36/7
+    # at 27,13); three Solaceon doors and one in the Moonbow Dome all lead into the same house
+    (37, 10): "Floaroma Town · Pretty Petal Flower Shop",
+    (37, 22): "Solaceon Town · house",
+    (37, 100): "Hearthome City · Pokémon Contest Hall",
 }
 
 

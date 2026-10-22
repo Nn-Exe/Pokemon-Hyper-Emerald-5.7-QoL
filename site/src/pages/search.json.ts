@@ -34,6 +34,7 @@ import { FEATURES } from '../data/features';
 import { FAQ_GROUPS } from '../data/faq';
 import journal from '../data/journal.json';
 import guideItems from '../data/guide-items.json';
+import berryData from '../data/berries.json';
 
 type Entry = { t: string; n: string; s: string; u: string; i?: number; k?: string };
 
@@ -43,6 +44,7 @@ const PAGES: Entry[] = [
   { t: 'Page', n: 'Pokédex', s: 'Every Pokémon: stats, abilities, evolutions, locations and moves', u: 'wiki/pokedex/', k: 'pokedex dex species' },
   { t: 'Page', n: 'Moves', s: 'Every move: type, power, accuracy, PP and effect', u: 'wiki/moves/', k: 'attacks tm hm' },
   { t: 'Page', n: 'TMs & HMs', s: 'Where to find every TM and HM', u: 'wiki/tms/', k: 'tm hm technical hidden machine locations' },
+  { t: 'Page', n: 'Berries', s: 'Where to get every Berry: trees, gifts, shops and wild Pokémon', u: 'wiki/berries/', k: 'berry berries tree plant' },
   { t: 'Page', n: 'Abilities', s: 'Every ability and the Pokémon that have it', u: 'wiki/abilities/', k: 'hidden ability' },
   { t: 'Page', n: 'Wild Encounters', s: 'Every encounter table by location', u: 'wiki/encounters/' },
   { t: 'Page', n: 'Pokémon Finder', s: 'Where to find each wild Pokémon', u: 'wiki/pokemon/' },
@@ -103,6 +105,16 @@ export const GET: APIRoute = async () => {
       s: clipText([...new Set(t.sources.map((x) => x.place))].join(', ')),
       u: machineHref(t.label).slice(1),
       k: `${t.label.slice(0, 2)} ${Number(t.label.slice(2))} ${t.move.type}`,
+    });
+
+  for (const b of berryData.berries)
+    entries.push({
+      t: 'Berry',
+      n: b.name,
+      s: clipText([...new Set(b.sources.filter((x: any) => x.place).map((x: any) => x.place))].join(', ')),
+      u: `wiki/berries/#${slugify(b.name)}`,
+      i: b.item,
+      k: `berry no ${b.no} ${b.desc}`,
     });
 
   for (const st of megaStones)

@@ -1,0 +1,3947 @@
+{
+ "berries": [
+  {
+   "item": 133,
+   "no": 1,
+   "name": "Cheri Berry",
+   "emerald": true,
+   "desc": "A hold item that heals paralysis in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 103",
+     "spot": "0-18-51-5",
+     "count": 2,
+     "twins": [
+      "Route 208",
+      "Route 218"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 104",
+     "spot": "0-19-34-6",
+     "count": 2,
+     "twins": [
+      "Route 210",
+      "Solaceon Town"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Solaceon Town",
+     "spot": "36-8-20-16",
+     "count": 1,
+     "twins": [
+      "Route 104"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 208",
+     "spot": "36-24-58-13",
+     "count": 1,
+     "twins": [
+      "Route 103",
+      "Route 218"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 210",
+     "spot": "36-27-35-129",
+     "count": 1,
+     "twins": [
+      "Route 104"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 218",
+     "spot": "36-37-19-16",
+     "count": 1,
+     "twins": [
+      "Route 103",
+      "Route 208"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 484,
+       "name": "Glameow",
+       "rate": "50%"
+      },
+      {
+       "sid": 485,
+       "name": "Purugly",
+       "rate": "50%"
+      },
+      {
+       "sid": 575,
+       "name": "Blitzle",
+       "rate": "50%"
+      },
+      {
+       "sid": 576,
+       "name": "Zebstrika",
+       "rate": "50%"
+      },
+      {
+       "sid": 640,
+       "name": "Emolga",
+       "rate": "50%"
+      },
+      {
+       "sid": 793,
+       "name": "Crabominable",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 134,
+   "no": 2,
+   "name": "Chesto Berry",
+   "emerald": true,
+   "desc": "A hold item that awakens Pokémon in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 116",
+     "spot": "0-31-19-2",
+     "count": 2,
+     "twins": [
+      "Pastoria City"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 121",
+     "spot": "0-36-17-2",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Pastoria City",
+     "spot": "36-62-34-26",
+     "count": 1,
+     "twins": [
+      "Route 116"
+     ]
+    },
+    {
+     "kind": "gift",
+     "place": "Route 104",
+     "spot": "0-19-37-6",
+     "how": "A man by the berry trees shares one with you, once."
+    },
+    {
+     "kind": "gift",
+     "place": "Solaceon Town · house",
+     "spot": "37-22-6-14",
+     "how": "Five, once, from a man whose wife has slept since a visit to the Lost Tower, when she wakes (he thanks the Lunar Feather you carry)."
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 308,
+       "name": "Spinda",
+       "rate": "50%"
+      },
+      {
+       "sid": 370,
+       "name": "Whismur",
+       "rate": "50%"
+      },
+      {
+       "sid": 371,
+       "name": "Loudred",
+       "rate": "50%"
+      },
+      {
+       "sid": 372,
+       "name": "Exploud",
+       "rate": "50%"
+      },
+      {
+       "sid": 831,
+       "name": "Mimikyu",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 135,
+   "no": 3,
+   "name": "Pecha Berry",
+   "emerald": true,
+   "desc": "A hold item that heals poisoning in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 102",
+     "spot": "0-17-20-2",
+     "count": 1,
+     "twins": [
+      "Route 205",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 104",
+     "spot": "0-19-24-41",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 112",
+     "spot": "0-27-28-6",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 120",
+     "spot": "0-35-9-92",
+     "count": 3,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-109-13",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 205",
+     "spot": "36-20-21-5",
+     "count": 1,
+     "twins": [
+      "Route 102",
+      "Route 205",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 205",
+     "spot": "36-21-8-72",
+     "count": 1,
+     "twins": [
+      "Route 102",
+      "Route 205",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 211",
+     "spot": "36-28-57-13",
+     "count": 1,
+     "twins": [
+      "Route 102",
+      "Route 205"
+     ]
+    },
+    {
+     "kind": "gift",
+     "place": "Lilycove City · Contest Lobby",
+     "spot": "13-4-26-5",
+     "how": "She gives a Pecha Berry to a player with a Pokéblock Case, room in it and no Berries at all; once a day. She is not there on every visit: the lobby decides as you walk in."
+    },
+    {
+     "kind": "gift",
+     "place": "Hearthome City · Pokémon Contest Hall",
+     "spot": "37-100-6-25",
+     "how": "She gives a Pecha Berry to a player with a Pokéblock Case, room in it and no Berries at all; once a day."
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 286,
+       "name": "Poochyena",
+       "rate": "50%"
+      },
+      {
+       "sid": 287,
+       "name": "Mightyena",
+       "rate": "50%"
+      },
+      {
+       "sid": 315,
+       "name": "Skitty",
+       "rate": "50%"
+      },
+      {
+       "sid": 316,
+       "name": "Delcatty",
+       "rate": "50%"
+      },
+      {
+       "sid": 480,
+       "name": "Buneary",
+       "rate": "50%"
+      },
+      {
+       "sid": 481,
+       "name": "Lopunny",
+       "rate": "50%"
+      },
+      {
+       "sid": 487,
+       "name": "Stunky",
+       "rate": "50%"
+      },
+      {
+       "sid": 488,
+       "name": "Skuntank",
+       "rate": "50%"
+      },
+      {
+       "sid": 596,
+       "name": "Venipede",
+       "rate": "50%"
+      },
+      {
+       "sid": 787,
+       "name": "Yungoos",
+       "rate": "50%"
+      },
+      {
+       "sid": 788,
+       "name": "Gumshoos",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 136,
+   "no": 4,
+   "name": "Rawst Berry",
+   "emerald": true,
+   "desc": "A hold item that heals a burn in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 112",
+     "spot": "0-27-27-6",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 121",
+     "spot": "0-36-16-2",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-111-13",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 58,
+       "name": "Growlithe",
+       "rate": "5%"
+      },
+      {
+       "sid": 59,
+       "name": "Arcanine",
+       "rate": "50%"
+      },
+      {
+       "sid": 339,
+       "name": "Numel",
+       "rate": "always"
+      },
+      {
+       "sid": 340,
+       "name": "Camerupt",
+       "rate": "always"
+      },
+      {
+       "sid": 607,
+       "name": "Darumaka",
+       "rate": "50%"
+      },
+      {
+       "sid": 1196,
+       "name": "Galarian Darumaka",
+       "rate": "5%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 137,
+   "no": 5,
+   "name": "Aspear Berry",
+   "emerald": true,
+   "desc": "A hold item that defrosts Pokémon in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 120",
+     "spot": "0-35-34-24",
+     "count": 3,
+     "twins": [
+      "Pastoria City"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 121",
+     "spot": "0-36-15-2",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Pastoria City",
+     "spot": "36-62-32-26",
+     "count": 1,
+     "twins": [
+      "Route 120"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 86,
+       "name": "Seel",
+       "rate": "50%"
+      },
+      {
+       "sid": 87,
+       "name": "Dewgong",
+       "rate": "50%"
+      },
+      {
+       "sid": 124,
+       "name": "Jynx",
+       "rate": "always"
+      },
+      {
+       "sid": 238,
+       "name": "Smoochum",
+       "rate": "always"
+      },
+      {
+       "sid": 666,
+       "name": "Cubchoo",
+       "rate": "50%"
+      },
+      {
+       "sid": 667,
+       "name": "Beartic",
+       "rate": "50%"
+      },
+      {
+       "sid": 792,
+       "name": "Crabrawler",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 138,
+   "no": 6,
+   "name": "Leppa Berry",
+   "emerald": true,
+   "desc": "A hold item that restores 10 PP in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 103",
+     "spot": "0-18-52-5",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 104",
+     "spot": "0-19-36-6",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 119",
+     "spot": "0-34-30-89",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-81-1",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 2000
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 2000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 35,
+       "name": "Clefairy",
+       "rate": "50%"
+      },
+      {
+       "sid": 36,
+       "name": "Clefable",
+       "rate": "50%"
+      },
+      {
+       "sid": 122,
+       "name": "Mr. Mime",
+       "rate": "50%"
+      },
+      {
+       "sid": 315,
+       "name": "Skitty",
+       "rate": "5%"
+      },
+      {
+       "sid": 316,
+       "name": "Delcatty",
+       "rate": "5%"
+      },
+      {
+       "sid": 492,
+       "name": "Mime Jr.",
+       "rate": "50%"
+      },
+      {
+       "sid": 1081,
+       "name": "Galarian Mr. Mime",
+       "rate": "5%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 139,
+   "no": 7,
+   "name": "Oran Berry",
+   "emerald": true,
+   "desc": "A hold item that restores 10 HP in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 102",
+     "spot": "0-17-19-2",
+     "count": 1,
+     "twins": [
+      "Route 205",
+      "Route 208",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 104",
+     "spot": "0-19-22-41",
+     "count": 2,
+     "twins": [
+      "Route 205",
+      "Route 208",
+      "Route 210",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 111",
+     "spot": "0-26-18-5",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 205",
+     "spot": "36-20-22-5",
+     "count": 2,
+     "twins": [
+      "Route 102",
+      "Route 104",
+      "Route 205",
+      "Route 208",
+      "Route 210",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 205",
+     "spot": "36-21-9-72",
+     "count": 1,
+     "twins": [
+      "Route 102",
+      "Route 205",
+      "Route 208",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 208",
+     "spot": "36-24-57-13",
+     "count": 2,
+     "twins": [
+      "Route 102",
+      "Route 104",
+      "Route 205",
+      "Route 210",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 210",
+     "spot": "36-27-33-129",
+     "count": 1,
+     "twins": [
+      "Route 104",
+      "Route 205",
+      "Route 208",
+      "Route 211"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 211",
+     "spot": "36-28-58-13",
+     "count": 2,
+     "twins": [
+      "Route 102",
+      "Route 104",
+      "Route 205",
+      "Route 208",
+      "Route 210"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 25,
+       "name": "Pikachu",
+       "rate": "50%"
+      },
+      {
+       "sid": 26,
+       "name": "Raichu",
+       "rate": "50%"
+      },
+      {
+       "sid": 161,
+       "name": "Sentret",
+       "rate": "50%"
+      },
+      {
+       "sid": 162,
+       "name": "Furret",
+       "rate": "50%"
+      },
+      {
+       "sid": 213,
+       "name": "Shuckle",
+       "rate": "always"
+      },
+      {
+       "sid": 216,
+       "name": "Teddiursa",
+       "rate": "50%"
+      },
+      {
+       "sid": 217,
+       "name": "Ursaring",
+       "rate": "5%"
+      },
+      {
+       "sid": 289,
+       "name": "Linoone",
+       "rate": "50%"
+      },
+      {
+       "sid": 367,
+       "name": "Gulpin",
+       "rate": "50%"
+      },
+      {
+       "sid": 368,
+       "name": "Swalot",
+       "rate": "50%"
+      },
+      {
+       "sid": 453,
+       "name": "Bibarel",
+       "rate": "50%"
+      },
+      {
+       "sid": 584,
+       "name": "Audino",
+       "rate": "50%"
+      },
+      {
+       "sid": 784,
+       "name": "Pikipek",
+       "rate": "50%"
+      },
+      {
+       "sid": 858,
+       "name": "Alolan Raichu",
+       "rate": "5%"
+      },
+      {
+       "sid": 1120,
+       "name": "Skwovet",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 140,
+   "no": 8,
+   "name": "Persim Berry",
+   "emerald": true,
+   "desc": "A hold item that heals confusion in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 114",
+     "spot": "0-29-31-43",
+     "count": 3,
+     "twins": [
+      "Pastoria City"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 121",
+     "spot": "0-36-14-2",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Pastoria City",
+     "spot": "36-62-33-26",
+     "count": 1,
+     "twins": [
+      "Route 114"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 600
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 203,
+       "name": "Girafarig",
+       "rate": "50%"
+      },
+      {
+       "sid": 317,
+       "name": "Kecleon",
+       "rate": "50%"
+      },
+      {
+       "sid": 627,
+       "name": "Gothita",
+       "rate": "50%"
+      },
+      {
+       "sid": 630,
+       "name": "Solosis",
+       "rate": "50%"
+      },
+      {
+       "sid": 833,
+       "name": "Drampa",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 141,
+   "no": 9,
+   "name": "Lum Berry",
+   "emerald": true,
+   "desc": "A hold item that heals any status problem in battle.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 142,
+   "no": 10,
+   "name": "Sitrus Berry",
+   "emerald": true,
+   "desc": "A hold item that heals 25& HP in battle.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 118",
+     "spot": "0-33-35-5",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 119",
+     "spot": "0-34-29-89",
+     "count": 1,
+     "twins": [
+      "Route 218"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-110-13",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 218",
+     "spot": "36-37-20-16",
+     "count": 1,
+     "twins": [
+      "Route 119"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 111",
+     "spot": "0-26-23-8",
+     "how": "A girl by the berry trees, once a day.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+     "of": [
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 162,
+       "name": "Furret",
+       "rate": "5%"
+      },
+      {
+       "sid": 367,
+       "name": "Gulpin",
+       "rate": "5%"
+      },
+      {
+       "sid": 368,
+       "name": "Swalot",
+       "rate": "5%"
+      },
+      {
+       "sid": 453,
+       "name": "Bibarel",
+       "rate": "5%"
+      },
+      {
+       "sid": 584,
+       "name": "Audino",
+       "rate": "5%"
+      },
+      {
+       "sid": 1121,
+       "name": "Greedent",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 143,
+   "no": 11,
+   "name": "Figy Berry",
+   "emerald": true,
+   "desc": "A hold item that restores HP but may confuse.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "spot": "17-1-11-6",
+     "how": "The youngest of the flower-shop sisters, once a day.",
+     "of": [
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1200
+    }
+   ]
+  },
+  {
+   "item": 144,
+   "no": 12,
+   "name": "Wiki Berry",
+   "emerald": true,
+   "desc": "A hold item that restores HP but may confuse.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "spot": "17-1-11-6",
+     "how": "The youngest of the flower-shop sisters, once a day.",
+     "of": [
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1200
+    }
+   ]
+  },
+  {
+   "item": 145,
+   "no": 13,
+   "name": "Mago Berry",
+   "emerald": true,
+   "desc": "A hold item that restores HP but may confuse.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "spot": "17-1-11-6",
+     "how": "The youngest of the flower-shop sisters, once a day.",
+     "of": [
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1200
+    }
+   ]
+  },
+  {
+   "item": 146,
+   "no": 14,
+   "name": "Aguav Berry",
+   "emerald": true,
+   "desc": "A hold item that restores HP but may confuse.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "spot": "17-1-11-6",
+     "how": "The youngest of the flower-shop sisters, once a day.",
+     "of": [
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1200
+    }
+   ]
+  },
+  {
+   "item": 147,
+   "no": 15,
+   "name": "Iapapa Berry",
+   "emerald": true,
+   "desc": "A hold item that restores HP but may confuse.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "spot": "17-1-11-6",
+     "how": "The youngest of the flower-shop sisters, once a day.",
+     "of": [
+      143,
+      144,
+      145,
+      146,
+      147
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1200
+    }
+   ]
+  },
+  {
+   "item": 148,
+   "no": 16,
+   "name": "Razz Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Razz.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 111",
+     "spot": "0-26-22-5",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 120",
+     "spot": "0-35-7-78",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Route 114",
+     "spot": "0-29-27-42",
+     "how": "A Berry Crush fan, once a day.",
+     "of": [
+      148,
+      149,
+      150,
+      151,
+      152
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 149,
+   "no": 17,
+   "name": "Bluk Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Bluk.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 115",
+     "spot": "0-30-31-64",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Route 114",
+     "spot": "0-29-27-42",
+     "how": "A Berry Crush fan, once a day.",
+     "of": [
+      148,
+      149,
+      150,
+      151,
+      152
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 150,
+   "no": 18,
+   "name": "Nanab Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Nanab.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 110",
+     "spot": "0-25-5-11",
+     "count": 3,
+     "twins": [
+      "Route 222"
+     ]
+    },
+    {
+     "kind": "tree",
+     "place": "Route 120",
+     "spot": "0-35-6-78",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 121",
+     "spot": "0-36-65-13",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 222",
+     "spot": "36-41-28-9",
+     "count": 1,
+     "twins": [
+      "Route 110"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 114",
+     "spot": "0-29-27-42",
+     "how": "A Berry Crush fan, once a day.",
+     "of": [
+      148,
+      149,
+      150,
+      151,
+      152
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 151,
+   "no": 19,
+   "name": "Wepear Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Wepear.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 117",
+     "spot": "0-32-42-13",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 120",
+     "spot": "0-35-4-78",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Route 114",
+     "spot": "0-29-27-42",
+     "how": "A Berry Crush fan, once a day.",
+     "of": [
+      148,
+      149,
+      150,
+      151,
+      152
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 152,
+   "no": 20,
+   "name": "Pinap Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Pinap.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 116",
+     "spot": "0-31-18-2",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 120",
+     "spot": "0-35-5-78",
+     "count": 1,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Route 114",
+     "spot": "0-29-27-42",
+     "how": "A Berry Crush fan, once a day.",
+     "of": [
+      148,
+      149,
+      150,
+      151,
+      152
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 153,
+   "no": 21,
+   "name": "Pomeg Berry",
+   "emerald": true,
+   "desc": "Makes a Pokémon friendly but lowers base HP.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 119",
+     "spot": "0-34-24-5",
+     "count": 3,
+     "twins": []
+    },
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-12-3",
+     "count": 4,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 666
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 666
+    }
+   ]
+  },
+  {
+   "item": 154,
+   "no": 22,
+   "name": "Kelpsy Berry",
+   "emerald": true,
+   "desc": "Makes a Pokémon friendly but lowers base Attack.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 115",
+     "spot": "0-30-12-5",
+     "count": 3,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 666
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 666
+    }
+   ]
+  },
+  {
+   "item": 155,
+   "no": 23,
+   "name": "Qualot Berry",
+   "emerald": true,
+   "desc": "Makes a Pokémon friendly but lowers base Defense.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-16-5",
+     "count": 4,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 666
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 666
+    }
+   ]
+  },
+  {
+   "item": 156,
+   "no": 24,
+   "name": "Hondew Berry",
+   "emerald": true,
+   "desc": "Makes a Pokémon friendly but lowers base Sp. Atk.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 119",
+     "spot": "0-34-8-22",
+     "count": 2,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 666
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 666
+    }
+   ]
+  },
+  {
+   "item": 157,
+   "no": 25,
+   "name": "Grepa Berry",
+   "emerald": true,
+   "desc": "Makes a Pokémon friendly but lowers base Sp. Def.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 123",
+     "spot": "0-38-14-3",
+     "count": 4,
+     "twins": []
+    },
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 666
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 666
+    }
+   ]
+  },
+  {
+   "item": 158,
+   "no": 26,
+   "name": "Tamato Berry",
+   "emerald": true,
+   "desc": "Makes a Pokémon friendly but lowers base Speed.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Route 104 · Pretty Petal Flower Shop",
+     "price": 666
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 666
+    }
+   ]
+  },
+  {
+   "item": 159,
+   "no": 27,
+   "name": "Cornn Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Cornn.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 160,
+   "no": 28,
+   "name": "Magost Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Magost.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 161,
+   "no": 29,
+   "name": "Rabuta Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Rabuta.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 162,
+   "no": 30,
+   "name": "Nomel Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Nomel.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Sootopolis City",
+     "spot": "0-7-9-43",
+     "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 163,
+   "no": 31,
+   "name": "Spelon Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Spelon.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once, for the good saying “GREAT BATTLE” (two Easy Chat words she asks for)."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 164,
+   "no": 32,
+   "name": "Pamtre Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Pamtre.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once, for the good saying “CHALLENGE CONTEST” (two Easy Chat words she asks for)."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 165,
+   "no": 33,
+   "name": "Watmel Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Watmel.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once, for the good saying “OVERWHELMING Latias” (two Easy Chat words she asks for)."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 166,
+   "no": 34,
+   "name": "Durin Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Durin.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once, for the good saying “COOL Latios” (two Easy Chat words she asks for)."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 167,
+   "no": 35,
+   "name": "Belue Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow Belue.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-7-4",
+     "how": "The Berry Master’s wife, once, for the good saying “SUPER HUSTLE” (two Easy Chat words she asks for)."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 168,
+   "no": 36,
+   "name": "Liechi Berry",
+   "emerald": true,
+   "desc": "A hold item that raises Attack in a pinch.",
+   "sources": [
+    {
+     "kind": "tree",
+     "place": "Route 130",
+     "spot": null,
+     "count": 1,
+     "twins": [
+      "Route 212"
+     ],
+     "how": "On Mirage Island, which is there only on some days: on the others Route 130's map script hides everything on it."
+    },
+    {
+     "kind": "tree",
+     "place": "Route 212",
+     "spot": "36-29-12-61",
+     "count": 1,
+     "twins": [
+      "Route 130"
+     ]
+    },
+    {
+     "kind": "daily",
+     "place": "Lilycove City",
+     "spot": "0-5-54-5",
+     "how": "A man who says a Berry suits you, once a day.",
+     "of": [
+      168,
+      169,
+      170,
+      171,
+      172
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 169,
+   "no": 37,
+   "name": "Ganlon Berry",
+   "emerald": true,
+   "desc": "A hold item that raises Defense in a pinch.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Lilycove City",
+     "spot": "0-5-54-5",
+     "how": "A man who says a Berry suits you, once a day.",
+     "of": [
+      168,
+      169,
+      170,
+      171,
+      172
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 170,
+   "no": 38,
+   "name": "Salac Berry",
+   "emerald": true,
+   "desc": "A hold item that raises Speed in a pinch.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Lilycove City",
+     "spot": "0-5-54-5",
+     "how": "A man who says a Berry suits you, once a day.",
+     "of": [
+      168,
+      169,
+      170,
+      171,
+      172
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 171,
+   "no": 39,
+   "name": "Petaya Berry",
+   "emerald": true,
+   "desc": "A hold item that raises Sp. Atk in a pinch.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Lilycove City",
+     "spot": "0-5-54-5",
+     "how": "A man who says a Berry suits you, once a day.",
+     "of": [
+      168,
+      169,
+      170,
+      171,
+      172
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 172,
+   "no": 40,
+   "name": "Apicot Berry",
+   "emerald": true,
+   "desc": "A hold item that raises Sp. Def in a pinch.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Lilycove City",
+     "spot": "0-5-54-5",
+     "how": "A man who says a Berry suits you, once a day.",
+     "of": [
+      168,
+      169,
+      170,
+      171,
+      172
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 173,
+   "no": 41,
+   "name": "Lansat Berry",
+   "emerald": true,
+   "desc": "A hold item that ups the critical- hit rate in a pinch.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Battle Frontier · Scott's House",
+     "spot": "26-46-2-3",
+     "how": "Scott, for your first Silver Symbol."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 174,
+   "no": 42,
+   "name": "Starf Berry",
+   "emerald": true,
+   "desc": "A hold item that sharply boosts a stat in a pinch.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Battle Frontier · Scott's House",
+     "spot": "26-46-2-3",
+     "how": "Scott, once you hold all seven Gold Symbols."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 175,
+   "no": 43,
+   "name": "Enigma Berry",
+   "emerald": true,
+   "desc": "Pokéblock ingredient. Plant in loamy soil to grow a mystery.",
+   "sources": [
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 1000
+    }
+   ]
+  },
+  {
+   "item": 704,
+   "no": 44,
+   "name": "Occa Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Fire move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 355,
+       "name": "Mawile",
+       "rate": "50%"
+      },
+      {
+       "sid": 564,
+       "name": "Pansage",
+       "rate": "5%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 705,
+   "no": 45,
+   "name": "Passho Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Water move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 231,
+       "name": "Phanpy",
+       "rate": "50%"
+      },
+      {
+       "sid": 232,
+       "name": "Donphan",
+       "rate": "50%"
+      },
+      {
+       "sid": 566,
+       "name": "Pansear",
+       "rate": "5%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 706,
+   "no": 46,
+   "name": "Wacan Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Electric move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 471,
+       "name": "Buizel",
+       "rate": "50%"
+      },
+      {
+       "sid": 472,
+       "name": "Floatzel",
+       "rate": "50%"
+      },
+      {
+       "sid": 509,
+       "name": "Finneon",
+       "rate": "50%"
+      },
+      {
+       "sid": 510,
+       "name": "Lumineon",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 707,
+   "no": 47,
+   "name": "Rindo Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Grass move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 568,
+       "name": "Panpour",
+       "rate": "5%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 708,
+   "no": 48,
+   "name": "Yache Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Ice move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 449,
+       "name": "Starly",
+       "rate": "50%"
+      },
+      {
+       "sid": 450,
+       "name": "Staravia",
+       "rate": "50%"
+      },
+      {
+       "sid": 451,
+       "name": "Staraptor",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 709,
+   "no": 49,
+   "name": "Chople Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Fighting move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 480,
+       "name": "Buneary",
+       "rate": "5%"
+      },
+      {
+       "sid": 481,
+       "name": "Lopunny",
+       "rate": "5%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 710,
+   "no": 50,
+   "name": "Kebia Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Poison move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 306,
+       "name": "Shroomish",
+       "rate": "50%"
+      },
+      {
+       "sid": 307,
+       "name": "Breloom",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 711,
+   "no": 51,
+   "name": "Shuca Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Ground move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 77,
+       "name": "Ponyta",
+       "rate": "50%"
+      },
+      {
+       "sid": 78,
+       "name": "Rapidash",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 712,
+   "no": 52,
+   "name": "Coba Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Flying move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 191,
+       "name": "Sunkern",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 713,
+   "no": 53,
+   "name": "Payapa Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Psychic move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 56,
+       "name": "Mankey",
+       "rate": "50%"
+      },
+      {
+       "sid": 57,
+       "name": "Primeape",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 714,
+   "no": 54,
+   "name": "Tanga Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Bug move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 351,
+       "name": "Spoink",
+       "rate": "50%"
+      },
+      {
+       "sid": 352,
+       "name": "Grumpig",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 715,
+   "no": 55,
+   "name": "Charti Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Rock move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 304,
+       "name": "Taillow",
+       "rate": "50%"
+      },
+      {
+       "sid": 305,
+       "name": "Swellow",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 716,
+   "no": 56,
+   "name": "Kasib Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Ghost move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 361,
+       "name": "Duskull",
+       "rate": "50%"
+      },
+      {
+       "sid": 362,
+       "name": "Dusclops",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 717,
+   "no": 57,
+   "name": "Haban Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Dragon move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 496,
+       "name": "Gible",
+       "rate": "50%"
+      },
+      {
+       "sid": 497,
+       "name": "Gabite",
+       "rate": "50%"
+      },
+      {
+       "sid": 498,
+       "name": "Garchomp",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 718,
+   "no": 58,
+   "name": "Colbur Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Dark move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 411,
+       "name": "Chimecho",
+       "rate": "50%"
+      },
+      {
+       "sid": 486,
+       "name": "Chingling",
+       "rate": "50%"
+      },
+      {
+       "sid": 530,
+       "name": "Dusknoir",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 719,
+   "no": 59,
+   "name": "Babiri Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Steel move.",
+   "sources": [
+    {
+     "kind": "ball",
+     "place": "Fuego Ironworks",
+     "spot": "37-52-10-17"
+    },
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 346,
+       "name": "Snorunt",
+       "rate": "5%"
+      },
+      {
+       "sid": 531,
+       "name": "Froslass",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 720,
+   "no": 60,
+   "name": "Chilan Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's Normal-type move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    },
+    {
+     "kind": "held",
+     "mons": [
+      {
+       "sid": 19,
+       "name": "Rattata",
+       "rate": "50%"
+      },
+      {
+       "sid": 20,
+       "name": "Raticate",
+       "rate": "50%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "item": 721,
+   "no": 61,
+   "name": "Roseli Berry",
+   "emerald": false,
+   "desc": "Weakens a foe's super effective Fairy move.",
+   "sources": [
+    {
+     "kind": "daily",
+     "place": "Route 123 · Berry Master's House",
+     "spot": "31-0-4-4",
+     "how": "The Berry Master, once a day: two Berries, one from each list.",
+     "of": [
+      704,
+      705,
+      706,
+      707,
+      708,
+      709,
+      710,
+      711,
+      712,
+      713,
+      714,
+      715,
+      716,
+      717,
+      718,
+      719,
+      720,
+      721
+     ]
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 4000
+    }
+   ]
+  },
+  {
+   "item": 722,
+   "no": 62,
+   "name": "Micle Berry",
+   "emerald": false,
+   "desc": "Raises accuracy of a move, once, at low HP.",
+   "sources": [
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 5000
+    }
+   ]
+  },
+  {
+   "item": 723,
+   "no": 63,
+   "name": "Custap Berry",
+   "emerald": false,
+   "desc": "Makes the holder move first once, at low HP.",
+   "sources": [
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 6000
+    }
+   ]
+  },
+  {
+   "item": 724,
+   "no": 64,
+   "name": "Jaboca Berry",
+   "emerald": false,
+   "desc": "Hurts the foe if it attacks with a physical move.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Mauville City",
+     "spot": "0-2-32-15",
+     "how": "The lady whose Skitty the men in black took into the casino: bring it back and she heals your team and gives you Jaboca, Rowap, Kee and Maranga, once."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 6000
+    }
+   ]
+  },
+  {
+   "item": 725,
+   "no": 65,
+   "name": "Rowap Berry",
+   "emerald": false,
+   "desc": "Hurts the foe if it attacks with a special move.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Mauville City",
+     "spot": "0-2-32-15",
+     "how": "The lady whose Skitty the men in black took into the casino: bring it back and she heals your team and gives you Jaboca, Rowap, Kee and Maranga, once."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 6000
+    }
+   ]
+  },
+  {
+   "item": 726,
+   "no": 66,
+   "name": "Kee Berry",
+   "emerald": false,
+   "desc": "Boosts Defense if the holder is hit by a physical move.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Mauville City",
+     "spot": "0-2-32-15",
+     "how": "The lady whose Skitty the men in black took into the casino: bring it back and she heals your team and gives you Jaboca, Rowap, Kee and Maranga, once."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 6000
+    }
+   ]
+  },
+  {
+   "item": 727,
+   "no": 67,
+   "name": "Maranga Berry",
+   "emerald": false,
+   "desc": "Boosts Sp. Def if the holder is hit by a special move.",
+   "sources": [
+    {
+     "kind": "gift",
+     "place": "Mauville City",
+     "spot": "0-2-32-15",
+     "how": "The lady whose Skitty the men in black took into the casino: bring it back and she heals your team and gives you Jaboca, Rowap, Kee and Maranga, once."
+    },
+    {
+     "kind": "shop",
+     "place": "Floaroma Town · Pretty Petal Flower Shop",
+     "price": 6000
+    }
+   ]
+  }
+ ],
+ "trees": 120,
+ "planted": 80,
+ "copies": [
+  {
+   "item": 762,
+   "name": "Mago Berry"
+  },
+  {
+   "item": 763,
+   "name": "Wiki Berry"
+  },
+  {
+   "item": 764,
+   "name": "Aguav Berry"
+  },
+  {
+   "item": 765,
+   "name": "Tanga Berry"
+  }
+ ],
+ "daily": [
+  {
+   "kind": "daily",
+   "place": "Lilycove City",
+   "spot": "0-5-54-5",
+   "how": "A man who says a Berry suits you, once a day.",
+   "of": [
+    168,
+    169,
+    170,
+    171,
+    172
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Sootopolis City",
+   "spot": "0-7-9-43",
+   "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+   "of": [
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Sootopolis City",
+   "spot": "0-7-9-43",
+   "how": "Kiri, a girl in Sootopolis City, once a day: two Berries, one from each list.",
+   "of": [
+    142,
+    143,
+    144,
+    145,
+    146,
+    147
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Route 111",
+   "spot": "0-26-23-8",
+   "how": "A girl by the berry trees, once a day.",
+   "of": [
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Route 114",
+   "spot": "0-29-27-42",
+   "how": "A Berry Crush fan, once a day.",
+   "of": [
+    148,
+    149,
+    150,
+    151,
+    152
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Route 104 · Pretty Petal Flower Shop",
+   "spot": "17-1-11-6",
+   "how": "The youngest of the flower-shop sisters, once a day.",
+   "of": [
+    143,
+    144,
+    145,
+    146,
+    147
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Route 123 · Berry Master's House",
+   "spot": "31-0-4-4",
+   "how": "The Berry Master, once a day: two Berries, one from each list.",
+   "of": [
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Route 123 · Berry Master's House",
+   "spot": "31-0-4-4",
+   "how": "The Berry Master, once a day: two Berries, one from each list.",
+   "of": [
+    704,
+    705,
+    706,
+    707,
+    708,
+    709,
+    710,
+    711,
+    712,
+    713,
+    714,
+    715,
+    716,
+    717,
+    718,
+    719,
+    720,
+    721
+   ]
+  },
+  {
+   "kind": "daily",
+   "place": "Route 123 · Berry Master's House",
+   "spot": "31-0-7-4",
+   "how": "The Berry Master’s wife, once a day, for any saying you tell her.",
+   "of": [
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142
+   ]
+  }
+ ],
+ "lists": {
+  "168": "Liechi Berry",
+  "169": "Ganlon Berry",
+  "170": "Salac Berry",
+  "171": "Petaya Berry",
+  "172": "Apicot Berry",
+  "153": "Pomeg Berry",
+  "154": "Kelpsy Berry",
+  "155": "Qualot Berry",
+  "156": "Hondew Berry",
+  "157": "Grepa Berry",
+  "158": "Tamato Berry",
+  "159": "Cornn Berry",
+  "160": "Magost Berry",
+  "161": "Rabuta Berry",
+  "162": "Nomel Berry",
+  "142": "Sitrus Berry",
+  "143": "Figy Berry",
+  "144": "Wiki Berry",
+  "145": "Mago Berry",
+  "146": "Aguav Berry",
+  "147": "Iapapa Berry",
+  "133": "Cheri Berry",
+  "134": "Chesto Berry",
+  "135": "Pecha Berry",
+  "136": "Rawst Berry",
+  "137": "Aspear Berry",
+  "138": "Leppa Berry",
+  "139": "Oran Berry",
+  "140": "Persim Berry",
+  "141": "Lum Berry",
+  "148": "Razz Berry",
+  "149": "Bluk Berry",
+  "150": "Nanab Berry",
+  "151": "Wepear Berry",
+  "152": "Pinap Berry",
+  "704": "Occa Berry",
+  "705": "Passho Berry",
+  "706": "Wacan Berry",
+  "707": "Rindo Berry",
+  "708": "Yache Berry",
+  "709": "Chople Berry",
+  "710": "Kebia Berry",
+  "711": "Shuca Berry",
+  "712": "Coba Berry",
+  "713": "Payapa Berry",
+  "714": "Tanga Berry",
+  "715": "Charti Berry",
+  "716": "Kasib Berry",
+  "717": "Haban Berry",
+  "718": "Colbur Berry",
+  "719": "Babiri Berry",
+  "720": "Chilan Berry",
+  "721": "Roseli Berry"
+ }
+}

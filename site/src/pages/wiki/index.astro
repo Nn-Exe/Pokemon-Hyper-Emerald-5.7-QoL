@@ -7,6 +7,7 @@ import { url } from '../../lib/url';
 import { stats, spritePos, speciesId } from '../../lib/data';
 import { dexStats, frontSprite, machines } from '../../lib/pokedex';
 import { LEGEND_COUNT } from '../../data/legendaries';
+import berryData from '../../data/berries.json';
 import { SITE_NAME } from '../../consts';
 
 const crumbs = [{ name: 'Wiki' }];
@@ -73,6 +74,20 @@ const n = (x: number) => x.toLocaleString('en-US');
           <div class="reference-media" aria-hidden="true">
             {['TM35', 'TM55', 'TM11', 'TM82'].map((label) => (
               <span class="spr spr-item x2" style={spritePos('item', machines.find((t) => t.label === label)!.item)} />
+            ))}
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/wiki/berries/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{berryData.berries.length} Berries</span>
+            <h3>Berries</h3>
+            <p>Where each Berry comes from: the trees and what grows on them, gifts, daily givers, shops and wild Pokémon.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            {['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Liechi Berry'].map((name) => (
+              <span class="spr spr-item x2" style={spritePos('item', berryData.berries.find((b) => b.name === name)!.item)} />
             ))}
           </div>
         </a>

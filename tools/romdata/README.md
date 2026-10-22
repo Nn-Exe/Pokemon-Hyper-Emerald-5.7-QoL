@@ -17,6 +17,7 @@ python tools/build_sprites.py                          # -> site/public/sprites/
 python tools/build_tm_locations.py                     # -> site/src/data/tms.json (where each TM and HM is found)
 python tools/build_mega_stones.py                      # -> site/src/data/megastones.json (where each Mega Stone is found)
 python tools/build_guide_items.py                      # -> site/src/data/guide-items.json (Z-Crystals, Totems, Plates)
+python tools/build_berries.py                          # -> site/src/data/berries.json (where to get every Berry)
 python tools/build_spot_maps.py                        # -> site/public/spots/ (a picture of each spot; numpy, Pillow)
 python tools/build_site_content.py                     # -> site/src/data/{journal,side-content}.json
 cd site && npm run build                               # -> docs/ (the published site)

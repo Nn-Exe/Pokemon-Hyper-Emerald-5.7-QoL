@@ -3002,10 +3002,27 @@ a.type-badge:hover {
   border-color: color-mix(in srgb, var(--blue) 45%, var(--border));
   color: var(--blue);
 }
-.chip.k-shop {
+.chip.k-shop,
+.chip.k-held {
   border-color: transparent;
   background: var(--surface-2);
   color: var(--muted);
+}
+.chip.k-tree {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  color: var(--success);
+}
+.chip.k-daily {
+  border-color: color-mix(in srgb, var(--gold) 50%, var(--border));
+  color: var(--warning);
+}
+.berry-table .berry-desc {
+  max-width: 16rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.berry-notes {
+  margin-top: 2rem;
 }
 /* a pick-up nobody can see: the picture of its tile, as a thumbnail or a small button */
 .spot-link {
@@ -4060,6 +4077,11 @@ a.type-badge:hover {
   }
   .tm-where li {
     grid-template-columns: 6rem minmax(0, 1fr);
+  }
+  /* a berry: its number and name, then its effect on a line of its own, then where it is */
+  .berry-table .berry-desc {
+    grid-column: 1 / -1;
+    max-width: none;
   }
   .stone-table td::before {
     content: none;

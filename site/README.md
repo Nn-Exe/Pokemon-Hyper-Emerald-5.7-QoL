@@ -80,7 +80,8 @@ python tools/build_sprites.py          # public/sprites/{mon,trainer,item}.png, 
 python tools/build_tm_locations.py     # tms.json: where each TM and HM is found (after build_pokedex.py)
 python tools/build_mega_stones.py      # megastones.json: where each Mega Stone is found
 python tools/build_guide_items.py      # guide-items.json: the Z-Crystals with their Totems, and the Plates
-python tools/build_spot_maps.py        # public/spots/*.webp, spots.json: a picture of each spot (after the three above)
+python tools/build_berries.py          # berries.json: every Berry, its trees, gifts, daily givers, shops, wild holders
+python tools/build_spot_maps.py        # public/spots/*.webp, spots.json: a picture of each spot (after the four above)
 python tools/build_site_content.py     # journal.json (patches/journal/steps.py, Area Zero's rows from patches/paldea), side-content.json
 python tools/build_site_images.py      # favicon, touch icon and the social card
 FFMPEG=<path> python tools/build_clips.py   # docs/showcase/clips from the README montage GIFs and the GIF editor's v1.9 one

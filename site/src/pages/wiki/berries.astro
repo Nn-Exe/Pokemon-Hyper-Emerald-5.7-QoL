@@ -1,0 +1,258 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import WikiNav from '../../components/WikiNav.astro';
+import Spot from '../../components/Spot.astro';
+import { url, slugify } from '../../lib/url';
+import { spritePos } from '../../lib/data';
+import { pokedexUrl } from '../../lib/pokedex';
+import { SITE_NAME } from '../../consts';
+import data from '../../data/berries.json';
+
+// tools/build_berries.py: every Berry and every place the game hands one out, read from its scripts
+type Mon = { sid: number; name: string; rate: string };
+type Source = {
+  kind: 'tree' | 'ball' | 'hidden' | 'gift' | 'daily' | 'shop' | 'held';
+  place?: string;
+  spot?: string | null;
+  how?: string;
+  count?: number;
+  twins?: string[];
+  price?: number;
+  of?: number[];
+  mons?: Mon[];
+};
+type Berry = { item: number; no: number; name: string; emerald: boolean; desc: string; sources: Source[] };
+const berries = data.berries as Berry[];
+const lists = data.lists as Record<string, string>;
+
+const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Berries' }];
+const description = `Where to get all ${berries.length} Berries in Hyper Emerald v5.7: the trees and the Berry each starts with, every gift, the people who give one a day, the shops and the wild Pokémon that hold them, read from the game’s own scripts.`;
+
+const KIND: Record<Source['kind'], string> = {
+  tree: 'Tree',
+  ball: 'Item ball',
+  hidden: 'Hidden item',
+  gift: 'Gift',
+  daily: 'Daily gift',
+  shop: 'Shop',
+  held: 'Wild Pokémon',
+};
+// what the Source filter calls each kind
+const GROUP: Record<Source['kind'], string> = {
+  tree: 'tree',
+  ball: 'ground',
+  hidden: 'ground',
+  gift: 'given',
+  daily: 'given',
+  shop: 'shop',
+  held: 'held',
+};
+const short = (name: string) => name.replace(/ Berry$/, '');
+const n = (x: number) => x.toLocaleString('en-US');
+const detail = (s: Source) => {
+  if (s.kind === 'shop') return `¥${n(s.price!)}`;
+  if (s.kind === 'tree') {
+    const parts = [s.count! > 1 ? `${s.count} trees` : 'a tree'];
+    if (s.twins?.length) parts.push(`one plot with ${s.twins.join(' and ')}`);
+    if (s.how) parts.push(s.how);
+    return parts.join('; ');
+  }
+  if (s.kind === 'daily') {
+    const of = s.of!;
+    return `${s.how} One of ${of.length} at random, ${short(lists[of[0]])} to ${short(lists[of[of.length - 1]])}.`;
+  }
+  return s.how ?? '';
+};
+const HELD_SHOWN = 8;
+const groupsOf = (sources: Source[]) => [...new Set(sources.map((s) => GROUP[s.kind]))].join(' ');
+const withGroup = (g: string) => berries.filter((b) => b.sources.some((s) => GROUP[s.kind] === g)).length;
+const placesOf = (b: Berry) =>
+  b.sources.map((s) => `${s.place ?? ''} ${s.how ?? ''} ${(s.mons ?? []).map((m) => m.name).join(' ')}`).join(' ');
+const shops = [...new Set(berries.flatMap((b) => b.sources.filter((s) => s.kind === 'shop').map((s) => s.place)))];
+const stock = (p: string | undefined) => berries.filter((b) => b.sources.some((s) => s.kind === 'shop' && s.place === p));
+const everywhere = shops.filter((p) => stock(p).length === berries.length);
+const others = shops.filter((p) => !everywhere.includes(p));
+const newer = berries.filter((b) => !b.emerald);
+const copies = data.copies.map((c) => c.name);
+---
+
+<Base title={`Berries - ${SITE_NAME}`} description={description} crumbs={crumbs} pageType="CollectionPage">
+  <PageHero eyebrow="Hyper Emerald Wiki" title="Berries" lede={description} crumbs={crumbs} />
+
+  <div class="container wiki-shell">
+    <WikiNav />
+
+    <ul class="dex-totals">
+      <li><strong>{berries.length}</strong> Berries</li>
+      <li><strong>{withGroup('tree')}</strong> growing on a tree from the start</li>
+      <li><strong>{data.trees}</strong> trees, {data.planted} with Berries at the start</li>
+      <li><strong>{withGroup('given')}</strong> given by someone</li>
+      <li><strong>{withGroup('shop')}</strong> sold in a shop</li>
+    </ul>
+
+    <form class="wiki-filter" role="search" data-filter onsubmit="return false">
+      <label>
+        <span>Search Berries</span>
+        <input type="search" placeholder="Berry, effect or place" autocomplete="off" data-q />
+      </label>
+      <label>
+        <span>Source</span>
+        <select data-from>
+          <option value="">Any source</option>
+          <option value="tree">Growing on a tree</option>
+          <option value="given">Given by someone</option>
+          <option value="ground">Lying on the ground</option>
+          <option value="shop">Sold in a shop</option>
+          <option value="held">Held by wild Pokémon</option>
+        </select>
+      </label>
+      <label>
+        <span>Berries</span>
+        <select data-set>
+          <option value="">All {berries.length}</option>
+          <option value="emerald">Emerald’s {berries.length - newer.length} (No. 1-43)</option>
+          <option value="newer">The hack’s {newer.length} (No. 44-67)</option>
+        </select>
+      </label>
+      <div class="wiki-filter-status">
+        <p aria-live="polite" data-count>{berries.length} Berries</p>
+        <button type="button" data-clear>Reset</button>
+      </div>
+    </form>
+
+    <p class="wiki-empty" hidden data-empty>No Berry matches those filters.</p>
+
+    <div class="table-shell" tabindex="0" role="region" aria-label="Berries" data-shell>
+      <table class="move-table stack-table tm-table berry-table">
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Berry</th>
+            <th scope="col">Effect</th>
+            <th scope="col">Where to get it</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            berries.map((b) => (
+              <tr
+                id={slugify(b.name)}
+                data-berry
+                data-name={`${b.name} ${b.no}`.toLowerCase()}
+                data-text={`${b.desc} ${placesOf(b)}`.toLowerCase()}
+                data-from={groupsOf(b.sources)}
+                data-set={b.emerald ? 'emerald' : 'newer'}
+              >
+                <td class="move-lead">No{String(b.no).padStart(2, '0')}</td>
+                <th scope="row">
+                  <span class="item-ref">
+                    <span class="spr spr-item" style={spritePos('item', b.item)} aria-hidden="true" />
+                    <span>{b.name}</span>
+                  </span>
+                </th>
+                <td data-label="Effect" class="berry-desc">{b.desc}</td>
+                <td class="tm-where">
+                  <ul>
+                    {b.sources.map((s) => (
+                      <li>
+                        <span class={`chip k-${s.kind}`}>{KIND[s.kind]}</span>
+                        {s.kind === 'held' ? (
+                          <span>
+                            {s.mons!.slice(0, HELD_SHOWN).map((m, i) => (
+                              <>
+                                {i > 0 && ', '}
+                                {pokedexUrl(m.sid) ? <a href={pokedexUrl(m.sid)}>{m.name}</a> : m.name}
+                                <small> {m.rate}</small>
+                              </>
+                            ))}
+                            {s.mons!.length > HELD_SHOWN && <small> and {s.mons!.length - HELD_SHOWN} more</small>}
+                          </span>
+                        ) : (
+                          <span>
+                            <strong>{s.place}</strong>
+                            {detail(s) && <small>: {detail(s)}</small>}
+                            {s.spot && <Spot text spot={s.spot} title={`${b.name}, ${s.place}`} />}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose berry-notes">
+      <h2>How Berries work here</h2>
+      <ul>
+        <li>
+          <strong>Trees.</strong> A new game plants {data.planted} of the {data.trees} trees with ripe Berries; the
+          others start as soft soil. Picking takes every Berry on the tree and leaves soft soil. Plant a Berry there and
+          it grows more of the same: in the words of Floaroma’s flower shop, “If you plant a Berry, a few days later you
+          can harvest lots of Berries! That way, your Berries will slowly multiply.” Some Sinnoh trees are one plot with a tree
+          in Hoenn (“one plot with …” above): the game keeps a single tree for both, so picking one leaves the other bare too.
+        </li>
+        <li>
+          <strong>Only Emerald’s 43 grow true.</strong> The planting code knows Berries No. 1-43 (Cheri to Enigma)
+          and turns any other into a Cheri Berry: plant one of the hack’s {newer.length} ({short(newer[0].name)} to{' '}
+          {short(newer[newer.length - 1].name)}) and Cheri Berries come up.
+        </li>
+        <li>
+          <strong>Daily gifts</strong> come back every day: the game clears their flags when the day changes.
+        </li>
+        <li>
+          <strong>Shops.</strong> {everywhere.join(' and ')} sells every one of the {berries.length}.
+          {others.map((p) => ` ${p} sells ${stock(p).length}: ${stock(p).map((b) => short(b.name)).join(', ')}.`)}
+        </li>
+        <li>
+          <strong>Wild Pokémon</strong> hold the first item of their species half the time and the second one time in
+          twenty (the percentages above); a species whose two items are the same always holds it.
+        </li>
+      </ul>
+      <p class="src">
+        Read from the game’s scripts: the trees and what the new-game script plants in each (checked against a new
+        game in the emulator), every person, item ball, hidden item and shop list that hands over a Berry, and the
+        wild encounter tables with each species’ held items. People and items the game keeps where nobody can walk are
+        left out. Not listed: four more entries in the Berries pocket ({copies.join(', ')}, No. 68-71), copies that
+        nothing in the game hands out; and Dad’s Enigma Berry in the Petalburg Gym, which he gives only to a save
+        holding an e-Reader Berry, something no part of the game itself provides.
+      </p>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filter]')!;
+  const q = form.querySelector<HTMLInputElement>('[data-q]')!;
+  const src = form.querySelector<HTMLSelectElement>('[data-from]')!;
+  const set = form.querySelector<HTMLSelectElement>('[data-set]')!;
+  const count = form.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const shell = document.querySelector<HTMLElement>('[data-shell]')!;
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-berry]')];
+
+  function apply() {
+    const term = q.value.trim().toLowerCase();
+    let shown = 0;
+    for (const row of rows) {
+      const ok =
+        (!term || row.dataset.name!.includes(term) || row.dataset.text!.includes(term)) &&
+        (!src.value || row.dataset.from!.split(' ').includes(src.value)) &&
+        (!set.value || row.dataset.set === set.value);
+      row.hidden = !ok;
+      if (ok) shown++;
+    }
+    count.textContent = `${shown} Berr${shown === 1 ? 'y' : 'ies'}`;
+    empty.hidden = shown > 0;
+    shell.hidden = shown === 0;
+  }
+  form.addEventListener('input', apply);
+  form.querySelector('[data-clear]')!.addEventListener('click', () => {
+    form.reset();
+    apply();
+  });
+</script>

@@ -44,6 +44,7 @@
     Move: 1,
     TM: 1,
     'Mega Stone': 1,
+    Berry: 1,
     'Z-Crystal': 1,
     Plate: 1,
     Ability: 1,
@@ -110,6 +111,11 @@
       const s = document.createElement('span');
       s.className = 'spr spr-trainer';
       s.style.cssText = `--x:${e.i % 16};--y:${Math.floor(e.i / 16)};--s:.62`;
+      box.append(s);
+    } else if (e.i !== undefined && e.t === 'Berry') {
+      const s = document.createElement('span');
+      s.className = 'spr spr-item';
+      s.style.cssText = `--x:${e.i % 32};--y:${Math.floor(e.i / 32)}`;
       box.append(s);
     } else box.textContent = e.t.slice(0, 2).toUpperCase();
     return box;
