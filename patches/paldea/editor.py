@@ -1,6 +1,6 @@
 """The Area Zero editor: move its people, Pokemon and crystals, and paint its ground, with the mouse.
 python -I editor.py [folder] [--here] [--no-browser]
-       (the folder: gba-trans/roms/test-paldea unless named; --here: as rebuild.py's; --no-browser: only serve)
+       (the folder: gba-trans/hyper-emerald/roms/test-paldea unless named; --here: as rebuild.py's; --no-browser: only serve)
 
 The user, on test 10: "actually can I edit the placement myself???", and on test 11: "apart from placement, can I
 change tiles layout everything myself? like Hex app. I cannot use Hex app" (Hex Maniac Advance does not open this

@@ -6,7 +6,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "sw") .. "_switch"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local LEAD, SECOND = tonumber(E("LEAD")), tonumber(E("SECOND") or "242")
 local SCRIPT, PARTY, MONS, ACTION, ABIL16 = 0x0203F100, 0x020244EC, 0x02024084, 0x08057589, 0x0203F000
 local function run(bytes)

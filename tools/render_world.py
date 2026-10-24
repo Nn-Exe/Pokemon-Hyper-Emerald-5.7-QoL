@@ -9,7 +9,7 @@ import os, struct, sys
 import numpy as np
 from PIL import Image, ImageDraw
 
-ROM = os.environ.get("HE_ROM") or "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/roms/current/Pokemon Hyper Emerald v5.7 - Full English Modern.gba"
+ROM = os.environ.get("HE_ROM") or "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/roms/current/Pokemon Hyper Emerald v5.7 - Full English Modern.gba"
 rom = open(ROM, "rb").read()
 MASTER = 0xA54698                 # gMapGroups
 NUM_TILES_IN_PRIMARY = 512

@@ -17,7 +17,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'Is Gen 9 in the game?',
-        a: `Yes, since v1.9: every Gen 9 Pokémon at its official Pokédex number, the newer ones wild all over Hoenn, and the Paradox Pokémon and legends in ${link('/guides/area-zero/', 'Area Zero')}, a Paldea area that opens in Mossdeep City after Team Rainbow Rocket. Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt cannot be met: they live in Kitakami, which the game does not have.`,
+        a: `Yes, since v1.9: every Gen 9 Pokémon at its official Pokédex number, the newer ones wild all over Hoenn, and the Paradox Pokémon and legends in ${link('/guides/area-zero/', 'Area Zero')}, a Paldea area that opens in Mossdeep City after Team Rainbow Rocket. Since v2.0 Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt are in ${link('/guides/kitakami/', 'Kitakami')}, which a bus reaches from Mossdeep City once Area Zero’s story is over.`,
       },
       {
         q: 'Is the hack complete?',
@@ -37,7 +37,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'How do I know which version I am on?',
-        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL1.9” followed by your difficulty.',
+        a: 'Open START → Option. The title reads “Ultra Emerald v5.7 +QoL2.0” followed by your difficulty.',
       },
     ],
   },
@@ -67,7 +67,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
     items: [
       {
         q: 'My save is gone after switching to the new ROM',
-        a: 'Emulators match the <code>.sav</code> by file name. Rename either the ROM or the save so the base names match. Up to v1.8 the save data is compatible in both directions; a save that has been opened in v1.9 must not go back to an older version.',
+        a: 'Emulators match the <code>.sav</code> by file name. Rename either the ROM or the save so the base names match. Up to v1.8 the save data is compatible in both directions; a save that has been opened in v1.9 or v2.0 must not go back to an older version.',
       },
       {
         q: 'Can I use save states from the old ROM?',
@@ -79,7 +79,7 @@ export const FAQ_GROUPS: { title: string; items: { q: string; a: string }[] }[] 
       },
       {
         q: 'Will future patch versions break my save?',
-        a: 'Updates are designed to be save-compatible: the features keep their state in bytes the game never used, and an older save loads in a newer version. v1.9 is one way: it moves the save’s Gen 9 Pokédex marks, so a save opened in it must not go back to v1.8 or older. Keep a backup of the <code>.sav</code>; it is a 128 KB file.',
+        a: 'Updates are designed to be save-compatible: the features keep their state in bytes the game never used, and an older save loads in a newer version. v1.9 is one way: it moves the save’s Gen 9 Pokédex marks, so a save opened in it must not go back to v1.8 or older; a save opened in v2.0 keeps Kitakami’s story and should stay on v2.0. Keep a backup of the <code>.sav</code>; it is a 128 KB file.',
       },
       {
         q: 'My save disappears after the League',

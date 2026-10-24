@@ -1,6 +1,6 @@
 -- Both-bikes test: load the save, look at the Key Items pocket for the Mach Bike (259) and Acro Bike (272)
 -- before and after the overworld runs, then open the bag to see them.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7
 local NL = string.char(10)

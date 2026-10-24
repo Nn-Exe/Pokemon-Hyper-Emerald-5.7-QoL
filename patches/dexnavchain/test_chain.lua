@@ -1,5 +1,5 @@
 -- End to end: arm a hunt and fight a run of encounters, checking what appears and how the chain counts.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "verify_log.txt", "w")
 local function w(s) log:write(s .. NL); log:flush() end

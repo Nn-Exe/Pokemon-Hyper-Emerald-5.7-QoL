@@ -556,15 +556,17 @@ PARTNER_LEVEL = 75
 # Slots: four the game never battles (no script names them). Classes 71 and 72 are
 # new, in the spare room after the game's 71 class names. Moves by the ROM's own names (cut to 12 letters).
 NEW_CLASSES = {71: "Professor", 72: "Paradise"}
+# (the battle pictures: Nemona 250, AI Sada 251, AI Turo 252 are their own since 2026-10-21, cast.py; they were the
+# game's 194, 218 and 31 before)
 TRAINERS = {
-    "nemona": (952, 38, 194, True, "Nemona", False, [
+    "nemona": (952, 38, 250, True, "Nemona", False, [
         ("Lycanroc", 72, "Life Orb", ["Accelerock", "Stone Edge", "Close Combat", "Crunch"]),
         ("Goodra", 72, "Leftovers", ["Draco Meteor", "Thunderbolt", "Flamethrower", "Sludge Bomb"]),
         ("Iron Hands", 72, "Leftovers", ["Drain Punch", "Wild Charge", "Ice Punch", "Fake Out"]),
         ("Iron Bundle", 72, "Choice Specs", ["Freeze-Dry", "Hydro Pump", "Ice Beam", "Flip Turn"]),
         ("Baxcalibur", 74, "Life Orb", ["Icicle Crash", "Earthquake", "Dragon Dance", "Ice Shard"]),
     ]),
-    "sada": (943, 71, 218, True, "AI Sada", False, [
+    "sada": (943, 71, 251, True, "AI Sada", False, [
         ("Slither Wing", 75, "Leftovers", ["1st Impress.", "Close Combat", "Wild Charge", "U-Turn"]),
         ("Scream Tail", 75, "Leftovers", ["Dazzle Gleam", "Psychic", "Thunder Wave", "Light Screen"]),
         ("Brute Bonnet", 75, "Life Orb", ["Spore", "Seed Bomb", "Sucker Punch", "Crunch"]),
@@ -572,7 +574,7 @@ TRAINERS = {
         ("Sandy Shocks", 75, "Leftovers", ["Thunderbolt", "Earth Power", "Volt Switch", "Spikes"]),
         ("Roaring Moon", 77, "BoosterEnergy", ["Dragon Dance", "Crunch", "Dragon Claw", "Earthquake"]),
     ]),
-    "turo": (947, 71, 31, False, "AI Turo", False, [
+    "turo": (947, 71, 252, False, "AI Turo", False, [
         ("Iron Moth", 75, "Choice Specs", ["Fiery Dance", "Sludge Wave", "Energy Ball", "Psychic"]),
         ("Iron Bundle", 75, "Leftovers", ["Freeze-Dry", "Hydro Pump", "Ice Beam", "Encore"]),
         ("Iron Hands", 75, "Leftovers", ["Drain Punch", "Wild Charge", "Ice Punch", "Heavy Slam"]),

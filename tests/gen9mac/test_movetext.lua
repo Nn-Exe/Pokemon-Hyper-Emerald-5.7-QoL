@@ -8,7 +8,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local MODE = E("MODE") or "summary"
 NAME = (E("TAG") or "mt") .. "_" .. MODE
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local MOVES = {}
 for n in (E("MOVES") or ""):gmatch("%d+") do MOVES[#MOVES + 1] = tonumber(n) end
 local SPECIES = tonumber(E("SPECIES") or "151")

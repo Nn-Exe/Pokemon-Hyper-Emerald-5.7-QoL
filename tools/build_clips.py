@@ -1,5 +1,5 @@
 """Cut the README montage GIFs (docs/showcase/showcase-*.gif, a 3x3 grid of captioned clips each) and the v1.9
-montage (gba-trans/showcase/gifs/v1.9.gif, made with tools/gif_editor.py) into one small MP4 and one PNG poster
+montage (gba-trans/hyper-emerald/showcase/gifs/v1.9.gif, made with tools/gif_editor.py) into one small MP4 and one PNG poster
 per clip, for the guide site.
 
 usage: FFMPEG=<path to ffmpeg> python tools/build_clips.py
@@ -106,6 +106,18 @@ MONTAGES = [
         ("legends-119", "Legends: 119 to catch, Kitakami's locked"),
         ("evolutions-gen9", "Every Gen 9 evolution line"),
         ("questlog-area-zero", "Area Zero side quests in the Quest Log"),
+    ], EDITOR),
+    # v2.0's montage (the README's first; _testrun/showcase20b/montage.py, the GIF editor's layout)
+    ("showcase-v2.0-kitakami", "What's new in v2.0", [
+        ("mossui-town", "Mossui Town, Kitakami"),
+        ("carmine-bus-stop", "Carmine stops you at the bus stop"),
+        ("mask-hall", "Kitakami Hall's Mask Hall"),
+        ("ogerpon-loyalty-plaza", "Ogerpon at Loyalty Plaza"),
+        ("kieran-night-market", "Kieran at the night market (Mochi Mayhem)"),
+        ("area-zero-people", "Area Zero's people, redrawn"),
+        ("dex-base-stats", "Pokédex: base stats on R"),
+        ("start-menu-clock", "A clock on the Start menu"),
+        ("gmax-mark", "The Gigantamax mark on the summary"),
     ], EDITOR),
 ]
 

@@ -6,7 +6,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "tm") .. "_tm"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local LIST = {}
 for n in (E("LIST") or ""):gmatch("%d+") do LIST[#LIST + 1] = tonumber(n) end
 local ROW = tonumber(E("TMROW") or "0")

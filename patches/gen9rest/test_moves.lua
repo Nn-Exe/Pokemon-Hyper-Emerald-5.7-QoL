@@ -6,7 +6,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local TAG = E("TAG") or "mt"
 NAME = TAG .. "_move"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local MOVE, FOE, TURNS = tonumber(E("MOVE")), tonumber(E("FOE") or "113"), tonumber(E("TURNS") or "1")
 local ATK = tonumber(E("ATK") or "143")                -- Snorlax (Mew does not obey: not from the event)
 local SCRIPT, MONS, PARTY = 0x0203F100, 0x02024084, 0x020244EC

@@ -65,7 +65,9 @@ PLACES = [
     (104, "Prelude Beach", 10, 14, 0x0989AE3C),
 ]
 
-HISUI_FLY = False                               # A on the Hisui map flies (see the top: off since 2026-10-08)
+HISUI_FLY = False                               # A on the Hisui map flies (see the top: off since 2026-10-08; since
+                                                # 2026-10-22 patches/hisuifly, later in the chain, gives the places
+                                                # back, each needing flag 0x431E: after Volo)
 
 MINGYAO_LIST = 0x098031A8                       # multichoice 137: five {text, id} entries
 MINGYAO_FIX = {1: (0x098365E1, "Deertrack Heights"), 3: (0x098365F3, "Snowfall Hot Spring")}

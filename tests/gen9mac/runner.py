@@ -11,7 +11,7 @@ import json, os, shutil, subprocess, sys, time, glob, concurrent.futures as cf
 MGBA = os.environ.get("MGBA_HEADLESS", "mgba-headless")
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BOOT = REPO + "/patches/dexnavchain/test_boot.lua"
-WINBOOT = ["C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua"]
+WINBOOT = ["C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua"]
 
 
 def one(job, out):

@@ -8,7 +8,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local TAG = E("TAG") or "mb"
 NAME = TAG .. "_mart"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local LIST = tonumber(E("LIST") or "0x09B00DD0")
 local ROW = tonumber(E("ROW") or "19")
 local NPC = E("NPC")

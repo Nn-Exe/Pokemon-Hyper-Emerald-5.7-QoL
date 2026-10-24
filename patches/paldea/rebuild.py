@@ -1,5 +1,5 @@
 """Makes the Area Zero ROM again from the positions in a folder's placements.txt:
-python -I rebuild.py [folder] [--here]   (the folder: gba-trans/roms/test-paldea unless named)
+python -I rebuild.py [folder] [--here]   (the folder: gba-trans/hyper-emerald/roms/test-paldea unless named)
 
 This is what "rebuild.bat" beside the test builds runs, and what the placement editor (editor.py) calls when you
 press its button. In the folder it
@@ -10,14 +10,32 @@ press its button. In the folder it
     it was is kept beside it;
   * builds "Hyper Emerald - Area Zero (my placements N).gba" from the Gen 9 test build, N one more than the last,
     and since 2026-10-15 puts the whole of Gen 9 on it with the steps the chain ends with (gen9rest, gen9dex,
-    gen9egg, gen9journal: the user, "patch to my current rom, including every fix and whole gen9").
+    gen9egg, gen9journal: the user, "patch to my current rom, including every fix and whole gen9"), and since
+    2026-10-17 Kitakami last, with the placements.txt of roms/test-kitakami (the user: "try to merge with main
+    rom"); since 2026-10-18 wilditem just before it, since 2026-10-20 keytrainers between the two (the coworker's Gen 9
+    teams; the user: "merge to my current rom"), then paulgift (no second EV-IV Display), and since 2026-10-21 contexit (Continue no longer walks you into a
+    tree), iconnight (the DexNav bar's icon in its own colours at night) and eggrelearn (egg moves in the Move
+    Relearner; the user: "yeah in party relearner"), and since 2026-10-21 too gen9abil (the Gen 9 abilities work in
+    battle), since 2026-10-22 gen9anim (the Gen 9 moves' own animations) and hisuifly (the Hisui map flies again once
+    Rei and Cogita have told you the news after Volo) and evgain (EVs from battles reach 510)
+    and mintquirky (Cheren's Mint list with Quirky, inside the screen) and castlefence (the Rainbow Castle's trap fence
+    no longer shuts out a player who comes back) and azpeople (Area Zero's people redrawn after the user's references)
+    and hpcalc (a fainted Pokemon stays fainted when its stats change)
+    and eshot (Electro Shot fires in its first turn in the rain)
+    and granitefall (no cracked floor in Granite Cave drops you into rock)
+    and startclock (a clock on the Start menu)
+    and consolequest (the console's four cartridges as Side Content rows in the Quest Log)
+    and gmaxicon (a Gigantamax mark on the summary screen). In the user's own folder the game as it is before Kitakami is kept in roms/before-kitakami, for
+    Kitakami's editor (patches/kitakami/krebuild.py builds on it).
     A new name every time on purpose: an emulator that loads its last save state when a ROM is opened would load
     one made on the older ROM, in which every script has moved, and crash. A new name has no save state; and the
     older ROM can still be open in the emulator while this runs;
   * gives the new ROM a save: a copy of the newest save with a game in it of the user's own builds ("(my
     placements N)"; else of any Area Zero build, never a second save "(before the door opens)"), beside the ROM
-    and in every folder an installed mGBA keeps its saves in (its config's savegamePath). The user's own emulator
-    keeps them on the Desktop, and makes an empty one there for every ROM it opens: those are passed over;
+    and in every folder an installed mGBA keeps its saves in (its config's savegamePath) - but never on the
+    Desktop (the user, 2026-10-16: "make sure that sav mgba file will not populate on desktop"; EmuDeck's mGBA
+    keeps its saves there, so a save is still looked for there, only none is put there). That emulator also makes
+    an empty one for every ROM it opens: those are passed over;
   * says so if a save state is newer than that save: the user plays from save states, and what a state holds
     never reaches a new ROM unless it is saved in the game first;
   * draws the map guide again, from the new ROM;
@@ -31,6 +49,9 @@ import glob, os, re, shutil, struct, sys, tempfile, time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+# what every game in the workspace shares (the standalone mGBA, other games' ROMs): the folder above this game's
+# own one (gba-trans/hyper-emerald/ since 2026-10-20, when gba-trans became one folder per game)
+SHARED = os.path.dirname(ROOT)
 BASE_ROM = os.path.join(ROOT, "roms", "test-gen9", "Hyper Emerald - Gen 9 test.gba")
 FOLDER = os.path.join(ROOT, "roms", "test-paldea")
 NAME = "Hyper Emerald - Area Zero (my placements %d)"
@@ -39,24 +60,40 @@ OURS = re.compile(r"Hyper Emerald - Area Zero \(my placements (\d+)\)\.(?:gba|sa
 ANY = "Hyper Emerald - Area Zero*"
 KEEP = 2
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
-CREST = os.path.join(ROOT, "pokemon crest", "Crest_v1.0.F.gba")      # gen9rest's donor, as gen9's
-TAIL = [("gen9rest", [CREST]), ("gen9dex", []), ("gen9egg", []), ("gen9journal", [])]
+CREST = os.path.join(SHARED, "source-roms", "pokemon crest", "Crest_v1.0.F.gba")      # gen9rest's donor, as gen9's
+# Kitakami, last since 2026-10-17 (the user: "try to merge with main rom"), with the user's placements.txt of
+# roms/test-kitakami (its editor's folder); the game as it is just before it is kept for that editor (krebuild.py
+# builds Kitakami on it: Kitakami cannot go onto a game that has it)
+KITAKAMI_PLACES = os.path.join(ROOT, "roms", "test-kitakami", "placements.txt")
+BEFORE_KITAKAMI = os.path.join(ROOT, "roms", "before-kitakami", "Hyper Emerald - the game before Kitakami.gba")
+TAIL = [("gen9rest", [CREST]), ("gen9dex", []), ("gen9egg", []), ("gen9journal", []), ("wilditem", []),
+        ("keytrainers", []), ("paulgift", []), ("contexit", []), ("iconnight", []), ("eggrelearn", []), ("gen9abil", []), ("gen9anim", []), ("hisuifly", []), ("evgain", []), ("mintquirky", []), ("castlefence", []), ("azpeople", []), ("hpcalc", []), ("eshot", []), ("granitefall", []), ("startclock", []), ("consolequest", []), ("gmaxicon", []), ("kitakami", [KITAKAMI_PLACES] if os.path.exists(KITAKAMI_PLACES) else [])]
 
 
-def whole_gen9(path, say):
-    """The steps after paldea (_testrun/full/rebuild_chain.py's tail), on `path` in place. False if one fails."""
+def whole_gen9(path, say, base_to=None):
+    """The steps after paldea (_testrun/full/rebuild_chain.py's tail), on `path` in place. False if one fails.
+    base_to: where to keep the game as it is before the kitakami step (only for the user's own builds)."""
     import subprocess
     if not os.path.exists(CREST):
         say("Nothing was built: the whole of Gen 9 needs the Crest ROM, and it is not here:\n  " + CREST)
         return False
     cur = path
     for name, more in TAIL:
+        if name == "kitakami" and base_to:
+            os.makedirs(os.path.dirname(base_to), exist_ok=True)
+            shutil.copyfile(cur, base_to + ".new")
+            os.replace(base_to + ".new", base_to)
         nxt = "%s.%s.gba" % (path, name)
         r = subprocess.run([sys.executable, "-I", os.path.join(REPO, "patches", name, name + "_patch.py"), cur, nxt]
                            + more, cwd=REPO, capture_output=True, text=True, encoding="utf-8", errors="replace",
                            env=dict(os.environ, PYTHONIOENCODING="utf-8"))
         if cur != path:
-            os.remove(cur)
+            for _try in range(50):                   # a scanner may hold a fresh file for a moment (2026-10-20:
+                try:                                 # WinError 32 on a step's output; rebuild_chain.py waits too)
+                    os.remove(cur)
+                    break
+                except PermissionError:
+                    time.sleep(0.2)
         if r.returncode != 0 or not os.path.exists(nxt):
             say("Nothing was built: the step %s failed.\n%s" % (name, (r.stdout + r.stderr)[-1500:]))
             if os.path.exists(nxt):
@@ -73,7 +110,7 @@ def emulator_folders(key):
     out = []
     appdata = os.environ.get("APPDATA", "")
     for cfg in (os.path.join(appdata, "emudeck", "Emulators", "mgba", "config.ini"),
-                os.path.join(appdata, "mGBA", "config.ini"), os.path.join(ROOT, "tools", "pc_mgba", "config.ini")):
+                os.path.join(appdata, "mGBA", "config.ini"), os.path.join(SHARED, "tools", "pc_mgba", "config.ini")):
         try:
             for line in open(cfg, encoding="utf-8", errors="replace"):
                 if line.startswith(key + "="):
@@ -83,6 +120,14 @@ def emulator_folders(key):
         except OSError:
             pass
     return out
+
+
+DESKTOP = os.path.normcase(os.path.abspath(os.path.join(os.path.expanduser("~"), "Desktop")))
+
+
+def on_desktop(d):
+    """Saves are never put on the Desktop (the user, 2026-10-16); they may be read from it."""
+    return os.path.normcase(os.path.abspath(d)) == DESKTOP
 
 
 def has_game(path):
@@ -155,7 +200,8 @@ def rebuild(folder=FOLDER, say=print, guide=True, emulators=True):
             for line in e.lines:
                 say("  - " + line)
             return False
-        if not whole_gen9(tmp, say):
+        mine = os.path.normcase(folder) == os.path.normcase(os.path.abspath(FOLDER))
+        if not whole_gen9(tmp, say, BEFORE_KITAKAMI if mine else None):
             return False
         if fresh:
             say("There was no placements.txt: one was written with everything where it is now.")
@@ -193,13 +239,17 @@ def rebuild(folder=FOLDER, say=print, guide=True, emulators=True):
     # its save
     src = newest([folder] + others, ".sav", has_game)
     if src:
-        for d in [folder] + others:
+        put = [d for d in others if not on_desktop(d)]
+        for d in [folder] + put:
             dst = os.path.join(d, NAME % n + ".sav")
             if not os.path.exists(dst):
                 shutil.copyfile(src, dst)
-        say("Its save is a copy of \"%s\" of %s%s." % (
+        say("Its save is a copy of \"%s\" of %s%s, beside the ROM." % (
             os.path.basename(src), when(src),
-            " (also put in " + ", ".join(others) + ", where your emulator keeps its saves)" if others else ""))
+            " (also put in " + ", ".join(put) + ", where your emulator keeps its saves)" if put else ""))
+        if any(on_desktop(d) for d in others):
+            say("Not put on the Desktop, where EmuDeck's mGBA looks for saves: tools/pc_mgba reads the one beside "
+                "the ROM.")
         say("Open the new ROM and choose Continue. If you saved inside Area Zero the screen fades once more right "
             "after that: the game is reading the new positions.")
         state = newest([folder] + states, ".ss?")

@@ -13,6 +13,33 @@ export type Release = {
 
 export const RELEASES: Release[] = [
   {
+    version: 'v2.0',
+    date: '2026-10-24',
+    summary:
+      'Kitakami after Area Zero, with the Teal Mask story and Mochi Mayhem; the Gen 9 abilities and moves as they are in Scarlet and Violet; Gen 9 teams for the key trainers by Luciano Fire; a clock on the Start menu, base stats in the Pokédex and a Gigantamax mark; and fixes from fainted Pokémon brought back by HP Up to EVs stuck at 509.',
+    changes: [
+      ['Added', 'Kitakami. Once Area Zero’s story is over, Briar waits beside the black hole in Mossdeep City with a bus to Mossui Town: a valley of red maples with a festival market, Kitakami Hall’s Mask Hall and Loyalty Plaza. The Teal Mask story in eight chapters with Carmine and Kieran: the three signboards, the Festival of Masks, the Loyal Three, Ogerpon in her four masks and then caught. Afterwards Kieran’s grandfather changes her mask and the Loyal Three can be caught where they hide.'],
+      ['Added', 'Mochi Mayhem: Briar has a letter from Kieran, Mossui is under a spell of mochi at night, Arven, Nemona and Penny come from Paldea, and after Nemona’s battle Pecharunt (No. 1025) is yours once beaten. The Quest Log’s Legends count all five of Kitakami’s legends: 124. The market’s stalls sell Sweet and Tart Apples, vitamins and healing items.'],
+      ['Changed', 'The Gen 9 abilities work in battle as in Scarlet and Violet: Protosynthesis and Booster Energy, the Treasures of Ruin, Commander, Good as Gold, Tera Shell and the rest (not Zero to Hero: there is no Hero Form). Until now each acted as an older ability, or did nothing.'],
+      ['Changed', 'The Gen 9 moves have animations of their own; until now each played the animation of the older move it was made from.'],
+      ['Changed', 'The key trainers use Gen 9 Pokémon: all eight Gym Leaders, the Elite Four, Wallace, Archie, Maxie and more, 42 trainers, in teams made by Luciano Fire.'],
+      ['Changed', 'Area Zero’s people in pictures of their own: Nemona, Arven, Penny, Jacq, AI Sada and AI Turo walk in sprites of their own, and Nemona, AI Sada and AI Turo battle in their own pictures.'],
+      ['Changed', 'The Hisui map flies you again, with Mingyao’s Braviary, once Rei and Cogita have told you the news after Volo; before that it only names the places.'],
+      ['Added', 'A clock on the Start menu, beside the “R Journal” box: the day and the time, e.g. “Thu 5:08 PM”.'],
+      ['Added', 'Base stats in the Pokédex: R on a Pokémon’s INFO page shows its six base stats with bars and their total.'],
+      ['Added', 'A Gigantamax mark: a Pokémon that has had the Max Soup shows the Max Mushroom’s icon at the end of its name on the summary screen.'],
+      ['Added', 'Egg moves in the Move Relearner: the party menu’s Moves lists a Pokémon’s egg moves after its level-up moves.'],
+      ['Added', 'The Quest Log’s Side Content has the four cartridges of the console in your room (59 rows).'],
+      ['Fixed', 'A fainted Pokémon stays fainted: HP Up brought one back with a few HP, and a Pomeg Berry could give it full HP.'],
+      ['Fixed', 'EVs from battles reach 510 in all; they stopped at 509.'],
+      ['Fixed', 'Electro Shot fires in its first turn when it rains.'],
+      ['Fixed', 'Granite Cave’s cracked floor no longer drops you into the rock, and Continue no longer puts you inside a tree in Petalburg Woods.'],
+      ['Fixed', 'The Rainbow Rocket castle lets you back in if you left before its mission was done.'],
+      ['Fixed', 'Cheren’s Mint list has Quirky and fits the screen; Paul no longer gives a second EV-IV Display; a Pokémon a script gives an item to keeps it in battle; the DexNav bar’s icon keeps its colours at night; the Quest Log says the Zygarde Cube is in Terminus Cave.'],
+      ['Changed', 'The Option screen’s title says +QoL2.0.'],
+    ],
+  },
+  {
     version: 'v1.9',
     date: '2026-10-16',
     summary:

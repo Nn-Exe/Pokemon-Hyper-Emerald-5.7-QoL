@@ -15,7 +15,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local MODE = E("MODE") or "own"
 NAME = (E("TAG") or "f2") .. "_" .. MODE
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SPECIES, TURNS = tonumber(E("SPECIES")), tonumber(E("TURNS") or "4")
 local SCRIPT, PARTY, MONS, ACTION, ABIL16 = 0x0203F100, 0x020244EC, 0x02024084, 0x08057589, 0x0203F000
 local function run(bytes)

@@ -1,6 +1,6 @@
 -- Reproduce the News Tracker freeze: put the item in the first Key Items slot, use it from the bag,
 -- then log what the game is stuck in (callbacks, live tasks, the built strings).
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "nt_log.txt", "w")
 local f, phase, t0 = 0, "boot", 0

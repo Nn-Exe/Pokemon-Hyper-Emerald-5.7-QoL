@@ -1,6 +1,6 @@
 -- Type badge test: wild battle -> screenshot at the action menu, then after a move (switch of turn), and
 -- dump sprites so the two badges (16x16, data[7] = 0/1) can be seen in the log.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7
 local NL = string.char(10)

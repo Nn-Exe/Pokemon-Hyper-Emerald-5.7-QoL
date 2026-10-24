@@ -1,0 +1,3939 @@
+{
+ "base_sha1": "382cf97caea58c5b558bc3f805736cbfb716015d",
+ "edited_sha1": "e19e1e44aa7d25e65aa0199e748fac614a12f210",
+ "trainers": [
+  {
+   "id": 34,
+   "name": "Archie",
+   "struct": [],
+   "party": [
+    {
+     "slot": 6,
+     "offset": "0x0830E6D4",
+     "old_bytes": "49003e00940158016a023a005b015700",
+     "new_bytes": "49003e00c6044802ab039601ae015500",
+     "old": {
+      "iv": 73,
+      "level": 62,
+      "species": 404,
+      "species_name": "Kyogre",
+      "item": 344,
+      "item_name": "Blue Orb",
+      "moves": [
+       618,
+       58,
+       347,
+       87
+      ],
+      "move_names": [
+       "Origin Pulse",
+       "Ice Beam",
+       "Calm Mind",
+       "Thunder"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 62,
+      "species": 1222,
+      "species_name": "Miraidon",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       939,
+       406,
+       430,
+       85
+      ],
+      "move_names": [
+       "ElectroDrift",
+       "Dragon Pulse",
+       "Flash Cannon",
+       "Thunderbolt"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 72,
+   "name": "Parker",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830BA84",
+     "old_bytes": "76002500fa03d802970330019b013500",
+     "new_bytes": "7b00250021051202cc0330019c015500",
+     "old": {
+      "iv": 118,
+      "level": 37,
+      "species": 1018,
+      "species_name": "Zoroark",
+      "item": 728,
+      "item_name": "Throat Spray",
+      "moves": [
+       919,
+       304,
+       411,
+       53
+      ],
+      "move_names": [
+       "BitterMalice",
+       "Hyper Voice",
+       "Focus Blast",
+       "Flamethrower"
+      ]
+     },
+     "new": {
+      "iv": 123,
+      "level": 37,
+      "species": 1313,
+      "species_name": "Farigiraf",
+      "item": 530,
+      "item_name": "Wise Glasses",
+      "moves": [
+       972,
+       304,
+       412,
+       85
+      ],
+      "move_names": [
+       "Twin Beam",
+       "Hyper Voice",
+       "Energy Ball",
+       "Thunderbolt"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 89,
+   "name": "Mary",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830BC24",
+     "old_bytes": "fe0025008f009202a001ac01e4010101",
+     "new_bytes": "6100250022054802cb031102ac019101",
+     "old": {
+      "iv": 254,
+      "level": 37,
+      "species": 143,
+      "species_name": "Snorlax",
+      "item": 658,
+      "item_name": "Snorlium Z",
+      "moves": [
+       416,
+       428,
+       484,
+       257
+      ],
+      "move_names": [
+       "Giga Impact",
+       "Zen Headbutt",
+       "Heavy Slam",
+       "Heat Wave"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 37,
+      "species": 1314,
+      "species_name": "Dudunsprce",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       971,
+       529,
+       428,
+       401
+      ],
+      "move_names": [
+       "Hyper Drill",
+       "Drill Run",
+       "Zen Headbutt",
+       "Aqua Tail"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 90,
+   "name": "Alexia",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830BC34",
+     "old_bytes": "720025001200350101013f000e020101",
+     "new_bytes": "490025004802380030015e005d023500",
+     "old": {
+      "iv": 114,
+      "level": 37,
+      "species": 18,
+      "species_name": "Pidgeot",
+      "item": 309,
+      "item_name": "Pidgeotite",
+      "moves": [
+       257,
+       63,
+       526,
+       257
+      ],
+      "move_names": [
+       "Heat Wave",
+       "Hyper Beam",
+       "Work Up",
+       "Heat Wave"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 37,
+      "species": 584,
+      "species_name": "Audino",
+      "item": 56,
+      "item_name": "Audinite",
+      "moves": [
+       304,
+       94,
+       605,
+       53
+      ],
+      "move_names": [
+       "Hyper Voice",
+       "Psychic",
+       "Dazzle Gleam",
+       "Flamethrower"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 91,
+   "name": "Jody",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830BC44",
+     "old_bytes": "88002500230411028b03ac017602e000",
+     "new_bytes": "33002500e9041c02bb034b01ca034c01",
+     "old": {
+      "iv": 136,
+      "level": 37,
+      "species": 1059,
+      "species_name": "Wyrdeer",
+      "item": 529,
+      "item_name": "Muscle Band",
+      "moves": [
+       907,
+       428,
+       630,
+       224
+      ],
+      "move_names": [
+       "Psyshi. Bash",
+       "Zen Headbutt",
+       "HiHorsepower",
+       "Megahorn"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 37,
+      "species": 1257,
+      "species_name": "Maushold",
+      "item": 540,
+      "item_name": "Metronome",
+      "moves": [
+       955,
+       331,
+       970,
+       332
+      ],
+      "move_names": [
+       "PopulatnBomb",
+       "Bullet Seed",
+       "Tidy Up",
+       "Aerial Ace"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 128,
+   "name": "Connie",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830BEAC",
+     "old_bytes": "2d00370077000000",
+     "new_bytes": "2d0037001d050000",
+     "old": {
+      "iv": 45,
+      "level": 55,
+      "species": 119,
+      "species_name": "Seaking"
+     },
+     "new": {
+      "iv": 45,
+      "level": 55,
+      "species": 1309,
+      "species_name": "Dondozo"
+     }
+    }
+   ]
+  },
+  {
+   "id": 129,
+   "name": "Bridget",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830BEB4",
+     "old_bytes": "7500370083000000",
+     "new_bytes": "750037001e050000",
+     "old": {
+      "iv": 117,
+      "level": 55,
+      "species": 131,
+      "species_name": "Lapras"
+     },
+     "new": {
+      "iv": 117,
+      "level": 55,
+      "species": 1310,
+      "species_name": "Tatsugiri"
+     }
+    }
+   ]
+  },
+  {
+   "id": 194,
+   "name": "Shawn",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830C254",
+     "old_bytes": "8b0017009f040000",
+     "new_bytes": "8b001700f6040000",
+     "old": {
+      "iv": 139,
+      "level": 23,
+      "species": 1183,
+      "species_name": "Arctozolt"
+     },
+     "new": {
+      "iv": 139,
+      "level": 23,
+      "species": 1270,
+      "species_name": "Tadbulb"
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x0830C25C",
+     "old_bytes": "8b0017009e040000",
+     "new_bytes": "8b001700f8040000",
+     "old": {
+      "iv": 139,
+      "level": 23,
+      "species": 1182,
+      "species_name": "Dracozolt"
+     },
+     "new": {
+      "iv": 139,
+      "level": 23,
+      "species": 1272,
+      "species_name": "Wattrel"
+     }
+    }
+   ]
+  },
+  {
+   "id": 203,
+   "name": "Axle",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830C2FC",
+     "old_bytes": "a20024009d000000",
+     "new_bytes": "a2002400db040000",
+     "old": {
+      "iv": 162,
+      "level": 36,
+      "species": 157,
+      "species_name": "Typhlosion"
+     },
+     "new": {
+      "iv": 162,
+      "level": 36,
+      "species": 1243,
+      "species_name": "Skeledirge"
+     }
+    }
+   ]
+  },
+  {
+   "id": 205,
+   "name": "Keegan",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830C30C",
+     "old_bytes": "88001c003b000000",
+     "new_bytes": "880024005a040000",
+     "old": {
+      "iv": 136,
+      "level": 28,
+      "species": 59,
+      "species_name": "Arcanine"
+     },
+     "new": {
+      "iv": 136,
+      "level": 36,
+      "species": 1114,
+      "species_name": "Cinderace"
+     }
+    }
+   ]
+  },
+  {
+   "id": 235,
+   "name": "Blake",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830C52C",
+     "old_bytes": "79003600cb000000",
+     "new_bytes": "7900360008050000",
+     "old": {
+      "iv": 121,
+      "level": 54,
+      "species": 203,
+      "species_name": "Girafarig"
+     },
+     "new": {
+      "iv": 121,
+      "level": 54,
+      "species": 1288,
+      "species_name": "Espathra"
+     }
+    }
+   ]
+  },
+  {
+   "id": 261,
+   "name": "Sidney",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09000400",
+     "old_bytes": "330046000c0397027202fc008a013f02",
+     "new_bytes": "330046000c038e000501fc008a013f02",
+     "old": {
+      "iv": 51,
+      "level": 70,
+      "species": 780,
+      "species_name": "Incineroar",
+      "item": 663,
+      "item_name": "Incinium Z",
+      "moves": [
+       626,
+       252,
+       394,
+       575
+      ],
+      "move_names": [
+       "Dark Lariat",
+       "Fake Out",
+       "Flare Blitz",
+       "Parting Shot"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 70,
+      "species": 780,
+      "species_name": "Incineroar",
+      "item": 142,
+      "item_name": "Sitrus Berry",
+      "moves": [
+       261,
+       252,
+       394,
+       575
+      ],
+      "move_names": [
+       "Will-O-Wisp",
+       "Fake Out",
+       "Flare Blitz",
+       "Parting Shot"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x09000410",
+     "old_bytes": "330046000203150265028f01b6000101",
+     "new_bytes": "610046008b0414027300710004030803",
+     "old": {
+      "iv": 51,
+      "level": 70,
+      "species": 770,
+      "species_name": "Yveltal",
+      "item": 533,
+      "item_name": "Life Orb",
+      "moves": [
+       613,
+       399,
+       182,
+       257
+      ],
+      "move_names": [
+       "OblivionWing",
+       "Dark Pulse",
+       "Protect",
+       "Heat Wave"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 70,
+      "species": 1163,
+      "species_name": "Grimmsnarl",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       115,
+       113,
+       772,
+       776
+      ],
+      "move_names": [
+       "Reflect",
+       "Light Screen",
+       "Spirit Break",
+       "False Surr."
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x09000420",
+     "old_bytes": "610046008b0414027300710004030803",
+     "new_bytes": "33004600d8044802c3031a0147020900",
+     "old": {
+      "iv": 97,
+      "level": 70,
+      "species": 1163,
+      "species_name": "Grimmsnarl",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       115,
+       113,
+       772,
+       776
+      ],
+      "move_names": [
+       "Reflect",
+       "Light Screen",
+       "Spirit Break",
+       "False Surr."
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 70,
+      "species": 1240,
+      "species_name": "Meowscarda",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       963,
+       282,
+       583,
+       9
+      ],
+      "move_names": [
+       "Flower Trick",
+       "Knock Off",
+       "Play Rough",
+       "ThunderPunch"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09000430",
+     "old_bytes": "9f004600c7021a0231023a008f01f701",
+     "new_bytes": "9f004600c702710231023a008f013800",
+     "old": {
+      "iv": 159,
+      "level": 70,
+      "species": 711,
+      "species_name": "Greninja",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       561,
+       58,
+       399,
+       503
+      ],
+      "move_names": [
+       "Mat Block",
+       "Ice Beam",
+       "Dark Pulse",
+       "Scald"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 70,
+      "species": 711,
+      "species_name": "Greninja",
+      "item": 625,
+      "item_name": "Waterium Z",
+      "moves": [
+       561,
+       58,
+       399,
+       56
+      ],
+      "move_names": [
+       "Mat Block",
+       "Ice Beam",
+       "Dark Pulse",
+       "Hydro Pump"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x09000440",
+     "old_bytes": "92004600f901c60090018601b801a701",
+     "new_bytes": "6100460023051a02c2037001ac011801",
+     "old": {
+      "iv": 146,
+      "level": 70,
+      "species": 505,
+      "species_name": "Drapion",
+      "item": 198,
+      "item_name": "Scope Lens",
+      "moves": [
+       400,
+       390,
+       440,
+       423
+      ],
+      "move_names": [
+       "Night Slash",
+       "Toxic Spikes",
+       "Cross Poison",
+       "Ice Fang"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 70,
+      "species": 1315,
+      "species_name": "Kingambit",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       962,
+       368,
+       428,
+       280
+      ],
+      "move_names": [
+       "KowtowCleave",
+       "Metal Burst",
+       "Zen Headbutt",
+       "Brick Break"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x09000450",
+     "old_bytes": "8b004600f8004401b6009502f2009d00",
+     "new_bytes": "8b004600f8004401b6007602f2009d00",
+     "old": {
+      "iv": 139,
+      "level": 70,
+      "species": 248,
+      "species_name": "Tyranitar",
+      "item": 324,
+      "item_name": "Tyranitarite",
+      "moves": [
+       182,
+       661,
+       242,
+       157
+      ],
+      "move_names": [
+       "Protect",
+       "StompTantrum",
+       "Crunch",
+       "Rock Slide"
+      ]
+     },
+     "new": {
+      "iv": 139,
+      "level": 70,
+      "species": 248,
+      "species_name": "Tyranitar",
+      "item": 324,
+      "item_name": "Tyranitarite",
+      "moves": [
+       182,
+       630,
+       242,
+       157
+      ],
+      "move_names": [
+       "Protect",
+       "HiHorsepower",
+       "Crunch",
+       "Rock Slide"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 262,
+   "name": "Phoebe",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09000460",
+     "old_bytes": "33004600a5041402730071007101f002",
+     "new_bytes": "61004600f504b400cf037603b6007201",
+     "old": {
+      "iv": 51,
+      "level": 70,
+      "species": 1189,
+      "species_name": "Dragapult",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       115,
+       113,
+       369,
+       752
+      ],
+      "move_names": [
+       "Reflect",
+       "Light Screen",
+       "U-Turn",
+       "Dragon Darts"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 70,
+      "species": 1269,
+      "species_name": "Ceruledge",
+      "item": 180,
+      "item_name": "White Herb",
+      "moves": [
+       975,
+       886,
+       182,
+       370
+      ],
+      "move_names": [
+       "Bitter Blade",
+       "Poltergeist",
+       "Protect",
+       "Close Combat"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x09000470",
+     "old_bytes": "da004600dc0310024301d501f7005d02",
+     "new_bytes": "330046001f054802450172019d007101",
+     "old": {
+      "iv": 218,
+      "level": 70,
+      "species": 988,
+      "species_name": "Jellicent",
+      "item": 528,
+      "item_name": "Wide Lens",
+      "moves": [
+       323,
+       469,
+       247,
+       605
+      ],
+      "move_names": [
+       "Water Spout",
+       "Wide Guard",
+       "Shadow Ball",
+       "Dazzle Gleam"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 70,
+      "species": 1311,
+      "species_name": "Annihilape",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       325,
+       370,
+       157,
+       369
+      ],
+      "move_names": [
+       "Shadow Punch",
+       "Close Combat",
+       "Rock Slide",
+       "U-Turn"
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x09000480",
+     "old_bytes": "610046003f038d02470236020e009901",
+     "new_bytes": "4900460025054802c903f70055009801",
+     "old": {
+      "iv": 97,
+      "level": 70,
+      "species": 831,
+      "species_name": "Mimikyu",
+      "item": 653,
+      "item_name": "Mimikyum Z",
+      "moves": [
+       583,
+       566,
+       14,
+       409
+      ],
+      "move_names": [
+       "Play Rough",
+       "PhantomForce",
+       "Swords Dance",
+       "Drain Punch"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 70,
+      "species": 1317,
+      "species_name": "Gholdengo",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       969,
+       247,
+       85,
+       408
+      ],
+      "move_names": [
+       "Make It Rain",
+       "Shadow Ball",
+       "Thunderbolt",
+       "Power Gem"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09000490",
+     "old_bytes": "79004600fa031a02970335003001b600",
+     "new_bytes": "79004600b30401035d02f7008f033c00",
+     "old": {
+      "iv": 121,
+      "level": 70,
+      "species": 1018,
+      "species_name": "Zoroark",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       919,
+       53,
+       304,
+       182
+      ],
+      "move_names": [
+       "BitterMalice",
+       "Flamethrower",
+       "Hyper Voice",
+       "Protect"
+      ]
+     },
+     "new": {
+      "iv": 121,
+      "level": 70,
+      "species": 1203,
+      "species_name": "FluttrMane",
+      "item": 769,
+      "item_name": "BoosterEnergy",
+      "moves": [
+       605,
+       247,
+       911,
+       60
+      ],
+      "move_names": [
+       "Dazzle Gleam",
+       "Shadow Ball",
+       "Mystic.Power",
+       "Psybeam"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 263,
+   "name": "Glacia",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x090004C0",
+     "old_bytes": "33004600a1041502f200f4023b009402",
+     "new_bytes": "49004600b704140238003a013b009102",
+     "old": {
+      "iv": 51,
+      "level": 70,
+      "species": 1185,
+      "species_name": "Arctovish",
+      "item": 533,
+      "item_name": "Life Orb",
+      "moves": [
+       242,
+       756,
+       59,
+       660
+      ],
+      "move_names": [
+       "Crunch",
+       "FishiousRend",
+       "Blizzard",
+       "Psychic Fang"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 70,
+      "species": 1207,
+      "species_name": "IronBundle",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       56,
+       314,
+       59,
+       657
+      ],
+      "move_names": [
+       "Hydro Pump",
+       "Air Cutter",
+       "Blizzard",
+       "Aurora Veil"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x090004D0",
+     "old_bytes": "2d0046005c031a0276029d007a03ba01",
+     "new_bytes": "61004600c004480215022c027e029402",
+     "old": {
+      "iv": 45,
+      "level": 70,
+      "species": 860,
+      "species_name": "Sandslash",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       630,
+       157,
+       890,
+       442
+      ],
+      "move_names": [
+       "HiHorsepower",
+       "Rock Slide",
+       "Triple Axel",
+       "Iron Head"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 70,
+      "species": 1216,
+      "species_name": "Chien-Pao",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       533,
+       556,
+       638,
+       660
+      ],
+      "move_names": [
+       "Sacred Sword",
+       "Icicle Crash",
+       "Throat Chop",
+       "Psychic Fang"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x09000500",
+     "old_bytes": "730046005e0321029102a1013b005d02",
+     "new_bytes": "730046005e03140291023d023b005d02",
+     "old": {
+      "iv": 115,
+      "level": 70,
+      "species": 862,
+      "species_name": "Ninetales",
+      "item": 545,
+      "item_name": "Icy Rock",
+      "moves": [
+       657,
+       417,
+       59,
+       605
+      ],
+      "move_names": [
+       "Aurora Veil",
+       "Nasty Plot",
+       "Blizzard",
+       "Dazzle Gleam"
+      ]
+     },
+     "new": {
+      "iv": 115,
+      "level": 70,
+      "species": 862,
+      "species_name": "Ninetales",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       657,
+       573,
+       59,
+       605
+      ],
+      "move_names": [
+       "Aurora Veil",
+       "Freeze-Dry",
+       "Blizzard",
+       "Dazzle Gleam"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 264,
+   "name": "Drake",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09000520",
+     "old_bytes": "9f0046001802ff019601ae019e013500",
+     "new_bytes": "61004600c3040103eb0251016e01ac01",
+     "old": {
+      "iv": 159,
+      "level": 70,
+      "species": 536,
+      "species_name": "Dialga",
+      "item": 511,
+      "item_name": "Adamant Orb",
+      "moves": [
+       406,
+       430,
+       414,
+       53
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Flash Cannon",
+       "Earth Power",
+       "Flamethrower"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 70,
+      "species": 1219,
+      "species_name": "RoarngMoon",
+      "item": 769,
+      "item_name": "BoosterEnergy",
+      "moves": [
+       747,
+       337,
+       366,
+       428
+      ],
+      "move_names": [
+       "Jaw Lock",
+       "Dragon Claw",
+       "Tailwind",
+       "Zen Headbutt"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x09000530",
+     "old_bytes": "5d004600f2011a026c038e0159009d00",
+     "new_bytes": "61004600be041a02b3032c027602ac01",
+     "old": {
+      "iv": 93,
+      "level": 70,
+      "species": 498,
+      "species_name": "Garchomp",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       876,
+       398,
+       89,
+       157
+      ],
+      "move_names": [
+       "Scale Shot",
+       "Poison Jab",
+       "Earthquake",
+       "Rock Slide"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 70,
+      "species": 1214,
+      "species_name": "Baxcalibur",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       947,
+       556,
+       630,
+       428
+      ],
+      "move_names": [
+       "Glaive Rush",
+       "Icicle Crash",
+       "HiHorsepower",
+       "Zen Headbutt"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09000550",
+     "old_bytes": "73004600b0022602b20101018f01ae01",
+     "new_bytes": "4900460029054802ae019601d603f702",
+     "old": {
+      "iv": 115,
+      "level": 70,
+      "species": 688,
+      "species_name": "Hydreigon",
+      "item": 550,
+      "item_name": "Choice Scarf",
+      "moves": [
+       434,
+       257,
+       399,
+       430
+      ],
+      "move_names": [
+       "Draco Meteor",
+       "Heat Wave",
+       "Dark Pulse",
+       "Flash Cannon"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 70,
+      "species": 1321,
+      "species_name": "Archaludon",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       430,
+       406,
+       982,
+       759
+      ],
+      "move_names": [
+       "Flash Cannon",
+       "Dragon Pulse",
+       "Electro Shot",
+       "Body Press"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x09000560",
+     "old_bytes": "9f004600e80248029601bc004a015500",
+     "new_bytes": "9f004600e80248029601e2014a015500",
+     "old": {
+      "iv": 159,
+      "level": 70,
+      "species": 744,
+      "species_name": "Dragalge",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       406,
+       188,
+       330,
+       85
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Sludge Bomb",
+       "Muddy Water",
+       "Thunderbolt"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 70,
+      "species": 744,
+      "species_name": "Dragalge",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       406,
+       482,
+       330,
+       85
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Sludge Wave",
+       "Muddy Water",
+       "Thunderbolt"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 265,
+   "name": "Roxanne",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09013E18",
+     "old_bytes": "7b001200d500b9006302e3003402be01",
+     "new_bytes": "4900120015052c02f600be015501da01",
+     "old": {
+      "iv": 123,
+      "level": 18,
+      "species": 213,
+      "species_name": "Shuckle",
+      "item": 185,
+      "item_name": "Mental Herb",
+      "moves": [
+       611,
+       227,
+       564,
+       446
+      ],
+      "move_names": [
+       "Infestation",
+       "Encore",
+       "Sticky Web",
+       "Stealth Rock"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 18,
+      "species": 1301,
+      "species_name": "Glimmet",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       246,
+       446,
+       341,
+       474
+      ],
+      "move_names": [
+       "AncientPower",
+       "Stealth Rock",
+       "Mud Shot",
+       "Venoshock"
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x09013E38",
+     "old_bytes": "9f0012008a002c023d00f6003e008601",
+     "new_bytes": "9f0012008a002c023d00f6003e005501",
+     "old": {
+      "iv": 159,
+      "level": 18,
+      "species": 138,
+      "species_name": "Omanyte",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       61,
+       246,
+       62,
+       390
+      ],
+      "move_names": [
+       "Bubble Beam",
+       "AncientPower",
+       "Aurora Beam",
+       "Toxic Spikes"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 18,
+      "species": 138,
+      "species_name": "Omanyte",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       61,
+       246,
+       62,
+       341
+      ],
+      "move_names": [
+       "Bubble Beam",
+       "AncientPower",
+       "Aurora Beam",
+       "Mud Shot"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x09013E68",
+     "old_bytes": "33001200400122023d01bb010b02c900",
+     "new_bytes": "3300120040012c023d01bb010b025600",
+     "old": {
+      "iv": 51,
+      "level": 18,
+      "species": 320,
+      "species_name": "Nosepass",
+      "item": 546,
+      "item_name": "Smooth Rock",
+      "moves": [
+       317,
+       443,
+       523,
+       201
+      ],
+      "move_names": [
+       "Rock Tomb",
+       "Magnet Bomb",
+       "Bulldoze",
+       "Sandstorm"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 18,
+      "species": 320,
+      "species_name": "Nosepass",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       317,
+       443,
+       523,
+       86
+      ],
+      "move_names": [
+       "Rock Tomb",
+       "Magnet Bomb",
+       "Bulldoze",
+       "Thunder Wave"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 266,
+   "name": "Brawly",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x08FB98C0",
+     "old_bytes": "3300170027042f028a03ea0171010002",
+     "new_bytes": "33001700e6042c020900e800b7001a01",
+     "old": {
+      "iv": 51,
+      "level": 23,
+      "species": 1063,
+      "species_name": "Sneasler",
+      "item": 559,
+      "item_name": "Air Balloon",
+      "moves": [
+       906,
+       490,
+       369,
+       512
+      ],
+      "move_names": [
+       "Dire Claw",
+       "Low Sweep",
+       "U-Turn",
+       "Acrobatics"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 23,
+      "species": 1254,
+      "species_name": "Pawmo",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       9,
+       232,
+       183,
+       282
+      ],
+      "move_names": [
+       "ThunderPunch",
+       "Metal Claw",
+       "Mach Punch",
+       "Knock Off"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x08FB98D0",
+     "old_bytes": "61001700d80248029001ac01a2016402",
+     "new_bytes": "61001700190511027b0329018202ea01",
+     "old": {
+      "iv": 97,
+      "level": 23,
+      "species": 728,
+      "species_name": "Pangoro",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       400,
+       428,
+       418,
+       612
+      ],
+      "move_names": [
+       "Night Slash",
+       "Zen Headbutt",
+       "Bullet Punch",
+       "PowerUpPunch"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 23,
+      "species": 1305,
+      "species_name": "Flamigo",
+      "item": 529,
+      "item_name": "Muscle Band",
+      "moves": [
+       891,
+       297,
+       642,
+       490
+      ],
+      "move_names": [
+       "DualWingbeat",
+       "FeatherDance",
+       "Lunge",
+       "Low Sweep"
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x08FB98E0",
+     "old_bytes": "92001700f2028e007b03640271016e01",
+     "new_bytes": "3300170019012c02e80164020900a501",
+     "old": {
+      "iv": 146,
+      "level": 23,
+      "species": 754,
+      "species_name": "Hawlucha",
+      "item": 142,
+      "item_name": "Sitrus Berry",
+      "moves": [
+       891,
+       612,
+       369,
+       366
+      ],
+      "move_names": [
+       "DualWingbeat",
+       "PowerUpPunch",
+       "U-Turn",
+       "Tailwind"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 23,
+      "species": 281,
+      "species_name": "Combusken",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       488,
+       612,
+       9,
+       421
+      ],
+      "move_names": [
+       "Flame Charge",
+       "PowerUpPunch",
+       "ThunderPunch",
+       "Shadow Claw"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x08FB98F0",
+     "old_bytes": "92001700f50111024c0164020b02a201",
+     "new_bytes": "33001700dd042c02790329011100ea01",
+     "old": {
+      "iv": 146,
+      "level": 23,
+      "species": 501,
+      "species_name": "Lucario",
+      "item": 529,
+      "item_name": "Muscle Band",
+      "moves": [
+       332,
+       612,
+       523,
+       418
+      ],
+      "move_names": [
+       "Aerial Ace",
+       "PowerUpPunch",
+       "Bulldoze",
+       "Bullet Punch"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 23,
+      "species": 1245,
+      "species_name": "Quaxwell",
+      "item": 556,
+      "item_name": "Eviolite",
+      "moves": [
+       889,
+       297,
+       17,
+       490
+      ],
+      "move_names": [
+       "Flip Turn",
+       "FeatherDance",
+       "Wing Attack",
+       "Low Sweep"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x08FB9900",
+     "old_bytes": "920017001903480208000b02b7000900",
+     "new_bytes": "3300170033011a024b010b02b7003d01",
+     "old": {
+      "iv": 146,
+      "level": 23,
+      "species": 793,
+      "species_name": "Crabminble",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       8,
+       523,
+       183,
+       9
+      ],
+      "move_names": [
+       "Ice Punch",
+       "Bulldoze",
+       "Mach Punch",
+       "ThunderPunch"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 23,
+      "species": 307,
+      "species_name": "Breloom",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       331,
+       523,
+       183,
+       317
+      ],
+      "move_names": [
+       "Bullet Seed",
+       "Bulldoze",
+       "Mach Punch",
+       "Rock Tomb"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 267,
+   "name": "Wattson",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830C87C",
+     "old_bytes": "79001c005a0353027103d9013900a101",
+     "new_bytes": "7b001c00f9041202370157001e026e01",
+     "old": {
+      "iv": 121,
+      "level": 28,
+      "species": 858,
+      "species_name": "Raichu",
+      "item": 595,
+      "item_name": "Electric Seed",
+      "moves": [
+       881,
+       473,
+       57,
+       417
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Psyshock",
+       "Surf",
+       "Nasty Plot"
+      ]
+     },
+     "new": {
+      "iv": 123,
+      "level": 28,
+      "species": 1273,
+      "species_name": "Kilowatrel",
+      "item": 530,
+      "item_name": "Wise Glasses",
+      "moves": [
+       311,
+       87,
+       542,
+       366
+      ],
+      "move_names": [
+       "Weather Ball",
+       "Thunder",
+       "Hurricane",
+       "Tailwind"
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x0830C89C",
+     "old_bytes": "33001c00940451029e02980286018e01",
+     "new_bytes": "49001c00f7042402f00055013a024a01",
+     "old": {
+      "iv": 51,
+      "level": 28,
+      "species": 1172,
+      "species_name": "Pincurchin",
+      "item": 593,
+      "item_name": "Terrain Ext.",
+      "moves": [
+       670,
+       664,
+       390,
+       398
+      ],
+      "move_names": [
+       "Zing Zap",
+       "Liquidation",
+       "Toxic Spikes",
+       "Poison Jab"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 28,
+      "species": 1271,
+      "species_name": "Bellibolt",
+      "item": 548,
+      "item_name": "Damp Rock",
+      "moves": [
+       240,
+       341,
+       570,
+       330
+      ],
+      "move_names": [
+       "Rain Dance",
+       "Mud Shot",
+       "Para Charge",
+       "Muddy Water"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x0830C8AC",
+     "old_bytes": "49001c008700240271033701f0004401",
+     "new_bytes": "79001c005a032f027103d90139005d02",
+     "old": {
+      "iv": 73,
+      "level": 28,
+      "species": 135,
+      "species_name": "Jolteon",
+      "item": 548,
+      "item_name": "Damp Rock",
+      "moves": [
+       881,
+       311,
+       240,
+       324
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Weather Ball",
+       "Rain Dance",
+       "Signal Beam"
+      ]
+     },
+     "new": {
+      "iv": 121,
+      "level": 28,
+      "species": 858,
+      "species_name": "Raichu",
+      "item": 559,
+      "item_name": "Air Balloon",
+      "moves": [
+       881,
+       473,
+       57,
+       605
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Psyshock",
+       "Surf",
+       "Dazzle Gleam"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x0830C8BC",
+     "old_bytes": "da001c00030212027103ae01f702f300",
+     "new_bytes": "49001c009f0412027103f6003d023900",
+     "old": {
+      "iv": 218,
+      "level": 28,
+      "species": 515,
+      "species_name": "Magnezone",
+      "item": 530,
+      "item_name": "Wise Glasses",
+      "moves": [
+       881,
+       430,
+       759,
+       243
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Flash Cannon",
+       "Body Press",
+       "Mirror Coat"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 28,
+      "species": 1183,
+      "species_name": "Arctozolt",
+      "item": 530,
+      "item_name": "Wise Glasses",
+      "moves": [
+       881,
+       246,
+       573,
+       57
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "AncientPower",
+       "Freeze-Dry",
+       "Surf"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x0830C8CC",
+     "old_bytes": "79001c005201510271035c02ed002b02",
+     "new_bytes": "79001c005201510271035c0235002b02",
+     "old": {
+      "iv": 121,
+      "level": 28,
+      "species": 338,
+      "species_name": "Manectric",
+      "item": 593,
+      "item_name": "Terrain Ext.",
+      "moves": [
+       881,
+       604,
+       237,
+       555
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Elec Terrain",
+       "Hidden Power",
+       "Snarl"
+      ]
+     },
+     "new": {
+      "iv": 121,
+      "level": 28,
+      "species": 338,
+      "species_name": "Manectric",
+      "item": 593,
+      "item_name": "Terrain Ext.",
+      "moves": [
+       881,
+       604,
+       53,
+       555
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Elec Terrain",
+       "Flamethrower",
+       "Snarl"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 268,
+   "name": "Flannery",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09015640",
+     "old_bytes": "9f002500430448021c0146014c007c03",
+     "new_bytes": "49002500430448021c01f7004c007c03",
+     "old": {
+      "iv": 159,
+      "level": 37,
+      "species": 1091,
+      "species_name": "Typhlosion",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       284,
+       326,
+       76,
+       892
+      ],
+      "move_names": [
+       "Eruption",
+       "Extrasensory",
+       "Solar Beam",
+       "Scorch.Sands"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 37,
+      "species": 1091,
+      "species_name": "Typhlosion",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       284,
+       247,
+       76,
+       892
+      ],
+      "move_names": [
+       "Eruption",
+       "Shadow Ball",
+       "Solar Beam",
+       "Scorch.Sands"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x09015650",
+     "old_bytes": "da00250041012302e5001c01be014c00",
+     "new_bytes": "da00250041012302e5003701be014c00",
+     "old": {
+      "iv": 218,
+      "level": 37,
+      "species": 321,
+      "species_name": "Torkoal",
+      "item": 547,
+      "item_name": "Heat Rock",
+      "moves": [
+       229,
+       284,
+       446,
+       76
+      ],
+      "move_names": [
+       "Rapid Spin",
+       "Eruption",
+       "Stealth Rock",
+       "Solar Beam"
+      ]
+     },
+     "new": {
+      "iv": 218,
+      "level": 37,
+      "species": 321,
+      "species_name": "Torkoal",
+      "item": 547,
+      "item_name": "Heat Rock",
+      "moves": [
+       229,
+       311,
+       446,
+       76
+      ],
+      "move_names": [
+       "Rapid Spin",
+       "Weather Ball",
+       "Stealth Rock",
+       "Solar Beam"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09015670",
+     "old_bytes": "330025005a04da02fb02f50288007101",
+     "new_bytes": "61002500040548029201a6019502a801",
+     "old": {
+      "iv": 51,
+      "level": 37,
+      "species": 1114,
+      "species_name": "Cinderace",
+      "item": 730,
+      "item_name": "H. Duty Boots",
+      "moves": [
+       763,
+       757,
+       136,
+       369
+      ],
+      "move_names": [
+       "Pyro Ball",
+       "Court Change",
+       "Hi Jump Kick",
+       "U-Turn"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 37,
+      "species": 1284,
+      "species_name": "Scovillain",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       402,
+       422,
+       661,
+       424
+      ],
+      "move_names": [
+       "Seed Bomb",
+       "Thunder Fang",
+       "StompTantrum",
+       "Fire Fang"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x09015680",
+     "old_bytes": "79002500bb03b4003b015500a1014401",
+     "new_bytes": "79002500bb0314023b01550073007100",
+     "old": {
+      "iv": 121,
+      "level": 37,
+      "species": 955,
+      "species_name": "Rotom",
+      "item": 180,
+      "item_name": "White Herb",
+      "moves": [
+       315,
+       85,
+       417,
+       324
+      ],
+      "move_names": [
+       "Overheat",
+       "Thunderbolt",
+       "Nasty Plot",
+       "Signal Beam"
+      ]
+     },
+     "new": {
+      "iv": 121,
+      "level": 37,
+      "species": 955,
+      "species_name": "Rotom",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       315,
+       85,
+       115,
+       113
+      ],
+      "move_names": [
+       "Overheat",
+       "Thunderbolt",
+       "Reflect",
+       "Light Screen"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x09015690",
+     "old_bytes": "33002500fc0315028a01c90110024702",
+     "new_bytes": "7b002500f404b4009c018c01ce03d901",
+     "old": {
+      "iv": 51,
+      "level": 37,
+      "species": 1020,
+      "species_name": "Arcanine",
+      "item": 533,
+      "item_name": "Life Orb",
+      "moves": [
+       394,
+       457,
+       528,
+       583
+      ],
+      "move_names": [
+       "Flare Blitz",
+       "Head Smash",
+       "Wild Charge",
+       "Play Rough"
+      ]
+     },
+     "new": {
+      "iv": 123,
+      "level": 37,
+      "species": 1268,
+      "species_name": "Armarouge",
+      "item": 180,
+      "item_name": "White Herb",
+      "moves": [
+       412,
+       396,
+       974,
+       473
+      ],
+      "move_names": [
+       "Energy Ball",
+       "Aura Sphere",
+       "ArmorCannon",
+       "Psyshock"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 269,
+   "name": "Norman",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x090155E0",
+     "old_bytes": "33002d00eb001a023402930061028d03",
+     "new_bytes": "33002d00eb001a0234029b0361028d03",
+     "old": {
+      "iv": 51,
+      "level": 45,
+      "species": 235,
+      "species_name": "Smeargle",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       564,
+       147,
+       609,
+       909
+      ],
+      "move_names": [
+       "Sticky Web",
+       "Spore",
+       "Nuzzle",
+       "Stone Axe"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 45,
+      "species": 235,
+      "species_name": "Smeargle",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       564,
+       923,
+       609,
+       909
+      ],
+      "move_names": [
+       "Sticky Web",
+       "Cease. Edge",
+       "Nuzzle",
+       "Stone Axe"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09015610",
+     "old_bytes": "92002d008f009202a001ac011702e401",
+     "new_bytes": "49002d00ee0448029e015d0230019c01",
+     "old": {
+      "iv": 146,
+      "level": 45,
+      "species": 143,
+      "species_name": "Snorlax",
+      "item": 658,
+      "item_name": "Snorlium Z",
+      "moves": [
+       416,
+       428,
+       535,
+       484
+      ],
+      "move_names": [
+       "Giga Impact",
+       "Zen Headbutt",
+       "Heat Crash",
+       "Heavy Slam"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 45,
+      "species": 1262,
+      "species_name": "Arboliva",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       414,
+       605,
+       304,
+       412
+      ],
+      "move_names": [
+       "Earth Power",
+       "Dazzle Gleam",
+       "Hyper Voice",
+       "Energy Ball"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 270,
+   "name": "Winona",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830C93C",
+     "old_bytes": "2a0033008e001302bc017b03a6015900",
+     "new_bytes": "330033000d021702be01070186015900",
+     "old": {
+      "iv": 42,
+      "level": 51,
+      "species": 142,
+      "species_name": "Aerodactyl",
+      "item": 531,
+      "item_name": "Expert Belt",
+      "moves": [
+       444,
+       891,
+       422,
+       89
+      ],
+      "move_names": [
+       "Stone Edge",
+       "DualWingbeat",
+       "Thunder Fang",
+       "Earthquake"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 51,
+      "species": 525,
+      "species_name": "Gliscor",
+      "item": 535,
+      "item_name": "Toxic Orb",
+      "moves": [
+       446,
+       263,
+       390,
+       89
+      ],
+      "move_names": [
+       "Stealth Rock",
+       "Facade",
+       "Toxic Spikes",
+       "Earthquake"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x0830C94C",
+     "old_bytes": "330033000d02170207016301b0015900",
+     "new_bytes": "920033000e05480211029d007b031a01",
+     "old": {
+      "iv": 51,
+      "level": 51,
+      "species": 525,
+      "species_name": "Gliscor",
+      "item": 535,
+      "item_name": "Toxic Orb",
+      "moves": [
+       263,
+       355,
+       432,
+       89
+      ],
+      "move_names": [
+       "Facade",
+       "Roost",
+       "Defog",
+       "Earthquake"
+      ]
+     },
+     "new": {
+      "iv": 146,
+      "level": 51,
+      "species": 1294,
+      "species_name": "Bombirdier",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       529,
+       157,
+       891,
+       282
+      ],
+      "move_names": [
+       "Drill Run",
+       "Rock Slide",
+       "DualWingbeat",
+       "Knock Off"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x0830C96C",
+     "old_bytes": "6100330052034702e401bc0100025900",
+     "new_bytes": "6100330052034702e401920100025900",
+     "old": {
+      "iv": 97,
+      "level": 51,
+      "species": 850,
+      "species_name": "Celesteela",
+      "item": 583,
+      "item_name": "Weak Policy",
+      "moves": [
+       484,
+       444,
+       512,
+       89
+      ],
+      "move_names": [
+       "Heavy Slam",
+       "Stone Edge",
+       "Acrobatics",
+       "Earthquake"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 51,
+      "species": 850,
+      "species_name": "Celesteela",
+      "item": 583,
+      "item_name": "Weak Policy",
+      "moves": [
+       484,
+       402,
+       512,
+       89
+      ],
+      "move_names": [
+       "Heavy Slam",
+       "Seed Bomb",
+       "Acrobatics",
+       "Earthquake"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x0830C98C",
+     "old_bytes": "33003300950047025900f5007b035d01",
+     "new_bytes": "49003300b904010393018f0135009e01",
+     "old": {
+      "iv": 51,
+      "level": 51,
+      "species": 149,
+      "species_name": "Dragonite",
+      "item": 583,
+      "item_name": "Weak Policy",
+      "moves": [
+       89,
+       245,
+       891,
+       349
+      ],
+      "move_names": [
+       "Earthquake",
+       "ExtremeSpeed",
+       "DualWingbeat",
+       "Dragon Dance"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 51,
+      "species": 1209,
+      "species_name": "IronJuguls",
+      "item": 769,
+      "item_name": "BoosterEnergy",
+      "moves": [
+       403,
+       399,
+       53,
+       414
+      ],
+      "move_names": [
+       "Air Slash",
+       "Dark Pulse",
+       "Flamethrower",
+       "Earth Power"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 271,
+   "name": "Tate ? Liza",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09017660",
+     "old_bytes": "da0039008a0148016a035302b6003001",
+     "new_bytes": "49003900060512026a0395015d029801",
+     "old": {
+      "iv": 218,
+      "level": 57,
+      "species": 394,
+      "species_name": "Gardevoir",
+      "item": 328,
+      "item_name": "Gardevoirite",
+      "moves": [
+       874,
+       595,
+       182,
+       304
+      ],
+      "move_names": [
+       "Expand.Force",
+       "MysticalFire",
+       "Protect",
+       "Hyper Voice"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 57,
+      "species": 1286,
+      "species_name": "Rabsca",
+      "item": 530,
+      "item_name": "Wise Glasses",
+      "moves": [
+       874,
+       405,
+       605,
+       408
+      ],
+      "move_names": [
+       "Expand.Force",
+       "Bug Buzz",
+       "Dazzle Gleam",
+       "Power Gem"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x09017670",
+     "old_bytes": "9f0039009a0435026a030e0173007100",
+     "new_bytes": "9f0039009a0414026a030e0173007100",
+     "old": {
+      "iv": 159,
+      "level": 57,
+      "species": 1178,
+      "species_name": "Indeedee",
+      "item": 565,
+      "item_name": "Eject Button",
+      "moves": [
+       874,
+       270,
+       115,
+       113
+      ],
+      "move_names": [
+       "Expand.Force",
+       "Helping Hand",
+       "Reflect",
+       "Light Screen"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 57,
+      "species": 1178,
+      "species_name": "Indeedee",
+      "item": 532,
+      "item_name": "Light Clay",
+      "moves": [
+       874,
+       270,
+       115,
+       113
+      ],
+      "move_names": [
+       "Expand.Force",
+       "Helping Hand",
+       "Reflect",
+       "Light Screen"
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x09017680",
+     "old_bytes": "490039000504b7006a036e03b1014a01",
+     "new_bytes": "330039001c054802d303ab01a7011102",
+     "old": {
+      "iv": 73,
+      "level": 57,
+      "species": 1029,
+      "species_name": "Slowbro",
+      "item": 183,
+      "item_name": "Quick Claw",
+      "moves": [
+       874,
+       878,
+       433,
+       330
+      ],
+      "move_names": [
+       "Expand.Force",
+       "ShellSideArm",
+       "Trick Room",
+       "Muddy Water"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 57,
+      "species": 1308,
+      "species_name": "Veluza",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       979,
+       427,
+       423,
+       529
+      ],
+      "move_names": [
+       "Aqua Cutter",
+       "Psycho Cut",
+       "Ice Fang",
+       "Drill Run"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09017690",
+     "old_bytes": "61003900900148023501080094029502",
+     "new_bytes": "da0039008a01480153023001f7006a03",
+     "old": {
+      "iv": 97,
+      "level": 57,
+      "species": 400,
+      "species_name": "Metagross",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       309,
+       8,
+       660,
+       661
+      ],
+      "move_names": [
+       "Meteor Mash",
+       "Ice Punch",
+       "Psychic Fang",
+       "StompTantrum"
+      ]
+     },
+     "new": {
+      "iv": 218,
+      "level": 57,
+      "species": 394,
+      "species_name": "Gardevoir",
+      "item": 328,
+      "item_name": "Gardevoirite",
+      "moves": [
+       595,
+       304,
+       247,
+       874
+      ],
+      "move_names": [
+       "MysticalFire",
+       "Hyper Voice",
+       "Shadow Ball",
+       "Expand.Force"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x090176A0",
+     "old_bytes": "9f0039003d0451020e0101016a03f700",
+     "new_bytes": "9f0039003d045102300101016a03f700",
+     "old": {
+      "iv": 159,
+      "level": 57,
+      "species": 1085,
+      "species_name": "Indeedee",
+      "item": 593,
+      "item_name": "Terrain Ext.",
+      "moves": [
+       270,
+       257,
+       874,
+       247
+      ],
+      "move_names": [
+       "Helping Hand",
+       "Heat Wave",
+       "Expand.Force",
+       "Shadow Ball"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 57,
+      "species": 1085,
+      "species_name": "Indeedee",
+      "item": 593,
+      "item_name": "Terrain Ext.",
+      "moves": [
+       304,
+       257,
+       874,
+       247
+      ],
+      "move_names": [
+       "Hyper Voice",
+       "Heat Wave",
+       "Expand.Force",
+       "Shadow Ball"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x090176B0",
+     "old_bytes": "920039001002c6001502ab0190015c01",
+     "new_bytes": "92003900100248021502ab01d3035c01",
+     "old": {
+      "iv": 146,
+      "level": 57,
+      "species": 528,
+      "species_name": "Gallade",
+      "item": 198,
+      "item_name": "Scope Lens",
+      "moves": [
+       533,
+       427,
+       400,
+       348
+      ],
+      "move_names": [
+       "Sacred Sword",
+       "Psycho Cut",
+       "Night Slash",
+       "Leaf Blade"
+      ]
+     },
+     "new": {
+      "iv": 146,
+      "level": 57,
+      "species": 528,
+      "species_name": "Gallade",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       533,
+       427,
+       979,
+       348
+      ],
+      "move_names": [
+       "Sacred Sword",
+       "Psycho Cut",
+       "Aqua Cutter",
+       "Leaf Blade"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 272,
+   "name": "Juan",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x09013F80",
+     "old_bytes": "61003e002503d10034027f00f3008d00",
+     "new_bytes": "61003e002503d10034027f00f2008d00",
+     "old": {
+      "iv": 97,
+      "level": 62,
+      "species": 805,
+      "species_name": "Araquanid",
+      "item": 209,
+      "item_name": "Mystic Water",
+      "moves": [
+       564,
+       127,
+       243,
+       141
+      ],
+      "move_names": [
+       "Sticky Web",
+       "Waterfall",
+       "Mirror Coat",
+       "Leech Life"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 62,
+      "species": 805,
+      "species_name": "Araquanid",
+      "item": 209,
+      "item_name": "Mystic Water",
+      "moves": [
+       564,
+       127,
+       242,
+       141
+      ],
+      "move_names": [
+       "Sticky Web",
+       "Waterfall",
+       "Crunch",
+       "Leech Life"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x09013F90",
+     "old_bytes": "73003e00e60015023800ae0196011e02",
+     "new_bytes": "49003e00e60015023800ae0196011e02",
+     "old": {
+      "iv": 115,
+      "level": 62,
+      "species": 230,
+      "species_name": "Kingdra",
+      "item": 533,
+      "item_name": "Life Orb",
+      "moves": [
+       56,
+       430,
+       406,
+       542
+      ],
+      "move_names": [
+       "Hydro Pump",
+       "Flash Cannon",
+       "Dragon Pulse",
+       "Hurricane"
+      ]
+     },
+     "new": {
+      "iv": 73,
+      "level": 62,
+      "species": 230,
+      "species_name": "Kingdra",
+      "item": 533,
+      "item_name": "Life Orb",
+      "moves": [
+       56,
+       430,
+       406,
+       542
+      ],
+      "move_names": [
+       "Hydro Pump",
+       "Flash Cannon",
+       "Dragon Pulse",
+       "Hurricane"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x09013FB0",
+     "old_bytes": "92003e007b038e0091033602f200a701",
+     "new_bytes": "33003e00de044802c50371017a037201",
+     "old": {
+      "iv": 146,
+      "level": 62,
+      "species": 891,
+      "species_name": "Basclegion",
+      "item": 142,
+      "item_name": "Sitrus Berry",
+      "moves": [
+       913,
+       566,
+       242,
+       423
+      ],
+      "move_names": [
+       "Wave Crash",
+       "PhantomForce",
+       "Crunch",
+       "Ice Fang"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 62,
+      "species": 1246,
+      "species_name": "Quaquaval",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       965,
+       369,
+       890,
+       370
+      ],
+      "move_names": [
+       "Aqua Step",
+       "U-Turn",
+       "Triple Axel",
+       "Close Combat"
+      ]
+     }
+    },
+    {
+     "slot": 5,
+     "offset": "0x09013FC0",
+     "old_bytes": "7b003e00ba00240237013a005e009e01",
+     "new_bytes": "7b003e00ba00240237013a005f009e01",
+     "old": {
+      "iv": 123,
+      "level": 62,
+      "species": 186,
+      "species_name": "Politoed",
+      "item": 548,
+      "item_name": "Damp Rock",
+      "moves": [
+       311,
+       58,
+       94,
+       414
+      ],
+      "move_names": [
+       "Weather Ball",
+       "Ice Beam",
+       "Psychic",
+       "Earth Power"
+      ]
+     },
+     "new": {
+      "iv": 123,
+      "level": 62,
+      "species": 186,
+      "species_name": "Politoed",
+      "item": 548,
+      "item_name": "Damp Rock",
+      "moves": [
+       311,
+       58,
+       95,
+       414
+      ],
+      "move_names": [
+       "Weather Ball",
+       "Ice Beam",
+       "Hypnosis",
+       "Earth Power"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x09013FD0",
+     "old_bytes": "33003e001d0147015900640208007f00",
+     "new_bytes": "33003e001d0147015900530108007903",
+     "old": {
+      "iv": 51,
+      "level": 62,
+      "species": 285,
+      "species_name": "Swampert",
+      "item": 327,
+      "item_name": "Swampertite",
+      "moves": [
+       89,
+       612,
+       8,
+       127
+      ],
+      "move_names": [
+       "Earthquake",
+       "PowerUpPunch",
+       "Ice Punch",
+       "Waterfall"
+      ]
+     },
+     "new": {
+      "iv": 51,
+      "level": 62,
+      "species": 285,
+      "species_name": "Swampert",
+      "item": 327,
+      "item_name": "Swampertite",
+      "moves": [
+       89,
+       339,
+       8,
+       889
+      ],
+      "move_names": [
+       "Earthquake",
+       "Bulk Up",
+       "Ice Punch",
+       "Flip Turn"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 301,
+   "name": "Bethany",
+   "struct": [],
+   "party": [
+    {
+     "slot": 3,
+     "offset": "0x0830CC5C",
+     "old_bytes": "42003700b8008b00",
+     "new_bytes": "880037000d058b00",
+     "old": {
+      "iv": 66,
+      "level": 55,
+      "species": 184,
+      "species_name": "Azumarill",
+      "item": 139,
+      "item_name": "Oran Berry"
+     },
+     "new": {
+      "iv": 136,
+      "level": 55,
+      "species": 1293,
+      "species_name": "Wugtrio",
+      "item": 139,
+      "item_name": "Oran Berry"
+     }
+    }
+   ]
+  },
+  {
+   "id": 335,
+   "name": "Wallace",
+   "struct": [],
+   "party": [
+    {
+     "slot": 2,
+     "offset": "0x09000590",
+     "old_bytes": "8d0046001d014701b600590098020800",
+     "new_bytes": "8d0046001d014701b600590091030800",
+     "old": {
+      "iv": 141,
+      "level": 70,
+      "species": 285,
+      "species_name": "Swampert",
+      "item": 327,
+      "item_name": "Swampertite",
+      "moves": [
+       182,
+       89,
+       664,
+       8
+      ],
+      "move_names": [
+       "Protect",
+       "Earthquake",
+       "Liquidation",
+       "Ice Punch"
+      ]
+     },
+     "new": {
+      "iv": 141,
+      "level": 70,
+      "species": 285,
+      "species_name": "Swampert",
+      "item": 327,
+      "item_name": "Swampertite",
+      "moves": [
+       182,
+       89,
+       913,
+       8
+      ],
+      "move_names": [
+       "Protect",
+       "Earthquake",
+       "Wave Crash",
+       "Ice Punch"
+      ]
+     }
+    },
+    {
+     "slot": 6,
+     "offset": "0x090005D0",
+     "old_bytes": "7b00460049002002bc00f7024a018801",
+     "new_bytes": "a3004600c70401039601b1031e023500",
+     "old": {
+      "iv": 123,
+      "level": 70,
+      "species": 73,
+      "species_name": "Tentacruel",
+      "item": 544,
+      "item_name": "Black Sludge",
+      "moves": [
+       188,
+       759,
+       330,
+       392
+      ],
+      "move_names": [
+       "Sludge Bomb",
+       "Body Press",
+       "Muddy Water",
+       "Aqua Ring"
+      ]
+     },
+     "new": {
+      "iv": 163,
+      "level": 70,
+      "species": 1223,
+      "species_name": "WalkngWake",
+      "item": 769,
+      "item_name": "BoosterEnergy",
+      "moves": [
+       406,
+       945,
+       542,
+       53
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Hydro Steam",
+       "Hurricane",
+       "Flamethrower"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 404,
+   "name": "Edwardo",
+   "struct": [],
+   "party": [
+    {
+     "slot": 2,
+     "offset": "0x0830D2AC",
+     "old_bytes": "a1002d0028040000",
+     "new_bytes": "a1002d000e050000",
+     "old": {
+      "iv": 161,
+      "level": 45,
+      "species": 1064,
+      "species_name": "Braviary"
+     },
+     "new": {
+      "iv": 161,
+      "level": 45,
+      "species": 1294,
+      "species_name": "Bombirdier"
+     }
+    }
+   ]
+  },
+  {
+   "id": 501,
+   "name": "Eli",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830D9BC",
+     "old_bytes": "a8001c0073040000",
+     "new_bytes": "a8001c00fc030000",
+     "old": {
+      "iv": 168,
+      "level": 28,
+      "species": 1139,
+      "species_name": "Carkol"
+     },
+     "new": {
+      "iv": 168,
+      "level": 28,
+      "species": 1020,
+      "species_name": "Arcanine"
+     }
+    }
+   ]
+  },
+  {
+   "id": 522,
+   "name": "Brendan",
+   "struct": [],
+   "party": [
+    {
+     "slot": 3,
+     "offset": "0x09011320",
+     "old_bytes": "9f0034001701450196019c019b014900",
+     "new_bytes": "9f0034001701450196019c019b019e01",
+     "old": {
+      "iv": 159,
+      "level": 52,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       406,
+       412,
+       411,
+       73
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Energy Ball",
+       "Focus Blast",
+       "Leech Seed"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 52,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       406,
+       412,
+       411,
+       414
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Energy Ball",
+       "Focus Blast",
+       "Earth Power"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 531,
+   "name": "May",
+   "struct": [],
+   "party": [
+    {
+     "slot": 6,
+     "offset": "0x091934C4",
+     "old_bytes": "9f0033001701450196019c0149009b01",
+     "new_bytes": "9f0033001701450196019c019b019e01",
+     "old": {
+      "iv": 159,
+      "level": 51,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       406,
+       412,
+       73,
+       411
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Energy Ball",
+       "Leech Seed",
+       "Focus Blast"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 51,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       406,
+       412,
+       411,
+       414
+      ],
+      "move_names": [
+       "Dragon Pulse",
+       "Energy Ball",
+       "Focus Blast",
+       "Earth Power"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 571,
+   "name": "Marc",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830DFAC",
+     "old_bytes": "02000e006b020000",
+     "new_bytes": "88000e00f0040000",
+     "old": {
+      "iv": 2,
+      "level": 14,
+      "species": 619,
+      "species_name": "Archen"
+     },
+     "new": {
+      "iv": 136,
+      "level": 14,
+      "species": 1264,
+      "species_name": "Nacli"
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x0830DFB4",
+     "old_bytes": "0a000e001d030000",
+     "new_bytes": "88000e0002050000",
+     "old": {
+      "iv": 10,
+      "level": 14,
+      "species": 797,
+      "species_name": "Rockruff"
+     },
+     "new": {
+      "iv": 136,
+      "level": 14,
+      "species": 1282,
+      "species_name": "Klawf"
+     }
+    }
+   ]
+  },
+  {
+   "id": 597,
+   "name": "Tabitha",
+   "struct": [],
+   "party": [
+    {
+     "slot": 3,
+     "offset": "0x0830E704",
+     "old_bytes": "6100250071041302a601f200a8019402",
+     "new_bytes": "61002500eb044802a601a80147029402",
+     "old": {
+      "iv": 97,
+      "level": 37,
+      "species": 1137,
+      "species_name": "Boltund",
+      "item": 531,
+      "item_name": "Expert Belt",
+      "moves": [
+       422,
+       242,
+       424,
+       660
+      ],
+      "move_names": [
+       "Thunder Fang",
+       "Crunch",
+       "Fire Fang",
+       "Psychic Fang"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 37,
+      "species": 1259,
+      "species_name": "Dachsbun",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       422,
+       424,
+       583,
+       660
+      ],
+      "move_names": [
+       "Thunder Fang",
+       "Fire Fang",
+       "Play Rough",
+       "Psychic Fang"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 601,
+   "name": "Maxie",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x083195F0",
+     "old_bytes": "7b003a00ec02d802370155004c003001",
+     "new_bytes": "61003a00c5044802aa0395025101a801",
+     "old": {
+      "iv": 123,
+      "level": 58,
+      "species": 748,
+      "species_name": "Heliolisk",
+      "item": 728,
+      "item_name": "Throat Spray",
+      "moves": [
+       311,
+       85,
+       76,
+       304
+      ],
+      "move_names": [
+       "Weather Ball",
+       "Thunderbolt",
+       "Solar Beam",
+       "Hyper Voice"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 58,
+      "species": 1221,
+      "species_name": "Koraidon",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       938,
+       661,
+       337,
+       424
+      ],
+      "move_names": [
+       "Coll. Course",
+       "StompTantrum",
+       "Dragon Claw",
+       "Fire Fang"
+      ]
+     }
+    },
+    {
+     "slot": 2,
+     "offset": "0x08319600",
+     "old_bytes": "da003a00e5001a02f1003b018f014c00",
+     "new_bytes": "9f003a00db044802c4032b029e01f700",
+     "old": {
+      "iv": 218,
+      "level": 58,
+      "species": 229,
+      "species_name": "Houndoom",
+      "item": 538,
+      "item_name": "Focus Sash",
+      "moves": [
+       241,
+       315,
+       399,
+       76
+      ],
+      "move_names": [
+       "Sunny Day",
+       "Overheat",
+       "Dark Pulse",
+       "Solar Beam"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 58,
+      "species": 1243,
+      "species_name": "Skeledirge",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       964,
+       555,
+       414,
+       247
+      ],
+      "move_names": [
+       "Torch Song",
+       "Snarl",
+       "Earth Power",
+       "Shadow Ball"
+      ]
+     }
+    },
+    {
+     "slot": 3,
+     "offset": "0x08319610",
+     "old_bytes": "61003a00950159016b0217020900bc01",
+     "new_bytes": "7b003a00ec02d80237015500bf014401",
+     "old": {
+      "iv": 97,
+      "level": 58,
+      "species": 405,
+      "species_name": "Groudon",
+      "item": 345,
+      "item_name": "Red Orb",
+      "moves": [
+       619,
+       535,
+       9,
+       444
+      ],
+      "move_names": [
+       "Prec. Blades",
+       "Heat Crash",
+       "ThunderPunch",
+       "Stone Edge"
+      ]
+     },
+     "new": {
+      "iv": 123,
+      "level": 58,
+      "species": 748,
+      "species_name": "Heliolisk",
+      "item": 728,
+      "item_name": "Throat Spray",
+      "moves": [
+       311,
+       85,
+       447,
+       324
+      ],
+      "move_names": [
+       "Weather Ball",
+       "Thunderbolt",
+       "Grass Knot",
+       "Signal Beam"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 602,
+   "name": "Maxie",
+   "struct": [],
+   "party": [
+    {
+     "slot": 3,
+     "offset": "0x083195D0",
+     "old_bytes": "7b002500ec02d8024c00370155003001",
+     "new_bytes": "9f002500db044802c403f7002b029e01",
+     "old": {
+      "iv": 123,
+      "level": 37,
+      "species": 748,
+      "species_name": "Heliolisk",
+      "item": 728,
+      "item_name": "Throat Spray",
+      "moves": [
+       76,
+       311,
+       85,
+       304
+      ],
+      "move_names": [
+       "Solar Beam",
+       "Weather Ball",
+       "Thunderbolt",
+       "Hyper Voice"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 37,
+      "species": 1243,
+      "species_name": "Skeledirge",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       964,
+       247,
+       555,
+       414
+      ],
+      "move_names": [
+       "Torch Song",
+       "Shadow Ball",
+       "Snarl",
+       "Earth Power"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 649,
+   "name": "Vivian",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830E494",
+     "old_bytes": "a2001700ab00000071036001c4005d02",
+     "new_bytes": "a2001700ab00000071036001c400e701",
+     "old": {
+      "iv": 162,
+      "level": 23,
+      "species": 171,
+      "species_name": "Lanturn",
+      "moves": [
+       881,
+       352,
+       196,
+       605
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Water Pulse",
+       "Icy Wind",
+       "Dazzle Gleam"
+      ]
+     },
+     "new": {
+      "iv": 162,
+      "level": 23,
+      "species": 171,
+      "species_name": "Lanturn",
+      "moves": [
+       881,
+       352,
+       196,
+       487
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Water Pulse",
+       "Icy Wind",
+       "Soak"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 650,
+   "name": "Danielle",
+   "struct": [
+    {
+     "offset": 1,
+     "old": 43,
+     "new": 20
+    },
+    {
+     "offset": 3,
+     "old": 64,
+     "new": 59
+    }
+   ],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830E4B4",
+     "old_bytes": "8a00240029027500c90110028a017201",
+     "new_bytes": "8a002400f5047500cf03780236027201",
+     "old": {
+      "iv": 138,
+      "level": 36,
+      "species": 553,
+      "species_name": "Emboar",
+      "moves": [
+       457,
+       528,
+       394,
+       370
+      ],
+      "move_names": [
+       "Head Smash",
+       "Wild Charge",
+       "Flare Blitz",
+       "Close Combat"
+      ]
+     },
+     "new": {
+      "iv": 138,
+      "level": 36,
+      "species": 1269,
+      "species_name": "Ceruledge",
+      "moves": [
+       975,
+       632,
+       566,
+       370
+      ],
+      "move_names": [
+       "Bitter Blade",
+       "Solar Blade",
+       "PhantomForce",
+       "Close Combat"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 654,
+   "name": "Flint",
+   "struct": [],
+   "party": [
+    {
+     "slot": 2,
+     "offset": "0x0830E52C",
+     "old_bytes": "8a002d00ab020000",
+     "new_bytes": "8a002d00ef040000",
+     "old": {
+      "iv": 138,
+      "level": 45,
+      "species": 683,
+      "species_name": "Mandibuzz"
+     },
+     "new": {
+      "iv": 138,
+      "level": 45,
+      "species": 1263,
+      "species_name": "Squawkbily"
+     }
+    }
+   ]
+  },
+  {
+   "id": 655,
+   "name": "Ashley",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x0830E534",
+     "old_bytes": "72002d0012003c01",
+     "new_bytes": "72002d008e003c01",
+     "old": {
+      "iv": 114,
+      "level": 45,
+      "species": 18,
+      "species_name": "Pidgeot",
+      "item": 316,
+      "item_name": "Aerodactylite"
+     },
+     "new": {
+      "iv": 114,
+      "level": 45,
+      "species": 142,
+      "species_name": "Aerodactyl",
+      "item": 316,
+      "item_name": "Aerodactylite"
+     }
+    }
+   ]
+  },
+  {
+   "id": 661,
+   "name": "Brendan",
+   "struct": [],
+   "party": [
+    {
+     "slot": 4,
+     "offset": "0x09011780",
+     "old_bytes": "70003f0017014501b50196019b016200",
+     "new_bytes": "70003f0017014501b50196019b019e01",
+     "old": {
+      "iv": 112,
+      "level": 63,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       437,
+       406,
+       411,
+       98
+      ],
+      "move_names": [
+       "Leaf Storm",
+       "Dragon Pulse",
+       "Focus Blast",
+       "Quick Attack"
+      ]
+     },
+     "new": {
+      "iv": 112,
+      "level": 63,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       437,
+       406,
+       411,
+       414
+      ],
+      "move_names": [
+       "Leaf Storm",
+       "Dragon Pulse",
+       "Focus Blast",
+       "Earth Power"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 664,
+   "name": "May",
+   "struct": [],
+   "party": [
+    {
+     "slot": 6,
+     "offset": "0x091935E4",
+     "old_bytes": "9f00390017014501b501960149009b01",
+     "new_bytes": "9f00390017014501b50196019e019b01",
+     "old": {
+      "iv": 159,
+      "level": 57,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       437,
+       406,
+       73,
+       411
+      ],
+      "move_names": [
+       "Leaf Storm",
+       "Dragon Pulse",
+       "Leech Seed",
+       "Focus Blast"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 57,
+      "species": 279,
+      "species_name": "Sceptile",
+      "item": 325,
+      "item_name": "Sceptilite",
+      "moves": [
+       437,
+       406,
+       414,
+       411
+      ],
+      "move_names": [
+       "Leaf Storm",
+       "Dragon Pulse",
+       "Earth Power",
+       "Focus Blast"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 732,
+   "name": "Tabitha",
+   "struct": [],
+   "party": [
+    {
+     "slot": 3,
+     "offset": "0x08319540",
+     "old_bytes": "6100390071041302a601a8019402f200",
+     "new_bytes": "61003900eb044802a601a80194024702",
+     "old": {
+      "iv": 97,
+      "level": 57,
+      "species": 1137,
+      "species_name": "Boltund",
+      "item": 531,
+      "item_name": "Expert Belt",
+      "moves": [
+       422,
+       424,
+       660,
+       242
+      ],
+      "move_names": [
+       "Thunder Fang",
+       "Fire Fang",
+       "Psychic Fang",
+       "Crunch"
+      ]
+     },
+     "new": {
+      "iv": 97,
+      "level": 57,
+      "species": 1259,
+      "species_name": "Dachsbun",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       422,
+       424,
+       660,
+       583
+      ],
+      "move_names": [
+       "Thunder Fang",
+       "Fire Fang",
+       "Psychic Fang",
+       "Play Rough"
+      ]
+     }
+    },
+    {
+     "slot": 4,
+     "offset": "0x08319550",
+     "old_bytes": "330039000c03970272028a01ee000900",
+     "new_bytes": "9f003900f4044802ce038c01d9019c01",
+     "old": {
+      "iv": 51,
+      "level": 57,
+      "species": 780,
+      "species_name": "Incineroar",
+      "item": 663,
+      "item_name": "Incinium Z",
+      "moves": [
+       626,
+       394,
+       238,
+       9
+      ],
+      "move_names": [
+       "Dark Lariat",
+       "Flare Blitz",
+       "Cross Chop",
+       "ThunderPunch"
+      ]
+     },
+     "new": {
+      "iv": 159,
+      "level": 57,
+      "species": 1268,
+      "species_name": "Armarouge",
+      "item": 584,
+      "item_name": "Assault Vest",
+      "moves": [
+       974,
+       396,
+       473,
+       412
+      ],
+      "move_names": [
+       "ArmorCannon",
+       "Aura Sphere",
+       "Psyshock",
+       "Energy Ball"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 802,
+   "name": "Angelo",
+   "struct": [],
+   "party": [
+    {
+     "slot": 2,
+     "offset": "0x0830F854",
+     "old_bytes": "7500170087000000710337019b014401",
+     "new_bytes": "750017008700000071033701f7004401",
+     "old": {
+      "iv": 117,
+      "level": 23,
+      "species": 135,
+      "species_name": "Jolteon",
+      "moves": [
+       881,
+       311,
+       411,
+       324
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Weather Ball",
+       "Focus Blast",
+       "Signal Beam"
+      ]
+     },
+     "new": {
+      "iv": 117,
+      "level": 23,
+      "species": 135,
+      "species_name": "Jolteon",
+      "moves": [
+       881,
+       311,
+       247,
+       324
+      ],
+      "move_names": [
+       "Rising Volt.",
+       "Weather Ball",
+       "Shadow Ball",
+       "Signal Beam"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": 971,
+   "name": "Zinnia",
+   "struct": [],
+   "party": [
+    {
+     "slot": 1,
+     "offset": "0x090131C0",
+     "old_bytes": "da002500ff022c02",
+     "new_bytes": "da00250026052c02",
+     "old": {
+      "iv": 218,
+      "level": 37,
+      "species": 767,
+      "species_name": "Noibat",
+      "item": 556,
+      "item_name": "Eviolite"
+     },
+     "new": {
+      "iv": 218,
+      "level": 37,
+      "species": 1318,
+      "species_name": "Dipplin",
+      "item": 556,
+      "item_name": "Eviolite"
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -37,7 +37,7 @@ def tiles(g, n, want):
     return [(b, found[b]) for b in want if b in found]
 
 
-sys.path.insert(0, r"C:\Users\nonth\Desktop\Works & Productivity\gba-trans\hyper-emerald-en-qol\patches\gen9rest")
+sys.path.insert(0, r"C:\Users\nonth\Desktop\Works & Productivity\gba-trans\hyper-emerald\hyper-emerald-en-qol\patches\gen9rest")
 import gen9rest_data as D
 slot_of = {k: D.FIRST_SLOT + i for i, (k, *_r) in enumerate(D.SPECIES)}
 lines, seen = [], set()

@@ -31,14 +31,24 @@ T = tables.of(rom)                  # v1.9 keeps the species tables elsewhere, 1
 ICON_TABLE = T.table["icons"]               # species -> 32x64 4bpp icon, two frames (GetMonIconTiles' table)
 ICON_PALIDX = T.table["icon palette ids"]   # species -> icon palette 0-5
 ICON_PALS = 0x0057C540      # gMonIconPaletteTable: {palette pointer, tag} x 6
-TRAINER_PICS = 0x0101BE90   # {LZ77 64x64 4bpp, u16 size, u16 tag} x 250 (found by a table scan; 8 bytes each)
-TRAINER_PALS = 0x0101C660   # {LZ77 palette, u16 tag, pad} x 250, referenced from the vanilla trainer-pic code
+# the trainer pictures {LZ77 64x64 4bpp, u16 size, u16 tag} and their palettes {LZ77 palette, u16 tag, pad}: 250 at
+# 0x0101BE90 / 0x0101C660 up to v1.9; since v2.0 Area Zero's people (250-252) and Kitakami's (253-254) are in longer
+# copies, so both are read through a code word that holds their address (patches/kitakami/ktrainers.py, REF_AT)
+TRAINER_PICS_REF, TRAINER_PALS_REF = 0x0005DF78, 0x0005B784
 ITEM_ICONS = 0x00FCBFF4     # item -> {LZ77 24x24 4bpp, LZ77 palette}
-N_SPECIES, N_TRAINER_PICS, N_ITEMS = T.species, 250, T.items
+N_SPECIES, N_ITEMS = T.species, T.items
 
 
 def u32(o):
     return struct.unpack_from("<I", rom, o)[0]
+
+
+TRAINER_PICS, TRAINER_PALS = u32(TRAINER_PICS_REF) - 0x08000000, u32(TRAINER_PALS_REF) - 0x08000000
+assert (TRAINER_PICS, TRAINER_PALS) == (0x0101BE90, 0x0101C660) or TRAINER_PICS > 0x01000000, "trainer pictures?"
+N_TRAINER_PICS = 250
+while N_TRAINER_PICS < 256 and 0x08000000 <= u32(TRAINER_PICS + 8 * N_TRAINER_PICS) < 0x0A000000 \
+        and 0x08000000 <= u32(TRAINER_PALS + 8 * N_TRAINER_PICS) < 0x0A000000:
+    N_TRAINER_PICS += 1
 
 
 def off(p):

@@ -533,7 +533,21 @@ function TEST(f)
   elseif s[1] == "walk" then
     -- {"walk", x, y, "on"|"act", label}: walk onto (x, y), or next to it
     if not s.started then
-      if lock() ~= 0 or cb2() ~= OVERWORLD then t0 = f + 1; return end
+      if lock() ~= 0 or cb2() ~= OVERWORLD then
+        -- something holds the screen (a PokeNav call met on the way that interrupted the walk before this one):
+        -- after 2 s a picture, then B until it lets go (the Kitakami story run waited 30 minutes on one, 2026-10-16)
+        s.held = (s.held or 0) + 1
+        if s.held == 120 then
+          shot(string.format("%02d_walk_%s_held", i, s[5] or ""))
+          w(string.format("%-10s waits: the screen is held (lock %d cb2 %08X), B until it lets go | %s", s[5] or "walk",
+            lock(), cb2(), state()))
+        end
+        if s.held > 120 and s.held % 20 == 0 then tap(K.B, 4) end
+        if s.held > 6000 then
+          w(string.format("%-10s HELD TIMEOUT | %s cb2 %08X lock %d", s[5] or "walk", state(), cb2(), lock())); done(); i = 9999
+        end
+        t0 = f + 1; return
+      end
       s.started = true
       local rp = var(0x4021)
       if rp > 0 and rp < 80 then setvar(0x4021, 250) end   -- a Repel running low would stop the walk with its prompt
@@ -801,6 +815,48 @@ function TEST(f)
       for r = 1, s.legends do mark(emu:read16(t + 16 * r), true) end
     end
     nextstep()
+  elseif s[1] == "keydown" then
+    -- {"keydown", key} / {"keyup", key}: a button held down from now until let go
+    emu:addKey(K[s[2]]); nextstep()
+  elseif s[1] == "keyup" then
+    emu:clearKey(K[s[2]]); nextstep()
+  elseif s[1] == "dexnum" then
+    -- {"dexnum", n}: the Pokedex entry the INFO page is on (sPokedexListItem) says National Dex number n
+    emu:write16(emu:read32(0x02039B54), s[2]); nextstep()
+  elseif s[1] == "dsinfo" then
+    -- {"dsinfo", label, callback}: the sprites in use, and the dexstats panel (the sprite with that callback): its
+    -- species, heartbeat and pieces
+    local n, found = 0, nil
+    for k = 0, 63 do
+      local b = 0x02020630 + k * 0x44
+      if emu:read8(b + 0x3E) & 1 == 1 then
+        n = n + 1
+        if emu:read32(b + 0x1C) == s[3] then found = b end
+      end
+    end
+    if found then
+      w(string.format("dsinfo %-12s sprites %d | found: data0-5 %d %d %d %d %d %d | %s", s[2], n,
+        emu:read16(found + 0x2E), emu:read16(found + 0x30), emu:read16(found + 0x32), emu:read16(found + 0x34),
+        emu:read16(found + 0x36), emu:read16(found + 0x38), state()))
+    else
+      w(string.format("dsinfo %-12s sprites %d | none | %s", s[2], n, state()))
+    end
+    nextstep()
+  elseif s[1] == "dexinfo" then
+    -- {"dexinfo", label}: the tasks running (their functions), sPokedexListItem's dex number and flags, and
+    -- sPokedexView's selected screen (for the Pokedex stats panel)
+    local t = {}
+    for k = 0, 15 do
+      local b = 0x03005E00 + k * 40
+      if emu:read8(b + 4) == 1 then t[#t + 1] = string.format("%08X", emu:read32(b)) end
+    end
+    local item = emu:read32(0x02039B54)
+    local view = emu:read32(0x02039B4C)
+    local dex, flags = 0, 0
+    if item >= 0x02000000 and item < 0x02040000 then dex = emu:read16(item); flags = emu:read16(item + 2) end
+    w(string.format("dexinfo %-10s tasks %s | item %08X dex %d flags %04X | view %08X | cb2 %08X", s[2],
+      table.concat(t, " "), item, dex, flags, view, cb2()))
+    nextstep()
   elseif s[1] == "qcard" then
     -- {"qcard", chapter}: with the Quest Log's grid up, its cursor (V+0) on that chapter's card, so A opens it
     local v
@@ -913,6 +969,7 @@ function TEST(f)
       for _, b in ipairs({0x02024084, 0x02024084 + 2 * 0x58}) do
         emu:write16(b + 2, 9999); emu:write16(b + 6, 9999); emu:write16(b + 8, 9999)
         emu:write16(b + 0x0C, 399); emu:write16(b + 0x28, emu:read16(b + 0x2C))
+        emu:write8(b + 0x24, 15)                     -- its PP (battles in a row ran it out: "There's no PP left")
       end
       if not s.inb then
         s.inb = true; s.n = (s.n or 0) + 1
@@ -951,6 +1008,7 @@ function TEST(f)
       for _, b in ipairs({0x02024084, 0x02024084 + 2 * 0x58}) do
         emu:write16(b + 2, 9999); emu:write16(b + 6, 9999); emu:write16(b + 8, 9999)
         emu:write16(b + 0x0C, 399); emu:write16(b + 0x28, emu:read16(b + 0x2C))
+        emu:write8(b + 0x24, 15)                     -- its PP (battles in a row ran it out: "There's no PP left")
       end
       if dt % 14 == 0 then tap(K.A, 4) end
     elseif lock() ~= 0 then
@@ -1193,6 +1251,25 @@ function TEST(f)
       if not ok then done(); i = 9999; return end
     end
     if dt == 60 then w("after load | " .. state() .. " | objs " .. objs()); nextstep() end
+  elseif s[1] == "call" then
+    -- {"call", function () ... end}: a steps file's own Lua, run once (it may call w() to log)
+    s[2]()
+    nextstep()
+  elseif s[1] == "windows" then
+    -- {"windows", label}: every window in gWindows (0x02020004, 32 x 12 bytes): bg, left, top, width, height,
+    -- palette, base block and the tiles it takes (base .. base + w * h - 1)
+    local t = {}
+    for k = 0, 31 do
+      local a = 0x02020004 + 12 * k
+      local bg = emu:read8(a)
+      if bg ~= 0xFF then
+        local wd, ht, base = emu:read8(a + 3), emu:read8(a + 4), emu:read16(a + 6)
+        t[#t + 1] = string.format("#%d bg%d (%d,%d) %dx%d pal%d tiles %d-%d", k, bg, emu:read8(a + 1), emu:read8(a + 2),
+          wd, ht, emu:read8(a + 5), base, base + wd * ht - 1)
+      end
+    end
+    w(string.format("windows %s | %s | %s", s[2] or "", table.concat(t, "; "), state()))
+    nextstep()
   elseif s[1] == "menutop" then
     -- the Start menu opens where it was left: put its cursor on the first line (sStartMenuCursorPos)
     emu:write8(0x0203760E, 0); nextstep()

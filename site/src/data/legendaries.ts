@@ -455,12 +455,34 @@ export const LEGEND_GROUPS: LegendGroup[] = [
           'Area Zero’s tall grass at any time: the six ancient ones in the crater in the past, the six iron ones in the crater in the future. Iron Bundle also turns up in the icy cave. Great Tusk and Iron Treads are the story’s Titans too (Lv 68 and 72), which cannot be caught.',
         source: 'rom',
       },
+    ],
+  },
+  {
+    // v2.0: patches/kitakami (kchapters.py's stages, kstory.py's levels, the hiding places of the user's placements)
+    key: 'kitakami',
+    legends: [
       {
-        name: 'Okidogi, Munkidori, Fezandipiti, Ogerpon and Pecharunt',
-        mons: ['Okidogi', 'Munkidori', 'Fezandipiti', 'Ogerpon', 'Pecharunt'],
-        level: '–',
+        name: 'Ogerpon',
+        mons: ['Ogerpon'],
+        level: '75',
         where:
-          'Not in this version. The game has them as Pokémon, but they live in Kitakami, which it does not have, and nothing in the game meets them. The Quest Log lists them as Locked and leaves them out of its count.',
+          'Mossui Town, Loyalty Plaza, at the end of the Teal Mask story: after Kieran’s second battle she fights you in each of her four masks (no Poké Balls), then once more to be caught. Afterwards Kieran’s grandfather, at home, changes the mask of the first Ogerpon in your party: Teal, Wellspring, Hearthflame or Cornerstone.',
+        source: 'rom',
+      },
+      {
+        name: 'Okidogi, Munkidori and Fezandipiti',
+        mons: ['Okidogi', 'Munkidori', 'Fezandipiti'],
+        level: '75',
+        where:
+          'Mossui Town, once the Teal Mask story is over, each where it hid during the hunt: Okidogi just east of Loyalty Plaza’s statues, Munkidori by Loyalty Plaza’s sign, Fezandipiti by Kitakami Hall’s sign. During the story you battle them for the masks with no Poké Balls; afterwards each is met once: if it faints, it is gone for good.',
+        source: 'rom',
+      },
+      {
+        name: 'Pecharunt',
+        mons: ['Pecharunt'],
+        level: '82',
+        where:
+          'Mossui Town at night, in Mochi Mayhem after the Teal Mask story: Briar has a letter from Kieran, in Mossdeep City or in Mossui. Wake the town from the mochi’s spell; once Nemona is beaten at Loyalty Plaza, Pecharunt battles you (no Poké Balls) and is yours once beaten. With a full party it goes to the PC.',
         source: 'rom',
       },
     ],

@@ -1,5 +1,5 @@
 -- Showcase capture: bag 999 + START sort, SELECT key-item popup (4 registered), quick-ball widget (hold R in battle).
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/tools/test-harness/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/test-harness/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 local NL = string.char(10)

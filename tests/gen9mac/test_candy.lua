@@ -7,7 +7,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local TAG = E("TAG") or "ui"
 NAME = TAG .. "_use"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SPECIES, LEVEL, ITEM, TARGET = tonumber(E("SPECIES")), tonumber(E("LEVEL") or "30"), 68, tonumber(E("TARGET"))
 local function key() return emu:read32(emu:read32(0x03005D90) + 0xAC) end
 local function count68()

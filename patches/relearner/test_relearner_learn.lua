@@ -1,6 +1,6 @@
 -- In-party move relearner test 3 (fresh boot, START menu cursor at Pokedex): open Moves on the first mon,
 -- learn Hammer Arm over move 1, then confirm overworld control and the START menu.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/tools/test-harness/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/test-harness/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 local log = io.open(dir .. "relearn3_log.txt", "w")

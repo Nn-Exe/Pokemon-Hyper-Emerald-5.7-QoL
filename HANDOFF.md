@@ -28,7 +28,7 @@ patches/<feature>/<feature>.s          Thumb source, assembled at a fixed BASE
 patches/<feature>/<feature>_patch.py   asserts the ROM matches, assembles, writes, repoints
 patches/<feature>/test_*.lua           mGBA Lua that drives the game and checks the feature
 tools/                                 ROM mining and asset conversion (region maps, encounter tables…)
-tools/gif_editor.py                    GIFs out of docs/showcase with the mouse, a local page (`gba-trans/showcase/gif editor.bat`)
+tools/gif_editor.py                    GIFs out of docs/showcase with the mouse, a local page (`gba-trans/hyper-emerald/showcase/gif editor.bat`)
 site/                                  the guide website's source (Astro); `npm run build` writes it into docs/
 docs/NOTES.md                          engineering record: every feature, every gotcha, all addresses
 docs/DEXNAV-PROGRESS.md                the newest feature in detail — start here if you are continuing it
@@ -63,6 +63,221 @@ These are not style preferences; each one is a bug that already happened.
    bag, a save and a Pokénav call, then check what survived — `patches/dexnavchain/test_scratch_ram.lua`).
 6. **Verify in the emulator, not by reading.** Every feature here has a Lua test that drives the game and
    reads memory back. Three of the last four bugs were invisible in the source and obvious in a screenshot.
+
+## Release v2.0: the Windows PC, 2026-10-24
+
+1. **v2.0 is released** (the user: "push to release repo"): the game is `rom/` = "(my placements 55)" =
+   **fb949e02...**, which the whole chain from the v1.4 archive gives byte for byte. Build 55 is build 54 with
+   Kieran's Appletun and Flapple no longer their Gigantamax slots (found while making the site's data; NOTES,
+   *Kieran's Gigantamax apples*). `release/hyper-emerald-en-qol.hpatch`
+   and `CHECKSUMS.txt` rebuilt; the public repo has one "Release v2.0" commit and a GitHub release `v2.0`; the guide
+   site describes v2.0 (`RELEASED_VERSION` = `PATCH_VERSION` = '2.0'). NOTES, *Release v2.0*.
+
+## Earlier handoff: the Windows PC, 2026-10-22 (evening) -> the Mac
+
+1. **New step `hisuifly`** between `gen9anim` and `kitakami`: the Hisui map flies again (Mingyao's Braviary), each
+   place needing flag 0x431E, Rei and Cogita's news at base camp after Volo (the user: "make sure it check if we
+   already completed Hisui quest at finding Volo but before skitty Cat"). Data only, 11 bytes:
+   `python -I patches/hisuifly/hisuifly_patch.py in.gba out.gba`. The three `rebuild_chain.py` copies and
+   `paldea/rebuild.py`'s TAIL run it. `rom/` = the working ROM = "(my placements 39)" = **f5ce12ce...** (= 10203d90...
+   + the patch); the whole chain from the v1.4 archive gives it byte for byte (96 s). NOTES, *The Hisui map flies again, after Volo*.
+2. The guide site still says the Hisui map does not fly (`site/src/data/features.ts`, `guides/mechanics.mdx`):
+   change it with the next release.
+3. **New step `evgain`** after `hisuifly`, before `kitakami` (reported: "Total EV sometimes stuck at 509"): the
+   engine's EV gain counted points due to a full stat (252) toward 510, so a Power item for a full stat, or a foe
+   giving EVs in one, stopped it at 509. One byte (0x09D5A9A2): `python -I patches/evgain/evgain_patch.py in.gba
+   out.gba`. `rom/` = the working ROM = "(my placements 40)" = **ebeae0f5...** (= f5ce12ce... + the patch); the whole chain from the
+   v1.4 archive gives it byte for byte (98 s). NOTES,
+   *EVs from battles stopped at 509*.
+4. **New step `mintquirky`** after `evgain`, before `kitakami` (a player's report): Cheren's Mint list in the usual
+   order with Quirky in None's place (the user's choice; no undo), names cut to fit the screen; the Mint byte 25 =
+   Quirky (24 stays Hardy) read the same by the stats and the summary. Code at 0x09E3C000..0x09E3C10C (blank,
+   proven: NOTES). `rom/` = the working ROM = "(my placements 41)" = **8cccc1f9...**; the whole chain from the v1.4 archive gives it byte for byte. NOTES, *Cheren's Mint list*.
+   Two other reports needed no change (NOTES, *Two reports that needed no change*): the box between Jubilife and
+   Route 204 was a PokeNav call in our films (screenshot asked for), and the Shiny Charm already counts for eggs
+   (6 tries against 2, measured).
+5. **New step `castlefence`** after `mintquirky`, before `kitakami` (a player's report): the Rainbow Castle's first
+   floor (34/82) raised its trap fence on every load, so a player teleported out by the inner Kirlia came back on the
+   wrong side of it; now only when you are north of it. A new on-load script at 0x09E3C200, 40 bytes.
+   `rom/` = the working ROM = "(my placements 42)" = **c5a095b0...**, which the whole chain from the v1.4 archive gives byte for byte.
+   NOTES, *Rainbow Castle: the fence*.
+6. **New step `azpeople`** after `castlefence`, before `kitakami`: Area Zero's six people redrawn after references
+   the user found (Pokemon Essentials art, recovered from screenshots): 32 x 32 walkers in that style for all six,
+   new battle pictures 250-252 (Nemona, AI Sada, AI Turo). The pictures are `patches/azpeople/sprites/*.png`
+   (`make.py` turns them into what the patch reads); how they were made is in `_testrun/paldea/people/redraw`
+   (Windows PC only). 30.8 KB at 0x09E24000. `kitakami/ksprites.py` now accepts Nemona's entry at 32 x 32.
+   `rom/` = the working ROM = "(my placements 43)" = **38fac465...**, which the whole chain from the v1.4 archive gives byte for byte. Open: the references' artist is not known -
+   credit them at a release if found. NOTES, *Area Zero's people, after the references*.
+7. **Checked after, no change:** the castle round trip on foot (out by the inner Kirlia, back in through the fence,
+   up to the inner Kirlia again) and the EV items at the 510 cap (vitamins and EV berries all right). Found while
+   testing, the original hack's own: HP Up revived a fainted Pokemon with a few HP, and a Pomeg Berry gave full HP to
+   a fainted one or one at 1 HP - fixed (8).
+8. **New step `hpcalc`** after `azpeople` (the user: "patch to current rom", "everything"): when a Pokemon's max HP
+   changes, a fainted one keeps 0 HP and a living one never drops below 1 (the game's own rule, plus the floor), in
+   the hack's stat routine (40 bytes at 0x09F03A5C). "(my placements 44)" = **34921763...**. NOTES, *A fainted
+   Pokemon stays fainted*.
+9. **New step `eshot`** after `hpcalc`, before `kitakami` (a player's report): Electro Shot fires in its first turn
+   in the rain (not with a Utility Umbrella, Cloud Nine or Air Lock), with its own charge message; a new kind-2 script,
+   a routine and a string, longer copies of gen9abil's two tables, 2.6 KB at 0x09E3B000 (proven: NOTES).
+   "(my placements 45)" = **2cb96ba2...**. NOTES, *Electro Shot in the rain* (also: Supreme Overlord checked again,
+   it works).
+10. **New step `granitefall`** after `eshot`, before `kitakami` (a player's report): four cracked tiles of Granite Cave
+   B1F that dropped you into B2F's rock (stuck) are plain floor. "(my placements 46)" = **f1fc3a60...**. NOTES,
+   *Granite Cave: falls into the rock*.
+11. **New step `startclock`** after `granitefall`, before `kitakami` (2026-10-23, asked): a clock box on the Start menu
+   under the "R Journal" one ("Thu 4:24 PM (Day)"). `rom/` = the working ROM = "(my placements 47)" = **9d6d95bb...**.
+   NOTES, *A clock on the Start menu*.
+12. **New step `consolequest`** after `startclock`, before `kitakami` (2026-10-23, the user: "include in the side
+   quest, 4 quests"): the console in your room's four cartridges (Rainbow R., Ultra A., Friends, HP League) are Side
+   Content rows 45-48 in the Quest Log (55 -> 59), each ticked by a flag its GAME CLEAR now sets (0x43A4, 0x43A8,
+   0x43A9, 0x416B; the Hall of Fame's save keeps it). Data and four 8-byte script stubs at 0x09E22000..0x09E22DC4
+   (0x09E22000..0x09E24000 kept). "(my placements 48)" = **b5572a73...** (`rom/` until gmaxicon); the whole chain
+   from the v1.4 archive gives it byte for byte. Tested by a jump into Rainbow R.'s ending and by HP League played
+   through the console's menu (7 battles at Lv50, to the Hall of Fame and Continue). The guide site
+   still says 55 side quests (`site/src/data/features.ts`): change it with the next release. NOTES, *The console's
+   cartridges in the Quest Log*.
+13. **New step `gmaxicon`** after `consolequest`, before `kitakami` (2026-10-23, asked): the Max Mushroom icon at the
+   bottom right of the summary's picture for a Pokemon with the Gigantamax bit (mon +0x4E bit 7, the Max Soup's; Emerald's
+   Country Ribbon bit, so the Ribbons count counts it). An 8-byte trampoline at 0x081C4A08 and 0x09E3AD00..0x09E3AF0B.
+   The mark is the Max Mushroom's own item icon (item 87, read from the ROM), made 14 x 14 (the user: "use this
+   attached img", then "smaller", "too big"), at the right end of the nickname's row - in the picture's corner for a
+   nickname over 54 px, so it never covers a name. "(my placements 53)" = **e8810b63...** (on 52's clock).
+   NOTES, *The Gigantamax mark on the summary*.
+14. **`startclock` changed** (2026-10-23, the user, with a picture of the box under the Journal's: "remove the evening,
+   whatever, and move into the same row as R Journey"): "Thu 5:08 PM", no time of day, on the Journal box's row at
+   (11,1) 9 x 2 (frame tiles 10-20; the Start menu's frame starts at 21); at the top left without the Journal and still
+   under the Safari / Pyramid window. `rom/` = the working ROM = "(my placements 52)" = **e3e56cec...**, 456 bytes from
+   51, all in 0x09E3BC08..0x09E3BF1B; the whole chain from the v1.4 archive gives it byte for byte. NOTES, *The clock
+   beside the Journal*.
+15. **`gmaxicon` moved onto the name row** (2026-10-23, the user's mock-up: the mark right of the nickname, "make sure
+   it would not affect any name"): at the nickname row's right end when the nickname is at most 54 px, else in the
+   picture's corner (item 13). `rom/` = the working ROM = "(my placements 53)" = **e8810b63...**, 408 bytes from 52;
+   the whole chain from the v1.4 archive gives it byte for byte. NOTES, *The Gigantamax mark on the summary*.
+16. **The Zygarde Cube's Key Items row** (2026-10-23, reported: not on Route 110): "Lying in Terminus Cave." Route
+   110's ball is boxed in by blocked tiles; both balls share flag 0x03EF. A main-chain change: new Gen 9 base in
+   roms/test-gen9 (9f2e5b2b). `rom/` = roms/current = "(my placements 54)" = **9932ea5b...**, = the whole chain.
+   NOTES, *The Zygarde Cube is in Terminus Cave*.
+
+## Earlier handoff: the Windows PC, 2026-10-22 (later) -> the Mac
+
+1. **The version number is 2.0** (`qolversion`: `QOL = "2.0"`; not a release: `release/`, the site's versions and
+   the public repo still say 1.9). It sits mid-chain, so the whole chain was rebuilt and the Gen 9 base
+   (`roms/test-gen9`) replaced with its `gen9` stage. `rom/` = "(my placements 38)" = **10203d90...** (8 bytes from
+   84a2d8d7...: the digits of the four titles); the whole chain from the v1.4 archive gives it byte for byte. On
+   the Mac: rebuild the chain, or take `rom/` as it is.
+2. The showcase GIF for 2.0: `docs/showcase/showcase-v2.0.gif` (the README still shows 1.9's until a release);
+   made by `_testrun/showcase20/montage.py` from clips filmed on build 38 (NOTES, *Version 2.0 and its showcase*).
+
+## Last handoff: the Windows PC, 2026-10-22 -> the Mac
+
+1. **New step `gen9anim`** between `gen9abil` and `kitakami`: the 48 Gen 9 moves play animations of their own
+   (43 scripts in the game's animation language). Assembled once (`build.py`, xPack's arm-none-eabi-as); the patcher
+   only reads `gen9anim.bin` and `gen9anim.sym`: `python -I patches/gen9anim/gen9anim_patch.py in.gba out.gba`. It
+   takes 0x09E38000..0x09E3C000; gen9abil's claim is now 0x09E33000..0x09E38000 (its output unchanged). The three
+   `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL run it. `rom/` = the working ROM = "(my placements
+   37)" = **84a2d8d7...** (= 3c9f52c1... + the patch); `roms/before-kitakami/` = **5da2d7f6...** (on the Mac: the
+   patch on 3d32f3cf...). NOTES, *The Gen 9 moves' own animations*.
+2. The whole chain from the v1.4 archive gives 84a2d8d7... byte for byte (100 s).
+
+## Last handoff: the Windows PC, 2026-10-21 (late night) -> the Mac
+
+1. **New step `gen9abil`** between `eggrelearn` and `kitakami`: the Gen 9 abilities work in battle (each its own
+   id from 0x101, its own name and messages; 34 with their Scarlet/Violet effect, Zero to Hero without one - no
+   Hero Form). C code, compiled once with xPack arm-none-eabi-gcc 12.2.1 (`build.py`; `ARMGCC=<its bin>` elsewhere);
+   the patcher only reads `gen9abil.bin` and `gen9abil.sym`, so the Mac needs no compiler unless it changes the C:
+   `python -I patches/gen9abil/gen9abil_patch.py in.gba out.gba`. It stands in front of 25 engine routines (`WRAP`):
+   a later patch that hooks one of them chains through its wrapper. The three `rebuild_chain.py` copies and
+   `paldea/rebuild.py`'s TAIL run it. `rom/` = the working ROM = "(my placements 36)" = **3c9f52c1...**
+   (= 767e052c... + the patch); `roms/before-kitakami/` = **3d32f3cf...** (on the Mac: the patch on c2c97e5e...).
+   NOTES, *The Gen 9 abilities work in battle*.
+2. The whole chain from the v1.4 archive gives 3c9f52c1... byte for byte (135 s; main game alone still 265a0e93...).
+
+## Last handoff: the Windows PC, 2026-10-21 (night) -> the Mac
+
+1. **New step `eggrelearn`** between `iconnight` and `kitakami` (the user: "yeah in party relearner"): the Move
+   Relearner (the party menu's Moves, and the Fallarbor tutor: one screen) lists egg moves after the level-up moves,
+   up to 64 (the screen held 25). Code only, no Crest ROM needed: `python -I patches/eggrelearn/eggrelearn_patch.py
+   in.gba out.gba`; no other step touches its bytes. The three `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL
+   run it. `rom/` = the working ROM = "(my placements 35)" = **767e052c...** (= 8dafe8d1... + the patch);
+   `roms/before-kitakami/` = **c2c97e5e...** (on the Mac: the patch on 3e75e37b...). NOTES, *Egg moves in the Move
+   Relearner*.
+2. The whole chain from the v1.4 archive gives 767e052c... byte for byte (113 s; main game alone still 265a0e93...).
+
+## Last handoff: the Windows PC, 2026-10-21 (evening) -> the Mac
+
+1. **Area Zero's people in pictures of their own** (the user: "reusing npcs make the game look cheap"; the mock-up:
+   "everything is great"): no new step - `paldea` (`cast.py`, `sprites/people*.py`) and `kitakami` (`ktrainers`,
+   `ksprites`, `kchapters`, `editor`, `regions`) changed. Map sprites for Nemona, Arven, Penny, Jacq, AI Sada, AI Turo
+   (the hack's sprite entries 174-178, 180; palette tags 0x1141-0x1144), battle pictures 250-252 (Nemona, the AIs);
+   Kitakami's Carmine and Kieran are pictures 253, 254 now and its tables are found through the code words. Area
+   Zero's sprite block runs to the ROM's end (0x09FFC000..0x0A000000 taken: proof in NOTES). `rom/` = the working ROM
+   = "(my placements 33)" = **8dafe8d1...**; `roms/before-kitakami/` = **3e75e37b...**. NOTES, *Area Zero's people in
+   pictures of their own*.
+2. On the Mac: Kitakami now needs Area Zero's people in the game it goes on (`ksprites.check`: entry 174 must be Area
+   Zero's Nemona), so it goes on `roms/before-kitakami`'s 3e75e37b..., not on an older one. The whole chain from the
+   v1.4 archive gives 8dafe8d1... byte for byte.
+
+## Last handoff: the Windows PC, 2026-10-21 -> the Mac
+
+1. **Two new steps `contexit` and `iconnight`** between `paulgift` and `kitakami` (a player's report: stuck inside a
+   tree in Petalburg Woods after Continue; the DexNav bar's Sunkern / Spearow in odd colours). Code only, no Crest ROM
+   needed, and neither touches what another step touches: `python -I patches/contexit/contexit_patch.py in out`, then
+   `python -I patches/iconnight/iconnight_patch.py in out`. On the Mac: both on top of `rom/`'s old 8aeca761... give
+   the new `rom/` byte for byte. The three `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL run them. `rom/` =
+   the working ROM = "(my placements 32)" = **66d87291...**; `roms/before-kitakami/` = the `iconnight` stage,
+   **daa23880...** (on the Mac: both patches on 0813e72e...). NOTES, *Continue walked you into a tree; the DexNav icon
+   at night*.
+2. The whole chain from the v1.4 archive with the two steps gives 66d87291... byte for byte (main game alone still
+   265a0e93...).
+
+## Last handoff: the Windows PC, 2026-10-20 -> the Mac
+
+1. **New step `keytrainers`** between `wilditem` and `kitakami`: the key trainers' teams with Gen 9 Pokemon (by
+   Luciano Fire - credit them; the user: "merge to my current rom"). Data only, no Crest ROM needed: `python -I
+   patches/keytrainers/keytrainers_patch.py in.gba out.gba` applies `keytrainers.json` (42 trainers, 549 bytes, every
+   old byte checked; `make_data.py` makes it from the coworker's ROM). The three `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL run it. `rom/` = the working
+   ROM = "(my placements 28)" = **1ecd960b...** (= 8dac47f0... + the coworker's bytes: the whole chain from the v1.4
+   archive gives it byte for byte). NOTES, *The key trainers' Gen 9 teams*.
+2. `roms/before-kitakami/` is now the chain's `keytrainers` stage, **bb39febc...**; on the Mac, make it by running the
+   patch on the `wilditem` stage (1ea26019...), or rebuild. A Kitakami build from the old file lacks the teams.
+3. **Kitakami** (2026-10-20, the user's reports): Carmine stops you one step up from the bus stop (a coord event:
+   the first in Kitakami), and Mossui's weather is put back after a battle (the hack carries a battle's weather onto
+   the map). Only `patches/kitakami/` changed: `rom/` = "(my placements 30)" = **6b167bfa...**. The Kitakami story
+   tests meet Carmine by that step now (`steps_story.lua`). NOTES, *Kitakami: Carmine stops you*.
+4. **New step `paulgift`** between `keytrainers` and `kitakami` (a report: Paul gave a second EV-IV Display in Fortree;
+   the user: "paul doesn't need to give again"): a 5-byte goto over his gift line and giveitem. Also the Quest Log's
+   Key Items row for it (`questlog/keyitems.py`, `portraits.LOC_OVERRIDE`): "Your PC", in the main chain, so
+   `roms/test-gen9` changed too (**a9f9397b...**). `rom/` = "(my placements 31)" = **8aeca761...** (the whole chain
+   gives it byte for byte); `roms/before-kitakami/` = the `paulgift` stage, **0813e72e...**. On the Mac (no `gen9`):
+   take `rom/`; `paulgift` alone on bb39febc... gives Paul's fix without the new Quest Log text, and
+   `questlog_on_top.py` was not tried for it (it predates `gen9journal`, whose rows point at the moved strings too).
+   NOTES, *Paul's second EV-IV Display*.
+
+## Last handoff: the Windows PC, 2026-10-18 -> the Mac
+
+1. **New step `wilditem`** between `gen9journal` and `kitakami` (a report: the Abandoned Ship's Pikachu held an Oran
+   Berry, not the Light Ball its script gives it). Code only, no Crest ROM needed: `python -I
+   patches/wilditem/wilditem_patch.py in.gba out.gba`. The three `rebuild_chain.py` copies and `paldea/rebuild.py`'s
+   TAIL run it. `rom/` = the working ROM = "(my placements 27)" = **8dac47f0...** (= 382cf97c... + this patch: the
+   whole chain from the v1.4 archive gives it byte for byte). NOTES, *A wild Pokemon keeps the item it was given*.
+2. `roms/before-kitakami/` (Kitakami's editor builds on it) is now the chain's `wilditem` stage, **1ea26019...**; on
+   the Mac, make it by running the patch on the 8462fa6f... game (the `rom/` of before Kitakami), or rebuild.
+3. Since the patch sits before `kitakami`, a Kitakami build made from the old before-kitakami file lacks the fix.
+
+## Last handoff: the Windows PC, 2026-10-17 -> the Mac
+
+1. **Kitakami is in the game** at the user's word ("try to merge with main rom, make sure to not touch something
+   unrelated"): the chain is now ... `gen9journal` -> `kitakami` (with the user's Kitakami placements: on the PC
+   `roms/test-kitakami/placements.txt`; `rom/kitakami-placements.txt` is the copy the game was built with). `rom/` =
+   the working ROM = "(my placements 26)" = **382cf97c...**; the game before it 8462fa6f.... The three
+   `rebuild_chain.py` copies on the PC and `patches/paldea/rebuild.py` run the new step. NOTES, *Kitakami*.
+2. **Building Kitakami again on the Mac** (`patches/kitakami/krebuild.py`, its editor): Kitakami cannot go onto a
+   game that has it, so they build on `roms/before-kitakami/Hyper Emerald - the game before Kitakami.gba` beside the
+   repo (`krebuild.base_rom()`). On the PC `rebuild.py` keeps that file current; on the Mac make it once from git,
+   the `rom/` of before this commit (8462fa6f...), or with the chain's `gen9journal` stage.
+3. In Area Zero's placements Jacq must stay at 70,32 in Mossdeep: Kitakami's Briar takes his tile after the ending
+   (the kitakami step stops and says so otherwise).
+4. The guide site still lists Kitakami's five as not in this version: it describes the v1.9 release.
 
 ## Last handoff: the Windows PC, 2026-10-15 (evening) -> the Mac
 
@@ -130,9 +345,10 @@ What the other PC does next:
 Applied to the working ROM and verified in mGBA (on a real late-game save, Sinnoh post-game):
 
 - everything in [CHANGELOG.md](CHANGELOG.md) up to and including **2026-09-23**;
-- the working ROM's Option screen says **+QoL1.9** since 2026-10-12, and **v1.9 is released** (2026-10-16): the
-  whole of Gen 9 and Area Zero are public (the user: "Yes, both public", then "Full v1.9 release");
-- the last published release is **v1.9** (2026-10-16, game sha1 65b5a7f6...; v1.8 was 2026-10-07; see CHANGELOG for v1.6 to v1.9); v1.5 (2026-09-23) added, on top of v1.4 (DexNav, Sinnoh map + fly,
+- the working ROM's Option screen says **+QoL2.0** since 2026-10-22, and **v2.0 is released** (2026-10-24, the user:
+  "push to release repo"): Kitakami and everything since v1.9 are public; v1.9 (2026-10-16) made the whole of Gen 9
+  and Area Zero public (the user: "Yes, both public", then "Full v1.9 release");
+- the last published release is **v2.0** (2026-10-24, game sha1 fb949e02...; v1.9 was 2026-10-16 with 65b5a7f6..., v1.8 2026-10-07; see CHANGELOG for v1.6 to v2.0); v1.5 (2026-09-23) added, on top of v1.4 (DexNav, Sinnoh map + fly,
   R button, News Tracker fix):
   * gold healthbox on your own shinies too (`patches/shinybox/`);
   * the **Journal** key item: next story objective from Prof. Birch to Cogita, 84 steps traced in the game's
@@ -149,8 +365,10 @@ Applied to the working ROM and verified in mGBA (on a real late-game save, Sinno
 - the guide's post-game and Lost Artifacts walkthroughs were rewritten from the scripts and are already live
   (public repo, 2026-09-21). `tools/romdata/scripts.py`, `prereq.py` and `savefile.py` are the tools that did it.
 
-Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots` -> `itemdesc` -> `textfix` -> `hmfree` -> `instanttext` -> `fastsurf` -> `dexnavseen` -> `dexnavscan` -> `dexnavui` -> `keyring` -> `repelfix` -> `nocandynpc` -> `lmoveinfo` -> `daynight` -> `rngseed` -> `expgain` -> `namingkb` -> `fusionfix` -> `dexnavabil` -> `shinyfade` -> `evivpal` -> `mistmsg` -> `objpal` -> `roamfix` -> `sprframe` -> `summitfix` -> `goldbox` -> `ballfree` -> `sheetonce` -> `iconpalfix` -> `sidefix` -> `zhtext`, and for the working ROM then `speciesx` -> `gen9` -> `paldea` -> `gen9rest`
--> `gen9dex` -> `gen9egg` -> `gen9journal` (the last four since 2026-10-15: NOTES, *The Quest Log's Gen 9 rows*)
+Order of the newest patches on top of v1.4: `shinybox` (both sides) -> `journal` -> `berrynum` -> `speciesnames` -> `questlog` -> `leaguefly` -> `leaguetext` -> `qolversion` -> `candynpc` -> `naturefix` -> `hypertrain` -> `hisuimap` -> `dexdesc` -> `ovalcharm` -> `flyicons` -> `eggmoves` -> `expshare` -> `bagslots` -> `itemdesc` -> `textfix` -> `hmfree` -> `instanttext` -> `fastsurf` -> `dexnavseen` -> `dexnavscan` -> `dexnavui` -> `keyring` -> `repelfix` -> `nocandynpc` -> `lmoveinfo` -> `daynight` -> `rngseed` -> `expgain` -> `namingkb` -> `fusionfix` -> `dexnavabil` -> `shinyfade` -> `evivpal` -> `mistmsg` -> `objpal` -> `roamfix` -> `sprframe` -> `summitfix` -> `goldbox` -> `ballfree` -> `sheetonce` -> `iconpalfix` -> `sidefix` -> `dexstats` -> `zhtext`, and for the working ROM then `speciesx` -> `gen9` -> `paldea` -> `gen9rest`
+-> `gen9dex` -> `gen9egg` -> `gen9journal` (the last four since 2026-10-15: NOTES, *The Quest Log's Gen 9 rows*) -> `wilditem`
+(2026-10-18) -> `keytrainers` (2026-10-20) -> `paulgift` (2026-10-20) -> `contexit` -> `iconnight` (2026-10-21) ->
+`kitakami` (2026-10-17)
 (`nocandynpc` takes `candynpc`'s NPC back out - NOTES, *Rare Candy NPC removed*; `fusionfix` chains on the ClearBag
 trampoline `bagslots` made, so it comes after it - NOTES, *Fusion slots*; `dexnavabil` is the DexNav bar's ability,
 in the working ROM since 2026-10-08 and in no release yet - NOTES, *DexNav bar: the ability it names*; `shinyfade`,
@@ -263,7 +481,7 @@ generated against the translated ROM, never against a ROM you cannot reproduce.
   pass the same day added seven signature moves (move ids 938-947: the move name, description and two power tables
   now have 1,024 entries), Booster Energy (item 769) and the Speed half of Protosynthesis / Quark Drive. They go
   LAST in the chain, after `zhtext`: `speciesx_patch.py in out`, then `python -I gen9_patch.py in out <Crest ROM>`,
-  then `check_gen9.py before after`. The build is in `gba-trans/roms/test-gen9/`. What is open: nothing in the
+  then `check_gen9.py before after`. The build is in `gba-trans/hyper-emerald/roms/test-gen9/`. What is open: nothing in the
   game hands these Pokémon or the item out yet (the user: "don't mind about the encounter yet"), six signature
   moves that Crest does not have either, and the guide / Quest Log tools, which still read 1,200 species at the
   old table addresses. Ogerpon's four masks stay four species (the user: "left Ogerpon as is"). NOTES, *Species
@@ -283,7 +501,7 @@ generated against the translated ROM, never against a ROM you cannot reproduce.
   overworld sprites from pokeemerald-expansion and the stations' recorder is drawn for the patch (mons.py,
   `sprites/`). The lab's door is shut until Arven and Nemona stand at it, which they do by themselves once
   everything before the finale is done, in any order. **Where everything stands and the ground itself are the user's
-  to edit** (tests 11 and 12): `placements.txt` and `ground.txt` in `gba-trans/roms/test-paldea/`, with the
+  to edit** (tests 11 and 12): `placements.txt` and `ground.txt` in `gba-trans/hyper-emerald/roms/test-paldea/`, with the
   mouse (`edit placements.bat`: editor.py, a local page that moves things and paints tiles as Hex Maniac Advance
   would, with "Tidy the edges": tidy.py works every terrace corner, path border and puddle rim out again from the
   painted shape) or by hand with `rebuild.bat`; check.py refuses what the game could not use. Their own build is
@@ -306,7 +524,7 @@ generated against the translated ROM, never against a ROM you cannot reproduce.
   hack's object palette allocator gives back a slot nothing on screen draws with; it used to hand the seventh
   kind of thing on a map slot 10, which shows another sprite's colours (the user: Walking Wake miscoloured).
   It is the hack's code for every map: `patches/objpal/`, in the working ROM since 2026-10-10.
-  Builds and a map guide in `gba-trans/roms/test-paldea/` (test 18 = "(my placements 9)"). On 2026-10-11 the user asked for one ROM
+  Builds and a map guide in `gba-trans/hyper-emerald/roms/test-paldea/` (test 18 = "(my placements 9)"). On 2026-10-11 the user asked for one ROM
   ("everything should be into one rom now? area zero plus everything fix, change?"): the working ROM is the main
   chain's result + `speciesx` + `gen9` + `paldea` with their `placements.txt` and `ground.txt`
   (`_testrun/rel18/rebuild_chain.py` builds all of it; `--main` stops at the main game), the Gen 9 base in

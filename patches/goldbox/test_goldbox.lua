@@ -1,4 +1,4 @@
--- (patches/goldbox/test_goldbox.lua: run it with gba-trans/_testrun/shinybox2/run.ps1 -Rom <rom> -Tag <name>
+-- (patches/goldbox/test_goldbox.lua: run it with gba-trans/hyper-emerald/_testrun/shinybox2/run.ps1 -Rom <rom> -Tag <name>
 --  -Test <this file> -Env "KIND=double;FIRST=1;LAST=259", which gives it DIR, BOOT and NAME; final2.ps1 and
 --  final3.ps1 there run the whole list.)
 -- The gold healthbox, watched through every move in the game (2026-10-13; a report: "the shiny box sometimes still

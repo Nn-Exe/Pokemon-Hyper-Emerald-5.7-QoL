@@ -87,8 +87,9 @@ def check(rom, ext_table, sprites, blank):
         "the three entries copied from no longer share the standard animations"
 
 
-def put(rom, blob, sprites):
-    """The pictures, frame tables, palettes and the longer palette table into `blob`."""
+def put(rom, blob, sprites, more=()):
+    """The pictures, frame tables, palettes and the longer palette table into `blob`. more: further rows of the
+    palette table, (tag, the key its palette is under in `blob`) (cast.py's people)."""
     stored = {}                                            # pictures -> the key they went in under
     for key, (name, slot, tag) in sprites.items():
         pic, pal, w, h, n, like = load(name)
@@ -110,11 +111,15 @@ def put(rom, blob, sprites):
                                                        for f in range(SHIMMER_FRAMES)) + struct.pack("<I", 0xFFFE))
         blob.put(("shimmer", "anims"), struct.pack("<I", loop) * ANIMS)
     rows = bytes(rom[PAL_TABLE:PAL_TABLE + 8 * (PAL_ROWS + 1)])       # the zero row too: tag 0 stays where it was
-    t = blob.put(("paltable",), rows + bytes(8 * len(sprites)) + struct.pack("<IHH", 0, PAL_END_TAG, 0))
+    t = blob.put(("paltable",), rows + bytes(8 * (len(sprites) + len(more))) + struct.pack("<IHH", 0, PAL_END_TAG, 0))
     for k, (key, (name, slot, tag)) in enumerate(sprites.items()):
         o = t - blob.base + len(rows) + 8 * k
         struct.pack_into("<H", blob.data, o + 4, tag)
         blob.ref(("pal", key), o)
+    for k, (tag, pal_key) in enumerate(more):
+        o = t - blob.base + len(rows) + 8 * (len(sprites) + k)
+        struct.pack_into("<H", blob.data, o + 4, tag)
+        blob.ref(pal_key, o)
 
 
 def install(rom, blob, ext_table, sprites):

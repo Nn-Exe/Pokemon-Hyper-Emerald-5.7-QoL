@@ -12,7 +12,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "br") .. "_breed"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local PARENT, WANT, STEPS = tonumber(E("PARENT")), tonumber(E("WANT") or "0"), tonumber(E("STEPS") or "40")
 local SCRIPT, PARTY = 0x0203F100, 0x020244EC
 local function sb1() return emu:read32(0x03005D8C) end

@@ -1,5 +1,5 @@
 -- Arm a hunt, then watch closely what a Pokenav call looks like while the bar is up, and chain some battles.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "call2_log.txt", "w")
 local function w(s) log:write(s .. NL); log:flush() end

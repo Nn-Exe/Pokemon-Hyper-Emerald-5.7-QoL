@@ -7,7 +7,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "cd") .. "_catch"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SPECIES, NEW, OLD = tonumber(E("SPECIES")), tonumber(E("NEW")), tonumber(E("OLD"))
 local SCRIPT, MONS, ACTION, EXT = 0x0203F100, 0x02024084, 0x08057589, 0x0203DA00
 local function sb1() return emu:read32(0x03005D8C) end

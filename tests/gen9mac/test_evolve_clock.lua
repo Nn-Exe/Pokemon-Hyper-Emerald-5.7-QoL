@@ -4,7 +4,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local TAG = E("TAG") or "et"
 NAME = TAG .. "_trace"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SPECIES, LEVEL, TARGET = tonumber(E("SPECIES")), tonumber(E("LEVEL")), tonumber(E("TARGET"))
 local SCRIPT, MONS, PARTY = 0x0203F100, 0x02024084, 0x020244EC
 local function run(bytes)

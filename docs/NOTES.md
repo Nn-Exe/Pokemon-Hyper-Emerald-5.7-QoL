@@ -253,7 +253,7 @@ few neighbours (ability descriptions looked like 19-char one-liners from 12 neig
 (4) a script pointer whose script starts `0f 00 <ptr>` decodes as "Chinese" — reject by header pattern.
 
 ## In-party move relearner (2026-09-13) — `patches/relearner/`
-Party menu option table sCursorOptions @0x08615C08 (33 x {text ptr, CursorCb ptr}; readers = literals @0x1B32F8 (DisplaySelectionWindow), 0x1B37C8/0x1B37F8 (input handler; dispatch is by table index, B = actions[numActions-1])). Copied to free space @0x08FD9B8C with entry 33 = {"Moves", cursor_moves}. Field action builder SetPartyMonFieldSelectionActions @0x081B3414 appends SUMMARY, field moves (0x13+j), SWITCH (if party[1] exists), ITEM/MAIL, CANCEL; eggs never reach it. Hook: the CANCEL append @0x081B3518 (16 bytes) -> trampoline to builder_hook @0x08FD9B00, which appends 33 only if numActions < 7 (actions[] holds 8: 4 field moves + 4 = full) then CANCEL, returns to 0x081B3529. Ids >= 0x13 draw in the field-move text colour (cosmetic). cursor_moves mirrors CursorCb_Summary @0x081B37FC: PlaySE(5); sPartyMenuInternal(0x0203CEC4)->exitCallback(+4) = cb2_moves; Task_ClosePartyMenu(0x081B12C1). cb2_moves: gSpecialVar_0x8004 (0x020375E0) = gPartyMenu(0x0203CEC8).slotId(+9); jump CB2_InitLearnMove 0x081606A1 (vanilla; TeachMoveRelearnerMove special 227 @0x08160639 = ScriptContext2_Enable + CreateTask(0x08160665) + fade, NOT used because the script lock would freeze the field). The relearner exits via CB2_ReturnToField. Move list builder @0x08161B94 is a hack trampoline (-> 0x09F06119), shared by script and screen, so expanded learnsets work. Verified: give-up path and full learn (forget Rock Slide, learn Hammer Arm) in mGBA; test scripts in the folder. Pitfall found while testing: the START menu remembers its cursor, so scripted menu navigation must not assume "Pokedex" is selected after the first visit.
+Party menu option table sCursorOptions @0x08615C08 (33 x {text ptr, CursorCb ptr}; readers = literals @0x1B32F8 (DisplaySelectionWindow), 0x1B37C8/0x1B37F8 (input handler; dispatch is by table index, B = actions[numActions-1])). Copied to free space @0x08FD9B8C with entry 33 = {"Moves", cursor_moves}. Field action builder SetPartyMonFieldSelectionActions @0x081B3414 appends SUMMARY, field moves (0x13+j), SWITCH (if party[1] exists), ITEM/MAIL, CANCEL; eggs never reach it. Hook: the CANCEL append @0x081B3518 (16 bytes) -> trampoline to builder_hook @0x08FD9B00, which appends 33 only if numActions < 7 (actions[] holds 8: 4 field moves + 4 = full) then CANCEL, returns to 0x081B3529. Ids >= 0x13 draw in the field-move text colour (cosmetic). cursor_moves mirrors CursorCb_Summary @0x081B37FC: PlaySE(5); sPartyMenuInternal(0x0203CEC4)->exitCallback(+4) = cb2_moves; Task_ClosePartyMenu(0x081B12C1). cb2_moves: gSpecialVar_0x8004 (0x020375E0) = gPartyMenu(0x0203CEC8).slotId(+9); jump CB2_InitLearnMove 0x081606A1 (vanilla; TeachMoveRelearnerMove special 227 @0x08160639 = ScriptContext2_Enable + CreateTask(0x08160665) + fade, NOT used because the script lock would freeze the field). The relearner exits via CB2_ReturnToField. Move list builder @0x08161B94 is a hack trampoline (-> 0x09F06119), shared by script and screen, so expanded learnsets work (2026-10-21: wrong. The builder is GetMoveRelearnerMoves 0x0806E0B4 -> the hack's 0x09D6A93E: *Egg moves in the Move Relearner*.) Verified: give-up path and full learn (forget Rock Slide, learn Hammer Arm) in mGBA; test scripts in the folder. Pitfall found while testing: the START menu remembers its cursor, so scripted menu navigation must not assume "Pokedex" is selected after the first visit.
 
 ## Coloured stat names in battle text (2026-09-13) — `patches/statcolor/`
 gStatNamesTable @0x085CBE00 (8 ptrs: HP, Attack, Defense, Speed, Sp. Atk, Sp. Def, Accuracy, Evasiveness; readers 0x6CF64, 0x14F7CC, hack 0x1D4A324). Entries 1-7 repointed to copies @0x08FD9CA0 wrapped in `FC 01 <idx>` ... `FC 01 01`. Battle text box = BG palette bank 0, loaded from LZ block @0x08C004E0 (64 bytes, banks 0-1) by battle_bg literals 0x35AE0/0x36430/0x38EF8 (others: 0x71900, 0x7B268, hack 0x1D626F0 left on the original). Bank 0 = 0000 7fff 001f 4d8a 5e2d 7fff 396d 6b3a 3d28 2909 434b 434b 434b 57ee 434b 3e69: text fg 1 (white), shadow 6 (396d), hack's green box uses 10-15; vanilla box shades 3/4/7/8 unused -> recoloured (orange 1A9F, pink 69FF, blue 7ECC, yellow 23BF) in a stored-literal LZ copy @0x08FD9D04, the three battle_bg literals repointed. Colour map: Attack 2 (red), Defense 3, Speed 13 (57ee), Sp. Atk 4, Sp. Def 7, Accuracy/Evasiveness 8. Verified in mGBA with Swords Dance ("Attack" red, rest white) and Tail Whip ("Defense" orange); box/menu pixels unchanged. Findings: the text printer honours FC 01 across the line break (restore code needed, 1 = default white); the hack's in-bag item-result window (palette bank 13/15, fg 2 grey) strips/ignores colour codes, so X-item messages stay plain. Test trick: write move ids into gBattleMons[0].moves (0x02024084+0x0C, pp +0x24) after the intro to get deterministic stat messages; the battle intro needs a button press ("Wild X appeared!" waits) before the action menu.
@@ -2740,7 +2740,7 @@ not allowed".
 - Installed 2026-10-07 (sha1 ade383ba...), backup "(before v1.8 title 2026-10-07)".
 - Published: public repo commit 41391be on main ("Release v1.8: ..."), tag v1.8, GitHub release with the patch
   and checksums. Checked from outside: the downloaded patch applied to the original is the installed ROM. The
-  local branch `release-1.8` is that commit. The helpers stayed outside the repo, in `gba-trans/_testrun/rel18/`:
+  local branch `release-1.8` is that commit. The helpers stayed outside the repo, in `gba-trans/hyper-emerald/_testrun/rel18/`:
   `rebuild_chain.py` (the chain from the v1.4 archive; `CHAIN_REPO` builds from another checkout) and
   `mirror_public.py` (dev working copy -> public checkout; prints every passage it rewrites, dry run first).
 
@@ -2791,7 +2791,7 @@ not allowed".
   species get real entries with no change to the save - numbered 906 up, not their official numbers.
 - `check_gen9.py before.gba after.gba` audits a build: every differing byte must be one of the intended changes,
   the first 1,200 entries of each moved table must equal the old table, the old tables must be untouched.
-- Tested (`patches/gen9/test_gen9.lua`, helpers in `gba-trans/_testrun/gen9/`): 17 old species (Bulbasaur to the
+- Tested (`patches/gen9/test_gen9.lua`, helpers in `gba-trans/hyper-emerald/_testrun/gen9/`): 17 old species (Bulbasaur to the
   Galarian Zen Darmanitan, 1198) in a seeded wild battle read the same on the ROM before and after.
 
 ## GEN 9: LEGENDARIES, MYTHICALS, PARADOX POKEMON, THE BAXCALIBUR LINE — 2026-10-08 — `patches/gen9/`
@@ -2864,6 +2864,8 @@ not allowed".
     399 (Poison Touch), Guard Dog 295 (Inner Focus), Tera Shell 487 (Shadow Shield), Poison Puppeteer 452
     (Merciless), Thermal Exchange 297 (Water Veil). The last five do exactly what their base does and show the
     base's own text; in battle messages the base's name appears.
+    (Since 2026-10-21 none of this is used: each ability has an id of its own and the alias list is empty -
+    *The Gen 9 abilities work in battle*.)
   - `g9_damage` is entry 5 of the engine's command table (0x09D77190; the live table is 0x09D7717C, 251 entries
     - the vanilla one at 0x0831BD10 is dead, its entries point into graphics). It runs the engine's damage
     command (0x09D6046C, which calls 0x09D5FF3C) and scales gBattleMoveDamage. The abilities: Orichalcum Pulse
@@ -3025,6 +3027,8 @@ not allowed".
   36/2 on both.
 - Installed 2026-10-08 (sha1 742ae12b...), backup "(before Hisui no-fly 2026-10-08)" with the .sav. The Gen 9 test
   ROM (roms/test-gen9, now sha1 cd311786...) and Area Zero test 5 (roms/test-paldea, b5e0b95a...) carry it.
+- Since 2026-10-22 a later step, `hisuifly`, gives the places back, each needing flag 0x431E (after Volo): *The
+  Hisui map flies again, after Volo*. hisuimap itself is unchanged.
 
 ## AREA ZERO: THE PALDEA AREA FOR THE GEN 9 BUILD — 2026-10-08 — `patches/paldea/`
 
@@ -3033,7 +3037,7 @@ not allowed".
   use Colress and Dulse ... it should be unimportantn npcs or new npc"), Jacq at "custom darkhole maybe like some
   students got sucked from it after ultrawormhole", "medium but faintful like should be event about stupid sandwich
   as well". The story (revision 2, approved; `story.py` says it in full) and the research behind it are in
-  `gba-trans/_testrun/gen9/paldea/`. On test 6 the user asked for "the npcs and story" and then "let go full mode
+  `gba-trans/hyper-emerald/_testrun/gen9/paldea/`. On test 6 the user asked for "the npcs and story" and then "let go full mode
   now": test 7 has all of it.
 - Goes after gen9 (it needs species 1200-1237). Data at `0x09FBC400..0x09FCBF38` on test 16 (62.8 KB of the 0xFF
   run `0x09FBC380..0x09FD2A00`, blank in the hack's own ROM; 26.7 KB left): seventeen map layouts (the thirteen maps
@@ -3261,7 +3265,7 @@ not allowed".
   pass, with flag and who-is-on-the-map checks ("expect" steps stop the run when wrong); test_steps_continue loads
   the user's own save (no setup) and checks nobody from the ending is in the woods. test_steps_tour and
   test_steps_sprites (every sprite of ours, Koraidon and Miraidon talked to from three sides) take pictures.
-  Test builds in `gba-trans/roms/test-paldea/` with a map guide (`map_guide.py`: gold during the story, green
+  Test builds in `gba-trans/hyper-emerald/roms/test-paldea/` with a map guide (`map_guide.py`: gold during the story, green
   ways in and out, cyan after it; objects drawn, hidden ones too).
 - **A second save beside test 10**: the user played test 9 up to the lab without saving (the .sav in the folder
   was never written after it was put there), so that play is gone. `make_save_lab_door.lua`, run on a copy of
@@ -3284,7 +3288,7 @@ not allowed".
   the open mouth 167) only warps when stood on.
 - **Positions are data** (`places.py`, `check.py`, `rebuild.py`, `editor.py`): no position of a person, a Pokemon,
   a crystal or an item is in paldea_patch.py. `places.THINGS` has the built-in ones; a `placements.txt` (the
-  user's is in `gba-trans/roms/test-paldea/`) overrides them; lists of crystals may be any length, or "none".
+  user's is in `gba-trans/hyper-emerald/roms/test-paldea/`) overrides them; lists of crystals may be any length, or "none".
   - `check.py` refuses a build and says why in plain words: off the map, in something solid (the recorder, the
     note and Terapagos may be), in a doorway, two things on a tile that are there at the same time, on water
     with a bank beside it (A from the bank offers Surf, and Surf then puts you on top of it), a reflection on dry
@@ -4555,7 +4559,7 @@ The user: "push to dev repo, include the rom itself so that I can work easily no
 - Looked at in mGBA (hidden, `_testrun/v19/run_option.ps1`, the expgain test's save): the title fits its bar, and
   the test's three battles give EXP, none, EXP as before.
 - Installed: the Gen 9 base in `roms/test-gen9`, "(my placements 17)" from `rebuild.py` (the same file as the
-  chain's result), the working ROM and `rom/`. Backups in `gba-trans/archive`: "(before v1.9 2026-10-12)" and the
+  chain's result), the working ROM and `rom/`. Backups in `gba-trans/hyper-emerald/archive`: "(before v1.9 2026-10-12)" and the
   Gen 9 base "(the base of 2026-10-12, on QoL 1.8)".
 - The number only. No release was made: `release/` still holds v1.8's patch, the site's `PATCH_VERSION` is 1.8,
   HANDOFF's "last published release" is v1.8. A v1.9 release needs the user's word on Gen 9 and Area Zero first.
@@ -4784,7 +4788,8 @@ The user: "push to dev repo, include the rom itself so that I can work easily no
   Z-power and Max-power tables are found by content. All 38 used in battle (`test_moves.lua`; Mew does not obey
   a givemon'd copy - not from the event; use Snorlax).
 - **Abilities**: aliases 256k + base (k from 1, the first blank name), the base's text; gen9's alias list
-  (0 terminated, one literal in gen9.s) copied longer. Run Away has 5 free ids, Illuminate 5.
+  (0 terminated, one literal in gen9.s) copied longer. Run Away has 5 free ids, Illuminate 5. (Since 2026-10-21 ids of their own
+  instead: *The Gen 9 abilities work in battle*.)
 - **Items 770-775** from Thunder Stone's row (use) / Razor Claw's (held), hold effect cleared; Crest's pictures by
   Crest's spelling (`AuspciousArmr`, `UnrmkblTeacup`, `Leader'sCrest`; Crest has no Metal Alloy: Metal Coat's
   picture). Some Crest item palettes hold fewer than 16 colours: padded. Sold: the Lilycove clerk's list
@@ -5199,7 +5204,7 @@ set where the row says), then the rows' conditions read script by script; the do
 ## RELEASE v1.9 — 2026-10-16
 - Asked for: "push to release repo", then "Full v1.9 release" (Gen 9 and Area Zero had been cleared to go public
   the same morning: "Yes, both public"). The game is the working ROM, sha1 65b5a7f6... (the chain from the v1.4
-  archive gives it byte for byte).
+  archive gives it byte for byte, before and after the release's source edits below).
 - `release/hyper-emerald-en-qol.hpatch` (3,215,517 bytes, 9,046 runs) and `release/CHECKSUMS.txt`: applied to
   `Hyper EMR LA v5.7 bugfix 2.gba` (f785bed9...) it gives 65b5a7f6.
 - Public commit: the dev working copy mirrored as for v1.8, but without `site/` and the built `docs/` (only the
@@ -5208,6 +5213,45 @@ set where the row says), then the rows' conditions read script by script; the do
   there: six pages change. The public `.gitignore` kept, with the one rule Area Zero's sprite sources need.
 - README: the Gen 9 and Area Zero rows, the v1.9 showcase GIF, the one-way save note, the Gen 9 credits (Pokémon
   Crest, PokeAPI, pokeemerald-expansion).
+
+## BASE STATS IN THE POKÉDEX (HOLD R) — 2026-10-16 — `patches/dexstats/`
+- Asked for: "would it be possible to redesign the pokedex to display stats of each pokemon like a number + graph?";
+  of the three ways offered (a panel on a button, a STATS page in place of CRY or SIZE, a fifth page): "let do the
+  easiest one first". In the main chain after `sidefix`, before `zhtext`.
+- **The page.** The hack's Pokédex is Emerald's: the INFO page's input task is Task_HandleInfoScreenInput
+  (0x080BEDF4), the entry it shows is `sPokedexListItem` (0x02039B54 -> {dex number u16, seen bit 0 / caught bit 1}).
+  On that page R, L, SELECT and START did nothing (L and R only turn the page in the L/R button mode). The
+  description box is screen y 94..157.
+- **Hook.** An 8-byte jump at the task's head (4-aligned; its first four instructions - push {r4, r5, lr}; sub sp, #4;
+  lsls / lsrs r0 - have nothing pc-relative and are done again by the stub, which then goes on at 0x080BEDFC). Two
+  words name the function (Task_LoadInfoScreen's, IsInfoScreenScrolling's comparison): both untouched.
+- **Second build, the same day** (the user: "it works but it is hard to keep holding, can we make as another page, or
+  something indicate to press R??"): R toggles, and a 41x14 "[R] Stats" tab (a 64x32 sprite, the L tag's look) sits
+  at (194, 84), where the page's two boxes meet on the right, clear of the description's text. On / off is the INFO
+  task's data[15]: the page uses data[0..5], StartInfoScreenScroll keeps the same task through Up / Down (so it stays
+  on), and CreateTask clears it when a Pokémon is opened from the list. PlaySE(SE_DEX_PAGE) on each press.
+- **Panel.** Four 64x64 sprites (screen x -8..247, rows 94..157) over the description box, made, drawn and shown in
+  the same frame, behind the tab. The tab's callback finds it again and holds the state in data[] (lmoveinfo's
+  design): a heartbeat the hook sets to 3 each frame, so anything that stops the INFO page (Up / Down to another
+  Pokémon, AREA, CRY, SIZE, B, the caught-Pokémon page) takes tab and panel with it three frames later; data1-4 the
+  pieces' ids + 1, data5 the species drawn. R off: the pieces go at once, the tab stays.
+  Text: AddWindow (32x8 tiles, on window 0's bg, never on a tilemap), the LZ'd frame unpacked into it, the lines
+  printed with the small narrow font, the bars with FillWindowPixelRect (a light track, then the colour), the tiles
+  copied into the four pieces, RemoveWindow. Species = NationalPokedexNumToSpecies(dex number) (the hack's own,
+  reached by its jump at 0x0806D40C); the stats from the table the header word 0x1BC names, read as the page runs.
+  Bars: min(stat, 200) * 60 / 200 as (min * 615) >> 11 (the same for 0..200); colours below 50 / 80 / 110 / 140.
+- **Space.** 0x09FDD000..0x09FDDF70 (code ..0x09FDD508, data from 0x09FDD600), in the FF run the hack's own ROM has
+  from 0x09F82519: after fusionfix (0x09FDCE38: 456 blank bytes between), before paldea's Journal block (0x09FE1000:
+  12,432 blank bytes after). No word of the header or literal that code loads points into 0x09FDD000..0x09FDF000.
+  Tiles: 4 x 64 for the panel (sheet tags 0x5EC0-0x5EC3), 32 for the tab (0x5EC4), one OBJ palette (tag 0x5EC0).
+- GOTCHA: goldbox put an 8-byte jump at LoadSpritePalette's head, and NationalPokedexNumToSpecies is a jump into the
+  hack's code: the patcher accepts exactly those.
+- **Tested** (`test_dexstats.lua`, steps of paldea's harness: `dexnum`, `dsinfo`): on the user's save, Bulbasaur
+  (seen): the tab; R -> 45/49/49/65/65/45, total 318; R -> the page as before; R on, Down -> Venusaur's, on to
+  Charizard (caught) 534; by setting the entry's number: 1007 Koraidon 670, 1025 Pecharunt 600, 151 Mew, 906
+  Sprigatito; A to AREA -> tab and panel gone, B back -> both again (still on); R off; B to the list and A again ->
+  off; 20 presses of R, then out of the Pokédex: 11 sprites in use before and after. Game 8462fa6f... (the chain's
+  build and the patch on top of the v1.9 release give the same bytes), the main game alone d8467ef5....
 
 ## THE SHINY CHARM IS NOT IN THE PC — 2026-10-17 — guide text only
 
@@ -5222,6 +5266,167 @@ set where the row says), then the rows' conditions read script by script; the do
   row (y 15) to the north, sea (behaviour 0x15) east and south. A walk that only checks collision passes over the
   water (collision 0, elevation 1): check elevation and water behaviours too. From the beach (11..13,15) you surf
   west and land on 4,17 (elevation 3, no object: CanStopSurfing), then face the ball.
+
+## KITAKAMI: THE TEAL MASK AND MOCHI MAYHEM — 2026-10-14..17 — `patches/kitakami/`
+
+- What it is: Mossui Town (Kitakami) as an on-top patch for the finished game: Ogerpon's story in eight chapters
+  (Briar's bus from Mossdeep once Area Zero's ending is over; Carmine, Kieran, the Festival of Masks at night, the
+  Loyal Three, Ogerpon's four masks, the catch, Grandpa's mask change after), then Part 2, Mochi Mayhem (Briar's
+  letter, the town under the mochi's spell at night, Nemona's battle, Pecharunt Lv 82 given once beaten). The Loyal
+  Three can be caught where they hide after the story; with Pecharunt, the five Kitakami legends make the Quest Log's
+  Legends 124. The story, the user's decisions and the build's history are in `rom/unreleased/kitakami/STORY.md` and
+  `patches/kitakami/README.md`; this section is the reference for what it changes in the ROM.
+- **In the game since 2026-10-17** (the user: "try to merge with main rom, make sure to not touch something
+  unrelated, I don't want to have new bugs"): the last step of the chain, after `gen9journal`, with the user's
+  `placements.txt` (`roms/test-kitakami/`, written by the editor `patches/kitakami/editor.py`; `rom/kitakami-
+  placements.txt` is the copy the game was built with). The working ROM, `rom/` and "(my placements 26)" are
+  382cf97c...; the game before it, 8462fa6f..., is in `archive/` ("before Kitakami 2026-10-17"). Three ways give the
+  same bytes: the chain from the v1.4 archive (the three `rebuild_chain.py` copies), `patches/paldea/rebuild.py`
+  (Area Zero's editor: `kitakami` is the last step of its TAIL) and `patches/kitakami/krebuild.py` (Kitakami's
+  editor, "Hyper Emerald - Kitakami (my placements N)").
+- GOTCHA, two editors, one game: Kitakami cannot be built on a game that has it (its space must be empty). Kitakami's
+  editor builds on `krebuild.base_rom()`: `rom/` while it has no Kitakami, else `roms/before-kitakami/Hyper Emerald -
+  the game before Kitakami.gba`. `rebuild.py` refreshes that file with each of the user's Area Zero builds (the
+  stage before `kitakami`; only in the user's own folder, not in a test folder), so a Kitakami build always has the
+  newest Area Zero places. Kitakami's Briar takes Jacq's tile in Mossdeep (70,32) after Area Zero's ending: if Jacq
+  is moved in Area Zero's placements, the kitakami step stops and says so.
+- **Space.** The blob at `0x09E40000..0x09E80000` (95,596 bytes used): zero-filled in the game and in the hack's own
+  ROM, no real pointer in, read by nothing in 14 watched runs (`_testrun/space/kitakami_watch.ps1`, 2026-10-16). Code
+  `0x08FEF540..0x08FEF600` (kit_bgmask, kit_hour), in the free run after goldbox: all 0xFF in both ROMs, no real
+  pointer (one word in graphics data, at `0x086D65B0`, reads `0x08FEF5F9` by chance), 0 reads in 14 watched runs on
+  the game without it (`kitakami_watch_night.ps1`, 2026-10-17).
+- **Everything outside the blob** (`_testrun/kitakami/regions.py <game> <build>` accounts for each changed byte and
+  stops on any it cannot explain; 71,750 bytes on 2026-10-17):
+  - two `bl` into the hack's day/night tint routine (0x08CFE3E0): `0x08CFE3EA` (its hour read -> kit_hour: 22:00 in
+    Mossui during the festival's night and Part 2's, the real hour otherwise) and `0x08CFE472` (`mov r8, r7; ldr r7,
+    =0xFFFF0FFF` -> kit_bgmask: 0xFFFF1FFF in Mossui, so BG palette 12 is tinted too; the literal itself is shared and
+    stays);
+  - pointer words to tables copied longer into the blob: the trainer picture, palette, animation and coordinate
+    tables (0x0901BE90, 0x0901C660, 0x0901CE30, 0x0901D218: 6, 18, 3 and 8 words; pictures 250-251 are Carmine's
+    and Kieran's), the wild table (0x08E17D50, 15 words), the layout table (3 words, as Area Zero moved it), the
+    field palette table (3 words; tags 0x1138-0x1140);
+  - group 35's map table pointer (`0x08A54724`; maps 35/106-111: Mossui, the Hall, the family house, the Pokémon
+    Center, two homes), Mossdeep's header +4/+8 (`0x08482564`: Briar added to Area Zero's copies of its people and
+    scripts), map section 187's name (`0x085A1A58`: "Mossui Town", was "Route 225");
+  - trainer rows 1358-1360 and 1378 (Carmine, Kieran twice, Nemona), the hack's sprite table entries 204-206,
+    228-230, 235-239 (none used by any map: `patches/kitakami/sprite_slots.py`), the shop guard's bitmap byte
+    `0x09E0FE54` (bits for Sweet Apple 88 and Tart Apple 89), gen9journal's five Locked Legends rows, row 0 and their
+    panes, the two counts (`0x08FEB220`, `0x08FEC60E`: 119 -> 124), Area Zero's stamp in its scripts (30 places).
+- **Flags** between 0x4337 and 0x441B (Part 2's in 0x437D-0x439F), picked one by one with
+  `_testrun/kitakami/freecheck.py` (`kstory.py` names each); var 0x40F9 is Area Zero's stamp, shared.
+- GOTCHA, shops: the hack's shop guard (`0x096FFF00`) resets the game when a shop's list holds an item outside its
+  bitmap (byte `0x09E0FE5F - (item >> 3)`, bit `item & 7`). A new shop must give its items their bits
+  (`kitakami_patch.allow_shop_items`).
+- GOTCHA, a new Pokémon Center: its ON_RESUME must do `special 0x01A4` (InitUnionRoom, as CableClub_OnResume
+  0x08277C30 does). Without it the Union Room name buffer (0x02022C20) is not cleared and the nurse's "It appears as
+  if ... is playing" prints garbage (a crash in mGBA dev).
+- GOTCHA, the night: the hack's tint leaves BG palettes 12-15 alone; a tileset that keeps ground colours in row 12
+  stays bright at night unless the mask changes for that map.
+- GOTCHA, trainer pictures: copy and repoint all four picture tables. With two of the four the battle hung on black.
+- GOTCHA, keystone: `.align` and `.balign` padding assembles as `00 BF`; pad with `mov r8, r8` yourself.
+- GOTCHA, palettes: at most six object palettes on a screen. Part 2's market went to seven with Area Zero's Arven
+  and Penny (palettes of their own); the main table's 67 and 70 share. `kpeople.layout_report` counts every stage.
+- Saves made before: Kitakami's maps and Mossdeep re-read their people when the stamp differs (Area Zero's way). A
+  save made in Mossdeep on the game without Kitakami has Briar after Continue (`steps_oldsave.lua`).
+- **Tested** on 382cf97c... (hidden, muted; `_testrun/paldea/run.ps1` with `_testrun/kitakami/steps_*.lua`): the
+  whole of Part 1 (every chapter, the battles, a stall's shop, the catch, the mask change, save and Continue), Part 2
+  from the user's Part 2 start save with their placements, the nurse, the Hall, the night (both nights, the market
+  dark), a real Quick Ball thrown at Ogerpon (`steps_ball.lua`), the Quest Log (`steps_journal.lua`: 124 counted,
+  Ogerpon's and Pecharunt's details, the count after they are caught), `test_walk`, `test_doors`, `test_wild` (r101:
+  the game (the same, four times); `tools/text_overflow.py` (only the one text it flags on `rom/` too).
+
+## FREE SPACE LEFT AFTER KITAKAMI — 2026-10-17 — `_testrun/space/free_survey.py`
+
+- `free_survey.py <build> <the hack's own ROM>` lists every blank run of 4 KB or more with what the hack's own ROM has
+  there, our patches' claims over it (FREE..FREE_END and the like) and the words that point in (real by
+  `speciesx_patch.is_pointer`). Zeros below 0x09000000 are counted as the game's own data (blank tiles, empty tables
+  read from their start), whatever points in. On 382cf97c... (all blank in the hack's own ROM too):
+  - **Free and watched**: 0x09E10044..0x09E40000 (192 KB) and 0x09E80000..0x09F00000 (512 KB), the zero run around
+    Kitakami's space (`kitakami_watch.ps1`, 14 runs, 0 reads), plus Kitakami's own unused room to 0x09E80000 (162 KB).
+  - **Free by the static check, never watched** (~3.3 MB): the upper 16 MB's zero padding at 0x090D0DB9 (189 KB),
+    0x096319C8 (124), 0x09652D48 (217), 0x0970119C (316), 0x097A1F1A (376), 0x098C6AF9 (229), 0x09900160 (774),
+    0x099C21EA (140), 0x099E5508 (171), 0x09D8AC7E (478), 0x09E03764 (49), 0x09F0B8E3 (42); 0xFF runs, ~190 KB
+    together, the largest 0x08FB9920 (37 KB), 0x09FA6464 (39), 0x09FB23B3 (23), 0x08FF8CEE.. (16 past summitfix).
+  - **Kept by our patches** (1.37 MB blank today): gen9rest's 0x09C2A7CE..0x09D00000 (854 KB), speciesx's
+    0x096C475B..0x096FFF00 (238), Kitakami's (162), Area Zero's (~56), the Journal's and Quest Log's growth.
+  - **Not free**: 0x0901D5FE..0x090D0000 (714 KB: 15 code literals point in, likely chance, unproven) and
+    0x09754F00..0x097A0000 (300 KB: a literal points into its middle).
+- Other limits (2026-10-17): species slots full (1,279 of speciesx's 1,280 named); moves 938 of 1,024 rows; 99 blank
+  trainer rows (1355-1458); 51 entries of the hack's sprite table on no map (`sprite_slots.py`: candidates, each to
+  check); group 35 has 112 maps (a warp reaches 126); **flags are the tightest**: the extended range ends at 0x467F
+  and `freecheck.py` passes 41 in it, four of them Kitakami's trainer flags (0x4617-0x4619, 0x462B: set, never read),
+  seven below 0x4614 (0x407A, 0x414F, 0x415B, 0x416B, 0x43A4, 0x43A8, 0x43A9), the rest the trainer flags of blank
+  rows 1355-1462 (taking one costs that row); every var 0x4000-0x40FF shows script use in the byte scan.
+
+## A WILD POKEMON KEEPS THE ITEM IT WAS GIVEN — 2026-10-18 — `patches/wilditem/`
+
+- Reported: "Light ball is not attached to pikachu when fighting him in the abandoned ship. An Oran berry is in its
+  place." The Pikachu is object 2 of the Abandoned Ship's 24/56 (sprite 209, flag 0x447), script 0x098B96CB:
+  `showmonpic 25`, `waitbuttonpress`, `setwildbattle 25, 34, 0xCA` (item 202, the Light Ball), callnative 0x08FFF201
+  (0x8004 = 6, 0x8005 = 0), callnative 0x0981E531 (0x8004-7 = 6, 3, 25, 252), `dowildbattle`, then the object goes and
+  0x447 is set. The trainer table has no Pikachu on the ship: it is this scripted wild battle.
+- Why: SetWildMonHeldItem (0x0806EA68; the hack's code is vanilla's, with its Compound Eyes test hooked to
+  0x09D00022, which also takes abilities 0x1C and 0x69, and the species table read at 0x09AC0000) skips only battles
+  with gBattleTypeFlags & 0x302008 (trainer, legendary, Pyramid, Pike); otherwise Random16 % 100: under 45 nothing,
+  under 95 the common item (base stats +12), else the rare one (+14) - 20 / 80 with Compound Eyes; when both are the
+  same non-zero item it always gives it. It never reads the held item first. Pikachu's are Oran Berry (139) and
+  Light Ball (202). It is called **twice** a battle: from the hack's battle setup 0x08FF10C0 (first thing it does,
+  through the word at 0x08FF1178) and from vanilla's 0x080369E4. Measured (breakpoints at the entry and 0x0806EB90,
+  `test_wilditem.lua`): the first call already turned 202 into 139, the second left it. Light Ball after both: about
+  0.5 x 0.5 + 0.5 x 0.05 = 27.5 %; 13 of 40 seeds.
+- The original hack's bug, not ours (checked 2026-10-18, the user: "so it is not bug by our work??? r u sure??"): on
+  the hack's own ROM (`roms/original/Hyper EMR LA v5.7 bugfix 2.gba`) the roll function, the Compound Eyes hook, the
+  battle setup at 0x08FF10C0 that calls it first, the call at 0x080369E4 and the Pikachu's script are byte for byte
+  the same; the only bytes that differ are the function's three species-table words (0x08F186E0 / +0xC / +0xE there,
+  0x09AC0000 / +0xC / +0xE here: Gen 9 moved the table), and Pikachu's items are 139 / 202 in both. The same test on
+  that ROM (the save of 2026-09-23): both calls hit, Oran Berry 29 of 40, Light Ball 11.
+- Scripted battles with an item (`tools/romdata/scan_static.py`, 48 rows): Route 110's Poochyena (Nugget), Route
+  115's Altaria (Rare Candy), Fiery Path's Ninetales, Mt. Pyre's Absol, Aqua Hideout's Sharpedo, the ship's Pikachu,
+  the Underwater Empoleon, the eighteen Totems of the Secret Bases (Z-Crystals), Giratina (Griseous Orb), Terminus
+  Cave's Aerodactyl, the Remote Island and Whirl Islands ones, Glastrier and Spectrier, Area Zero's Great Tusk and
+  Iron Treads (Leftovers), Kitakami's Loyal Three (Black Sludge, two scripts each), Milotic, Glaceon. Each lost its
+  item the same way unless its battle sets one of the four flags; a species with no wild items lost it to nothing
+  (both rolls write item 0 when the number says "common" or "rare"). DexNav (`dexnavchain`'s apply_extras writes mon
+  +0x22) was overwritten too: the DEXNAV notes above already said "the game's own wild held-item roll still runs
+  after ours".
+- The Totems (the user: "does it affect z crystal? I believe the OG rom does not have z crystal issue"): Gumshoos'
+  script 0x098C15B1 = `setwildbattle 788, 80, 623` (Normalium Z), `setvar 0x8000, 0`, a Yes/No ("Want to battle the
+  Totem?"), callnative 0x094A224D, setflag 0x272 / 0x273, `dowildbattle`; on a win `setorcopyvar 0x8001, 1`,
+  `callstd 1` (obtain item: var 0x8000). 0x094A224D adds 0x26F to var 0x8000 (623 + the type number: the Z-Crystal)
+  and writes the Totem's data from a table at 0x094A2328. So the Z-Crystal the player is GIVEN never depended on the
+  roll: var 0x8000 read 623 in every run on the hack's own ROM, whatever the Totem held. What the roll changed is the
+  Totem's own item in battle: battle type 0 (0x272 / 0x273 do not set gBattleTypeFlags), both calls hit; the hack's
+  own ROM, 40 seeds: Normalium Z 9, Pecha Berry (135, Gumshoos' common item; its rare one is 0) 27, nothing 4; our
+  game before the fix 10 / 29 / 1; after it 40 of 40 Normalium Z. Not checked: whether the Totem's AI uses its
+  Z-Move when it holds the crystal.
+- The fix: an 8-byte trampoline at 0x0806EA7C (4-aligned; `bl Random16; lsls; lsrs` = `00f0a6fd0004000c`), right
+  after the battle-type test, to keep_item at 0x08FF9800: GetMonData(gEnemyParty, 12) and, if non-zero, straight to
+  the function's epilogue 0x0806EB90; else Random16 as before and back to 0x0806EA84. The prologue has run there, so
+  lr is on the stack. Nothing branches into 0x0806EA7E..0x0806EA83 (all halfwords of the ROM scanned for b / bcc / bl,
+  and every word, at any alignment). The bytes there are the same in the hack's own ROM, v1.4 and 382cf97c.
+- Ordinary wild Pokemon: CreateMon zeroes the Pokemon, so they hold nothing at the first call and are rolled; the
+  second call now keeps what the first gave. The odds do not change: with two rolls of the same kind, "the second
+  one's item if it gives one, else the first's" and "the first's if it gives one, else the second's" are the same
+  distribution (20.25 / 72.5 / 7.25 % none / common / rare for Pikachu). Measured: a `setwildbattle 25, 34, 0` 40
+  times, same seeds: 11 / 26 / 3 before, 11 / 27 / 2 after (one seed differs: the second Random16 is no longer
+  drawn when the first call gave an item, so the numbers after it shift by one).
+- Tests (`patches/wilditem/test_wilditem.lua`, through `_testrun/wilditem/run.ps1`, the save of "(my placements 26)"):
+  the real script 0x098B96CB 40 times from one moment, each with its own gRngValue: before 13 Light Ball / 27 Oran
+  Berry, after 40 / 0 (both calls see 202 and keep it); the screenshot shows the Lv 34 Pikachu.
+- Space: 0x08FF9800..0x08FF9838 (0x08FF9900 kept), in the 0xFF run 0x08FF8CEE..0x08FFD5A0. summitfix's window is
+  0x08FF8B40..0x08FF9400 (its data ends at 0x08FF8CED: 2,834 blank bytes before keep_item); code at 0x08FFD5A1 is
+  15,721 blank bytes after it. The hack's own ROM is blank there too (29,612 blank bytes before). No word of
+  382cf97c reads as an address in 0x08FF9800..0x08FF9900 at any byte offset (`_testrun/space/kitakami_space.py`; the
+  patcher checks again). Read watchpoints on the game without the patch (`_testrun/space/wilditem_watch.ps1` ->
+  `wilditem_watch.txt`, 8 runs: the menus, Prelude Beach with every button, surfing and wild battles, the
+  researcher / News Tracker / three saves and resets, four walks): 0 reads; the DMA control (0x08510000) was read in
+  every run. The base-stats control that script inherits (0x08F186E0) reads 0 since Gen 9 moved the table, so the
+  surf-and-wild-battle run was repeated with 0x09AC0000..0x09ACA000 as the code-read control: 25,023 reads there,
+  0 in ours. Not covered: a watch on the patched game (keep_item itself is code that runs there).
+- Chain: after `gen9journal`, before `kitakami`, so that `roms/before-kitakami` (Kitakami's editor builds on it)
+  has the fix; the three `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL. Whole chain from the v1.4
+  archive = 382cf97c... + the patch = 8dac47f0... (main chain's result unchanged, d8467ef5...); before-kitakami
+  1ea26019...; "(my placements 27)" = 8dac47f0....
 
 ## THE MEGA BRACELET COMES FROM STEVEN, NOT FROM MOM — 2026-10-19 — guide text only
 
@@ -5241,3 +5446,1139 @@ set where the row says), then the rows' conditions read script by script; the do
 - Later the bracelet goes away once: Zinnia's Granite Cave script (24/7, `0x09817AE6`) removes item 120 after her
   battle, and Zinnia gives it back at Meteor Falls (24/107, local 15). The in-game Quest Log's row
   (`patches/questlog/keyitems.py`) already said "a route east of Mauville".
+
+## THE KEY TRAINERS' GEN 9 TEAMS — 2026-10-19..20 — `patches/keytrainers/`
+
+- Luciano Fire (a coworker of the user; credit them in releases) rebuilt 42 trainers' teams with Gen 9 Pokemon on a copy of "(my placements 26)"
+  (382cf97c...). Their second file (e19e1e44..., 2026-10-20, `roms/trainer-adjustment-coop/`) is that ROM plus 549
+  bytes: 88 party entries of the 42 trainers (gTrainers 0x090019F8, 40 bytes each; the battle code's literals at
+  0x0803587C / 0x08036320 / 0x08036480 name it) and Danielle's (#650) class 43 -> 20 (Battle Girl -> Lady) and picture
+  64 -> 59 (59 is the Triathletes' picture; Lady's is 21 - left as the coworker made it, the user: "ok with this").
+  No party moved or changed size, so no free space is used. Their first file (1429bf40) was a wrong one: an unedited
+  build of 2026-09-29.
+- `make_data.py base edited` writes `keytrainers.json` (every changed entry, raw old/new bytes and the fields read
+  out) and stops on any difference outside a trainer's struct or party; `keytrainers_patch.py` checks every old byte
+  before it writes (it refuses a game that already has it).
+- Checked against the ROM's own tables before merging: every new species has stats and abilities (0x097A0000), every
+  move a data row, every item a real id (the coworker used the main ids, not the duplicate names at 754-767), the
+  Mega Stones fit. Their first edit had four slips, fixed in the second: Sidney's normal Greninja (#711) held
+  Greninjium Z - measured, that Z-Crystal works only for Ash-Greninja #963 (Golden Shuriken), not #711 nor the Battle
+  Bond Greninja #1011 (`_testrun/coop/test_z.lua`: START at the move menu is the Z trigger; Waterium Z on #711 gives
+  Hydro Vortex); Phoebe's Ceruledge held Light Clay with no screen; Maxie #602's Skeledirge held an Assault Vest with
+  Slack Off; Keegan's Cinderace was Lv 28. Still as made: Maxie #601's Heliolisk holds Throat Spray with no sound move.
+- Chain: after `wilditem`, before `kitakami` (kitakami's nearest change is more than 64 bytes from any of these, and
+  the bytes replaced are the same in the game before Kitakami), so that `roms/before-kitakami` - Kitakami's editor
+  builds on it - has the teams. The three `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL run it. Whole
+  chain from the v1.4 archive = 1ecd960b... = "(my placements 28)" = 8dac47f0... with the coworker's 549 bytes
+  copied in (main chain unchanged, d8467ef5...); before-kitakami bb39febc...; previous working ROM archived as
+  "(before keytrainers 2026-10-20)".
+- Tests: `_testrun/coop/run.ps1` + `test_coop.lua` play a trainer's battle (trainerbattle 3) from a late save, four
+  turns for each foe, then knock it out, logging the party the game built against the data, every battle message
+  (gDisplayedStringBattle 0x02022E2C - not gCurrentMove, which this hack's AI writes while it weighs moves) and
+  pictures. The wilditem test on the merged game: Light Ball 40 of 40.
+
+## KITAKAMI: CARMINE STOPS YOU; NO SUN LEFT ON THE TOWN — 2026-10-20 — `patches/kitakami/`
+
+- The user, playing Kitakami: "Carmine should automatically see u and start battle when the player step up 1 step.
+  Carmine should have alert emote to make sure player would not skip the script", and "she has ninetail with dought
+  ability and after battle, it cuase the overworld sunlight, so it affect first impression of the town map".
+- **Carmine.** Her battle was only in her talk script (`k_carmine`), so the player could walk past her into the town
+  (measured: a step up from the bus stop did nothing). Now a coord event on the tile one step up from where Briar's
+  bus leaves you (`ARRIVE` x, y - 1: 23,45 with the user's placements) runs `k_carmine_spots`: lockall, SE_PIN, "!"
+  over Carmine, she turns to you and you to her, then `k_carmine_fight` (the battle, Kieran running in, the flag),
+  which her talk script now jumps to as well. A coord event needs a var: VAR_TEMP_9 (0x4009, cleared on every map
+  load), 0 while `F_CARMINE` is clear; `k_state_mossui` (ON_TRANSITION, ON_RESUME, and every refresh) sets it from the
+  flag, and the script checks the flag itself, so the story's state stays flags only. `layout_report` checks that
+  Carmine stands next to that tile and that the tile is the only way on from the bus stop (with it blocked, the user's
+  placements leave a pocket of 10 tiles of the town's 1,256).
+- **The sun.** A write watchpoint on SaveBlock1 + 0x2E (the map's saved weather) during her battle: the hack's own
+  battle engine, `0x09D494AC` (called at `0x09D49690` as a battle ends), sets the field's weather from the battle's:
+  sun -> 0x0C (Drought), rain -> 3 / 5, sandstorm -> 8, ... - except indoors (map type 8), in recorded battles and
+  over a few weathers (0x0A, 0x0E, 0x0F). The same code is in the hack's own ROM; it holds until you leave the map.
+  Mossui has no weather of its own (its evening and night are the tint routine's hour: kasm), so its ON_RESUME
+  (`k_res_mossui`) runs `resetweather` (0xA3: the saved weather from the map's header) and then calls
+  ResumePausedWeather (0x080AEE84: GetSavedWeather, SetCurrentAndNextWeather 0x080AB104) - the routine ResumeMap has
+  just run with the battle's weather, before the on-resume script and before the weather task first draws: so the
+  weather is set outright and the sun is never drawn. Other maps keep the hack's behaviour.
+- **Lesson: not doweather.** The first build (29, ee18c144) ran 0xA5 doweather there: SetNextWeather starts a change
+  (weatherChangeComplete = 0) while the field is fading in from the battle, and the fade never finished - the town
+  stayed black behind Kieran's lines until the script's own fade (the user's screenshot). The test had the pictures
+  (every frame of his lines black) and I only looked at the one after the scene. Look at every picture of a scene.
+  Build 30 (6b167bfa): his lines over the town in its own colours; the frames after every story battle (Kieran's,
+  the hunt, the finale, Part 2's at night) checked by eye.
+- **The badges** (the user: "when battle in kitakami, the type badge is not shown, but when open bag or pokemon menu
+  and back to battle, the badge will display"): not reproduced. Shown in every test - Carmine's battle (Mossui with
+  and without the no-white-out flag, Mossdeep), wild Okidogi (with and without the Totem flags, Mossui and
+  Mossdeep), the after-story Okidogi talked to, the Quick Ball widget up, after the Bag, eight turns with a thrown
+  Quick Ball - and a sweep of moves as our lead's, one a turn (`_testrun/kitakami/test_badges.lua` MODE=sweep: shown
+  badges against the foe's current types), stopped at the user's word after about half (1-200, 341-355, 676-850):
+  none left a badge wrong. The user's screenshot is mid-battle (both HP bars down).
+- Tests: `_testrun/kitakami/steps_k3fix.lua` (the step up, the battle by itself, the weather byte, no second
+  trigger after the win); the whole story (`steps_story_mine.lua`, regenerated: Carmine is met by the step now) and
+  Part 2 (`steps_part2_mine.lua`, from "(my placements 12) (Part 2 start).sav") pass. Working ROM = rom/ = "(my
+  placements 30)" = 6b167bfa...; every byte that differs from 1ecd960b... is in Kitakami's space or a word pointing
+  into it (its blob grew by the new scripts).
+
+## PAUL'S SECOND EV-IV DISPLAY — 2026-10-20 — `patches/paulgift/`, `patches/questlog/`
+
+- The report: "Paul gives duplicate EV-IV display. This is very minor but since you start with the EV-IV display,
+  after beating Paul in Fortree he gives you another one, which does nothing." The user: "paul doesn't need to give
+  again".
+- **What was there.** The new-game PC holds one (item 650; the table at `0x0837F790`, *The Shiny Charm is not in the
+  PC*). Paul's rematch is the coord event at 22,11 in Fortree City (0/4, var 0x400A == 0), script `0x0987D721`:
+  lockall, setvar 0x400A 1, checkflag 0x42B1 (done) -> end; the door at 22,10 opens, `addobject 10` (object local 10,
+  gfx 163, at the door, flag 0x42AF), his line, `trainerbattle 3` (trainer 1033), his speech, closemessage, then at
+  `0x0987D775` "I'll give you this. I don't need it anymore……" (loadword 0 `0x0987D7AF`, callstd 4) and giveitem 650
+  x1 (copyvarifnotzero 0x8000 / 0x8001, callstd 0) up to `0x0987D789`, where he flies off (applymovement 10, Fly's
+  field effect, removeobject 10, setflag 0x42AF, 0x42B1). The original v5.7 bugfix 2 has the same bytes. The only
+  other giveitem of 650 in the ROM (`0x09810457`) is in a script nothing runs: `0x0981041C`, a "Paul at the Day Care"
+  (battle with trainer 959, the EV-IV Display, flag 0x4341, then an IV judge at `0x09810471`). No word anywhere in
+  the ROM, aligned or not, points into `0x0981041C..0x098104A0` but its own goto_if; the same in the original.
+- **The fix.** `goto 0x0987D789` (5 bytes) at `0x0987D775`. Nothing points into `0x0987D775..0x0987D789` (no word,
+  aligned or not, in the whole ROM), so the 15 bytes left after the goto are never read; the string stays, unused.
+  The script walkers (`tools/romdata/scripts.py`, `item_sources.py`) follow the goto, so they no longer list Paul as a
+  source. Chain step `paulgift` after `keytrainers`, before `kitakami` (the three `rebuild_chain.py` copies and
+  `paldea/rebuild.py`'s TAIL).
+- **The Quest Log.** Key Items row 41 (of 54): "where" is now "In your PC from the start: Item Storage, then Withdraw
+  Item." (the PC menu's own words, `0x085EAB41` / `0x085EAB63`), location "Your PC" (`portraits.LOC_OVERRIDE`; the
+  text names no place, `place_in` would have said Hoenn). The row is ticked when the item is in the Bag, as before:
+  a player who never takes it out of the PC sees it "To do". This text is in the main chain (`questlog`), so the Gen
+  9 base (`roms/test-gen9`) changes with it: a9f9397b... (was 77072fae..., archived as "the base of 2026-10-20,
+  before paulgift"). The bytes that differ from 6b167bfa...: Paul's 5, the Quest Log's Key Items block (0x09F9A29C..)
+  and panel strings (0x09FA0DB4.., 0x09FA57D3..), and `gen9journal`'s rows that point at panel strings after it
+  (0x09FEBD0C.., 0x09FEC078..): 5,115 bytes in 7 runs.
+- **Tested** (`patches/paulgift/test_paulgift.lua` via `run.ps1`; `test_questlog_row.lua` via
+  `_testrun/paldea/run.ps1 -Steps ..\paulgift\test_questlog_row.lua`), on a copy of the user's "(my placements 30)"
+  save, the new build against 6b167bfa... (the control): flag 0x42B1 cleared, var 0x400A 0, flag 0x273 set and the
+  party cut to one Pokemon at 1 HP (the hack counts the lost battle as won), warp to 22,12, a step up. Both: the
+  door, Paul, the battle, his speech, the flight, 0x42AF and 0x42B1 set. The EV-IV Displays in the Bag (checkitem
+  1/2/3): control 2 -> 3, fixed 2 -> 2. The script context's return addresses: the control calls the standard scripts
+  from 0x0987D762, 0x0987D774, 0x0987D77D (his gift line) and 0x0987D789 (the item box); the fixed game only from the
+  first two. Every screenshot read (contact sheets): no message box left over while he flies off. The Quest Log's
+  grid and counts the same on both; the row's detail reads as above.
+- GOTCHA: the `.sav` beside `roms/current` (6ab08a3c...) has no game this build reads (the new-game intro comes up);
+  the user's saves are the "(my placements N)" ones in `roms/test-paldea`.
+- GOTCHA: `rebuild.py` failed once with WinError 32 removing a step's fresh output (a scanner holding it); it now
+  waits and tries again, as `rebuild_chain.py` does.
+- Working ROM = rom/ = "(my placements 31)" = **8aeca761...**; the whole chain from the v1.4 archive gives it byte
+  for byte (67 s), and so does `rebuild.py`. `roms/before-kitakami` = the `paulgift` stage, 0813e72e.... Backup
+  "(before paulgift 2026-10-20)" = 6b167bfa.... The main game alone (49_zhtext) 265a0e93... (was d8467ef5...).
+
+## CONTINUE WALKED YOU INTO A TREE; THE DEXNAV ICON AT NIGHT — 2026-10-21 — `patches/contexit/`, `patches/iconnight/`
+
+- The report (version not given): "sprites are still buggy in dexnav (sunkern spearow). I entered the petalburg woods
+  and saved my game (didnt take a single step). I reloaded the save now im stuck inside of a tree".
+- **The tree.** Petalburg Woods (24/11, 48x44). Route 104's doors 10,38 / 11,38 lead to the woods' warps 2 / 3 at
+  26,43 / 27,43 (the map's last row), and 32,42 / 33,42 to warps 4 / 5 at 36,43 / 37,43. Both rows of each way in
+  have behaviour 0x6E (deep south warp: metatiles 0x37F/0x38F on row 43, 0x377/0x387 on row 42); only row 43 has
+  warps. Coming in, FieldCB_DefaultWarpExit -> SetUpWarpExitTask (0x080AF334) walks you one step up
+  (Task_ExitNonAnimDoor) onto row 42. Saved there, Continue runs CB2_ContinueSavedGame's callback
+  FieldCB_FadeTryShowMapPopup (0x08086204) -> FieldCB_WarpExitFadeFromBlack (0x080AF3C8) -> SetUpWarpExitTask again:
+  on 0x6E (IsNonAnimDoor: 0x60, 0x6C, 0x6E) it makes Task_ExitNonAnimDoor, one forced step (a held movement, no
+  collision) the way you face. Measured (`contexit/steps_woods.lua`, the player object logged every frame, a write
+  watchpoint on its tile): saved at 26,42 facing up -> Continue at 26,41 (path); a tap on Left at 26,42 (you only
+  turn: the tree blocks the step) -> 25,42, a tree of height 1 among tiles of height 3, and no direction moves you;
+  Right -> 27,42 (the other row-42 tile). The second way in the same (35,42 stuck). That is the report.
+- Vanilla's code is the same (pret: FieldCB_FadeTryShowMapPopup ends in FieldCB_WarpExitFadeFromBlack), but vanilla's
+  Petalburg Woods is drawn differently (ways in at 16/17,38 and 36/37,38) and has no door tile without a warp. The
+  hack's own ROM has these woods (the original hack's map). `contexit/scan_doors.py` lists every tile of every map
+  with a door behaviour (the values read from MetatileBehavior_IsDoor 0x08088EFC / _IsNonAnimDoor 0x08088F58), no
+  warp and collision 0: 164 on 8aeca761 (the hack's own ROM 163), e.g. 0/3 (31,17) 0x6E, 24/24 (29,10-11) 0x6E,
+  34/26, 34/67 (32-33,18: the woods' metatiles again), 36/5, 36/53, many houses' animated doors on their top row
+  (Continue there played the door and stepped you down). The map group table is the hack's (0x08A54698, the
+  literal of Overworld_GetMapHeaderByGroupAndId); its group lists have no end mark, so a group ends where the next
+  one's list starts.
+- **The fix (`contexit`).** CB2_ContinueSavedGame's literal at 0x08086314 (= 0x08086205, the only word of the ROM
+  that holds it) -> cont_cb at 0x08FFA100: FieldCB_FadeTryShowMapPopup + FieldCB_WarpExitFadeFromBlack with every call
+  kept (the map name popup, OnTrainerHillEReaderChallengeFloor, Overworld_PlaySpecialMapMusic, FadeInFromBlack,
+  LockPlayerFieldControls) except SetUpWarpExitTask, which runs only when one of the map's warp events is on your
+  tile (on_warp: PlayerGetDestCoords - 7 against gMapHeader.events->warps, any height); otherwise
+  CreateTask(Task_ExitNonDoor 0x080AF611, 10), the task the game makes on a plain tile. Warps never come here (they
+  use FieldCB_DefaultWarpExit), nor does a save made where the game keeps a "continue warp". The patcher asserts the
+  two callbacks, SetUpWarpExitTask with its three task literals, PlayerGetDestCoords and Task_ExitNonDoor byte for
+  byte (all the same in the hack's own ROM).
+- **The icon.** Route 104 has Sunkern (slot 5) and Spearow (slot 7) in its grass (and Squirtle, slot 9: the report
+  of 2026-10-19). At noon the DexNav screen and bar were right on the user's save. From 17:00 the bar's icon was not:
+  `test_dnlook.lua` with HOUR set, 01:00 / 19:00 / 21:00 / 23:00: Sunkern dark blue at 23:00, red-orange at 19:00,
+  Spearow darkened or pink, on the bar's black. The hack's tint (NOTES, *Day/Night*) halves channels for the palettes
+  of the mask 0xFFFF0FFF (since `kitakami`, kit_bgmask at 0x08FEF540 picks it: 0xFFFF1FFF on Mossui), BG 0-11 and
+  all 16 sprite palettes; the bar's window is BG 12-15, its icon a sprite (LoadMonIconPalette: tag 0xDAC0 + icon
+  palette; gMonIconPaletteTable 0x0857C540 has tags 0xDAC0..0xDAC5). The DexNav screen, the party screen and the
+  Pokedex are not tinted (pictures at 01:00, `iconnight/steps_night_menus.lua`).
+- **The fix (`iconnight`).** Both ways out of the tint routine (tinted, or the hack's plain DMA) go through
+  `ldr r0, [pc, #0xC8]; bx r0` at 0x08CFE40A, the word 0x08CFE4D4 (= 0x080A19E7, back into TransferPlttBuffer; the
+  only word of the ROM that holds it). It -> icon_untint at 0x08FFA200: for each of the 16 sprite palette slots whose
+  tag (sSpritePaletteTags 0x03000CF0, GetSpritePaletteTagByPaletteNum's table) is 0xDAC0..0xDAC5, the 32 bytes of
+  gPlttBufferFaded + 0x200 + 32 * slot to 0x05000200 + 32 * slot again; then to 0x080A19E7 with r2-r7 kept (r0 / r1
+  are loaded again there). Same VBlank, so no flicker. Kitakami's two hooks (0x08CFE3EA, 0x08CFE472) are untouched,
+  so the step can go before `kitakami` and Kitakami's checks still pass.
+- **Space.** 0x08FFA100..0x08FFA300 (contexit to 0x08FFA200, 208 bytes used; iconnight from 0x08FFA200, 68): in the
+  0xFF run 0x08FF9838..0x08FFD5A0 after wilditem, blank in the hack's own ROM too. Of the 82 byte sequences in the ROM
+  that read as addresses in that run (any byte offset), none lands in 0x08FFA0F8..0x08FFA400: the nearest is
+  0x08FFA0F7 (at 0x080F2C5D, an odd address in code, a chance match). Read watchpoints on 8aeca761 (the game without
+  them, `_testrun/space/contexit_watch.ps1` -> `contexit_watch.txt`, 9 runs: the menus, Prelude Beach with R / SELECT
+  / START / L, surfing and wild battles, the researcher / News Tracker / three saves and resets, the woods' Continue,
+  four walks): 0 reads; the code control (the base stats at 0x09AC0000) read in 5 runs (2 to 20,261), the DMA control
+  (0x08510000) in all 9.
+- **Tested** on the user's save of "(my placements 27)" (Timeless Woods), the fixed build against 8aeca761:
+  * Continue (`contexit/steps_woods.lua`): no turn / Left / Right -> 26,41 / **25,42 stuck** / 27,42 before; 26,42
+    all three after, then up, left, right and down all move. The second way in, Left: 35,42 stuck before, 36,42 after.
+    Put on the warp tile itself (setobjectxy, ONWARP=26,43) and saved: Continue still walks you out to 26,42, both
+    builds. Every eighth frame from the reset to the field read (45 pictures): the Continue menu, the fade, the woods
+    with the map name sliding in.
+  * The icon (`iconnight/test_dnlook.lua`, Sunkern and Spearow registered on Route 104): at 01:00 and 21:00 the bar's
+    icon slot (14, tag 0xDAC1 / 0xDAC0) holds its noon colours after (426C 39CE 5EF7 7FFF ... for Sunkern), the
+    tinted ones before (2126 1CE7 ... / 412C 38EE ...); the pictures show the route tinted as before and the icon in
+    its own colours. 12:00 the same on both.
+  * Each patcher refuses a second run, and runs on the other's output.
+- **The report's sprites were not the tint.** The user, afterwards: the player is on v1.9 and it was not night. On
+  v1.9 (65b5a7f6, `archive/`) at 14:00 on Route 104 (`test_dnlook.lua`): seen, Sunkern and Spearow are right on the
+  screen and the bar; not seen, they are black silhouettes named "?????" with a grey Search (`dexnavseen`, asked for
+  2026-09-30), as are Lillipup and Dedenne on the user's own save. They stay right through R / L page flips and cursor
+  moves. `_testrun/woods/steps_barwatch.lua` (a search armed, then a walk; every 4 frames the icon's slot tag, its
+  colours in gPlttBufferUnfaded and its 16 tiles against the ROM's two icon frames): nothing wrong but the bar's
+  first frame (the icon's picture is copied the next frame). The land slot odds (ChooseWildMonIndex_Land 0x080B4AC8,
+  vanilla's 20/20/10/10/10/10/5/5/4/4/1/1): Sunkern slot 5 10%, Spearow slot 7 5%, Squirtle (the report of
+  2026-10-19) slot 9 4% - the three a player at Petalburg Woods is least likely to have met. Most likely they are the
+  silhouettes; not confirmed without the player's screenshot. `iconnight` stays: it is a real fault of its own.
+- GOTCHA: the save beside `roms/current` stops at boot in the read-watch harness (cb2 0x0802F6B1), as paulgift's
+  notes say; use a "(my placements N)" save.
+- GOTCHA: GNU sed turns `\U...` / `\n...` of a Windows path in the replacement into case changes and new lines; edit
+  such lines with the editor. A heredoc with quotes in it failed in this shell too: write the text to a file first.
+- Working ROM = rom/ = "(my placements 32)" = **66d87291...** (= 8aeca761... with both patches on top, byte for byte;
+  `paldea/rebuild.py` with the chain gives the same). `roms/before-kitakami` = the `iconnight` stage, daa23880....
+  Backup "(before contexit 2026-10-21)" = 8aeca761.... Chain: ... `paulgift` -> `contexit` -> `iconnight` -> `kitakami`
+  (the three `rebuild_chain.py` copies and `paldea/rebuild.py`'s TAIL). The whole chain from the v1.4 archive gives
+  66d87291... byte for byte (76 s); the main game alone (49_zhtext) is still 265a0e93....
+
+## AREA ZERO'S PEOPLE IN PICTURES OF THEIR OWN — 2026-10-21 — `patches/paldea/` (`cast.py`, `sprites/people*.py`), `patches/kitakami/`
+
+- The user: "can u custom draw npcs in paldea area zero? rightnow reusing npcs make the game look cheap", then "both
+  overworld sprites and in battle scene"; of the mock-up sheet (`gba-trans/hyper-emerald/_testrun/paldea/people/Area
+  Zero people - mock-up.png`: the official look for comparison, the stand-in, the new map sprite, the battle
+  pictures): "everything is great". Up to then: Jacq main sprite 9, Arven 37, Nemona 20, Penny 58, AI Sada 202, AI
+  Turo 46; in battle Nemona picture 194, AI Sada 218, AI Turo 31.
+- **The drawings** (`sprites/people_map.py`, `sprites/people_battle.py`; `python sprites/people.py <rom>` writes
+  `<person>.4bpp/.gbapal`, `<person>_battle.*` and `people_preview.png`, reading only the game's own pictures out of
+  the ROM: `sprites/romgfx.py`). Each person is drawn over one of the game's own sprites so the style matches: map
+  sprites over main sprites 14 (Nemona), 25 (Arven), 85 (Penny), 96 (Jacq), 202 (AI Sada), 172 (AI Turo); battle
+  pictures over trainer pictures 114, 100, 187. A map character is a recolouring rule (facing, x, row, base colour)
+  and drawn rows per facing (the head; some of the body); the walking frames are the base's own, recoloured by the
+  same rule, with the drawn rows moved by the step's bob (a head only bobs). Lesson: the body's rows keep the base's
+  outline exactly (colours only), or the walking frames' legs come out wrong; a head can change shape.
+- **Palettes.** Six object palettes a screen. Mossdeep's ending has Jacq, Penny, Arven and Nemona by the hole with
+  the town's 0x1103, 0x1105, 0x1106 and the hole's 0x1119: four palettes of their own would make eight. So two share
+  one 16-colour palette: Arven + Penny 0x1141 (light skin), Nemona + Jacq 0x1142 (tan and dark skin); AI Sada 0x1143
+  and AI Turo 0x1144 one each (only the Zero Lab has them). check.py counts the real tags (`own_tags`).
+- **Map sprites.** The hack's sprite table entries 174 Nemona, 175 Arven, 176 Penny, 177 Jacq, 178 AI Sada, 180 AI
+  Turo: the hack's own unused people (no map object uses them: `patches/kitakami/sprite_slots.py`; `cast.WAS` asserts
+  their bytes). Each is a copy of its base's main-table entry (walking animations, OAM, shadow) with our nine frames,
+  our tag and slot 2 (by tag), as Kitakami's people. Their palettes are rows of Area Zero's copy of the field palette
+  table (`mons.put`'s `more`). Pictures, frames and palettes go after the rest of the sprite block, which runs to the
+  ROM's end now: `SPRITE_END` 0x02000000 (was 0x01FFC000, 164 bytes left). Proof for 0x09FFC000..0x0A000000: blank
+  (0xFF) in the hack's own ROM (`roms/original`, whose last used byte is 0x09F82518) and in 66d87291; no word that
+  code loads or the header holds points into it (`speciesx_patch.is_pointer`); the 49 aligned words elsewhere whose
+  value falls in it are chance (46 in the hack's own ROM at the same place, 2 in 4bpp tiles at 0x09B395A0 /
+  0x09B90924, 1 in Quest Log text at 0x09FE805C); no patch uses it. The block is now 0x09FF1000..0x09FFF7AC (59,308
+  bytes): 2,132 bytes left before the ROM ends.
+- **Battle pictures 250-252** (Nemona, AI Sada, AI Turo). The four trainer picture tables (0x0901BE90 pictures,
+  0x0901C660 palettes, 0x0901CE30 animations, 0x0901D218 coordinates, 250 entries, back to back) are copied longer,
+  still back to back, at the end of Area Zero's main blob with the LZ77 pictures; the 6, 18, 3 and 8 code words that
+  hold their addresses (the Quest Log's portraits at 0x08FEA820 / 0x08FEA82C among them; all are in `roms/test-gen9`
+  already, so no later step writes the old address) point at the copies. Ours take the animations and coordinates of
+  the pictures they were drawn over, and their own numbers as tags (unused). `story.TRAINERS`: Nemona 250, AI Sada
+  251, AI Turo 252; `gen9journal` reads Nemona's for her Side Content row. The main blob is 0x09FBC400..0x09FCE6BC
+  (74,428 bytes, +8,840): 17,220 bytes left.
+- **Kitakami.** `ktrainers` finds the four tables through the code words (`REF_AT`: the first word of each kind; all
+  of a kind must agree), their length from the layout ((palettes - pictures) / 8), and puts Carmine and Kieran after
+  the last: pictures 253 and 254 (were 250, 251). Part 2's Nemona (row 1378) takes row 952's picture (`("as row",
+  952)`); `check()` asserts row 952 is Area Zero's Nemona in a picture of her own. `regions.py` reads the tables'
+  addresses through the same words. `ksprites.AZ_PEOPLE`: Part 2's Nemona wears Area Zero's entry 174
+  (`kchapters.STORY_OBJECTS`, the editor). Arven and Penny stay the game's 67 and 70: in Area Zero's sprites (one
+  palette between them) the night market (stage 12, Kieran's letter) and the dance (stage 15) showed seven palettes
+  (the organiser and the stalls 0x1105, the mother and child 0x1106, Carmine, Kieran, Briar, Arven + Penny, Nemona or
+  Pecharunt); their stand-ins share the mother's and child's. `kpeople`'s palette check now names what it counts on
+  that screen.
+- **Saves.** `STAMP_SALT` 15 (Mossdeep's people changed): a save made in Mossdeep or on an Area Zero map reads its map
+  again and shows the new sprites.
+- **Tested.** `test_story7.lua` on "(my placements 33)" with the user's save (Penny, the shut door, Nemona's battle,
+  the guards, the finale's three battles, the ending in Mossdeep): passed, and all 1,305 pictures read (the VS splash
+  and the battle show the new pictures; in the ending the five stand in their own colours). Kitakami Part 2
+  (`_testrun/kitakami/steps_part2.lua`, on a build with the built-in places, from "(my placements 12) (Part 2
+  start).sav"): passed, Nemona's battle in her picture, Pecharunt caught. `_testrun/kitakami/editor_test.py` passes;
+  Area Zero's editor draws the six from the ROM.
+- Working ROM = `rom/` = "(my placements 33)" = **8dafe8d1...**; `roms/before-kitakami` = 3e75e37b...; archive
+  "(before Area Zero's own people 2026-10-21)" = 66d87291.... The whole chain from the v1.4 archive gives 8dafe8d1...
+  byte for byte (80 s); the main game alone is still 265a0e93....
+
+## EGG MOVES IN THE MOVE RELEARNER — 2026-10-21 — `patches/eggrelearn/`
+
+- Asked: "hyper emerald, does this rom has npc to teach egg move?" No: the English text of "(my placements 33)"
+  (every run of the game's characters) and the Chinese strings taken from the original have no line about egg moves;
+  the tutors (the Dragon Elder, Cogita, the glass-flute man, the Shard tutors, Keldeo's Secret Sword ...) teach fixed
+  lists, and the relearner listed level-up moves only (*Whole Gen 9 test 5*). Offered egg moves in the relearner; the
+  user: "yeah in party relearner".
+- **The relearner, read from the ROM.** The party menu's Moves (`relearner`) and the Fallarbor tutor open one screen.
+  CB2_InitLearnMove 0x081606A1 and CB2_InitLearnMoveReturnFromSelectMove 0x08160741 (the way back from the summary
+  screen when a move must be forgotten) each AllocZeroed(0x118) sMoveRelearnerStruct (pointer 0x0203BC34), the vanilla
+  layout: movesToLearn +0x12 (25), partyMon +0x44, moveSlot +0x45, menuItems +0x48 (25 x {name, id}), numMenuChoices
+  +0x110 (with Cancel), numToShowAtOnce +0x111, the list task +0x112. sMoveRelearnerMenuSate 0x0203BC38: listOffset,
+  listRow, showContestInfo +4. CreateLearnableMovesList 0x08161280: GetMoveRelearnerMoves(mon, +0x12), each item
+  {gMoveNames + 13 * move (0x09AB2EC4 = the header's 0x148), id = the move}, the nickname into gStringVar1, Cancel
+  {gText_Cancel 0x085E8CF0, -2}, then LoadMoveRelearnerMovesList 0x081D28C8 (the template's items and count, no
+  limit). GetCurrentSelectedMove 0x08161054: menuItems[listRow + listOffset].id. Nothing else reads the items, and no
+  word outside the module holds 0x0203BC34.
+- GetMoveRelearnerMoves 0x0806E0B4 = `ldr r2, [pc]; bx r2` -> 0x09D6A9D9 -> 0x09D6A93E (the hack's): the learnset from
+  the pointer table 0x09AF0D00 (3 bytes: move u16, level; ends at move 0 or level 0xFF), level <= the Pokemon's
+  (GetMonData 0x38 through 0x09D380D4), not one of its four moves, not twice, at most 24 (`cmp r4, #0x17` at
+  0x09D6A998: 24 moves and Cancel are the 25 items exactly). GetNumberOfRelearnableMoves 0x0806E25C -> 0x09D6A9E1 ->
+  the same routine without a list (it counts duplicates); called by the party menu at 0x081B0B6E (each slot's ABLE /
+  NOT ABLE on the tutor's screen) and 0x081B95B0 (CB2_ChooseMonForMoveRelearner: gSpecialVar_0x8005, 0 = "no move to
+  teach").
+- **Correction.** *In-party move relearner* (2026-09-13) calls 0x08161B94 -> 0x09F06119 the move list builder. It is
+  not: 0x09F06118 makes a Pokemon in gEnemyParty from SaveBlock1 + 0x31E4. The list builder is the one above.
+- **The egg species routine.** 0x08070004 (the Day Care's GetEggSpecies) is a trampoline to 0x09F006F9, a wrapper
+  (daycare, slot) -> 0x09F00600(species, mode). That one hard-wires Jolteon 0x87, Leafeon 0x20B, Glaceon 0x20C,
+  Sylveon 0x2F1 -> Eevee 0x85, Manaphy 0x21F -> Phione 0x21E, Hisuian Typhlosion 0x443 -> Cyndaquil 0x9B (none of the
+  six is a target in the evolution table); otherwise it walks back: the table through the literal 0x0806D140
+  (0x09ADA200 today), species 1..0x57F, five entries of 8 bytes, the target at +4, the first species with an entry
+  for it whose method's low byte is <= 0xF9 (Mega Evolutions and form changes are above), again from that one until
+  none. Mode 1 (breeding) then picks Nidoran, Volbeat / Illumise and two more at random. Nine egg lists sit on a
+  middle stage, not on the species that hatches: Chansey, Mr. Mime (122 and the Galarian 1081), Snorlax, Marill,
+  Sudowoodo, Mantine, Roselia, Chimecho (their babies came later and have lists of their own).
+- **Room.** 896 species gain egg moves. Modelled from the tables: at Lv 100 knowing four of its level-up moves, 56
+  species would lose 1-8 egg moves in 25 items (Pikachu, the Eeveelutions, Donphan, Victreebel, Lucario ...); the
+  longest list in the game is 36 (Donphan).
+- **The patch** (`eggrelearn.s`, 0x08FFC900..0x08FFCB0C):
+  * create_list (trampoline on CreateLearnableMovesList's first instruction): collect into 64 halfwords on the stack,
+    the items at struct + 0x118 (65: 64 moves and Cancel), the rest as the game's (nickname, Cancel, +0x110, +0x111).
+  * selected_move (trampoline on GetCurrentSelectedMove): the id from +0x11C.
+  * count_moves (the word 0x0806E260): collect into a list on the stack, its length.
+  * collect: GetMoveRelearnerMoves (0x0806E0B5: the level-up part is whatever that gives), then add_egg for the
+    species and each step back (preevo: the routine's rule, the five entries unrolled; at most 8 steps); when the
+    species has no step back, also add_egg(0x09F00600(species, 0)), for the hard-wired six (for any other species
+    the routine only walks the table again: no species' list changes, checked in Python). add_egg: the table through
+    GetEggMoves' literal 0x080703F0 (gen9egg moved it to 0x09C29000), its marker species + 20000, the moves up to the
+    next marker or 0xFFFF; not the four known moves, not one listed; stops at 64.
+  * Both allocations (0x081606B4, 0x08160754): `movs r0, #0xC8; lsls r0, r0, #2` = 0x320.
+  * Read at run time, so a later repoint is followed: the move names (header 0x148), the egg table (0x080703F0), the
+    evolution table (0x0806D140). The patcher asserts every other byte it counts on (both init sites, the two replaced
+    functions with their pools, both trampolines, the hack's level-up routine with its cap, the egg species routine,
+    LoadMoveRelearnerMovesList).
+- **Time.** The first version ("(my placements 34)", a5f45f28...) always called the egg species routine and looped
+  over the five entries: a count took 3-6 frames (Tinkaton 6.25: three near-full scans of mine, then the routine's
+  three). Now (breakpoints on a stub's call, the frame number and VCOUNT): Pikachu 0.13 frames, Donphan 0.14,
+  Azumarill 0.29, Eevee 0.51, Hisuian Typhlosion 0.09; Mewtwo 1.34 and Smeargle 2.04 (the routine's own slow scan),
+  Baxcalibur 1.37, Tinkaton 1.64 (lines at the table's end). The tutor's party screen counts each slot once; the
+  relearner builds its list behind its fade.
+- **Space.** 0x08FFC900..0x08FFCC00 kept (0x20C bytes used), in the blank run 0x08FFA244..0x08FFD5A0 (0x08FF2454.. in
+  the hack's own ROM). Every word at any byte offset that reads as an address in the run was listed (92): none in
+  0x08FFC8F8..0x08FFCC02; the nearest are 0x08FFC8F7 (at 0x080C1811, odd, in code) and 0x08FFCC02 (at 0x095FEA4B,
+  odd). 0x08FFA300.. (right after iconnight) was passed over: the aligned word at 0x09276580 is 0x08FFA400 (in data,
+  not a pointer by `speciesx_patch.is_pointer`, but a stretch with none is better). Read watchpoints on the game
+  without the patch (`_testrun/space/eggrelearn_watch.ps1`: the menus, Prelude Beach with R / SELECT / START / L,
+  Surf and wild battles, the researcher / News Tracker / three saves and resets, Petalburg Woods and Continue, four
+  walks): 0 reads in all nine, the two controls read in each.
+- **Tested** (`test_eggrelearn.lua` and `check_lists.py`, which works the list out from the tables on its own;
+  `_testrun/eggrelearn/run.ps1`, hidden and muted):
+  * MODE=list: 27 species at Lv 100 and 10 at Lv 5 (Bulbasaur, Pikachu, Victreebel, Azumarill, Blissey, the
+    Eeveelutions, Donphan, Smeargle, Mewtwo, Ditto, Hisuian Typhlosion, Sprigatito, Baxcalibur, Tinkaton, both Mr.
+    Mimes, Mr. Rime, Mega Charizard, Magikarp, Lucario, Snorlax, Azurill, Happiny, Manaphy, Phione): every list equals
+    the model, item for item. On the game without the patch (ITEMS=0x48) every list equals the level-up part.
+  * MODE=count: a stub (test copy only, 0x08FFCB80) run by `callnative`, which needs the address with its Thumb bit
+    (without it the CPU ran the stub as ARM and the script engine stopped): 36 counts equal their lists' lengths (0
+    for Smeargle and Ditto).
+  * MODE=learn: Pikachu Lv 100, item 27 of 28 (Teeter Dance, past the old 25) taught over Discharge through the
+    summary screen and back (the list built again by CB2_InitLearnMoveReturnFromSelectMove, the cursor kept);
+    Donphan, item 32 of 33 (Snore). Every frame looked at (contact sheets in `_testrun/eggrelearn`).
+- Working ROM = `rom/` = "(my placements 35)" = **767e052c...**; `roms/before-kitakami` = c2c97e5e... (= 3e75e37b...
+  and this patch: undoing its 546 bytes gives 3e75e37b...); archive "(before eggrelearn 2026-10-21)" = 8dafe8d1....
+
+## THE GEN 9 ABILITIES WORK IN BATTLE — 2026-10-21 — `patches/gen9abil/`
+
+Until now the Gen 9 abilities were stand-ins: gen9 and gen9rest gave each an id of 256 + an ability the engine has
+(*Gen 9*, *The rest of Gen 9*), handed to the engine as that ability (gen9.s's alias list), plus a few rules in
+gen9.s's damage and speed hooks. In battle they did what their stand-in did ("Oinkologne's Mummy!"), and most had
+none. Now each has an id of its own and does what it does in Scarlet/Violet.
+
+- **Ids.** The engine's free ids 0x101..0x12C (`gen9abil_data.ABILITIES`; the hack's own five there stay: 0x104
+  Shell Armor, 0x10D Air Lock, 0x112 Burning Soul, 0x11D White Smoke, 0x125 Pure Power). Sharpness is the engine's
+  own 0x4F. The patcher finds each stand-in by its name in the name table and renumbers the 67 rows of the species'
+  ability table (0x097A0000) that held one; the stand-in ids stay, unused. gen9.s's alias list is emptied (its first
+  pair zeroed), so the engine is handed every ability as it is; gen9.s's ability rules key on the old ids and do
+  nothing now (its move rules and Booster Energy's item stay). Booster Energy (item 769) gets a hold effect of its
+  own, 0xAB, which the engine has no case for: Klutz, Embargo and Magic Room stop it as they stop any item.
+- **The code is C.** `build.py` compiles `g9.c calc.c hit.c moves.c entry.c state.c commander.c` and `scripts.s` with
+  xPack arm-none-eabi-gcc 12.2.1 (`%LOCALAPPDATA%\xpack-arm-gcc\xpack-arm-none-eabi-gcc-12.2.1-1.2\bin`; -mthumb
+  -mcpu=arm7tdmi -Os -ffunction-sections, Thumb-1 checked on the result) and links it at 0x09E33000 against the
+  game's addresses: `he.ld` (RAM, scripts, tables), `he_syms.s` (routines, as `.thumb_set` so the linker calls them
+  with bl and makes no ARM veneers), `he.h` (the engine's structures as this build of it lays them out). The result,
+  `gen9abil.bin` and `gen9abil.sym` (its symbols, size and sha1), is what the patcher writes; a machine without the
+  compiler (the Mac) patches from those two files. Gotchas: `--gc-sections` drops what nothing calls, so the
+  wrappers (`.text.w_*`), callasm routines (`.text.g9_asm_*`) and strings are KEPT in `he.ld`; `-fno-strict-aliasing`
+  (the weather is read as a halfword and written as a word: `gBattleWeatherWord`).
+- **How it reaches the engine.** The engine already asks one routine about every ability at every point of a
+  battle, `ability_battle_effects(switch_id, bank, ability, special, move)` (0x09D45F8C; 0 a Pokemon comes in, 1 the
+  turn ends, 3 a move is about to hit, 4 it has hit (target), 10 (attacker), 6 after an action, 24 its own entry
+  ability...). gen9abil stands in front of it and of the routines that decide a number or a rule (`WRAP` in the
+  patcher, 25): the attack, defense, base power, final damage, speed, type matchup, status checks (cant_poison and
+  four more), check_field_for_ability, check_ability_with_mold, has_ability_effect_inalternate, get_first_to_strike,
+  change_stats, can_switch, findability_in_table, and the commands 0x07, 0x6A, 0x84, 0x8F, 0xB2 (their words in
+  the command table 0x09D7717C; 0x8F and 0xB2 are the game's own). Every bl to such a routine in the code regions and
+  every pointer word to it is pointed at the wrapper (found on the input, before our code is written); the wrapper
+  calls the routine. Two script words: Intimidate's per-target stat change (0x09D06CA8) and Tailwind's last goto
+  (0x09D05563).
+- **Its state** is 0x40 bytes after the engine's own 0x118 at gNewBattleStruct (0x02024218): the allocation at
+  0x09D49230 becomes 0x158 (`movs r0, #0xac`), so it is cleared at a battle's start and freed at its end
+  (`g9.h: struct G9State`, 60 bytes used). A Pokemon coming in (switch_id 0) clears its battler's part.
+- **Messages** are strings 0x2B7.. of the engine's table (its 315 words copied longer, the word at 0x09D4A204);
+  routines scripts call by number are 220.. of its callasm table (copied longer; the word 0x09D686F0 - the same value
+  also sits at 0x09D68524 as get_move_from_pledge's base, which reads the three Pledge moves just before the table:
+  that one stays). Every new line measured with the font's widths: 202 px at most with two ten-letter nicknames.
+- **The lists of untouchable abilities** (Skill Swap 0x09D79E36, Gastro Acid / Neutralizing Gas 0x09D79E1A, Trace /
+  Role Play 0x09D79E74, Entrainment / Mummy 0x09D79E58) get the Gen 9 ones (`FORBIDDEN`): longer copies, every word
+  holding a list's address pointed at its copy - and findability_in_table checks the Gen 9 ones too when it is asked
+  about one of the four by its own address, because some routines (Skill Swap's ability_change at 0x09D67328) reach
+  a list from a nearby address plus an offset (0x09D79E20 + 0x16), which no word holds: the first test swapped
+  Protosynthesis. Sharpness's slicing moves (0x09D743F2, one literal 0x09D5F368) get the five Gen 9 ones the game
+  has, found by name: Psyblade 946, Population Bomb 955, Kowtow Cleave 962, Bitter Blade 975, Aqua Cutter 979
+  (Mighty Cleave and Tachyon Cutter are not in the game).
+- **What each does here** (as in Scarlet/Violet unless said):
+  * Entering: the Ruin four (x0.75 on everyone else's stat, the holder excepted), Orichalcum Pulse (sun as Drought,
+    Heat Rock 8 turns) and Hadron Engine (Electric Terrain as Electric Surge, Terrain Extender), Supreme Overlord
+    (x1.1 for each of ours that has fainted in this battle, up to x1.5, on its Attack and Sp. Atk), Costar, Hospitality (a quarter of the
+    partner's HP), Supersweet Syrup (once a battle for each of the party's slots), Protosynthesis / Quark Drive
+    (sun / Electric Terrain, else a Booster Energy, which is used up; on and off as the weather changes, each
+    action), Commander. Orichalcum Pulse and Hadron Engine power up by x1.3 (not x4/3 Attack / Sp. Atk); the Paradox
+    best stat is worked out with its stages each time.
+  * Hit: Earth Eater, Well-Baked Body, Wind Rider (also Tailwind on its side, on entering under one), Wind Power and
+    Electromorphosis (charged), Thermal Exchange, Seed Sower, Anger Shell, Toxic Debris, Lingering Aroma (as Mummy;
+    on every contact hit, the engine has no first-hit counter), Purifying Salt (no status, Ghost damage x0.5),
+    Rocky Payload, Sharpness, Good as Gold (others' status moves: Magic Coat's list without the hazards, plus 42),
+    Armor Tail (priority moves at its side), Guard Dog (Intimidate ups its Attack; it cannot be forced out),
+    Mycelium Might (status moves last, past abilities), Tera Shell (at full HP every hit x0.5 and "not very
+    effective"; all the hits of a multi-hit move; its message before the hit), Toxic Chain (30% bad poison),
+    Poison Puppeteer (its poison confuses too).
+  * Later: Cud Chew (a Berry used up is eaten again at the end of the next turn: removeitem's wrapper notes it, the
+    turn's end eats it with the routines Bug Bite uses, callasm 158 and 117), Opportunist (every stat a foe raises
+    is counted in change_stats' wrapper and copied after the action, one stat at a time; its own copies are not
+    counted).
+  * Commander: Tatsugiri beside a Dondozo goes into it on entering (or when the Dondozo comes in): Dondozo's five
+    stats +2 (callasm 153/154, as a multi-stat move); Tatsugiri gets the game's absent bit (gAbsentBattlerFlags),
+    the one an empty spot in a double battle has, so no action is chosen for it, moves pass it over (spread) or turn
+    to its partner, and the turn's end leaves it alone; its picture is hidden the way the engine hides a caught
+    Pokemon (the sprite info's bit 0 at *0x020244D0, gSprites +0x3E bit 2). Dondozo cannot switch (can_switch: the
+    player's menu and the AI both ask it) or be forced out (forcerandomswitch fails). Tatsugiri comes out after the
+    action in which its Dondozo fainted (switch_id 6; not at once, or the rest of a spread move that knocked Dondozo
+    out would hit it) or when another Pokemon takes Dondozo's place (U-turn, Eject Button).
+  * No effect: Zero to Hero (the game has no Hero Form: Palafin stays as it is), Mind's Eye, Embody Aspect, Tera
+    Shift, Teraform Zero (no Pokemon here has them; names and texts only).
+- **Gotchas.** gSpecialStatuses is 0x14 bytes a battler in this engine (not vanilla's 0x1C): Toxic Chain never fired
+  until that was right. A move's "confusion self-hit" is gProtectStructs[b][1] bit 0, its "not first to strike"
+  [2] bit 3. A callasm routine runs with gBattlescriptCurrInstr already past its 3 bytes (a word after it is read
+  there). switch_id 6 is asked again after each one that did something (HandleFaintedMonActions' state does not
+  move on), so a poll there does one battler a call.
+- **Space.** 0x09E33000..0x09E3C000 (36 KB; 0x09E33000..0x09E36652 used, 13.9 KB), in the zero run
+  0x09E10044..0x09E40000 of the game before Kitakami, 16 KB below Kitakami's 0x09E40000 (to 0x09F00000 before it).
+  All zero, and no word at a 4-byte boundary anywhere in the ROM holds an address in it (checked by the patcher);
+  19 words at other offsets do (0x0851034B, 0x09204202 ...: inside pictures and code, none a literal or a table
+  entry). The run's lower part has chance values in pictures pointing in, which is why 0x09E20000 was given up.
+  Read watchpoints on the game without it (`_testrun/space/gen9abil_watch.ps1`, rom/ 767e052c...: the menus, Prelude
+  Beach with R / SELECT / START / L, Surf and wild battles (again alone, `gen9abil_watch_surf.ps1`: the first try
+  timed out while other tests ran), the researcher / News Tracker / battles / three saves and resets, Petalburg
+  Woods and Continue, four walks): 0 reads in all nine, the two controls read in each.
+- **Tested** (`test_gen9abil.lua`, `_testrun/gen9abil/batch1..7.ps1`: a battle each, hidden and muted, the battle's
+  messages logged, damage against a control with another ability; doubles against trainer 56, Gabby & Ty):
+  * 1: Sword of Ruin (Tackle 62 vs 47), Koraidon's sun, Miraidon's terrain, Booster Energy, Protosynthesis on with
+    Sunny Day and off when it fades (turn 5), Quark Drive from Electric Terrain.
+  * 2: Earth Eater, Well-Baked Body, Wind Rider, Thermal Exchange, Seed Sower, Anger Shell (five stats),
+    Electromorphosis, Wind Power, Toxic Debris (twice), Lingering Aroma, Toxic Chain, Poison Puppeteer, Purifying
+    Salt against Toxic, Yawn, Thunder Wave and Will-O-Wisp.
+  * 3: Good as Gold against Thunder Wave (stopped), Spikes and Perish Song (not), its own Nasty Plot; Armor Tail
+    against Quick Attack (and without it); Mycelium Might past Insomnia, last; Guard Dog against Intimidate and Roar.
+  * 4: Supersweet Syrup (one foe and two), Tailwind with Wind Rider and Wind Power (its own, then the partner's,
+    then on entering under one), Hospitality (+29 = 119/4), Costar.
+  * 5: Cud Chew (Sitrus +56 twice, Oran +10 twice), Opportunist (Swords Dance copied each turn; Sturdy does not),
+    Tera Shell (Brick Break 13 vs 54 at full HP, 54 below it; Double Kick 6 + 6; Mold Breaker 54), Rocky Payload
+    (Rock Slide 110 vs 73), Purifying Salt against Shadow Ball (13 vs 26).
+  * 6 and 8: Commander, Tatsugiri first and Dondozo first (+2 five times); Hyper Voice passes over Tatsugiri;
+    Dondozo knocked out (five seeds, a spread move in three): Tatsugiri out after that action, hit and acting from
+    then on.
+  * 7 and 8: Skill Swap fails at Protosynthesis and Commander, swaps Sturdy; Trace passes Quark Drive by, takes
+    Sturdy; Sharpness (Aqua Cutter 60 vs 40); Supreme Overlord with two fainted (`FAINTED=2`; Tackle 56 vs 49).
+  * Batches 1-6 again after batch 7 (the same messages); batch 8 and Lingering Aroma after the last two changes
+    (the list wrapper, Tatsugiri out after the action).
+  * Not tested: Roar at a Dondozo with its commander (the test cannot pick a target in a double battle), the switch
+    menu's refusal for that Dondozo (can_switch is what the menu asks), Cud Chew after Bug Bite or Fling (not
+    noted: only removeitem is), two Opportunists.
+- **Differences from Scarlet/Violet**, known: Orichalcum Pulse and Hadron Engine as x1.3 power; Opportunist copies
+  after the action, not at once; Lingering Aroma on every contact hit; a Dondozo that leaves by U-turn, Eject Button
+  or Red Card lets Tatsugiri out (only switching and Roar-type moves are refused); Zero to Hero does nothing.
+- Working ROM = `rom/` = "(my placements 36)" = **3c9f52c1...**; `roms/before-kitakami` = **3d32f3cf...**
+  (c2c97e5e... + this patch); archive "(before gen9abil 2026-10-21)" = 767e052c.... The whole chain from the v1.4
+  archive gives 3c9f52c1... byte for byte (135 s; the main game alone still 265a0e93...).
+
+## THE GEN 9 MOVES' OWN ANIMATIONS — 2026-10-22 — `patches/gen9anim/`
+
+Until now each Gen 9 move played the animation of the older move gen9 or gen9rest made it from (Kowtow Cleave Night
+Slash's, Make It Rain Pay Day's...). Each of the 48 (938-985) now plays its own: 43 scripts (the four Ivy Cudgels
+share one, the three Raging Bulls one).
+
+- **The scripts** (`anims.s`) are in the game's battle animation language, its own commands 0x00..0x2F (`defs.inc`:
+  the macros, and the address of everything the scripts name). They use the game's own sprite templates, tasks,
+  particles, backgrounds and scripts: every sprite template of the game's they launch has its tags and pointers
+  where the game keeps them (the patcher checks); the vanilla scripts they call or go to (Jump Kick 0x082D216E, Spit Up 0x082D49EB, the
+  scrolling background's end 0x082D7CDD) are the ones the game's own animation table points at; the particles they
+  load (0x2797, 0x2861, 0x2862...) are all in the engine's particle table (0x09D33568, 367 entries to 0x287E) and
+  the backgrounds in its background table. 91 labels: the scripts, their subroutines, the sprite templates of
+  their own (built from the game's oam, frames and callbacks).
+- **Built** by `build.py` (xPack arm-none-eabi-as; `ARMGCC=<its bin>` elsewhere) into `gen9anim.bin` and
+  `gen9anim.sym` at 0x09E38000; the patcher only reads those two. It points the animation table's words for the
+  48 moves (0x09D0AB00 + 4 x id, the table read through the literal 0x080A3A44) at the scripts, each move found by
+  its name among ids 938-985 (Petal Blizzard is also the engine's own 572). It checks before writing: every task
+  is a Thumb address in the game's or the engine's code, every template has its tags and pointers in the ROM, every
+  script called is one the table points at or starts with a command, and every routine of the engine's a template
+  of ours calls is also named by one of the game's own (below).
+- **The one that froze.** Make It Rain's coins are the engine's Happy Hour coins, whose callback is an engine
+  routine: the first build named it from an address list that was wrong (0x09D450A4 is the routine after it) and
+  the battle stopped with a coin in the air. The game's own Happy Hour coin template (0x09D2A460) names 0x09D4520D:
+  that routine reads the animation's argument 5 as the coins expect. Hence the patcher's last check.
+- **Space.** 0x09E38000..0x09E3C000 (11,472 bytes used), the upper part of the stretch *The Gen 9 abilities work
+  in battle* proved (all zero, no aligned word points in, never read in nine watched runs); gen9abil keeps
+  0x09E33000..0x09E38000 (its claim made smaller, its output the same), Kitakami starts at 0x09E40000.
+- **Tested** (`_testrun/gen9abil/batch9.ps1`: 17 battles, our Pokemon against a Lv 100 Snorlax that only
+  Splashes, four moves a battle; doubles against trainer 56): every one of the 48 ids used, a picture every 8
+  frames while one of ours plays (`SHOTANIM`: the word at 0x020383F0 holds the start of the animation playing),
+  and every frame in which the scene changed looked at (`sheet2.py`): all 43 play to their end and give the screen
+  back as it was, in singles and in doubles (Make It Rain, Mortal Spin, Petal Blizzard on both foes; Dragon Cheer
+  on the partner). Last Respects and Rage Fist against a Raichu (they do not touch a Normal type), Comeuppance
+  after a Tackle, Electro Shot's charge and hit, Silk Trap's web.
+- **Seen on the way, not changed** (the moves' effects, gen9rest's templates): Make It Rain lowers Sp. Atk once for
+  each foe it hits; Salt Cure's message is Bind's ("was squeezed by ... Bind"); Double Shock hurts its user
+  instead of losing its Electric type; Gigaton Hammer makes its user recharge.
+- Working ROM = `rom/` = "(my placements 37)" = **84a2d8d7...**; `roms/before-kitakami` = **5da2d7f6...**; archive
+  "(before gen9anim 2026-10-22)" = 3c9f52c1.... The whole chain from the v1.4 archive gives 84a2d8d7... byte for byte (100 s).
+
+## VERSION 2.0 AND ITS SHOWCASE — 2026-10-22 — `patches/qolversion/`, `_testrun/showcase20/`
+
+- Asked: "update version in rom to 2.0". `qolversion_patch.py`: `QOL = "2.0"` (a number only: no release, the site
+  and `release/` still say 1.9). All digits of the font are 6 px wide, so "+QoL2.0" takes the room "+QoL1.9" took;
+  the Option screen, seen in mGBA on build 38 from the user's save: "Ultra Emerald V5.7 +QoL2.0 (Standard)", inside
+  its bar. The step is mid-chain: the whole chain rebuilt (8 bytes differ from 84a2d8d7..., the two digits of each of
+  the four titles at 0x08FF24DE..0x08FF2569), the Gen 9 base (`roms/test-gen9`, archived first as "(the base before
+  2.0, 2026-10-22)") replaced with the chain's `gen9` stage, then `paldea/rebuild.py`: "(my placements 38)" =
+  **10203d90...**, equal to the chain's result.
+- Asked: "make a gif for showcase 3*3", then "remove" the three battle cells (Drake's Roaring Moon, Koraidon's
+  Orichalcum Pulse, Gholdengo's Make It Rain), "add more kitakami whole town" and "also focus on new sprites".
+  `docs/showcase/showcase-v2.0.gif` (and `gba-trans/hyper-emerald/showcase/gifs/v2.0.gif`): 1464 x 1084, 62 frames of
+  160 ms (the last 1.5 s), 13.3 MB - the 1.9 one's size, layout and timing (`_testrun/showcase19/montage.py`;
+  `_testrun/showcase20/montage.py`). Nine clips filmed on build 38 from a copy of the user's save through Area Zero's
+  harness (`_testrun/paldea/run.ps1 -Steps ../../../_testrun/showcase20/steps*.lua`), a picture every 6 game frames,
+  the story's flags set as the Kitakami and Area Zero tests set them:
+  * Kitakami: Mossui Town walked from the bus stop through the market, past the Pokemon Center and up the maples to
+    Loyalty Plaza (Part 1's flags, so Carmine lets you by); Carmine stopping you at the bus stop, her talk and her
+    battle picture; Kieran at the market on Part 2's night (the game's own day/night on: `daynight_off` would take
+    the festival's night tint away); Kitakami Hall's Mask Hall, a plaque read; Ogerpon at the plaza and her battle's
+    start; Briar by the hole in Mossdeep, her intro;
+  * Area Zero's people in their own sprites: Nemona in the future crater (stage 2), her talk and battle picture;
+    Arven and Penny dancing in Mossui's market (Part 2), Arven's talk; AI Sada and AI Turo appearing at the Zero Lab's
+    machine (every flag before the finale set), their talk.
+  Every frame of the GIF looked at (two contact sheets): each clip runs through; the only dark frames are three
+  battle starts' transitions. Not used: Nemona and Pecharunt at the plaza (Part 2; talked to from the tile the Part 2
+  test uses, nothing started), the Pokédex stats and Relearner clips (`frames/`, kept). The README still shows 1.9's
+  GIF: swap it at the release.
+
+## THE HISUI MAP FLIES AGAIN, AFTER VOLO — 2026-10-22 — `patches/hisuifly/`
+
+- Asked: "we have implemented flying in hisui, but we have removed it before since it skip the events in Hisui,
+  however, can we add it back but make sure it check if we already completed Hisui quest at finding Volo but before
+  skitty Cat". The no-fly change of 2026-10-08 is *Hisui map: no flying* above.
+- No code: hisuimap's fly table already gives each place a flag that must be set ({key u8, pad, flag u16, block
+  u32}; `fly_target` answers 0 while it is clear, `draw_name` greys the name), the way Sinnoh's couriers work.
+  `hisuifly_patch.py` puts the five places back (the first key, 0xFF -> 107) with flag **0x431E** on each: 11 bytes
+  at 0x08FF544C..0x08FF546F. It asserts the no-fly table as hisuimap leaves it, that REGION_HISUI's fly word
+  (0x08FF54D8) is the only word pointing at it, and the first 12 bytes of each of Mingyao's five blocks.
+- Why 0x431E, read from the ROM (`tools/romdata/scripts.py flag`, `dis.py`): Volo's script (37/108, 0x098A15DE)
+  sets 0x4315 when he is beaten and warps you to Coronet Highlands. 0x431E is the trigger at base camp (37/104, 12,19,
+  0x098C5DCC): Rei and Cogita's news, the Journal's "Volo is beaten. Return to base camp" step. Mingyao's own menu
+  (multichoice 137): at Coronet Highlands (0x0989B177) only once 0x431E is set - between 0x4315 and 0x431E she says
+  "to think you defeated Volo" and flies you straight to base camp; at base camp (0x0989A9FC) only once 0x431E is
+  set ("Oh! Looks like everyone's here!" before); at Deertrack Heights (0x0989ADB7), Firespit Island (0x0989AAEC)
+  and the Alabaster Icelands (0x0989B390) once 0x4315 is. So from 0x431E on every Mingyao offers all five places
+  and the map offers nothing she does not. The steps after it (Cogita and the three legends 0x4319, Kitty's Dried
+  Fish 0x4322, the summit 0x4323, Cogita on Champion Island 0x4325) are free roaming; the summit guard (37/106,
+  0x098B201D) checks its own flags and item whatever way you arrive.
+- Chain step after `gen9anim`, before `kitakami` (`paldea/rebuild.py`'s TAIL and the three `rebuild_chain.py`).
+  "(my placements 39)" = **f5ce12ce...**, 11 bytes from build 38 (10203d90...); the whole chain from the v1.4
+  archive gives it byte for byte (96 s).
+- Tested (`test_hisuifly.lua`, run by `_testrun/hisuifly2/run.ps1` with the build 38 save; build 38 as the control),
+  every screenshot looked at: 0x431E clear (cleared by a script), Coronet Highlands, the map: the names greyed, A on
+  Firespit Island does nothing, the map stays up, B back on 37/106. 0x431E set: names white; A on Firespit Island:
+  Mingyao's Braviary, A, on 37/105 (21,42); from there A on Prelude Beach: on 37/104 (12,18), her warp 1, at base
+  camp. Sinnoh: Oreburgh -> A on Jubilife flies to 36/2. The control never flies from the Hisui map.
+- The guide site still says the Hisui map does not fly (`site/src/data/features.ts`, `guides/mechanics.mdx`): change
+  it at the release with the rest.
+
+## EVS FROM BATTLES STOPPED AT 509 — 2026-10-22 — `patches/evgain/`
+
+- Reported: "Total EV sometimes stuck at 509 when I ev train my pokemon".
+- Where: the battle engine's EV gain, **0x09D5A880** (mon, species), called by getexp (0x09D5AAE8, at 0x09D5AC4E) for
+  every Pokemon that gets experience, the Exp. Share's included. Found by a write watch on the party Pokemon's six EV
+  bytes (+0x38..+0x3D) in a battle: the store is SetMonData's (0x0806B0B0/B6; the lr there, 0x08068CAF, is stale -
+  the checksum routine's), the return addresses on the stack give 0x09D5A9B5 (in the routine) and 0x09D5AC53
+  (getexp). The writes at 0x0806A23C..0x0806A266 are the (en|de)crypt loops rewriting the words, not EV changes.
+- The routine: total = the six EVs; a Pokerus flag; held item and hold effect - 24 is Macho Brace's and every Power
+  item's, and 0x09D6AB0C(item) tells them apart (0 = Macho Brace: yields x2; else the Power item's stat + 1: +8 to
+  that stat, once); if total > 510 at a stat's turn every EV is set to 0 (only a save with an impossible total can
+  get there). Then per stat, HP, Atk, Def, Spe, SpA, SpD: the yield (base stats +10, 2 bits each) with the item and
+  Pokerus (x2), and a loop one point at a time - `if (total == 510) return; ev = GetMonData(0x1A + i); if (ev <= 251)
+  SetMonData(ev + 1); total++` until total = start + gain. **The bug:** `total++` ran when the stat was full (252) and
+  nothing was added, so every point due to a full stat ate room the Pokemon never used, and at 510 "reached" the
+  routine returned before the stats after it. With 509 real and Attack full, a Power Bracer (+8 Attack) or any foe
+  giving Attack ended it before the foe's Defense point: 509 after every battle while that item or that foe stayed.
+  Below 509 points were lost the same way (Atk 248 of 500 + 8: 4 added, 4 counted).
+- Fix, one byte: 0x09D5A9A2 `bhi 0x09D5A9B4` (to `total++`) -> `bhi 0x09D5A9C0` (the loop's next stat), 0x07 -> 0x0D:
+  a full stat now ends that stat's share and the count stays the real total. The patcher asserts the loop's bytes,
+  the next-stat step and the `adds r4, #1`. The original hack's ROM has the same bytes: its bug.
+- Chain step after `hisuifly`, before `kitakami`. "(my placements 40)" = **ebeae0f5...**, 1 byte from build 39; the whole chain
+  from the v1.4 archive gives it byte for byte (98 s).
+- Tested (`test_evgain.lua` - test_gen9abil.lua's battle with EVS / EVS2 / POKERUS and the watch - by
+  `_testrun/evgain/evrun.ps1`; Mewtwo Lv 50, Tackle, a Lv 5 foe at 1% HP), build 39 as the control, 12 cases:
+  Power Bracer, Attack full, 509 + Geodude (1 Def): 509 -> 509 before, 510 after; no item, 509 + Parasect (2 Atk,
+  1 Def): 509 before, 510 after; the Exp. Share's share (a second Pokemon at 509 with a Power Bracer): 509 before, 510
+  after. The same on both: Power Bracer Atk 248 of 500 -> 505 (Atk 252, Def 1); Parasect on 0/251/252/5 -> 509 (both
+  stats full: right); Power Belt 504 -> 510; Graveler 509 -> 510; Golem 508 -> 510; Pokerus 508 -> 510; Macho Brace +
+  Graveler 505 -> 509 (2 x 2 = 4: right); 0 + Parasect -> 2/1; 510 stays 510.
+- The EV items, checked after (`test_evitems.lua` by `_testrun/evitems/run.ps1`; build 43, the user's save; used from
+  the Bag, every message looked at; the game's PokemonItemEffects 0x0806BD28, not this routine). The hack has no
+  Wings. Vitamins: 509 + Carbos -> 510 (one point); 510 + Carbos -> "It won't have any effect.", the item kept; Attack
+  full at 509 + Protein -> no effect; 505 + Zinc -> 510; SpA 95 + Calcium -> 100 (vitamins stop at 100, as in
+  Emerald). Berries (the pocket sorts itself when opened, and Check Tag is the menu's first line): Pomeg on HP 252 ->
+  242, then a Carbos +10 -> 510; Hondew on SpA 0 -> no effect. Nothing sticks at 509.
+- Found there, the original hack's: its own CalculateMonStats (0x09F038D8, behind the trampoline at 0x08068D0C; the
+  original ROM's bytes but for mintquirky's bl at 0x09F03930) sets HP to HP + (new max - old max) and anything above
+  the new max - a negative result wraps - to the new max. Emerald leaves a fainted Pokemon at 0. So HP Up on a fainted
+  Pokemon revives it (0/293 -> 2/295), and a Pomeg Berry gives full HP to a fainted one (0/338 -> 335/335) or one at
+  1 HP (1/340 -> 338/338). Fixed the same day: *A fainted Pokemon stays fainted* (`patches/hpcalc/`).
+
+## CHEREN'S MINT LIST: QUIRKY, INSIDE THE SCREEN — 2026-10-22 — `patches/mintquirky/`
+
+- Reported: "The Mint table that Cheren uses to change natures is missing the 'Quirky' nature ... there's a space
+  with the word 'None' that reverses the action of the Mint ... the table box extends beyond the game screen limit
+  ... so maybe use replace 'None' with 'Quirky'". The user chose that (the 5x5 grid, Quirky in None's place, no
+  undo, names cut to fit) over a two-step menu and a 3 x 9 list.
+- The offer (0x0984A658; both Mint people, 11/4 and 37/77, run 0x0984AB8D): `multichoicegrid 0, 0, 0x7C, 5 columns,
+  B ignored` (op 0x71) -> VAR_0x8005 -> ChoosePartyMon -> callasm 0x08FF0E01, which writes the slot to mon + 0x1F
+  (bits 0-6) and recalculates the stats. The list (0x0984A9B8, entries {text, unused word}; the multichoice table
+  is the hack's at 0x09700000, 143 entries, 296 zero bytes after it) was None, Lonely .. Careful, Hardy: slot =
+  nature for 1-23, 0 = no Mint, 24 = "Hardy" (naturefix shows 24 as Hardy). Quirky had no value.
+- Who reads the byte (every `ldrb rX, [rY, #0x1f]` with a 7-bit mask after it, in the whole ROM: three in code, the
+  rest chance bytes in pictures): naturefix's GetNature stub (0x08F54200, reached by GetNature's word 0x0806D074) for
+  what is shown (summary, Synchronize ...), and two places in the hack's stats code - its nature getter (0x09F038BC)
+  and CalculateMonStats (0x09F03928) - that take the byte as the nature's number (24 = Quirky there: stats and
+  display have disagreed since the start, harmlessly, both neutral). 0x09D4A636 is another structure.
+- The grid's width (vanilla ScriptMenu_MultichoiceGrid): each column (widest name + 9) / 8 + 1 tiles. "Adamnt" is
+  36 px (field font, 0x086542E4) -> 6 tiles, 5 x 6 + the frame = 32 on a 30-tile screen: its right edge was off it.
+  Full names need 7 (Adamant, Naughty 42 px); 5-tile columns (27 tiles with the frame) need every name <= 30 px. The
+  grid is shared by seven menus (lists 0x76, 0x77, 0x7C, 0x7F, 0x83, 0x8A, vanilla's 0x0D), so its drawing was left
+  alone.
+- mintquirky (code and texts 0x09E3C000..0x09E3C10C):
+  * the 25 entries' texts: Hardy, Lonly, Brave, Adamt, Nauty / Bold, Docil, Relax, Impsh, Lax / Timid, Hasty,
+    Serio, Jolly, Naive / Modst, Mild, Quiet, Bashf, Rash / Calm, Gentl, Sassy, Caref, Quirk (slot = nature; the
+    patcher measures each <= 30 px);
+  * the callasm -> mint_apply: slot 0 (Hardy) -> 24, slot 24 (Quirky) -> 25, then 0x08FF0E00;
+  * 25 reaches the stats as 24: `bl mint_r0` at 0x09F038C4 and `bl mint_r3` at 0x09F03930 (each in place of the
+    two shifts that masked the byte); GetNature's word -> get_nature: 24 Hardy, 25 Quirky, 0 the personality's
+    (naturefix's stub stays, unused). Saves with 24 keep showing Hardy. No undo: the Pokemon's own nature gives the
+    same stats (the summary then names it, as the Mint's).
+- Space: 0x09E3C000..0x09E3C200 kept, within 4 MB of the stats code (its bl's). Blank since the original hack (its
+  zero run 0x09E10044..0x09F00000), blank today from gen9anim's end (0x09E3ACD0) to kitakami (0x09E40000); no word
+  in the ROM reads as an address in 0x09E3C000..0x09E3C400 (15 chance words point elsewhere in the gap, none a code
+  literal: speciesx_patch.is_pointer); a read watch on build 40 (`_testrun/space/mintquirky_watch.ps1`: menus, Hisui
+  with R/SELECT/START/L, Surf and wild battles, the researcher and three saves and resets, Petalburg Woods' Continue,
+  four walks): 0 reads, while the two control stretches were read (base stats up to 25,362 times, DMA 2 million).
+- Tested (`test_mintquirky.lua`, `_testrun/mint/run.ps1`, build 40's save; build 40 as the control): the grid
+  inside the screen with its right edge, the cursor on Adamt and Quirk; Blaziken (own nature Calm) given each Mint:
+  Hardy byte 24, stats 296/279 (Atk/SpA, neutral); Quirky byte 25, the same stats; Lonely Atk 325 Def 172; Adamant
+  Atk 325 SpA 251; Modest SpA 306 Atk 266; Careful SpD 202 SpA 251. The summary (one boot per slot: the Start menu
+  keeps its cursor): Hardy, Quirky, Lonely ↑Atk ↓Def, Modest ↑Sp.A ↓Atk, Careful ↑Sp.D ↓Sp.A. Control: slot 0
+  "None" byte 0 (Calm again), slot 24 "Hardy" byte 24, the grid past the edge. "(my placements 41)" = **8cccc1f9...**;
+  the whole chain from the v1.4 archive gives it byte for byte (109 s).
+
+## TWO REPORTS THAT NEEDED NO CHANGE — 2026-10-22
+
+- "Between Jubilife and Route 204, there's an extra graphic text box appearing on the screen." Filmed on build 40
+  (`_testrun/jubilife/steps*.lua` through Area Zero's harness, a picture every 3 frames, every frame looked at):
+  Jubilife's north exit (36/2) to Route 204 (36/19, connection N +34) by both lanes, both ways, day and the game's
+  own clock: the only boxes are the two location signs, and twice in eight crossings a PokeNav call (the Match Call
+  window: the PokeNav icon, "......" and the arrow). The call is the game's own, random: it can start on the 10th
+  step after a map loads, and from Jubilife's warp that step falls on Route 204. Nothing else came up; the player's
+  screenshot was asked for.
+- "Can shiny charm apply to breeding? ... the Charm adds 2 extra rolls". It already does. The hack makes an egg's
+  personality when you take it, not when the Day Care decides there is one: InheritIVs (0x08070260) jumps to the
+  hack's 0x09F00B08, which ends in 0x09F008F0: the Everstone nature (0x09F00830), then CheckBagHasItem(119) -> 5
+  rerolls, else 1, into the same generator wild Pokemon use (0x09F0071C: random personalities that keep the nature
+  (and a gender when asked); while rerolls are left it returns the first shiny one; the try after the last reroll is
+  kept as it is). So an egg gets 6 tries with the charm and 2 without: about 1 in 1,365 against 1 in 4,096 - the x3
+  the user chose. The Day Care's own roll (daycare + 0x118, vanilla _TriggerPendingDaycareEgg) is overwritten.
+  Measured on build 40 (`_testrun/eggcharm/test_eggcharm.lua`, GIVE=1: _GiveEggFromDaycare 4,000 times each way, on a
+  test copy whose shiny check is 1 in 256): no charm 30 shiny (0.75%; 2 tries: 0.78%), charm 100 (2.50%; 6 tries:
+  2.32%). An eggcharm patch (three rolls of the Day Care's personality) was written first and dropped: that roll
+  is thrown away.
+
+## RAINBOW CASTLE: THE FENCE — 2026-10-22 — `patches/castlefence/`
+
+- Reported: "during the rainbow rocket castle mission, there are two kirlia to warp u back town, on the second inner
+  kirlia, if u have not completed the castle mission and warp back, the fence is locked as softlock ... you'll get
+  stuck and won't be able to go back in to fight Rainbow Rocket!!", with a screenshot: the player between a railing
+  and the exit mat.
+- The castle, read from the ROM (`tools/romdata/scripts.py`, `dis.py`, the maps' warps): EV Training Cave (35/49):
+  Colress (object 25, hidden by 0x41E1) wants the 18 Z-Crystals, says "Once you enter, you won't be able to leave the
+  castle until the end", opens the hidden door ((18..20, 21)) and sets 0x41E9, 0x41E1; the cave's on-load script walls
+  the door while 0x41E9 is clear. -> the entrance hall 35/3 (its exit covered while 0x41D5, the castle beaten, is
+  clear; the outer Kirlia at (5,15) teleports to Pacifidlog 0/15 once 0x41EA is set) -> the first floor 34/82 -> the
+  hub 34/83 (six locks 0x41EB..0x41F0 open its door, 0x41F1, kept on reload) and its rooms 34/84..34/89 (34/89's doors
+  by 0x41F5..0x41FA, kept) -> 35/4 -> 35/5 (the inner Kirlia at (6,6): "Maybe you just want to be an ordinary Trainer
+  ..." and Yes teleports to Pacifidlog, no check) -> Temple of the End 34/93.
+- 34/82: the triggers at (12..14, 18) (var 0x400A, once: 0x41EA) are Pawn's trap: you are moved north, a fence is
+  raised on row 15 (setmetatile x 5, 6, 12, 13, 14, 20, 21: 0x297 / 0x269, impassable), Steven and Gladion stay south,
+  Pawn's battle (trainer 1070), 0x41EA. Its on-load script (0x09866A65, the only map script; table entry 0x08A399D5)
+  raises the fence again whenever 0x41D5 is clear and 0x41EA set. Back from Pacifidlog you come in by 35/3, whose
+  warp puts you at (13,19), south of it: the railing above, the exit below. The only ways on were the outer Kirlia
+  (out again) and the Blue-Haired Passerby (35/49 object 16, while 0x41E9 is set and 0x41D5 clear): 500,000 "to send
+  you back to the recent past", which clears 0x41E1, 0x41E9..0x41FA, 0x41FD and the castle's trainers (1071..1115) -
+  the whole castle again. The other gates only open with progress and stay open, so they do not shut anyone out.
+- castlefence: a new on-load script (0x09E3C200..0x09E3C227; the table entry repointed): as before, but after the
+  two flag checks `getplayerxy 0x400E, 0x400F; compare 0x400F, 15; goto_if > end` - the fence only when you are north
+  of row 15 (as everyone is after the trap, and on reload from the hub). Temp vars: 34/82's triggers use 0x400A only.
+  40 bytes differ from build 41.
+- Tested (Area Zero's harness, build 41 as the control; `_testrun/castle/steps_*.lua`; the floor's four trainers
+  1071-1074 marked beaten so they do not stop the walk): back in mid-castle (0x41E9, 0x41E1, 0x41EA set, 0x41D5 clear)
+  at (13,19): build 41 the railing closed and the walk STUCK; the fix a gap in it and the walk up to the hub's door
+  (13,2). The trap from the start (0x41EA clear): the same on both - Pawn's speech, his battle (Houndoom Lv 85 ...),
+  you at (13,14), Steven and Gladion at (12,19) / (14,19); 34/82 loaded again from the north (13,2): the fence up and
+  the way back south (13,18) shut on both. The reporter's case: a save made stuck at (13,19) on build 41, Continued on
+  the fix: free, up to (13,2); on build 41: still stuck. "(my placements 42)" = **c5a095b0...**; the whole chain from the v1.4 archive gives it byte for byte.
+- The script space: mintquirky's proof covers it (blank since the original hack, no word reads as an address in
+  0x09E3C000..0x09E3C400, 0 reads in the read watch).
+- The round trip, tested after (`_testrun/castle/steps_loop.lua`, build 43, mid-castle with the hub's locks done): the
+  inner Kirlia to Pacifidlog, then on foot through the warps: the cave's wormhole (0x41D4 + the Ultra Suit) and door,
+  the entrance hall (its wild Pokemon, object 1 with no flag, removed by the test), 34/82 through the fence's gap at
+  (13,16), the hub, 35/4, 35/5 and the inner Kirlia again. Pawn's triggers and the hub door's only release once their
+  flags are set (they stop a walk, nothing more).
+
+## BERRIES, READ FROM THE GAME - 2026-10-22 - `tools/build_berries.py`, `/wiki/berries/`
+- Asked: "what about every berry location? or seller berry? objective is for every berry existing, we should at
+  least know one place where to get it". The page reads v1.9 (`_testrun/site19/hyper19.gba`, 65b5a7f6).
+- The berries are the items in pocket 4: 133-175 (Emerald's 43), 704-727 (the hack's 24, numbered No44-67 by
+  patches/berrynum) and 762-765, which repeat the names Mago, Wiki, Aguav and Tanga Berry: no script, shop, trainer
+  or wild Pokemon has those four, so the page leaves them out.
+- Trees: 120 objects run the berry tree script 0x082742F9 (graphics 60); the tree id is the template's +14. A New
+  Game runs one script of 80 `setberrytree` commands (opcode 0x8A: id, berry, stage; at 0x0827149D, called from
+  0x082717BC; ScrCmd at 0x0809B71C calls PlantBerryTree 0x080E191C), all stage 5 (ripe). Checked in mGBA: a New
+  Game from no save (`_testrun/berries/run_newgame.ps1`), then all 128 slots of SaveBlock1 +0x169C hold exactly that.
+  No map script plants a tree. Ids are shared between a Sinnoh tree and a Hoenn one (Route 205 = Route 102 ...):
+  one slot, one plot. The Route 130 Liechi tree is on Mirage Island (temp flag 0x11, which Route 130's map script
+  sets on the days the island is away); Route 212 has a Liechi tree with the same id and flag, which nothing on
+  Route 212 sets, so it is always there.
+- ItemIdToBerryType (0x080E19E8): item - 133 > 42 gives berry 1. Planting Occa ... Maranga grows Cheri Berries.
+- Daily gifts: `random N` + addvar(s) + giveitem VAR_RESULT, guarded by a flag in 0x920-0x95F, which
+  ClearDailyFlags (0x0809D3A0: memset SaveBlock1 + 0x1394, 8 bytes) clears. The Berry Master: Pomeg-Nomel and Occa-Roseli
+  (two addvars: 20 + 133, then 571 + 133); Kiri in Sootopolis: Pomeg-Nomel and Sitrus-Iapapa; Lilycove's man:
+  Liechi-Apicot; Route 114: Razz-Pinap; Route 111 and the wife: Cheri-Sitrus; the Pretty Petal girl: Figy-Iapapa.
+- The wife's sayings: the routine 0x0811BF40 compares your two Easy Chat words with the table 0x0859776C (five
+  pairs) and returns 1-5 (0 otherwise) in VAR_0x8004; her script turns 1-5 into Spelon, Pamtre, Watmel, Durin, Belue
+  (once each, flags 0xF8-0xFC) and anything else into one of Cheri-Sitrus. Easy Chat words: group << 9 | index into
+  the group's records at 0x0859D004 ({records, u16, u16}; a record {text, order, enabled}); groups 0 and 21 are
+  species (0x197 = Latias, 0x198 = Latios). The pairs: GREAT BATTLE, CHALLENGE CONTEST, OVERWHELMING Latias, COOL
+  Latios, SUPER HUSTLE.
+- The Contest Lobby / Contest Hall girl (one script, Lilycove and Hearthome): a Pecha Berry if your Berries pocket is
+  empty (special 0x34 = pocket 4 not empty), you have the Pokeblock Case (item 0x111) and a free slot in it (special
+  0xA3), once a day (0x921). Lilycove's lobby shows her only on some visits (its map script sets/clears 0x369).
+- Dad's Enigma Berry (Petalburg Gym) checks special 0x35 (0x080E162C: the save's e-Reader Berry data and its
+  checksum): with no e-Reader data it is never given. The Floaroma shop sells Enigma.
+- Shops: the Pretty Petal Flower Shop in Floaroma Town (37/10, named by the sign by its door, 36/4 at 17,34) sells
+  all 67, with no condition; Route 104's sells Leppa and Pomeg-Tamato. item_sources.PLACES names 37/10, 37/22
+  (a Solaceon house) and 37/100 (Hearthome's Contest Hall).
+
+## AREA ZERO'S PEOPLE, AFTER THE REFERENCES — 2026-10-22 — `patches/azpeople/`
+
+- The user sent phone screenshots of Pokemon Essentials art of Paldea's people ("I found these accurate reference
+  for sprites of Paldea npcs"): battle pictures (160 x 160, art at 2x) of Nemona, Arven, Penny, Jacq, Sada, Turo and
+  AI Sada + AI Turo together, and walking sheets (256 x 256, 4 x 4 cells of 32 x 32 at 2x: rows down, left, right,
+  up) of Nemona, Turo and Sada; no file of them anywhere on this PC. Asked whether to use them or
+  redraw: "redraw I guess cuz I don't have files"; for the walkers' size (32 x 32 like the references, or the game's
+  16 x 32): "u decide" - 32 x 32. Who drew the references is not known: a public release should credit them if found.
+- Recovering the art (`_testrun/paldea/people/refs/extract.py`): the viewer enlarged it by a fraction (13.49 screen
+  pixels an art pixel for the battle pictures, 8.44 for the sheets) and the JPEG blurred the edges, so the pixel size
+  and grid offset are found from where the colour changes (a comb over the gradient profile; the sheets need the
+  range 6-11, else it locks on twice the size) and each cell's middle is read. The viewer's grey background
+  (136,136,136) is made see-through only where the picture's edge reaches it without crossing an outline: Turo's grey
+  hair is that grey (first pass: holes in his hair).
+- Making the new pictures (`_testrun/paldea/people/redraw`):
+  * redraw.py: the walkers of Nemona, Sada (AI Sada) and Turo (AI Turo) taken from the sheets as they are, the 16
+    cells mapped to the game's nine frames (down, up, left standing; then down, up, left walking, two each; right is
+    left turned over); walking frames lift the head one row. The battle pictures brought to 64 x 64 (references 69-79
+    rows): each new pixel takes the colour covering most of it, an outline at a third of it wins; set on the bottom
+    row, centred. Colours: JPEG noise merged, then k-means in Lab to 15 (in RGB it put Turo's grey hair with the coat's
+    purple; seeded with the darkest colour).
+  * draw3.py / draw3b.py: Jacq and Arven drawn over Turo's walker (Jacq wears Turo's lab coat), Penny over Nemona's:
+    a colour rule per base pixel (head and body apart) and drawn rows per facing - Jacq's lavender sweep and glasses,
+    Arven's bangs and yellow backpack (front, back, side), Penny's red bob rimmed in blue, glasses, hoodie emblem and
+    the Eevee bag; Penny's head is drawn whole over Nemona's (her ponytail cleared).
+  * finalize.py: the people who share a palette in the game cut together (Mossdeep's ending shows Arven, Penny, Nemona
+    and Jacq with the town's people and the hole: six palettes at most) - B = Nemona + Jacq by k-means; A = Arven +
+    Penny by 15 colours chosen by hand (k-means gave Arven's skin a brown); AI Sada, AI Turo, and each battle picture
+    on its own. GBA-rounded colours.
+- The patch (after castlefence, before kitakami): it checks the six entries, frames, palettes and pictures are the
+  cast's (patches/paldea/cast.py), then
+  * entries 174-178, 180 of the hack's sprite table: size 0x200, 32 x 32, OAM 0x0850951C and subsprite tables
+    0x085095F4 (the hack's 32 x 32 people, e.g. 98, 182, use them), the new frame lists; tags, palette slot (2, by tag),
+    shadow, walking animations kept;
+  * the four palettes (0x1141 A, 0x1142 B, 0x1143, 0x1144) rewritten where the field palette table (the word at
+    0x0808E8BC; Area Zero's copy, Kitakami's after it) has them;
+  * battle pictures 250-252: new LZ77 pictures and palettes; the tables found through their entries (n of 250-252 is
+    {picture, 0x800, n}, the palettes follow), the entries repointed. Kitakami copies the tables after it and takes
+    them along (its Part 2 Nemona battle shows 250).
+  * 30,836 bytes at 0x09E24000..0x09E2B874 (0x09E24000..0x09E2E000 kept): the hack's zero run 0x09E10044..0x09F00000,
+    blank in its own ROM and in build 42; no code word points in (5 aligned look-alike words, none a literal; 27
+    unaligned ones); read watch on build 42 (`_testrun/space/azpeople_watch.ps1`, nine runs: menus, Hisui, Surf and
+    wild battles, saves and resets, Petalburg Woods' Continue, four walks): 0 reads. The cast's old pictures stay
+    where paldea put them, unused.
+  * kitakami/ksprites.py accepts Nemona's entry 32 x 32 too (it asserted 16 x 32). The map guide and both editors
+    read a sprite's size from its entry, so they draw the new ones as they are.
+- Tested (Area Zero's harness, `_testrun/azpeople/steps_azpeople*.lua`, the user's save; every scene looked at):
+  Nemona in the future crater and her battle (her picture in the intro and on her platform; in the crater plants
+  cover her legs, as on build 41); Arven in the past crater (his pack); the research stations after the ending
+  (stage 4: Penny, Arven, Nemona with her rematch, Jacq); the Zero Lab: AI Sada and AI Turo at the machine, their
+  battles (AI Sada's picture, "Professor AI Turo sent out Iron Moth" with his); Mossdeep's ending (stage 3, the four
+  by the hole beside the town's people, colours right). The ROM's own frames decoded back match the pictures.
+  "(my placements 43)" = **38fac465...**, 12,303 bytes from build 42; the whole chain from the v1.4 archive gives
+  it byte for byte.
+
+## A FAINTED POKEMON STAYS FAINTED — 2026-10-22 — `patches/hpcalc/`
+
+- Found while checking the EV items for the 509 report (*EVs from battles stopped at 509*); the user: "if u r sure
+  then, patch to current rom", "everything".
+- The hack's own CalculateMonStats (0x09F038D8, behind the trampoline at 0x08068D0C) set HP to HP + (new max - old
+  max) as a u16 and anything above the new max to the new max. A fainted Pokemon whose max HP rose came back with the
+  difference (HP Up: 0/293 -> 2/295), and one whose max HP fell wrapped round to full HP, fainted or at 1 HP (Pomeg
+  Berry: 0/338 -> 335/335, 1/340 -> 338/338) - a free Max Revive.
+- The game's own routine is still in the ROM behind the trampoline (0x08068FAC..0x08068FF0): a new Pokemon (old max 0)
+  gets the new max, a fainted one keeps 0, any other HP + (new max - old max), no floor (Emerald's Pomeg glitch).
+  hpcalc does that in the hack's routine with a floor of 1: the 40 bytes 0x09F03A5C..0x09F03A84, the path taken when
+  the max changes (an unchanged max keeps the HP as before, Shedinja's max is 1 there too). In place, no free space;
+  asserted: the trampoline, the 40 bytes, the cap after them, the GetMonData literal. The original ROM has the bytes.
+- Tested (`patches/evgain/test_evitems.lua`, from the Bag, build 43 as the control): HP Up on the fainted lead 0/295
+  (control 2/295); Pomeg on 1 HP 1/338 (338/338), fainted 0/335 (335/335); a living Pokemon still moves with its max
+  (100 -> 148/343, 148 -> 85/280, the same on both); a Rare Candy at 100 HP 100/228 -> 103/231 on both (the hack
+  refuses a Rare Candy on a fainted Pokemon, on both); a wild Zigzagoon starts at full HP (109/109).
+- "(my placements 44)" = **34921763...**, 39 bytes from build 43 (one of the 40 is the same).
+
+## ELECTRO SHOT IN THE RAIN — 2026-10-22 — `patches/eshot/`
+
+- Reported: "from 1.9, i also found out that electro shot was not attacking in first turn during rain", "fixed in
+  2.0?" - no: gen9rest made Electro Shot (982) from Meteor Beam and noted "charges in rain too"; nothing changed it.
+- The two-turn moves are one effect (71). Its script (0x09D0509C: attackcanceler; `83 5400`) runs the engine's
+  routine 84 (0x09D63A64), which picks the charge message by the move's number (a list of 15 moves; Electro Shot is not
+  in it, so it showed the string the last two-turn move left: Geomancy's "is absorbing power!") and jumps by the move's
+  last data byte to one of six scripts (pointers 0x09D050A0..0x09D050B7). Kind 2 (Skull Bash, Meteor Beam, Electro
+  Shot): the charge message, `83 1900` (the stat change from byte 9), its message script 0x09D06DD0, `83 5500` (Power
+  Herb: jump to the hit), else the charging turn. Kind 3 (Solar Beam, Solar Blade) checks Cloud Nine and the sun.
+- The engine's script command 0x83 (0x09D686CC) steps over its three bytes, then calls routine n of the table at
+  [0x09D686F0] + 12 with r0 = &gBattlescriptCurrInstr; a routine with a pointer reads it (0x09D3809A) or steps over it.
+  Battle strings from 0x17C are [0x09D4A204] + 4 (id - 0x17C), no upper bound (0x09D4A1E8). Both words point at
+  gen9abil's longer copies (342 strings, 222 routines, back to back at 0x09E35C98).
+- eshot: kind 2's pointer (0x09D050A8) -> a new script: Electro Shot (`jumpifhalfword ==, gCurrentMove`) its own way,
+  the others on to the old script. Electro Shot: the second turn if charging; its own charging turn ("{attacker}
+  absorbed / electricity!", string 0x2D2, 180 px at most with "The opposing" and a ten-letter name); Sp. Atk +1;
+  routine 222 (eshot.s): rain on the attacker -> the hit now; Power Herb -> the hit now; else the charging turn. Rain
+  = gBattleWeather & 0x1007 (the engine's own mask, e.g. Swift Swim's), the weather in effect (0x09D45B84: Cloud Nine
+  0x0D, Air Lock 0x10D) and no Utility Umbrella (hold effect 164, item 733). So a Power Herb is kept in the rain.
+- Space: 0x09E3B000..0x09E3BA18 (the two longer tables, the routine, the script, the text; 0x09E3BC00 kept), in the
+  stretch gen9abil proved (0x09E33000..0x09E3C000; gen9anim's part ends at 0x09E3ACD0): blank, no word at a 4-byte
+  boundary points in (the same two unaligned look-alikes, 0x0851034B and 0x08703D25, inside pictures and code); a
+  read watch on build 44 (`_testrun/space/eshot_watch.ps1`, nine runs as mintquirky's) found 0 reads while both
+  control stretches were read.
+- Tested (`_testrun/gen9abil/batch_eshot.ps1`, Pikachu against Snorlax; build 44 as the control). Gotcha: WEATHER=n
+  written at the menu is gone by the time the move runs (0000 at the routine) - real rain needs Rain Dance first.
+  Control: Rain Dance, then Electro Shot charges ("is absorbing power!") and fires the turn after. Fixed: in the rain
+  "absorbed electricity!", Sp. Atk rose, the hit before Snorlax moves, each turn; dry: charges, hits the next turn;
+  Utility Umbrella, Cloud Nine, Air Lock: charges in the rain; Power Herb: kept in the rain (534 after three turns),
+  used up when dry; Meteor Beam and Skull Bash still charge in the rain, Solar Beam still fires in the sun.
+- "(my placements 45)" = **2cb96ba2...**, 2,428 bytes from build 44; the whole chain from the v1.4 archive gives it
+  byte for byte (111 s).
+- Supreme Overlord, asked the same day ("still works or just a run away ability? in 2.0?"): gen9abil's (x1.1 for
+  each fainted party Pokemon, up to x1.5), checked again on build 45: Kingambit in with two fainted, "Kingambit
+  gained strength / from the fallen!", Tackle 58 against 49 with none fainted. In v1.9 it did nothing.
+
+## GRANITE CAVE: FALLS INTO THE ROCK — 2026-10-22 — `patches/granitefall/`
+
+- Reported with two screenshots (B1F's north-west cracked patch with its right-hand column ringed; the player inside
+  the rock spur of B2F's north wall): "in granite cave, there is spot bug / Falling here will result in being stuck
+  inside the wall."
+- How a fall works here: B1F (24/8) resume script 0x0822DC6E = `setstepcallback 7` (cracked floor) + `setholewarp 24/9`;
+  its frame script drops you when var 0x4022 is 0, which the step callback sets when you step onto a cracked tile
+  (behaviour 0xD2) below the Mach Bike's top speed; you land on B2F at the same x, y (`SetWarpDestinationToFixedHoleWarp`).
+  A warp onto a cracked tile drops you at once (the callback sees a new tile on its first frame).
+- B1F's 67 cracked tiles (block 0x322F) against B2F's blocks: four over rock - (8, 1) 0x1610 and (8, 2) 0x1618 (the
+  spur, the report), (25, 6) 0x1608 (the east wall's edge), all elevation 1 among elevation-3 floor, so you land and
+  cannot move (an elevation mismatch on every side); (20, 3) 0x3650, a lone rock at elevation 3 (you can step off).
+  Every other map with a `setholewarp` (24/16 -> 24/15, 24/80 -> 24/79, 24/82 -> 24/81, 24/95 and 24/96 -> 24/94
+  and 24/95, 37/50 -> 37/51) has no cracked tile over a blocked one.
+- granitefall: the four B1F blocks become 0x3201 (the floor beside them; low byte 0x2F -> 0x01 at 0x08431710,
+  0x08431750, 0x084317A8, 0x08431872). The B2F spots under them are reached from the cracked tiles beside them. The
+  patcher asserts the hole script, both floors' size, that one word holds B1F's blocks, the four cracked blocks and the
+  four B2F blocks under them.
+- Tested (`_testrun/granite/steps_fall.lua` in Area Zero's harness, build 45 as the control): build 45 onto (8, 1):
+  B2F (8, 1), in the spur, Down / Left / Left do nothing; onto (25, 6): B2F (25, 6); onto (20, 3): B2F (20, 3), on the
+  rock. Fixed: (8, 1), (8, 2), (25, 6), (20, 3) stay on B1F; the cracked tiles beside them, (7, 2), (24, 6), (19, 3),
+  drop you onto B2F floor at the same spot, and you walk on from (7, 2). Every picture looked at.
+- "(my placements 46)" = **f1fc3a60...**, 4 bytes from build 45; the whole chain from the v1.4 archive gives it
+  byte for byte.
+
+## A CLOCK ON THE START MENU — 2026-10-23 — `patches/startclock/`
+
+- Asked, with a picture of a Start menu clock ("Thu. 10:29 AM (DAY)" in a box at the top left): "can we have
+  time table next to R journey when press start menu?"
+- What the game has: gLocalTime (0x03005CF8: s16 days, s8 hours, minutes, seconds) = the cartridge clock (sRtc
+  0x03000DC0, BCD: year, month, day, weekday, hour, minute, second) less the offset the player set (SaveBlock2 +0x98,
+  same layout), by RtcCalcLocalTime (0x0802F588). The game's day count, measured: the cartridge's 22 Oct 2026 (its
+  weekday byte 4, a Thursday) is day 9792 = local days + offset days, so day 1 is Saturday 1 January 2000 and the
+  weekday is (local days + offset days + 5) mod 7 (pokeemerald's ConvertDateToDayCount would leave out 2000; this one
+  counts it). No time-of-day names in the hack: only its tint by the hour (*Day/night: on / off*) and night
+  evolutions (18-5). The clock's names follow the tint: Morning 4-5, Day 6-16, Evening 17-18, Night 19-3.
+- The window: BG0, palette 15, 15 x 2 tiles (the widest line, "Wed 12:59 PM (Evening)", 114 px in the normal font,
+  printed at x 2), base block 64. Measured with the menu up (a `windows` step in the harness: gWindows 0x02020004):
+  the menu 313-452, the Journal box 8-23, the message box (hidden) 404-511, the map-name popup's tiles 263-292; the
+  Safari window takes 8-43 and the Pyramid's 8-55; the save window 8-147 (the clock is down by then). BG0's map with
+  the menu up uses 0, 8-23, 313-452, 532-540. At (1, 5) under the Journal box, (1, 7) under the Safari / Pyramid
+  window, (1, 1) without the Journal. The menu's own frame starts at x 21; the box ends at x 16.
+- The hooks are the Quest Log's two, chained (ours first): InitStartMenuStep's step-3 jump table entry (0x0809F8C4,
+  `mov pc` into it: an even address in Thumb) and HandleStartMenuInput's trampoline word (0x0809FAC8; lr is live:
+  ours saves it, runs, puts it back and jumps on to the Quest Log's stub). Every frame of the menu's input it calls
+  RtcCalcLocalTime and redraws when the hour or minute differs from the drawn one; A, B, START (and R with the
+  Journal) take it down, as the Journal's box goes. Its state is 0x02039E48..0x02039E7F (magic "CLOK", window id,
+  minute, template, hour, then the text), in the 64 bytes at 0x02039E40 the scratch test measured, after the Quest
+  Log's 8; no ROM word points into it. Code and data 0x09E3BC00..0x09E3BF1C (eshot's proven stretch and read watch).
+- Gotcha: keystone made `adds r5, r6, #8` a Thumb-2 `adds.w` (Thumb-1 takes 0-7 there); the patcher's twin check
+  caught it.
+- Tested (`_testrun/clock/steps_clock.lua`, `steps_clock2.lua`, `steps_nojournal.lua`; the offset's hours moved to
+  show each hour): "Thu 4:21 PM (Day)", 10:22 AM Day, 4:22 AM Morning, 1:22 PM Day, 5:22 PM Evening, 12:22 AM Night,
+  10:22 PM Night, a minute later 10:23 PM; B and START take it down; R -> Quest Log -> B, A -> Pokedex -> B and Save ->
+  Cancel bring it back; in the Safari Zone (flag 0x88C) under "Safari Balls Stock"; without the Journal (a test copy
+  asking for item 0x3FF) at the top, R leaves it. Taking the Journal out of the Bag in RAM did not hide the Journal's
+  box (not looked into: the test copy did it).
+- "(my placements 47)" = **9d6d95bb...**, 721 bytes from build 46; the whole chain from the v1.4 archive gives it
+  byte for byte.
+
+## THE CONSOLE'S CARTRIDGES IN THE QUEST LOG — 2026-10-23 — `patches/consolequest/`
+
+- Asked: "after beating the game, I know that the gameconsole inside our character room, can battle like a lot but is
+  the purpose??", then "include in the side quest, 4 quests".
+- The console, read from the ROM (`tools/romdata/scripts.py`, `dis.py`): 1/1's sign at (3,1) (0x0987B8A8) and 1/3's at
+  (5,1) (0x098806C3) say "It's a Nintendo GameCube..." and go to 0x0988F782 when the player is in their own room;
+  it needs 0x41D5 (Team Rainbow Rocket beaten, Mountain Top) and 0x42F3 (Elio, Steven's Island 34/42 object 10,
+  trainer 929: "I have a few cassettes here ... Use the console in your room", 3 cartridges). Menu: the hack's own
+  multichoice lists carry each item's result in the word after its text (0x0987B890: 0x84, three items; 0x09882470:
+  0x85, four), 0x85 once 0x4302 is set (Ash's challenge on Route 101, 0x081EBCD5: the red-haired passerby drops "a
+  game cartridge with no label ... the console upstairs" and a note). Result in 0x4004: 0 Rainbow R. 0x09882666,
+  1 Ultra A. 0x09882B87, 2 Friends 0x09882C45, 3 HP League 0x09882D19 (dispatcher 0x0988F7DF).
+  - Rainbow R.: exactly 6 Pokemon (special 0x87); 10 battles (0x4002 counts): six doubles where you pick 2 leads
+    (Tabitha 1092, Shelly 1086, Jupiter 1101, Zinzolin 1108, Xerosic 1115, Gideon 1079), three tag battles (special
+    0xEF, pick 3) with a random partner from Red 857, Ash 878, Lucas 866, Black 867, Blake 870, X 874 against two
+    random bosses from 1117-1122 (Archie, Maxie, Cyrus, Ghetsis, Lysandre, Faba; trainer flags keep them apart), then
+    Giovanni 1116.
+  - Ultra A. (rules mask 0x8000 = 55): Lance 883, Alder 887, Cynthia 886, Iris 888, Steven 884, Diantha 889, Blue 855,
+    Wallace 885, Leon 881. Friends (47): Ash 878, Elio 929, X 874, Blake 870, Black 867, Lucas 866, Ruby 926 (Sapphire
+    927 for a girl), Gold 859, Red 857. HP League (47): Gengyi 1016, Xiao Bing 923, Yolgz 954, Wudan 925, Aimon 1154,
+    Waji 998, Yanshan 899. These three: at least 2 Pokemon, then the Gym's party rules (0x0983B147, "Rules for the
+    Pokemon Gym") unless the difficulty var 0x409B is 1 (Standard); team order fixed.
+  - Each battle: the party saved (special 0x28), healed, the battle, the party loaded back (0x29), a loss -> "GAME
+    OVER" (0x09882B67, nothing else). All won: `call 0x09882738` (clears the run's hide flags 0x264, 0x268, 0x273,
+    0x274, 0x276, 0x278, 0x27F), "GAME CLEAR ... The winning team will be recorded in the Hall of Fame", then
+    0x082298E9 / 0x082298F5 by gender: the Hall of Fame's own ending (0x082298D9 jumps there too: setrespawn, special
+    0x113): the Hall of Fame (it saves the game), the credits, THE END, the title. No item, no money, and until now
+    no flag: nothing in the save said a cartridge was won.
+- consolequest: each cartridge's `call 0x09882738` before GAME CLEAR (0x09882B3F, 0x09882C1C, 0x09882CF0, 0x09882D9A;
+  the GAME OVER path's own call at 0x09882B6C stays) -> an 8-byte stub, `setflag F; goto 0x09882738` (the routine's
+  `return` comes back behind the call). Flags 0x43A4 Rainbow R., 0x43A8 Ultra A., 0x43A9 Friends, 0x416B HP League:
+  `kitakami/freecheck.py` on build 46 and the user's saves (Area Zero 45, 46, Kitakami's eight; the old
+  roms/current save does not parse): no setflag / clearflag / checkflag bytes for them anywhere, no aligned word, no
+  object hides by them, clear in every save, not trainer flags; the same seven free ones as on 2026-10-17 (0x407A,
+  0x414F, 0x415B, 0x416B, 0x43A4, 0x43A8, 0x43A9), the 0x43xx three taken first. The patcher checks the ROM tests
+  again on its input.
+- The Quest Log: four rows after "The note's sender" (row 44, 0x4303), Area Zero's ten after them; the tables are
+  copied longer (63 -> 67 rows with the Badges', which follow Side Content in the same table), SIDES_LIT (0x08FEB230)
+  and PANES[3] (0x08FED368) repointed, PAGES' Side Content entry 55/55 -> 59/59 and the Badges' first row 55 -> 59, as
+  gen9journal grew it. Location "Littleroot Town"; pictures Giovanni (128), Leon (226), Red (94) from the trainer
+  records; HP League none (who waits in it is the surprise, as the note's sender's row). A page fits 8 lines (the
+  texts were cut to 7-8; `journal_az.pane` asserts it), the panel 3 (cut with an ellipsis).
+- Space: 0x09E22000..0x09E22DC4 used, 0x09E22000..0x09E24000 kept: the zero run 0x09E10044..0x09F00000 (the read
+  watch of 2026-10-17), just below azpeople's 0x09E24000. 0x09E2E000..0x09E30000 was tried first and refused by the
+  patcher: seven aligned words in pictures read as addresses in it (0x086E933C -> 0x09E2ECEC ...); no aligned word of
+  the ROM reads as one anywhere in 0x09E21200..0x09E24000.
+- Tested (Area Zero's harness, `patches/consolequest/steps_ending.lua`, the user's save of build 47 with 0x42F3 and
+  0x4302 set; build 47 as the control): the console's lines and the four-item menu, B out of it; Rainbow R.'s ending
+  entered at 0x09882B3F (`goto` from the harness's script): "GAME CLEAR", the Hall of Fame's "Saving..." and team,
+  the credits, THE END, the title, Continue into Brendan's room (4,2): 0x43A4 = 1 after the reload (so in the Hall of
+  Fame's save), the other three 0; the Quest Log grid "Side Quests 27/59", Side Content's rows 43-50 (the four with
+  their pictures, Rainbow R. Done), Rainbow R.'s and HP League's 8-line pages, Friends' 7. Control: 0x43A4 stays 0,
+  26/55, Area Zero's rows straight after the note's sender. Every frame looked at.
+- Gotchas: SELECT with the Quest Log registered opens the key ring when other items are registered too: UP picks the
+  Quest Log (as `test_questlog_side.lua`). Presses timed by frames slip a box: B meant for the menu advanced "Jude
+  happens to have some games at hand", and the next A started Rainbow R.; press one box at a time and look. The
+  harness's "fight" gives up after 60,000 frames; a cartridge's battles take about 10,000 each, so the playthrough ran
+  on a copy of `test_paldea.lua` with 200,000 (`_testrun/console/h/`, `-Here` to it).
+- Tested after, played through (`patches/consolequest/steps_play.lua`, build 48, the same save): the console's menu,
+  DOWN x 3 to HP League, A, then the harness's "fight" (our side pinned): 7 battles (Gengyi's Lopunny and Typhlosion
+  ... Yanshan's Darkrai and Blaziken), every foe Lv50 and the party screen shows ours at Lv50, "Jude got 0 for
+  winning" each time; GAME CLEAR, the Hall of Fame, the credits, Continue (99,141 frames): 0x416B = 1, the other
+  three 0. Every frame looked at.
+- "(my placements 48)" = **b5572a73...**, 3,113 bytes from build 47 (only the regions above); the whole chain from the
+  v1.4 archive gives it byte for byte (116 s).
+
+## THE GIGANTAMAX MARK ON THE SUMMARY — 2026-10-23 — `patches/gmaxicon/`
+
+- Asked, with a mock-up (the summary's first page, a small red mushroom at the bottom right of the picture): "for
+  pokemon that already gained Gmax, can we dispaly icon like a mushroom in the pokemon detail ... I know that this
+  game might use ribbon as as marked". Of the first mark (a red mushroom drawn here, build 49): "that mushroom design
+  is stupid, cannot we use this attached img? I think it is the item max mushroom" (a crop of the Bag's Max Mushroom
+  icon); of that icon at its own 24 x 24 (build 50, not handed over): "smaller", "too big"; of 51, with a mock-up of
+  it right of the nickname: "the gmax icon cannot be on top overlay of the name right like this reference position
+  but make sure it would not affect any name".
+- The mark the game keeps (*Form changes: where the game keeps them*): bit 7 of the Pokemon's byte +0x4E, set by the
+  Max Soup cook on Champion Island (35/28, script 0x098A7425: checkitem 87 x3, the party's first Pokemon, removeitem,
+  0x8004 = 0, callasm 0x08C60581) and read by the Gigantamax table walk (0x08FF1858, item 0xEFEF). It is Emerald's
+  ribbon word (+0x4C) bit 23, the Country Ribbon's, which nothing else gives: the summary's ribbon count counts it
+  (Blaziken with the bit: "Ribbons: 3"). The cook gives it to any Pokemon (its text: "if you give soup to a Pokemon
+  that can only Dynamax, the form won't change"), so the mark shows on any Pokemon that has had the soup.
+- The summary screen (this hack's layout): sMonSummaryScreen 0x0203CF1C; its copy of the Pokemon it shows at +0xC;
+  the picture's sprite id at +0x40D3 and the ball's at +0x40D4 (measured: 5 / 7 on the first page). Its
+  CreateCaughtBallSprite (0x081C4A08: GetMonData ball, the hack's ball templates at 0x09F093E4, CreateSprite at
+  (16, 136)) runs for every Pokemon the screen shows, from 0x081BFD56 (opening) and 0x081C07F6 (switching), both with
+  r0 = +0xC.
+- gmaxicon: an 8-byte trampoline at 0x081C4A08 (its push {r4, lr}, movs r1, #0x26 and bl GetMonData) to stub, which
+  replays them inside a frame that returns to it, lets the routine make the ball, then: any sprite whose template is
+  ours goes (found by scanning gSprites for its callback, so nothing is kept in RAM), its tiles and palette freed by
+  tag (0x47A1; LoadSpriteSheet takes tiles again for a tag already loaded), and when the bit is set a 16 x 16 sprite
+  (OAM 16 x 16, priority 0) centred at (70, 103) - the right end of the nickname's row, the icon at x 64..77, y
+  97..110 (measured: the nickname is printed from x 8 in rows 96..111, the panel's inside ends at x 78, the frame at
+  y 95, the species row starts at 112) - when the nickname (mon +8, up to 10 letters; its width from the normal
+  font's own table 0x086542E4, "Blaziken" 44 px as on the screen) is at most 54 px, 2 px clear of the icon; a longer
+  one (a 10-letter name reaches 60 px, x 68) gets it at (64, 88), its bottom right on the picture frame's. So it
+  never covers a name. The picture is the Max
+  Mushroom's own icon (item 87: the table at 0x08FCBFF4 the Bag's icons come from, LZ77, 24 x 24 4bpp and a
+  16-colour palette, both read by the patcher), brought to 14 x 14 by taking the source pixel under each new pixel's
+  middle (every pixel one of the icon's own colours), in the sprite's bottom right. Its callback hides it while the
+  summary's copy has no bit (another Pokemon or an egg after a switch) or while the picture is hidden. (Build 50
+  showed the icon at 24 x 24 through the game's AddItemIconSprite 0x081AFE70, which frees the template it builds -
+  why the mark is found by its callback.) Gotcha: a last LZ77 copy can run past the stated size; trim to it. Routines: CreateSprite 0x08006DF4, DestroySprite 0x080070E8, LoadSpriteSheet
+  0x080084F8, FreeSpriteTilesByTag 0x08008568, LoadSpritePalette 0x08008744 (goldbox's), FreeSpritePaletteByTag
+  0x0800884C.
+- Space: 0x09E3AD00..0x09E3AF0C (0x09E3AFF0 kept: the word for eshot's routine table holds 0x09E3AFF4, its table -
+  12, which the 0x83 command never reads; the patcher's pointer check found it), in gen9abil's proven stretch after
+  gen9anim's 0x09E3ACD0: blank, no other word points in; read watch on build 47 (`_testrun/space/gmax_watch.ps1`, nine runs as eshot's): 0 reads, while the control
+  stretches were read.
+- Tested (`_testrun/gmax/steps_gmax.lua`; the lead Blaziken given the bit, the second Pokemon not; the mark found
+  by its callback): the mark on the lead; gone on the second (DOWN), back on the lead (UP); on the four pages and the move details;
+  out to the party and back in; none on the field.
+- Built on the console step as "(my placements 49)" = **b0c4a118...**, 427 bytes from build 48 (the trampoline and
+  0x09E3AD00..0x09E3AF0B); the same test on it: the same results. The whole chain from the v1.4 archive gives it
+  byte for byte. With the Max Mushroom icon at 14 x 14: "(my placements 51)" = **dee892f0...**, 341 bytes from build
+  50 (in 0x09E3AD04..0x09E3AF0F); the same test: the same results; the whole chain from the v1.4 archive gives it
+  byte for byte.
+- On the name row (`_testrun/gmax/steps_gmax_names.lua`, the lead given the bit and four nicknames): "Spooky!" (40
+  px) and "AAAAAAAAA" (54 px) on the row, 2 px clear; "Fletchindr" (55) and "Mmmmmmmmmm" (60) in the picture's
+  corner; the Moves page and its move details (the mark above the Effect box), a switch to the second Pokemon (gone)
+  and back, the field (none). Gotcha again: keystone makes `adds rD, rN, #8` Thumb-2. "(my placements 53)" =
+  **e8810b63...**, built on the other session's 52 (the clock beside the Journal), 408 bytes from it (in
+  0x09E3AD04..0x09E3AF37); the test copy was the whole chain from the v1.4 archive and is the same file.
+
+## THE CLOCK BESIDE THE JOURNAL — 2026-10-23 — `patches/startclock/`
+
+- Asked, with a screenshot of build 47's menu ("[R] Journal" over "Thu 5:02 PM (Evening)"): "remove the evening,
+  whatever, and move into the same row as R Journey".
+- startclock now: the text is the day and the time only ("Thu 5:08 PM"; clock_draw no longer copies a period, and
+  HOURTAB / PERIODS are gone from the data); the three window templates differ in their left as well as their top
+  (PLACES): (1,1) without the Journal, (11,1) beside it, (1,7) under the Safari / Pyramid window, all 9 x 2 (widest
+  line "Wed 12:59 PM", 63 px, + 2 px each side). The geometry: the Journal's box is the Quest Log's WIDGET_TEMPLATE
+  (1,1) 8 x 2, frame tiles 0-9 (the patcher finds those 8 bytes once in the Quest Log's code); ours at (11,1), frame
+  10-20; the Start menu's window is at x 22, its frame from 21 (the patcher asserts both edges). The Safari window
+  (1,1) 9 x 4 and the Pyramid's (10-12 wide) leave no room beside them, so the clock stays under them there. The two
+  frames side by side look as the stacked boxes did (the frame tile's own margin keeps them apart).
+- Tested (`_testrun/clock/steps_clock.lua`, `steps_clock2.lua`, `steps_nojournal.lua` on the whole chain's result,
+  the user's save of build 51): the windows log reads the Journal (1,1) 8x2, the clock (11,1) 9x2 tiles 64-81, the menu
+  (22,1); the hours 10, 4, 13, 17, 0, 22 and a minute later ("Thu 10:09 PM", "Thu 12:08 AM" fit); B and START close it,
+  it comes back after the Quest Log (R) and the Pokedex; the save window takes the corner and Cancel brings it back
+  beside the Journal; in the Safari Zone (1,7) under "Safari Balls Stock"; without the Journal (a test copy whose two
+  checks, 0x08FEB07C and 0x09E3BE04, ask for item 0x3FF) at (1,1), R leaves it. (steps_clock2's own no-Journal case,
+  flag 0x4004, did not take the Journal away on this save: the Journal's box and R's Quest Log came up; the test copy is
+  the real test.) Every frame looked at.
+- "(my placements 52)" = **e3e56cec...**, 456 bytes from build 51, all in 0x09E3BC08..0x09E3BF1B; the whole chain from
+  the v1.4 archive gives it byte for byte.
+
+## THE ZYGARDE CUBE IS IN TERMINUS CAVE, NOT ON ROUTE 110 — 2026-10-23 — `patches/questlog/keyitems.py`
+
+- Reported: "for the zygrade cube key items, change the location to terminus cave since it is not obtainable in route
+  110". The Quest Log's Key Items row said "Lying on Route 110 (also in Terminus Cave)."
+- In the ROM: two item balls run the Cube's finditem script (0x08290D81: item 621) and share one flag, 0x03EF:
+  Route 110 (0/25) object 19 at (39,83) and Terminus Cave (34/34, map section 0x69) object 1 at (13,26). Route 110's
+  stands on a blocked tile (block 0x170, elevation 1) in the map's last column, with blocked tiles on its other three
+  sides ((38,83), (39,82), (39,84)) and no connection to the right: nobody can face it. Terminus Cave's is on open
+  floor at elevation 3 with open floor all round. (The other two scripts holding 0x026D near a call are trainer
+  battles on 0/249 and 0/250, not the Cube.)
+- The row now reads "Lying in Terminus Cave." (the list's Location line follows: "Terminus Cave"). The Quest Log is
+  a main-chain step, so: the whole chain from the v1.4 archive (`_testrun/full/chain_zc`), its gen9 stage as the new
+  Gen 9 base in `roms/test-gen9` (9f2e5b2b...; the old one f9e053b0 in archive/ "(before the Zygarde Cube row
+  2026-10-23)"), then rebuild.py. The Quest Log's texts after the row move, so the base differs in 5,589 bytes, all in
+  the Quest Log's data (0x09F9A23C..0x09FA647B), and the steps that copy its tables follow (consolequest's
+  0x09E2299C.., gen9journal's 0x09FEBD0C..).
+- Tested (`_testrun/zcube/steps_zcube.lua`): Start, R, the Key Items card, row 36: "Location: Terminus Cave / Lying
+  in Terminus Cave.", and A shows the same; the next row (Rotom Catalog) as before.
+- "(my placements 54)" = **9932ea5b...**, the same file as the whole chain from the v1.4 archive.
+
+## KIERAN'S GIGANTAMAX APPLES — 2026-10-24 — `patches/kitakami/`
+
+- Found while the guide site's data was made for v2.0: the trainers page named Kieran's team "Gigantamax Appletun,
+  Gigantamax Flapple". The ROM had it so: trainer rows 1359 and 1360 held species 270 and 269, and in battle his
+  Appletun and Flapple showed the Gigantamax pictures (`_testrun/coop/run.ps1 -Trainers 1359,1360` on build 54 and
+  55: the same levels, HP, items and abilities, the pictures and species ids differ).
+- Why: in this hack a Gigantamax form is a species slot of its own that carries its Pokemon's name, and for 21 of
+  them (Orbeetle, Corviknight, Coalossal, Hatterene, Grimmsnarl, Flapple, Appletun, Melmetal, Sandaconda, Copperajah,
+  Duraludon, Toxtricity, Basculegion, Rillaboom, Cinderace, Inteleon, Drednaw, Urshifu, Alcremie, Centiskorch,
+  Indeedee) that slot comes first in the name table: "Appletun" is 270 (Gigantamax) and 1143, "Flapple" 269 and 1142.
+  `kitakami_patch.name_id` took the first slot of a name.
+- The fix: the species lookup skips the Gigantamax slots, read from the ROM - the hack's battle-form table
+  (0x08C9A3B0, {u16 species, u16 form, u16 item}, 0xFEFE ends; item 0xEFEF = a Gigantamax form, as
+  `tools/romdata/forms.py` reads it; the patch asserts the table's fifth row and that 269 and 270 are in it). Where a
+  name has only Gigantamax slots the first is still taken (none in Kitakami).
+- Checked for the rest: every species Area Zero and Kitakami place (their trainers, wild tables and static
+  encounters, 48 places in the v2.0 game) against the form slots, and every patch source that names a species by
+  name against the 21 names: only Kieran's two. (`paldea_patch.species_id` has the same first-match rule; Area Zero
+  names none of the 21.)
+- Build 55 = build 54 with 8 bytes changed (0x09E474F4, 0x09E47504, 0x09E47514, 0x09E47534: 270 -> 1143, 269 -> 1142).
+  "(my placements 55)" = `rom/` = **fb949e02...**; the whole chain from the v1.4 archive gives it byte for byte
+  (`_testrun/rel20/chain.log`).
+
+## RELEASE v2.0 — 2026-10-24
+
+- Asked for: "push to release repo, follow instruction". The game is
+  build 55 (fb949e02...). `release/hyper-emerald-en-qol.hpatch` (3,389,718 bytes, 9,815 runs) and
+  `release/CHECKSUMS.txt`: applied to `Hyper EMR LA v5.7 bugfix 2.gba` (f785bed9...) it gives fb949e02.
+- Public commit: the dev working copy mirrored by `_testrun/rel20/mirror_public.py` (rel18's with v1.9's rules: no
+  `site/` and no built `docs/` but the hand-kept NOTES, DEXNAV-PROGRESS and showcase; the public `.gitignore` kept,
+  with the rules the new sprite sources need; the first 2.0 GIF left out, as it was filmed before Area Zero's people
+  were redrawn; a stray `infinityfree/` folder left out) into a worktree of `origin/main` in
+  `gba-trans/hyper-emerald/_public/release-2.0`. The site was changed and built there and its sources copied back.
+- Before it, every file that goes public was searched for what the public repo leaves out (the mirror's STRICT) and for any other
+  project of this PC; two passages that pointed elsewhere were reworded.
+- `.gitignore` (dev and public): `!patches/azpeople/sprites/*.png` and `!patches/kitakami/sprites/src/*.png`, the
+  pictures `azpeople` and Kitakami's sprites are made from (the patchers read the `.4bpp` / `.gbapal` beside them).
+- The site's data tools, for v2.0: `scan_wild.py` reads the wild table where the code points (Kitakami's longer copy:
+  258 headers, Mossui Town's surfing and fishing), `build_sprites.py` the trainer pictures through their code words
+  (0x0005DF78, 0x0005B784: 255 pictures, Area Zero's 250-252 and Kitakami's 253-254), `build_site_data.py` a Kitakami
+  boss group (rows 1358-1360 and Mochi Mayhem's Nemona, 1378, who has Area Zero's name and class: `GROUP_IDS`).
+- README: the v2.0 showcase GIF (`docs/showcase/showcase-v2.0-kitakami.gif`, `_testrun/showcase20b`), the Kitakami
+  row marked v2.0, the save note, a credit for the art Area Zero's people were redrawn after (artist not found).
+  Luciano Fire is credited for the key trainers' teams in the README, on the site's About page and in the release.

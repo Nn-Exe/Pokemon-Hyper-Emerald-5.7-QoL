@@ -8,7 +8,8 @@ moves them again stops here instead of giving the site wrong data.
     T.moves           move ids are 1..T.moves-1 (a blank name is an unused id)
     T.move_names      13 bytes a move (header 0x148)
     T.move_descs      a pointer a move, indexed [move - 1]
-    T.abilities       ability ids are 1..T.abilities-1; v1.9's Gen 9 abilities are aliases from id 256 on
+    T.abilities       ability ids are 1..T.abilities-1; v1.9's Gen 9 abilities are aliases from id 256 on, and
+                      since gen9abil (2026-10-21) ids of their own, 0x101..0x12C (patches/gen9abil/gen9abil_data.py)
     T.ability_names   13 bytes an ability (header 0x1C0); T.ability_descs: a pointer an ability (header 0x1C4)
     T.items           item ids are 1..T.items-1
     T.egg_moves       the egg-move list: species + 20000, then its moves; 0xFFFF ends

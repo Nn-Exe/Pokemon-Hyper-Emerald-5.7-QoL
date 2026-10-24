@@ -1,6 +1,6 @@
 """The GIF editor: make GIFs out of the website's pictures and clips, with the mouse.
 python -I gif_editor.py [folder] [--no-browser]
-       (the folder: gba-trans/showcase/gifs unless named; --no-browser: only serve)
+       (the folder: gba-trans/hyper-emerald/showcase/gifs unless named; --no-browser: only serve)
 
 The user: "I want to create GIFs, based on our pics on website, can u make a custom edit for me? like drag and
 drop on this project" (the drag and drop they know is the Area Zero editor, patches/paldea/editor.py). This
@@ -23,7 +23,7 @@ write_gif() gives them their colours and writes <folder>/<name>.gif, and the pro
 projects/, so a GIF can be opened and changed later. What is on the page is kept as a draft all the time.
 
 The page (PAGE below) is plain HTML and script, no library. It tests itself in a browser without a window:
-?selftest, read from the <pre id="selftest"> of the page (gba-trans/_testrun/gifeditor/drive.mjs starts the
+?selftest, read from the <pre id="selftest"> of the page (gba-trans/hyper-emerald/_testrun/gifeditor/drive.mjs starts the
 editor on a folder of its own and Edge without a window, and prints it). Close the console window to stop.
 """
 import http.server, io, json, os, re, socket, subprocess, sys, threading, time, urllib.parse, webbrowser, zlib

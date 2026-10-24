@@ -1,6 +1,6 @@
 -- shinybox test: start a wild battle, screenshot the normal box, force the opponent's battle copy to be
 -- shiny (otId = personality -> shiny value 0), screenshot again, and log the healthbox sprite palettes.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R = 0, 1, 2, 3, 4, 5, 6, 7, 8
 local NL = string.char(10)

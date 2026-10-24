@@ -1,7 +1,7 @@
 -- DexNav Safari test: switch FLAG_SYS_SAFARI_MODE (0x88C) on in the save block so START builds the Safari
 -- menu (Retire, Dex, Party, Bag, Player, Option, DexNav, Exit), open DexNav from it, page, leave, clear the
 -- flag, and walk.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7
 local NL = string.char(10)

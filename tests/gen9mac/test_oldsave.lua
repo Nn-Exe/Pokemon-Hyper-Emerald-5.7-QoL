@@ -11,7 +11,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local MODE = E("MODE") or "dump"
 NAME = (E("TAG") or "os") .. "_" .. MODE
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local PARTY, EXT = 0x020244EC, 0x0203DA00
 local function sb1() return emu:read32(0x03005D8C) end
 local function sb2() return emu:read32(0x03005D90) end

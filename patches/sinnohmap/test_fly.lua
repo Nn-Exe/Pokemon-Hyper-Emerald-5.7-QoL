@@ -1,5 +1,5 @@
 -- From Hearthome: open the map, hop to a town, press A, and see whether the courier script takes us there.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "fly_log.txt", "w")
 local function w(s) log:write(s .. NL); log:flush() end

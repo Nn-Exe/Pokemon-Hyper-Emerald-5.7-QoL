@@ -135,6 +135,6 @@ LOC_OVERRIDE = {
     "Hoopa": "Abandoned Ship", "Type: Null": "Devon Corp.", "Magearna": "Devon Corp.",
     "Regieleki": "Ruins of Decision", "Regidrago": "Ruins of Decision",
     "Storage Key": "Abandoned Ship", "Scanner": "Abandoned Ship", "Prison Bottle": "Abandoned Ship",
-    "News Tracker": "Route 111", "Rotom Catalog": "New Mauville",
+    "News Tracker": "Route 111", "Rotom Catalog": "New Mauville", "EV-IV Display": "Your PC",
     "The chateau's TV": "Old Chateau", "The cursed statue": "Old Chateau",
 }

@@ -1,4 +1,4 @@
--- (patches/goldbox/test_goldbox_status.lua: run it with gba-trans/_testrun/shinybox2/run.ps1 -Rom <rom> -Tag <name>
+-- (patches/goldbox/test_goldbox_status.lua: run it with gba-trans/hyper-emerald/_testrun/shinybox2/run.ps1 -Rom <rom> -Tag <name>
 --  -Test <this file> -Env "KIND=double;SHINY=1"; the same with SHINY=0 gives the colours to compare with.)
 -- Status icons on the healthboxes: the colour the game gives each battler's icon (palette index 12 + battler of
 -- the slot its box is on). A wild battle of the kind asked for (KIND); SHINY = 1: every battler shiny the way

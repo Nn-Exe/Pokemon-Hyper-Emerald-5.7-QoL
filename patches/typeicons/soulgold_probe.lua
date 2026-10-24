@@ -1,7 +1,7 @@
 -- SoulGold badge probe: load the user's save state (a battle), then dump OAM, the sprite table and the
 -- OBJ palettes, and save the tiles of every sprite in the badge area (right of the opponent's box).
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
-local state = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/soulgold.ss1"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
+local state = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/soulgold.ss1"
 local f = 0
 local NL = string.char(10)
 local log = io.open(dir .. "sg_log.txt", "w")

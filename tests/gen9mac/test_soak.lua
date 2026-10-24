@@ -11,7 +11,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "sk") .. "_soak"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local MINUTES, WARP_EVERY = tonumber(E("MINUTES") or "60"), tonumber(E("WARP_EVERY") or "9000")
 math.randomseed(tonumber(E("SEED") or "1"))
 local WARPS = {}

@@ -35,9 +35,11 @@ Two checks in that template matter more than they look:
 1. Free space is a run of `0xFF` **with no pointers into it**. Current blobs run from `0x08FD8C00` to
    `0x08FDED20`, plus the Journal at `0x08FE5400..0x08FE91DC` (it grows with its text), berrynum at
    `0x08FEFE00..0x08FEFE74`, the Quest Log at `0x08FEA000..0x08FED3C8` (it grows), sheetonce at `0x08FEE100..0x08FEE130`, goldbox at `0x08FEE400..0x08FEE88C` (0x08FEEA00 kept for it), objpal at `0x08FEF600..0x08FEF684`, roamfix at `0x08FEF700..0x08FEF758`, sprframe at `0x08FEFA20..0x08FEFA5C`, leaguefly at `0x08FEFF00..0x08FEFF0E` and
-   leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FED3C8` to `0x08FEF600` and from `0x08FEF758` to `0x08FEFA20` and `0x08FEFA5C` to `0x08FEFE00` (words in graphics data read into both by chance: scan before use)
+   leaguetext's strings at `0x08FF2460..0x08FF24C0`; free unreferenced runs remain from `0x08FED3C8` to `0x08FEF540` (`0x08FEF540..0x08FEF600` is Kitakami's, below) and from `0x08FEF758` to `0x08FEFA20` and `0x08FEFA5C` to `0x08FEFE00` (words in graphics data read into both by chance: scan before use)
    and from `0x08FF5C36` to `0x08FFD5A0` (hisuimap `0x08FF3000..0x08FF54C0`, ovalcharm `0x08FF5600..0x08FF591A`,
-   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`). The 0xFF run `0x09FBC380..0x09FD2A00` (89.6 KB) is free: reserved data sat there until 2026-10-07, so it is proven safe for data; the many words that seem to point into it are chance matches in code and text (zhtext's moved texts follow at `0x09FD2A00`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
+   flyicons `0x08FF5A00..0x08FF5A18`, expshare `0x08FF5B00..0x08FF5C36`, summitfix's window `0x08FF8B40..0x08FF9400`, wilditem `0x08FF9800..0x08FF9838`, `..0x08FF9900` kept; contexit `0x08FFA100..0x08FFA1D0` and iconnight
+   `0x08FFA200..0x08FFA244`, `..0x08FFA300` kept; eggrelearn `0x08FFC900..0x08FFCB0C`, `..0x08FFCC00` kept; the CB2_ContinueSavedGame callback word `0x08086314` and the day/night
+   tint's way-out word `0x08CFE4D4` are theirs). The 0xFF run `0x09FBC380..0x09FD2A00` (89.6 KB) is free: reserved data sat there until 2026-10-07, so it is proven safe for data; the many words that seem to point into it are chance matches in code and text (zhtext's moved texts follow at `0x09FD2A00`). The run `0x08F53700..0x08F54AA0` holds candynpc (`..0x08F5382F`),
    naturefix (`0x08F54200..0x08F5423C`) and hypertrain (`0x08F54300..0x08F543CD`). Inside the second free run,
    `0x08FF6D00..0x08FF723C` is the key ring and repelfix and `0x08FF7240..0x08FF7316` daynight, `0x08FF7320..0x08FF7368`
    rngseed, `0x08FF7380..0x08FF75CC` namingkb's table, `0x08FF75D0..0x08FF7634` dexnavabil, `0x08FF7640..0x08FF76C4` shinyfade, `0x08FF7704..0x08FF7744` mistmsg
@@ -45,7 +47,7 @@ Two checks in that template matter more than they look:
    holds the words `0x08FF7703` and `0x08FF7785` by chance, so a pointer check stops a blob that reaches them. Dead vanilla bodies used for veneers: ButtonMode_ProcessInput 0x080BAFD4..E3
    (daynight), ButtonMode_DrawChoices 0x080BB030..37 (rngseed). In the hack's
    own tail, `0x09FD8000..0x09FDCB54` is the DexNav screen, the key ring and lmoveinfo, `0x09FDCC00..0x09FDCC80`
-   zhtext's stub and names, `0x09FDCD00..0x09FDCE38` fusionfix (then Area Zero: `paldea`'s Journal block from `0x09FE1000` - JOURNAL_END
+   zhtext's stub and names, `0x09FDCD00..0x09FDCE38` fusionfix, `0x09FDD000..0x09FDDA48` dexstats (then Area Zero: `paldea`'s Journal block from `0x09FE1000` - JOURNAL_END
    `0x09FE8000` - `gen9journal` `0x09FE8000..0x09FEC0F4`, `paldea`'s sprites from `0x09FF1000`; check what is
    still blank there before taking it), and `0x09FD2A00..0x09FD5472` zhtext's moved texts (text only: up to `0x09FD6F00` no
    aligned word points in, but code bytes at odd addresses match by chance). Check inbound pointers
@@ -54,15 +56,25 @@ Two checks in that template matter more than they look:
    blocks (megabytes of it, e.g. `0x099E5508..0x09D00000`). `speciesx` and `gen9` (in the working
    ROM since 2026-10-11) take `0x0968D000..0x096C4A00` and `0x09A10000..0x09AB810C`; treat both as taken. `paldea` (Area Zero,
    on top of gen9, in the working ROM since 2026-10-11 too) takes `0x09FBC400..` of the 0xFF run (63 KB today, growing) and
-   `0x09FF1000..0x09FFC000` in the ROM's free tail (its sprites: 43.8 KB used, 164 bytes left), `0x09FE1000..0x09FF0000` just
+   `0x09FF1000..0x0A000000` in the ROM's free tail, to the ROM's end since 2026-10-21 (its sprites and its people's: 59.3 KB used, 2,132 bytes left), `0x09FE1000..0x09FF0000` just
    below that (its Journal rows, 13 KB, and the craters' own tileset once the user takes tiles from other maps:
    up to 40 KB together), the hack's
    sprites 125 (the hole), 126 (the pale time crystal of before 2026-10-12: no map has it now), 127, 212, 225, 227 and 240-253 (the table's filler end: seventeen
-   Pokemon and a recorder) and 254-255 (the time rift, past and future: no spare entry is left), the field palette tags 0x1124-0x1137 in a longer copy of the field palette table (the
-   three words at `0x0808E8BC`, `0x0808E950` and `0x0808E9A8` point at the copy), trainers 943, 947, 952, 958 and
+   Pokemon and a recorder) and 254-255 (the time rift, past and future), 174-178 and 180 (its people: `cast.py`), the field palette tags 0x1124-0x1137 and 0x1141-0x1144 in a longer copy of the field palette table (the
+   three words at `0x0808E8BC`, `0x0808E950` and `0x0808E9A8` point at the copy), trainers 943, 947, 952, 958, trainer pictures 250-252 (longer copies of the four picture tables) and
    classes 71-72, the wild table's spare room at
    `0x08E19128` (now full), maps 35/89-100 and layout ids 846-857, flags
-   `0x43AB-0x43BE` and `0x43C0-0x43D6` and vars `0x40A8` and `0x40F9`. To tell a real pointer
+   `0x43AB-0x43BE` and `0x43C0-0x43D6` and vars `0x40A8` and `0x40F9`. `kitakami` (in the working ROM since
+   2026-10-17, the chain's last step: NOTES, *Kitakami*) takes `0x09E40000..0x09E80000` (zero run; 95.6 KB used),
+   `0x08FEF540..0x08FEF600`, bl's at `0x08CFE3EA` and `0x08CFE472`, the hack's sprites 204-206, 228-230 and 235-239,
+   field palette tags 0x1138-0x1140, trainers 1358-1360 and 1378, trainer pictures 253-254 (after Area Zero's), maps 35/106-111, map section 187, the shop guard's
+   bits for items 88-89 and flags between `0x4337` and `0x441B` (`kstory.py`): treat all of it as taken. `gen9abil`
+   (the Gen 9 abilities, just before kitakami since 2026-10-21: NOTES, *The Gen 9 abilities work in battle*) takes
+   `0x09E33000..0x09E38000` (13.9 KB used), the engine's battle state's 0x40 bytes after its 0x118, the engine's string
+   ids from 0x2B7 and callasm numbers from 220, and stands in front of 25 engine routines (its `WRAP`): a patch that
+   hooks one of those must chain through gen9abil's wrapper. `gen9anim` (the Gen 9 moves' own animations, right
+   after it since 2026-10-22) takes `0x09E38000..0x09E3C000` (11.2 KB used) and the animation table's words for moves
+   938-985. To tell a real pointer
    from a look-alike, use `speciesx_patch.is_pointer`: a ROM-header word, or a literal that a `ldr rX,[pc,#n]`
    in front of it loads, inside the regions that hold code.
 2. Repoint a pointer word rather than rewriting a routine. Many game functions are already trampolines into
@@ -105,7 +117,7 @@ zeroed on hardware.
 
 Run mGBA **dev** (`mGBA.exe --script test.lua rom.gba`, with the ROM's folder as the working directory so
 relative paths in the Lua resolve). Keep it off the user's screen: start it through
-`gba-trans/_testrun/hidden.ps1` (`Start-Hidden`: a Windows desktop of its own), not with `Start-Process` -
+`gba-trans/hyper-emerald/_testrun/hidden.ps1` (`Start-Hidden`: a Windows desktop of its own), not with `Start-Process` -
 a minimized start still shows mGBA's separate "Scripting" window, in front and with the keyboard.
 `_testrun/gen9/run.ps1` is a runner built on it. The Lua drives the game with
 `emu:addKey`/`clearKey` on a frame callback, reads memory with `emu:read8/16/32`, and takes

@@ -2,7 +2,7 @@
 
 These scripts make the data files of `patches/zhtext/` and check a ROM for Chinese the game can still reach.
 They read the working ROM and a checkout of [pret/pokeemerald](https://github.com/pret/pokeemerald) with its
-built `pokeemerald.sym` beside it (default `gba-trans/_testrun/pret_src/`, or set `HE_PRET`). Nothing here is
+built `pokeemerald.sym` beside it (default `gba-trans/hyper-emerald/_testrun/pret_src/`, or set `HE_PRET`). Nothing here is
 needed to build the ROM: `zhtext_patch.py` only reads the JSON it ships with.
 
 Run them from this folder, on the ROM as it is **before** `zhtext` (the chain's stage after `lmoveinfo`):

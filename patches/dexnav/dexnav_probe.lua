@@ -1,6 +1,6 @@
 -- DexNav probe: breakpoints on find() entry/return log every call while the screen draws;
 -- after the screen is up, dump in-use sprites and OAM to see whether the icons exist.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7
 local NL = string.char(10)

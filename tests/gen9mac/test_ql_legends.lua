@@ -4,7 +4,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "ql") .. "_leg"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local plan, t0 = {}, nil
 local function at(d, fn) plan[#plan + 1] = {d, fn} end
 at(0, function()                                -- SELECT = the Quest Log (item 363), nothing else registered

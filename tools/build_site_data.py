@@ -180,6 +180,11 @@ GROUPS = [
      "the AIs of Professor Sada and Professor Turo battle you one after the other, then the Paradise Protection "
      "Protocol sends out the lab's own Koraidon and Miraidon.",
      ["Nemona", "AI Sada", "AI Turo", "Protocol"], ["Champion", "Professor", "Paradise"]),
+    ("kitakami", "Kitakami",
+     "Reached by bus from Mossdeep City once Area Zero's story is over: Briar waits beside the black hole. Carmine "
+     "battles you at Mossui Town's bus stop and Kieran twice at Loyalty Plaza in the Teal Mask story; in Mochi Mayhem "
+     "Nemona battles you before Pecharunt. Lose and you can try again on the spot.",
+     ["Carmine", "Kieran", "Nemona"], ["School Kid", "Champion"]),
     ("villains", "Villain bosses", "Rainbow Rocket and the other evil-team leaders met in the post-game.",
      ["Giovanni", "Cyrus", "God Cyrus", "Ghetsis", "Lysandre", "Lusamine", "Faba", "Archer", "Ariana", "Petrel", "Proton",
       "Jupiter", "Mars", "Saturn", "Zinzolin", "Xerosic", "Malva", "Blaise", "Amber"], None),
@@ -205,10 +210,16 @@ trainers = [t for t in trainers if AREA_ZERO_SLOTS.get(t["id"], t["name"]) == t[
 PLACEHOLDER_TIP = ("The ROM's trainer table only holds a placeholder team for this battle; the hack builds the real "
                    "level-50 team when the fight starts (the League lobby monitor shows it before each match).")
 
+# v2.0's Kitakami: its rows (patches/kitakami/ktrainers.py) and Mochi Mayhem's Nemona, who shares Area Zero's name
+# and class
+GROUP_IDS = {"kitakami": {1358, 1359, 1360, 1378}}
+OWN_IDS = set().union(*GROUP_IDS.values())
+
 groups = []
 used = set()
 for key, title, intro, names, classes in GROUPS:
-    members = [entry(t) for t in by_name(names, classes)]
+    members = [entry(t) for t in by_name(names, classes)
+               if (t["id"] in GROUP_IDS[key] if key in GROUP_IDS else t["id"] not in OWN_IDS)]
     members = [m for m in members if m["id"] not in used]
     for m in members:
         used.add(m["id"])

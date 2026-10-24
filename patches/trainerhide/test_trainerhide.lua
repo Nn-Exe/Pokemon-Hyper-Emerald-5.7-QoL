@@ -1,6 +1,6 @@
 -- Garchomp guardian crash test (test-only ROM: hub door -> Desert Ruins 34/45 warp 2 at (29,2)).
 -- Walk to (30,11), face the guardian at (30,12), talk, and record whether the game keeps running.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/tools/test-harness/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/test-harness/"
 local TAG = TAG or "x"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9

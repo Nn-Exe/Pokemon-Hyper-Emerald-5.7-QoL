@@ -11,7 +11,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "dna") .. "_dn"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local G, N, X, Y = tonumber(E("G")), tonumber(E("N")), tonumber(E("X")), tonumber(E("Y"))
 local SP, KIND = tonumber(E("SP")), E("KIND") or "land"
 local SCRIPT, STATE, ENEMY = 0x0203F100, 0x0203A660, 0x02024744

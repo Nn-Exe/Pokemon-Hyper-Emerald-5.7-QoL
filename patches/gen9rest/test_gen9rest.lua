@@ -42,10 +42,10 @@
 --   pc      BOX                     the storage screen on that box (for a save that has the new species there)
 --   save / check                    givemon + save through the menu / a fresh start reads party, PC and flags
 local E = os.getenv
-DIR = E("GEN9_DIR") or "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/gen9/"
+DIR = E("GEN9_DIR") or "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/gen9/"
 local MODE, TAG = E("MODE") or "battle", E("TAG") or "g9"
 NAME = TAG .. "_" .. MODE
-dofile(E("GEN9_BOOT") or "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile(E("GEN9_BOOT") or "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SPECIES, LEVEL = tonumber(E("SPECIES") or "1221"), tonumber(E("LEVEL") or "70")
 local SCRIPT, MONS, PARTY, ENEMY = 0x0203F100, 0x02024084, 0x020244EC, 0x02024744
 local ACTION, ABIL16 = 0x08057589, 0x0203F000

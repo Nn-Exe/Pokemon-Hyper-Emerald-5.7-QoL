@@ -10,7 +10,7 @@ local E = os.getenv
 local SCEN = E("SCEN") or "boot"
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "dm") .. "_" .. SCEN
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SCRIPT, EXT = 0x0203F100, 0x0203DA00
 local function sb1() return emu:read32(0x03005D8C) end
 local function run(bytes)

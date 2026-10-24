@@ -22,6 +22,81 @@ export const FEATURE_STATS = [
 
 export const FEATURES: FeatureSection[] = [
   {
+    id: 'v20',
+    nav: 'Kitakami & v2.0',
+    eyebrow: 'New in v2.0',
+    title: 'Kitakami, and Gen 9 that battles like Gen 9',
+    intro:
+      'After Area Zero, a bus from Mossdeep City to Kitakami for the Teal Mask story and Mochi Mayhem; the Gen 9 abilities and moves as they are in Scarlet and Violet; and a few everyday things: a clock on the Start menu, base stats in the Pokédex, egg moves in the Move Relearner.',
+    cards: [
+      {
+        title: 'Kitakami',
+        text: 'Once Area Zero’s story is over, Briar waits beside the black hole in Mossdeep City with a bus to Mossui Town: a valley of red maples with a festival market, Kitakami Hall and its Mask Hall, and Loyalty Plaza.',
+        how: 'Mossdeep City, beside the black hole, after Area Zero',
+      },
+      {
+        title: 'The Teal Mask',
+        text: 'Eight chapters with Carmine and Kieran: the three signboards, the Festival of Masks at night, the Loyal Three waking and hunted down, Ogerpon in her four masks and then yours. Afterwards Kieran’s grandfather changes her mask, and the Loyal Three can be caught where they hide.',
+      },
+      {
+        title: 'Mochi Mayhem',
+        text: 'Briar has a letter from Kieran: Mossui at night under the mochi’s spell, Arven, Nemona and Penny, Nemona’s battle and Pecharunt (No. 1025), yours once beaten. The Quest Log’s Legends count all five of Kitakami’s legends: 124.',
+      },
+      {
+        title: 'Gen 9 abilities and move animations',
+        text: 'Every Gen 9 ability does what it does in Scarlet and Violet (Protosynthesis and Booster Energy, the Treasures of Ruin, Commander, Good as Gold, Tera Shell…; not Zero to Hero, as there is no Hero Form), and the Gen 9 moves play animations of their own.',
+      },
+      {
+        title: 'Gen 9 teams for the key trainers',
+        text: 'The Gym Leaders, the Elite Four, Wallace, Archie, Maxie and more, 42 trainers, use Gen 9 Pokémon, in teams made by Luciano Fire.',
+      },
+      {
+        title: 'Area Zero’s people, drawn',
+        text: 'Nemona, Arven, Penny, Jacq, AI Sada and AI Turo walk Area Zero in sprites of their own, and Nemona, AI Sada and AI Turo battle in pictures of their own.',
+      },
+      {
+        title: 'A clock on the Start menu',
+        text: 'A box beside the “R Journal” one shows the day and the time, e.g. “Thu 5:08 PM”, and keeps time while the menu is open.',
+        how: 'START',
+      },
+      {
+        title: 'Base stats in the Pokédex',
+        text: 'R on a Pokémon’s INFO page shows its six base stats as numbers and coloured bars, with their total; R again brings the description back.',
+        how: 'R on a Pokédex INFO page',
+      },
+      {
+        title: 'Gigantamax mark',
+        text: 'A Pokémon that has had the Max Soup shows the Max Mushroom’s icon at the end of its name on the summary screen, on every page.',
+        how: 'Summary',
+      },
+      {
+        title: 'Egg moves in the Move Relearner',
+        text: 'The party menu’s Moves lists a Pokémon’s egg moves after its level-up moves: its own and those of every stage it evolved from.',
+        how: 'Party menu → Moves',
+      },
+      {
+        title: 'The Hisui map flies again',
+        text: 'Once Rei and Cogita have told you the news after Volo, A on the Sinnoh Map in Hisui flies you there with Mingyao’s Braviary. Before that it only names the places, so nothing skips the story.',
+      },
+    ],
+    media: [
+      { clip: 'mossui-town' },
+      { clip: 'carmine-bus-stop' },
+      { clip: 'ogerpon-loyalty-plaza' },
+      { clip: 'kieran-night-market' },
+      { clip: 'mask-hall' },
+      { clip: 'area-zero-people' },
+      { clip: 'start-menu-clock' },
+      { clip: 'dex-base-stats' },
+      { clip: 'gmax-mark' },
+    ],
+    links: [
+      { href: '/guides/kitakami/', label: 'Kitakami guide' },
+      { href: '/guides/legendaries/#kitakami', label: 'Kitakami’s legends' },
+      { href: '/wiki/pokedex/', label: 'Pokédex' },
+    ],
+  },
+  {
     id: 'gen9',
     nav: 'Gen 9 & Area Zero',
     eyebrow: 'New in v1.9',
@@ -48,7 +123,7 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'The Quest Log knows Gen 9',
-        text: 'Legends counts 119, the Paradox Pokémon included; the five that live in Kitakami show as Locked. Side Content has Area Zero’s extras, Evolutions every Gen 9 family, and the Journal seven optional Area Zero steps.',
+        text: 'Legends counts the twenty Paradox Pokémon, and since v2.0 Kitakami’s five: 124 in all. Side Content has Area Zero’s extras, Evolutions every Gen 9 family, and the Journal seven optional Area Zero steps.',
       },
       {
         title: 'One-way saves',
@@ -60,7 +135,7 @@ export const FEATURES: FeatureSection[] = [
       { clip: 'time-rift' },
       { clip: 'paradox-wild' },
       { clip: 'gen9-wild' },
-      { clip: 'legends-119' },
+      { clip: 'questlog-area-zero' },
       { clip: 'evolutions-gen9' },
     ],
     links: [
@@ -372,11 +447,11 @@ export const FEATURES: FeatureSection[] = [
       },
       {
         title: 'Legends',
-        text: 'Every legendary and mythical Pokémon in National Dex order, Ultra Beasts and the twenty Paradox Pokémon included, 119 in all: ticked once caught, named once seen, with where to find it. Kitakami’s five show as Locked.',
+        text: 'Every legendary and mythical Pokémon in National Dex order, Ultra Beasts, the twenty Paradox Pokémon and Kitakami’s five included, 124 in all: ticked once caught, named once seen, with where to find it.',
       },
       {
         title: 'Key Items and Side Content',
-        text: 'The 54 key items in story order with where each comes from, and a checklist of 55 side quests: the Hisuian trades, gift Pokémon, hidden starters, side stories and Area Zero’s extras.',
+        text: 'The 54 key items in story order with where each comes from, and a checklist of 59 side quests: the Hisuian trades, gift Pokémon, hidden starters, side stories, Area Zero’s extras and the four cartridges of the console in your room.',
       },
       {
         title: 'Sinnoh badge case',
@@ -461,6 +536,30 @@ export const FEATURES: FeatureSection[] = [
       {
         title: 'Text that fits',
         text: '56 pages whose line ran past the message box were broken again, the Regi tablet no longer runs on into the next text, and in mist the message box no longer turns the fog solid white.',
+      },
+      {
+        title: 'Fainted stays fainted',
+        text: 'HP Up on a fainted Pokémon brought it back with a few HP, and a Pomeg Berry could give a fainted one full HP. A fainted Pokémon now stays fainted when its stats change (v2.0).',
+      },
+      {
+        title: 'EVs reach 510',
+        text: 'EVs from battles stopped at 509 in all. They reach 510 now (v2.0).',
+      },
+      {
+        title: 'Electro Shot in the rain',
+        text: 'Electro Shot fires in its first turn when it rains, as in Scarlet and Violet (v2.0).',
+      },
+      {
+        title: 'No more stuck in the rock',
+        text: 'Falling through Granite Cave’s cracked floor could drop you inside the rock, and Continue could put you inside a tree in Petalburg Woods. Both fixed (v2.0).',
+      },
+      {
+        title: 'The Rainbow Rocket castle lets you back in',
+        text: 'Leaving the castle before its mission was done and coming back found the trap fence shut for good. It lets you in now (v2.0).',
+      },
+      {
+        title: 'Smaller fixes in v2.0',
+        text: 'A Pokémon a script gives an item to keeps it in battle; Paul no longer hands you a second EV-IV Display; Cheren’s Mint list has Quirky and fits the screen; the DexNav bar’s icon keeps its colours at night.',
       },
       {
         title: 'Side quests you could not finish',

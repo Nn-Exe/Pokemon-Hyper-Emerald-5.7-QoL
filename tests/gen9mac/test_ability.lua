@@ -16,7 +16,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "ab") .. "_ab"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local function list(s) local t = {}; for n in (s or ""):gmatch("%d+") do t[#t + 1] = tonumber(n) end; return t end
 local HOLDER, LV, FOE, FOELV = tonumber(E("HOLDER")), tonumber(E("LV") or "50"), tonumber(E("FOE")), tonumber(E("FOELV") or "50")
 local MOVES, FOEMOVES, OURMOVE = list(E("MOVES")), list(E("FOEMOVES")), list(E("OURMOVE"))

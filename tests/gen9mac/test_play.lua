@@ -46,7 +46,7 @@ if E("NEWGAME") == "1" then
     if TEST then TEST(fr) end
   end)
 else
-  dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+  dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 end
 local PLAN = dofile(E("PLAN"))
 math.randomseed(tonumber(E("SEED") or "1"))

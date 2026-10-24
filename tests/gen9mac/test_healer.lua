@@ -6,7 +6,7 @@
 local E = os.getenv
 DIR = E("GEN9_DIR")
 NAME = (E("TAG") or "hl") .. "_healer"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local HOLDER, ALLY = tonumber(E("HOLDER")), tonumber(E("ALLY") or "242")
 local TRAINER, TURNS = tonumber(E("TRAINER") or "56"), tonumber(E("TURNS") or "12")
 local ABIL = E("ABIL") and tonumber(E("ABIL"))

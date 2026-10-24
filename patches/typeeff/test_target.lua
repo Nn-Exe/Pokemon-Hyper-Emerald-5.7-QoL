@@ -1,6 +1,6 @@
 -- Target-selection test: force the double-battle flag at the action menu so choosing a move enters target
 -- selection, then log the opponent healthbox's bounce offset (pos2.y) frame by frame.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local TAG = os.getenv("TITAG") or "tt"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7

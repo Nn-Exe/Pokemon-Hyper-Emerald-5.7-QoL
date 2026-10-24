@@ -1,6 +1,6 @@
 -- DexNav test: open START, move to DexNav (DOWN x7), open it, screenshot, page RIGHT twice, page LEFT,
 -- B back to the start menu, B to the field, then walk to prove the overworld is alive.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN, R, L = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 local NL = string.char(10)

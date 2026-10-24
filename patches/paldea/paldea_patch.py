@@ -45,7 +45,10 @@ The story is the one the user approved (revision 2; story.py says it in full). B
     slide on. Wo-Chien, Ting-Lu and Chi-Yu stand in niches behind crystals; a crystal bursts when its stake, out
     on the floor, is pulled (story.py). And a Booster Energy lying in each crater.
   * Trainers in four entries no script uses (952 Nemona, 943 AI Sada, 947 AI Turo, 958 the Paradise Protection
-    Protocol, a double battle), two new trainer classes. Titans are wild battles with the Totem flags (0x272 no
+    Protocol, a double battle), two new trainer classes.
+  * The people in pictures of their own since 2026-10-21 (cast.py; the user: "reusing npcs make the game look
+    cheap"): map sprites for Jacq, Arven, Nemona, Penny, AI Sada and AI Turo (the hack's sprite entries 174-178, 180)
+    and battle pictures for Nemona and the AIs (250-252, in longer copies of the picture tables). Titans are wild battles with the Totem flags (0x272 no
     Poke Balls, 0x273 no white-out: you can try again); everything after the story can be caught.
   * Map section 186 ("Route 224", which no map uses) is renamed "Area Zero" for the new maps.
 """
@@ -65,12 +68,15 @@ import check as CK
 import journal_az as JAZ
 import tiles as TL
 import objpal as OP
+import cast as CA
 
 FREE, FREE_END = 0x01FBC400, 0x01FD2A00   # in the 0xFF run 0x09FBC380..0x09FD2A00 (blank in the hack's own ROM)
 JOURNAL_FREE, JOURNAL_END = 0x01FE1000, 0x01FE8000   # Area Zero in the Journal and the Legends (journal_az.py): in
                                                      # the ROM's free tail, before the sprites' block (13 KB used in
                                                      # 2026-10; from 0x01FE8000 on: gen9journal's, the last step)
-SPRITE_FREE, SPRITE_END = 0x01FF1000, 0x01FFC000   # the sprites' block, in the ROM's free tail (0x09FDCE38 on)
+SPRITE_FREE, SPRITE_END = 0x01FF1000, 0x02000000   # the sprites' block, in the ROM's free tail (0x09FDCE38 on), to
+                                                   # the ROM's end since the people's pictures (cast.py; it ended
+                                                   # at 0x01FFC000 before, with 164 bytes left)
 GROUP = 35                                 # new maps go after group 35's last (89 maps: 35/89 on)
 GROUP_COUNT = 89
 
@@ -173,10 +179,10 @@ MAIN_TABLE = 0x00505620
 VORTEX = 168                                     # main sprite: the dark vortex (Hearthome 37/73, Hisui 37/104)
 VORTEX_INFO = 0x0850B118
 HOLE_PAL = 0x1119                                # deep indigo, one of the game's 35 (the vortex's own 0x1106 is pink)
-JACQ_GFX = 9                                     # main sprite 9: dark hair, white lab coat
-# stand-ins from the game's own people (main table)
-ARVEN_GFX, NEMONA_GFX, PENNY_GFX, SADA_GFX, TURO_GFX = 37, 20, 58, 202, 46
-RESIDENTS = [("penny", PENNY_GFX), ("arven_home", ARVEN_GFX), ("nemona_home", NEMONA_GFX), ("jacq_home", JACQ_GFX)]
+# the people, (graphics, ext): sprites of their own since 2026-10-21 (cast.py). The game's own people stood in for
+# them up to then: Jacq main sprite 9, Arven 37, Nemona 20, Penny 58, AI Sada 202, AI Turo 46.
+JACQ, ARVEN, NEMONA, PENNY, SADA, TURO = (CA.sprite(k) for k in ("jacq", "arven", "nemona", "penny", "sada", "turo"))
+RESIDENTS = [("penny", PENNY), ("arven_home", ARVEN), ("nemona_home", NEMONA), ("jacq_home", JACQ)]
 
 # The Zero Lab's door in the crater wall: a shutter (Petalburg's 653) while it is shut, the cave mouth (167) once
 # Arven and Nemona have lifted it. The map has the mouth; ON_LOAD puts the shutter on. The shutter must be a tile
@@ -203,7 +209,7 @@ MUSIC_WALL, MUSIC_PAST, MUSIC_FUTURE = 479, 381, 501   # the Space-Time Rift's, 
                                                        # theme, the Pokemon Mansion's (New Mauville)
 VAR_X, VAR_Y = 0x8004, 0x8005
 CAVE_WARP = 2                                    # each crater's warp to the Crystal Cavern
-STAMP_SALT = 14                                  # part of the build's stamp (story.FRESH): one more whenever what
+STAMP_SALT = 15                                  # part of the build's stamp (story.FRESH): one more whenever what
                                                  # Mossdeep (the woods up to test 15) gets from this patch changes
                                                  # other than in place
 
@@ -303,6 +309,10 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
         e = EXT_TABLE - 0x08000000 + 0x24 * ext
         assert rom[e:e + 0x24].hex() == was, "sprite %d is not the blank entry it was" % ext
     MN.check(rom, EXT_TABLE, SPRITES, set(BLANK_16x32))
+    CA.check(rom, EXT_TABLE, {u16(rom, MN.PAL_TABLE + 8 * i + 4) for i in range(MN.PAL_ROWS)},
+             {tag for name, slot, tag in SPRITES.values()})
+    for key, (num, base) in CA.BATTLE.items():
+        assert ST.TRAINERS[key][2] == num, "story.py gives %s picture %d, cast.py draws %d" % (key, ST.TRAINERS[key][2], num)
     assert set(ST.LEGENDS) <= set(SPRITES) and set(ST.LEGENDS) <= set(PL.BY_ID)
     assert u32(rom, MAIN_TABLE + 4 * VORTEX) == VORTEX_INFO
     me = MAPSEC_TABLE + 8 * MAPSEC
@@ -361,6 +371,7 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
 
     own_tags = {slot: tag for name, slot, tag in SPRITES.values()}
     own_tags.update({HOLE_EXT: HOLE_PAL, TIME_EXT: TIME_PAL})
+    own_tags.update(CA.tags())
 
     def tag_of(gfx, ext=0):
         """The palette tag of an object's sprite: ours as this build writes them, the rest from the ROM's tables."""
@@ -566,9 +577,9 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
         o = MOSSDEEP_OBJS + 24 * k
         in_the_way("mossdeep", "one of Mossdeep's own people or things", struct.unpack_from("<hh", rom, o + 4))
     in_the_way("mossdeep", "the tile you come out of the hole on", home_back, ("story", "after", "ending"), open=True)
-    stands("mossdeep", "jacq", JACQ_GFX); stands("mossdeep", "hole", 0x4E, HOLE_EXT)
-    for tid, gfx in (("end_arven", ARVEN_GFX), ("end_nemona", NEMONA_GFX), ("end_penny", PENNY_GFX)):
-        stands("mossdeep", tid, gfx)
+    stands("mossdeep", "jacq", *JACQ); stands("mossdeep", "hole", 0x4E, HOLE_EXT)
+    for tid, sp in (("end_arven", ARVEN), ("end_nemona", NEMONA), ("end_penny", PENNY)):
+        stands("mossdeep", tid, *sp)
 
     def toward(a, b):
         """The way to face from tile a to look at tile b."""
@@ -743,17 +754,17 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
         legend, titan = ("koraidon", "tusk") if era == "past" else ("miraidon", "treads")
         caught = ST.F_KORAIDON_CAUGHT if era == "past" else ST.F_MIRAIDON_CAUGHT
         done = ST.F_TUSK_DONE if era == "past" else ST.F_TREADS_DONE
-        objs += [("arven", *at["arven"], "arven_" + era, ARVEN_GFX, 0, ST.F_GUARDS_UP),
+        objs += [("arven", *at["arven"], "arven_" + era, *ARVEN, ST.F_GUARDS_UP),
                  ("legend", *at["legend"], "legend_" + era, 0x4E, SPRITES[legend][1], caught),
                  ("titan", *at["titan"], "titan_" + era, 0x4E, SPRITES[titan][1], done),
-                 ("guard_arven", *at["guard_arven"], "guard_arven", ARVEN_GFX, 0, ST.F_HIDE_GUARDS),
-                 ("guard_nemona", *at["guard_nemona"], "guard_nemona", NEMONA_GFX, 0, ST.F_HIDE_GUARDS)]
-        stands(era, "arven", ARVEN_GFX); stands(era, "titan", 0x4E, SPRITES[titan][1])
-        stands(era, "guard_arven", ARVEN_GFX); stands(era, "guard_nemona", NEMONA_GFX)
+                 ("guard_arven", *at["guard_arven"], "guard_arven", *ARVEN, ST.F_HIDE_GUARDS),
+                 ("guard_nemona", *at["guard_nemona"], "guard_nemona", *NEMONA, ST.F_HIDE_GUARDS)]
+        stands(era, "arven", *ARVEN); stands(era, "titan", 0x4E, SPRITES[titan][1])
+        stands(era, "guard_arven", *ARVEN); stands(era, "guard_nemona", *NEMONA)
         stands(era, "legend", 0x4E, SPRITES[legend][1], name="Koraidon" if era == "past" else "Miraidon")
         if era == "future":
-            objs.append(("nemona", *at["nemona"], "nemona", NEMONA_GFX, 0, ST.F_GUARDS_UP))
-            stands(era, "nemona", NEMONA_GFX)
+            objs.append(("nemona", *at["nemona"], "nemona", *NEMONA, ST.F_GUARDS_UP))
+            stands(era, "nemona", *NEMONA)
         for key, (sp, level, where, flag) in ST.LEGENDS.items():
             if where == era:
                 objs.append((key, *at[key], "legend_" + key, 0x4E, SPRITES[key][1], flag))
@@ -940,12 +951,12 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
             m.bg(*xy, "rest")
         sign_script("note%d" % (k + 1), ST.NOTES[k])
         # who lives here: Penny from the start; the other three after the ending
-        who, gfx = RESIDENTS[k]
-        m.objs.append(M.Obj(1, *pos("resident"), who, gfx=gfx, face="down",
+        who, (gfx, ext) = RESIDENTS[k]
+        m.objs.append(M.Obj(1, *pos("resident"), who, gfx=gfx, ext=ext, face="down",
                             flag=0 if k == 0 else ST.F_HIDE_RESIDENTS, elevation=3))
         m.objs.append(M.Obj(2, *pos("recorder"), "log%d" % (k + 1), gfx=0x4E, ext=SPRITES["recorder"][1],
                             face="none", elevation=3))
-        stands(m.key, "resident", gfx, name=("Penny", "Arven", "Nemona", "Jacq")[k])
+        stands(m.key, "resident", gfx, ext, name=("Penny", "Arven", "Nemona", "Jacq")[k])
         stands(m.key, "recorder", 0x4E, SPRITES["recorder"][1])
         gfx, ext = NOTE_SPRITES[k]
         m.objs.append(M.Obj(3, *pos("note"), "note%d" % (k + 1), gfx=gfx, ext=ext, face="none", elevation=3))
@@ -1090,7 +1101,7 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
     s.setflag(ST.F_HIDE_LAB_CAST); s.end()                 # a white-out halfway through leaves their flag cleared
     cast_locals = {}
     for k, key in enumerate(LAB_CAST_FACE):
-        gfx, ext = {"sada": (SADA_GFX, 0), "turo": (TURO_GFX, 0), "lab_koraidon": (0x4E, SPRITES["koraidon"][1]),
+        gfx, ext = {"sada": SADA, "turo": TURO, "lab_koraidon": (0x4E, SPRITES["koraidon"][1]),
                     "lab_miraidon": (0x4E, SPRITES["miraidon"][1])}[key]
         lab.objs.append(M.Obj(1 + k, *pos(key), "", gfx=gfx, ext=ext, face=LAB_CAST_FACE[key],
                               flag=ST.F_HIDE_LAB_CAST, elevation=3))
@@ -1224,7 +1235,8 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
         wild[key] = info
     # the sprites of our own, in their block: pictures, frames, palettes, the palette table with their rows
     sblob = Blob(0x08000000 + SPRITE_FREE)
-    MN.put(rom, sblob, SPRITES)
+    MN.put(rom, sblob, SPRITES, CA.palette_rows())
+    CA.put_sprites(sblob)                                  # the people (after the rest: the rest keeps its place)
     sdata = sblob.link()
     assert SPRITE_FREE + len(sdata) <= SPRITE_END, "the sprites outgrew their space (%d bytes)" % len(sdata)
     # trainers: parties
@@ -1243,11 +1255,11 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
     # ON_TRANSITION and ON_RESUME (who is to be seen; the transition then goes on into Mossdeep's own) and
     # ON_FRAME (a save's copy from another build read again; the ending, on the way home)
     tpl = bytearray(rom[MOSSDEEP_OBJS:MOSSDEEP_OBJS + 24 * MOSSDEEP_NOBJ])
-    extra = [(JACQ_LOCAL, JACQ_GFX, 0, at["jacq"], height_at(at["jacq"]), toward(at["jacq"], hole_xy),
+    extra = [(JACQ_LOCAL, *JACQ, at["jacq"], height_at(at["jacq"]), toward(at["jacq"], hole_xy),
               ST.F_JACQ_HIDE, "jacq"),
              (HOLE_LOCAL, 0x4E, HOLE_EXT, at["hole"], 0, "none", ST.F_WOODS_HIDE, "hole")]
-    for tid, gfx in (("end_arven", ARVEN_GFX), ("end_nemona", NEMONA_GFX), ("end_penny", PENNY_GFX)):
-        extra.append((HOME_LOCALS[tid], gfx, 0, at[tid], height_at(at[tid]), toward(at[tid], home_back),
+    for tid, sp in (("end_arven", ARVEN), ("end_nemona", NEMONA), ("end_penny", PENNY)):
+        extra.append((HOME_LOCALS[tid], *sp, at[tid], height_at(at[tid]), toward(at[tid], home_back),
                       ST.F_HIDE_HOME, "nothing"))
     assert [e[0] for e in extra] == list(range(MOSSDEEP_NOBJ + 1, MOSSDEEP_NOBJ + 1 + len(extra)))
     for local, gfx, ext, (x, y), elev, face, flag, script in extra:
@@ -1273,6 +1285,7 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
     lt, gas = M.install(rom, blob, maplist + strips, groups, known)
     assert all(known[m.key] == gn[m.key] for m in maplist + strips)
 
+    CA.put_pictures(rom, blob)                             # the people in battle (last: the rest keeps its place)
     data = blob.link()
     assert FREE + len(data) <= FREE_END, "the area outgrew its space (%d bytes)" % len(data)
     rom[FREE:FREE + len(data)] = data
@@ -1294,6 +1307,8 @@ def build(inp, outp, placements=None, told=None, ground=None, tiles=None):
     rom[o:o + 0x24] = shard
     rom[SPRITE_FREE:SPRITE_FREE + len(sdata)] = sdata
     MN.install(rom, sblob, EXT_TABLE, SPRITES)
+    CA.install_sprites(rom, sblob, EXT_TABLE)
+    CA.install_pictures(rom, blob)
     struct.pack_into("<I", rom, me + 4, blob.addr[("name", "area_zero")])
     # the wild table: our headers where its terminator was, then the terminator again
     heads = b"".join(struct.pack("<BBHIIII", g, n, 0, wild[k], 0, 0, 0) for k, (g, n) in

@@ -1,6 +1,6 @@
 -- Forced trainer battle: set BATTLE_TYPE_TRAINER and an opponent id while the battle initialises,
 -- then dump OBJ palette tags, healthbox sprites and badge sprites at the action menu.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f, phase, battleStart, lastAction, t0 = 0, "walk", nil, 0, nil
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7
 local NL = string.char(10)

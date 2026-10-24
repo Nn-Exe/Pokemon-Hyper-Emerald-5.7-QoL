@@ -7,7 +7,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local TAG = E("TAG") or "wt"
 NAME = TAG .. "_wild"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local G, N, X, Y = tonumber(E("G")), tonumber(E("N")), tonumber(E("X")), tonumber(E("Y"))
 local KIND, SLOT, ROD = E("KIND"), tonumber(E("SLOT")), tonumber(E("ROD"))
 local SP, LO, HI = tonumber(E("SP")), tonumber(E("LO")), tonumber(E("HI"))

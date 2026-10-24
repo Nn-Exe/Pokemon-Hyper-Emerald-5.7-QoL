@@ -1,5 +1,5 @@
 -- Arm a hunt, walk off the map, walk back: the hunt should park and resume with its chain intact.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "park_log.txt", "w")
 local function w(s) log:write(s .. NL); log:flush() end

@@ -17,8 +17,11 @@ def entry_ok(o):
         if not valid_ptr(p) or not info_ok(p-0x8000000): return False
     return True
 # Structural scan (first run of this script) found runs at 0x8E17E18/0x8E18458/0x8E1878C; the code references
-# (0xB4D48,0xB5438,0xB54D8,0xB5560,0xB567C) point at 0x08E17D50 = the real table start.
-base=0x8E17D50-0x8000000
+# (0xB4D48,0xB5438,0xB54D8,0xB5560,0xB567C) point at 0x08E17D50 = the real table start. Since v2.0 Kitakami keeps a
+# longer copy of it (patches/kitakami/kwild.py: Mossui Town's header added) and points those words at the copy, so
+# the table is read where the first of them points.
+base=u32(0xB4D48)-0x8000000
+assert base==0xE17D50 or base>0x1000000, 'the wild table?'
 print('code refs to base:', [hex(p) for p in find_ptrs_to(base)])
 n=0; entries=[]; odd=[]
 while True:

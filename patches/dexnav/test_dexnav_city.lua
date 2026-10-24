@@ -1,6 +1,6 @@
 -- DexNav test 2: walk from Route 127 into Mossdeep City (group 0 / map 6, which is in the hack's extra
 -- city encounter table), open DexNav there, screenshot both pages, leave, and walk again.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local f = 0
 local A, B, SELECT, START, RIGHT, LEFT, UP, DOWN = 0, 1, 2, 3, 4, 5, 6, 7
 local NL = string.char(10)

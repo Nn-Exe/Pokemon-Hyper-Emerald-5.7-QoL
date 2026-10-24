@@ -1,4 +1,4 @@
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "visual_log.txt", "w")
 local function w(s) log:write(s .. NL); log:flush() end

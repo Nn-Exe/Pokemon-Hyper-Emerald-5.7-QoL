@@ -5,7 +5,7 @@ local E = os.getenv
 DIR = E("GEN9_DIR")
 local TAG = E("TAG") or "ui"
 NAME = TAG .. "_use"
-dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
+dofile("C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/hyper-emerald-en-qol/patches/dexnavchain/test_boot.lua")
 local SPECIES, LEVEL, ITEM, TARGET = tonumber(E("SPECIES")), tonumber(E("LEVEL") or "30"), tonumber(E("ITEM")), tonumber(E("TARGET"))
 local SCRIPT, PARTY = 0x0203F100, 0x020244EC
 local function run(bytes)

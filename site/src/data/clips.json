@@ -439,5 +439,68 @@
   "group": "What's new in v1.9",
   "width": 480,
   "height": 320
+ },
+ {
+  "slug": "mossui-town",
+  "caption": "Mossui Town, Kitakami",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "carmine-bus-stop",
+  "caption": "Carmine stops you at the bus stop",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "mask-hall",
+  "caption": "Kitakami Hall's Mask Hall",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "ogerpon-loyalty-plaza",
+  "caption": "Ogerpon at Loyalty Plaza",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "kieran-night-market",
+  "caption": "Kieran at the night market (Mochi Mayhem)",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "area-zero-people",
+  "caption": "Area Zero's people, redrawn",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "dex-base-stats",
+  "caption": "Pokédex: base stats on R",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "start-menu-clock",
+  "caption": "A clock on the Start menu",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
+ },
+ {
+  "slug": "gmax-mark",
+  "caption": "The Gigantamax mark on the summary",
+  "group": "What's new in v2.0",
+  "width": 480,
+  "height": 320
  }
 ]

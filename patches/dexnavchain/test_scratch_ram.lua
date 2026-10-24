@@ -1,5 +1,5 @@
 -- Fill a candidate scratch region with a pattern, then play hard and see if it survives.
-local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/_testrun/"
+local dir = "C:/Users/nonth/Desktop/Works & Productivity/gba-trans/hyper-emerald/_testrun/"
 local NL = string.char(10)
 local log = io.open(dir .. "pat2_log.txt", "w")
 local function w(s) log:write(s .. NL); log:flush() end
