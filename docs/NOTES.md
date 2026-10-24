@@ -6201,6 +6201,54 @@ share one, the three Raging Bulls one).
   all 67, with no condition; Route 104's sells Leppa and Pomeg-Tamato. item_sources.PLACES names 37/10, 37/22
   (a Solaceon house) and 37/100 (Hearthome's Contest Hall).
 
+## MOVE TUTORS, READ FROM THE GAME - 2026-10-24 - `tools/build_tutors.py`, `/guides/move-tutors/`
+- Asked: "have a new section guide for every exisiting move tutors, including some npcs that need to complete
+  quested as well for hyper emerald". Read from v2.0 (`_testrun/rel20/hyper20.gba`, fb949e02).
+- The list: GetTutorMove (0x081B2360) jumps to 0x08FD7C08, which reads u16 moves at 0x08FD80B8 (127, 0xFFFF after).
+  Who can learn tutor move n: bit n of the species' 16-byte row in tables.py "tutor bits" (the bit test 0x08FD7C70:
+  word n / 32, bit n % 32). build_pokedex.py now writes each species' "tutor" list and pokedex.json's "tutor".
+- Teaching: special 0x1DD (0x081B892C, the party menu in tutor mode, action 0x0C) teaches tutor move VAR_0x8005,
+  set three ways: setvar (one move); setvar VAR_0x8004 = list, callnative 0x08FE3821 (a menu of the six numbers of
+  that list in 0x08C9A550), callnative 0x08FE386D (VAR_0x8005 = the choice); the Battle Frontier's scrolling menu
+  (special 0x1BE), VAR_0x8004 = tutor, VAR_0x8005 = choice, callnative 0x08FF19E1 (0x08C9A530, 11 bytes a tutor),
+  Battle Points in VAR_0x8008. The build follows each script path by path with the values it sets.
+- Prices: the 16 favour tutors share 0x0984DF76: checkmoney 5000 before the menu, removemoney 5000 only when
+  VAR_RESULT says a Pokemon learned it. The Shard tutors removeitem before the menu (6 Red / 6 Blue / 9 Green /
+  9 Yellow).
+- Chase (Fortree City 19,4, script 0x0981E5D8; again in Oreburgh City's house 37/116, 0x098B0C7C, whose door 36/3
+  24,6 is a locked-door object hidden by 0x4171) teaches without special 0x1DD: a grid menu (list 0x77 of the
+  hack's multichoice table 0x09700000: 13 moves + Cancel), special 0xA2 (pick a Pokemon), special 0xDF (pick the
+  move to forget, 4 = cancel), callnative 0x0981E531: writes VAR_0x8007 into slot VAR_0x8005 of party slot
+  VAR_0x8004 only if its species is VAR_0x8006 (1094 Let's Go Pikachu for choices 0-3, 1095 Let's Go Eevee from 4),
+  VAR_0x8007 = 730 + choice. Result in VAR_0x8008 (0 wrong species, 1 knows it, 2 taught). 0x4170 (Elaine beaten,
+  Route 104) and not 0x4171: his battle first. The native's other 68 callers are strong wild battles setting their
+  own moves. With him every tutor move has a teacher (the old site said so; the first survey, which looked only
+  for special 0x1DD, did not find him).
+- Checked tutors: the Route 110 sea watcher: badge 8 (0x86E), the Trick House state 0x40A7 >= 4 (4-6 come only
+  after the eighth puzzle: the entrance's map script sets 4 when VAR 0x4044 is 8; "THEN FAREWELL" sets 5), and
+  0x40BC (set when the Slateport moon man first offers his moves, after ten ¥10,000 envelopes). The Gold Bottle Cap
+  man: item 0x2AF and the Timeless Woods ball's flag 0x428D (another cap: "it is not mine"). The Dragon Elder:
+  item 507 (Draco Plate; the script says "Dragon Tablet"). Yanshan in the Magma Hideout (24/92): shown by the
+  room's map script while 0x4161 (Maxie beaten in Terra Cave) or 0x41A6 (Yanshan beaten on Steven's Island) is
+  set; he leaves after V-Create but the map script clears 0x40DB on every entry while 0x4161 holds. Cogita on
+  Firespit Island (37/105, named by the Hisui map and Mingyao's menu): after 0x4315 (Volo), special 0x149
+  (ScriptGetPartyMonSpecies, VAR_0x8004 = slot) for Tornadus/Thundurus/Landorus (694/899, 695/900, 698/901 - in
+  the party, not the Pokedex: the Journal comment says Pokedex), a wild Enamorus (1023) Lv 50, any outcome but
+  running sets 0x4319, then menu 21. Cogita on Champion Island (35/28): shown once 0x431E (the 35/6 trigger at 7,16
+  clears 0x4325), teaches menu 21 while 0x4319 is clear and 0x41D5 (Team Rainbow Rocket) set; with 0x4319 she talks
+  and leaves.
+- Not tutors: the Heart Scale relearners (Fallarbor 5/7 and Pastoria 37/33 share 0x08201383; the Crimson Apostle
+  and Koga's Village have one too), in-game trades (specials 0x100/0x101), the IV adviser.
+- Bug found, not changed (the user to decide): the Frontier tutors' step after a lesson (0x082656C6) reads
+  `19 04 80 08 21 0e 40 ...` where Emerald has `19 04 80 08 80 25 CB 01` (copyvar VAR_0x8004, VAR_0x8008; special
+  0x1CB TakeFrontierBattlePoints): the special never runs and the branch back uses a stale comparison. Same bytes in
+  the original hack. Tested (`_testrun/tutors/bp`): 100 BP before, 100 after, the Swimmer's menu for the Beauty.
+- Site: TutorList (one table a section: free, favour, shards, frontier, story), TutorMoveIndex, the Pokedex's
+  "Move tutors" learnset (cheapest tutor first: free < money < shards < BP), the Moves page's TM / Tutor column and
+  filter, search entries, a wiki hub card. tutors.json joins build_spot_maps.py's LISTS (45 places, 2 new maps).
+  Old text fixed: mechanics, the Hoenn walkthrough (Chase is on the walkway above Fortree's Gym), the post-game
+  table, the Key Items guide's tutor rows.
+
 ## AREA ZERO'S PEOPLE, AFTER THE REFERENCES — 2026-10-22 — `patches/azpeople/`
 
 - The user sent phone screenshots of Pokemon Essentials art of Paldea's people ("I found these accurate reference

@@ -26,7 +26,7 @@ import item_sources as I                                   # noqa: E402
 
 DATA = os.path.join(HERE, "..", "site", "src", "data")
 OUT = os.path.join(HERE, "..", "site", "public", "spots")
-LISTS = ("tms.json", "megastones.json", "guide-items.json", "berries.json")
+LISTS = ("tms.json", "megastones.json", "guide-items.json", "berries.json", "tutors.json")
 ACROSS, DOWN = 21, 15                                      # metatiles in a picture
 WHITE, RED = (255, 255, 255), (232, 36, 64)
 PALETTES = 0x50BBC8                                        # object palettes: {pointer, tag, -} each

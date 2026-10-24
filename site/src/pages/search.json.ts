@@ -28,6 +28,11 @@ import {
   abilityHref,
   machineHref,
   megaStoneHref,
+  tutors,
+  tutorsOf,
+  tutorHref,
+  tutorMoveHref,
+  payText,
 } from '../lib/pokedex';
 import { LEGEND_GROUPS } from '../data/legendaries';
 import { FEATURES } from '../data/features';
@@ -92,7 +97,9 @@ export const GET: APIRoute = async () => {
     entries.push({
       t: 'Move',
       n: m.name,
-      s: [m.type, m.cat, m.power > 1 ? `Power ${m.power}` : '', m.tm ?? ''].filter(Boolean).join(' · '),
+      s: [m.type, m.cat, m.power > 1 ? `Power ${m.power}` : '', m.tm ?? '', tutorsOf(m.id).length ? 'Tutor' : '']
+        .filter(Boolean)
+        .join(' · '),
       u: moveHref(m).slice(1),
       k: m.desc,
     });
@@ -106,6 +113,27 @@ export const GET: APIRoute = async () => {
       u: machineHref(t.label).slice(1),
       k: `${t.label.slice(0, 2)} ${Number(t.label.slice(2))} ${t.move.type}`,
     });
+
+  // a tutor: who and where; a tutor move: the places that teach it
+  for (const t of tutors)
+    entries.push({
+      t: 'Tutor',
+      n: t.who,
+      s: clipText(`${t.places.map((p) => p.place).join(', ')} · ${t.moves.map((r) => r.name).join(', ')}`),
+      u: tutorHref(t).slice(1),
+      k: `move tutor ${payText(t.pay)}`,
+    });
+  for (const m of moves) {
+    const by = tutorsOf(m.id);
+    if (by.length)
+      entries.push({
+        t: 'Tutor',
+        n: m.name,
+        s: clipText([...new Set(by.flatMap((t) => t.places.map((p) => p.place)))].join(', ')),
+        u: tutorMoveHref(m).slice(1),
+        k: 'move tutor teach learn where',
+      });
+  }
 
   for (const b of berryData.berries)
     entries.push({

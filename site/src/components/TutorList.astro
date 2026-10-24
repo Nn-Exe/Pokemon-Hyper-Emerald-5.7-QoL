@@ -1,0 +1,77 @@
+---
+// The move tutors of one section of the guide (src/data/tutors.json, read from their scripts by
+// tools/build_tutors.py): who and where, what they ask, the moves, and a picture of the map around them.
+import Spot from './Spot.astro';
+import { spritePos } from '../lib/data';
+import { move, moveHref, typeClass, tutors, payText, speciesBySid, type Tutor } from '../lib/pokedex';
+import { url } from '../lib/url';
+
+interface Props {
+  group: Tutor['group'];
+}
+const { group } = Astro.props;
+const list = tutors.filter((t) => t.group === group);
+if (!list.length) throw new Error(`TutorList: no tutors in "${group}"`);
+const price = (t: Tutor) =>
+  t.pay.kind === 'free' ? 'Free' : t.pay.kind === 'bp' ? 'Battle Points' : `${payText(t.pay)} a move`;
+---
+
+<div class="table-shell" tabindex="0" role="region" aria-label="Move tutors">
+  <table class="stack-table stone-table tutor-table">
+    <thead>
+      <tr>
+        <th scope="col">Tutor and what they ask</th>
+        <th scope="col">Moves</th>
+        <th scope="col">The spot</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        list.map((t) => (
+          <tr id={`tutor-${t.id + 1}`}>
+            <th scope="row">
+              <span class="tutor-who">{t.who}</span>
+              <ul class="tutor-places">
+                {t.places.map((p) => (
+                  <li>{p.place}</li>
+                ))}
+              </ul>
+              <span class:list={['chip', `k-${t.pay.kind}`]}>
+                {t.pay.kind === 'items' && (
+                  <span class="spr spr-item" style={spritePos('item', t.pay.item)} aria-hidden="true" />
+                )}
+                {price(t)}
+              </span>
+              <p class="tutor-how">{t.how}</p>
+            </th>
+            <td class="tutor-moves">
+              <ul>
+                {t.moves.map((r, i) => {
+                  const m = move(r.move);
+                  if (!m) throw new Error(`TutorList: move ${r.move} (${r.name}) is not in moves.json`);
+                  // moves only one species can learn there come under its name
+                  const head = r.only && r.only !== t.moves[i - 1]?.only;
+                  return (
+                    <>
+                      {head && <li class="tutor-for">For {speciesBySid(r.only!)?.name ?? `species ${r.only}`}</li>}
+                      <li>
+                        <span class:list={['type-badge', typeClass(m.type)]}>{m.type}</span>
+                        <a href={url(moveHref(m))}>{m.name}</a>
+                        {r.bp && <small>{r.bp} BP</small>}
+                      </li>
+                    </>
+                  );
+                })}
+              </ul>
+            </td>
+            <td class="stone-spot">
+              {t.places.map((p) => (
+                <Spot spot={p.spot} title={`${t.who}, ${p.place}`} />
+              ))}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

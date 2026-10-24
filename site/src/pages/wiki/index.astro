@@ -5,7 +5,7 @@ import ContextLinks from '../../components/ContextLinks.astro';
 import Mon from '../../components/Mon.astro';
 import { url } from '../../lib/url';
 import { stats, spritePos, speciesId } from '../../lib/data';
-import { dexStats, frontSprite, machines } from '../../lib/pokedex';
+import { dexStats, frontSprite, machines, tutors } from '../../lib/pokedex';
 import { LEGEND_COUNT } from '../../data/legendaries';
 import berryData from '../../data/berries.json';
 import { SITE_NAME } from '../../consts';
@@ -88,6 +88,20 @@ const n = (x: number) => x.toLocaleString('en-US');
           <div class="reference-media" aria-hidden="true">
             {['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Liechi Berry'].map((name) => (
               <span class="spr spr-item x2" style={spritePos('item', berryData.berries.find((b) => b.name === name)!.item)} />
+            ))}
+          </div>
+        </a>
+
+        <a class="reference-card" href={url('/guides/move-tutors/')}>
+          <div class="reference-copy">
+            <span class="reference-count">{tutors.length} tutors</span>
+            <h3>Move Tutors</h3>
+            <p>Every tutor, the moves they teach, their price and the favour some want first, and who teaches each move.</p>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="reference-media" aria-hidden="true">
+            {[48, 49, 50, 51].map((item) => (
+              <span class="spr spr-item x2" style={spritePos('item', item)} />
             ))}
           </div>
         </a>

@@ -5,6 +5,7 @@ import movesRaw from '../data/moves.json';
 import abilitiesRaw from '../data/abilities.json';
 import machinesRaw from '../data/tms.json';
 import megaStonesRaw from '../data/megastones.json';
+import tutorsRaw from '../data/tutors.json';
 import sprites from '../data/sprites.json';
 import { slugify, url } from './url';
 import { wildEntry, staticEncounters, speciesId, allTrainers, type Sighting } from './data';
@@ -48,6 +49,8 @@ export type Species = {
   /** indexes into TMS */
   tm: number[];
   egg: number[];
+  /** indexes into the tutor list (TUTOR_MOVES) */
+  tutor: number[];
 };
 export type Move = {
   id: number;
@@ -59,6 +62,8 @@ export type Move = {
   pp: number;
   desc: string;
   tm?: string;
+  /** on the game's tutor list (whether or not anybody teaches it: see tutorsOf) */
+  tutor?: boolean;
   slug: string;
 };
 export type Ability = { id: number; name: string; desc: string; slug: string };
@@ -162,6 +167,45 @@ export const megaStones = megaStonesRaw as MegaStone[];
 /** The stone or orb that brings a form about, if the form is a Mega Evolution or Primal Reversion by held item. */
 export const stoneFor = (s: Species) => megaStones.find((st) => st.mons.some((m) => bySid.get(m.to)?.sid === s.sid));
 export const megaStoneHref = (st: MegaStone) => `/guides/mega-stones-key-items/#${slugify(st.name)}`;
+
+// ---- the move tutors (tools/build_tutors.py) ----
+export type TutorPay =
+  | { kind: 'free' }
+  | { kind: 'money'; amount: number }
+  | { kind: 'items'; item: number; itemName: string; amount: number }
+  | { kind: 'bp' };
+export type Tutor = {
+  id: number;
+  who: string;
+  how: string;
+  group: 'free' | 'favour' | 'shards' | 'frontier' | 'story';
+  places: { place: string; spot: string }[];
+  /** n: the place on the tutor list; bp: the Battle Points a Frontier tutor asks for it; only: the one species
+   * that can learn it there (Chase's partner moves) */
+  moves: { n: number; move: number; name: string; bp?: number; only?: number }[];
+  pay: TutorPay;
+};
+const tutorData = tutorsRaw as { tutors: Tutor[]; moves: { n: number; move: number; name: string; tutors: number[] }[] };
+export const tutors = tutorData.tutors;
+/** the game's tutor list: move ids, by place on the list */
+export const TUTOR_MOVES = tutorData.moves.map((t) => t.move);
+const tutorsByMove = new Map<number, Tutor[]>(tutorData.moves.map((t) => [t.move, t.tutors.map((i) => tutors[i])]));
+/** who teaches a move (empty for a move on the list that nobody in the game teaches) */
+export const tutorsOf = (moveId: number) => tutorsByMove.get(moveId) ?? [];
+export const tutorHref = (t: Tutor) => `/guides/move-tutors/#tutor-${t.id + 1}`;
+export const tutorMoveHref = (m: Move) => `/guides/move-tutors/#move-${m.slug}`;
+const PAY_RANK = { free: 0, money: 1, items: 2, bp: 3 };
+/** what a tutor asks, short: "Free", "¥5,000", "6 Red Shards", "Battle Points" */
+export function payText(p: TutorPay, short = false) {
+  if (p.kind === 'free') return 'Free';
+  if (p.kind === 'money') return `¥${p.amount.toLocaleString('en-US')}`;
+  if (p.kind === 'items') return `${p.amount} ${p.itemName}s`;
+  return short ? 'BP' : 'Battle Points';
+}
+/** the cheapest way to learn a move from a tutor, for a learnset's first column */
+export function cheapestTutor(moveId: number) {
+  return [...tutorsOf(moveId)].sort((a, b) => PAY_RANK[a.pay.kind] - PAY_RANK[b.pay.kind])[0];
+}
 export const abilityHref = (a: Ability) => `/wiki/abilities/#${a.slug}`;
 
 /** Who has each ability: [regular holders, hidden-ability holders]. */

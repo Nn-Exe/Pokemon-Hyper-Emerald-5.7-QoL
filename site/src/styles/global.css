@@ -3016,6 +3016,91 @@ a.type-badge:hover {
   border-color: color-mix(in srgb, var(--gold) 50%, var(--border));
   color: var(--warning);
 }
+/* a move tutor: who, where, and the price; what they ask; the moves */
+.chip.k-free {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  color: var(--success);
+}
+.chip.k-money,
+.chip.k-bp {
+  border-color: color-mix(in srgb, var(--gold) 50%, var(--border));
+  color: var(--warning);
+}
+.chip.k-items {
+  gap: 0.2rem;
+  border-color: color-mix(in srgb, var(--blue) 45%, var(--border));
+  color: var(--blue);
+}
+.chip.k-items .spr {
+  margin-block: -0.35rem;
+}
+.stone-table.tutor-table th[scope='row'] {
+  min-width: 15rem;
+  white-space: normal;
+}
+.tutor-who {
+  display: block;
+}
+.tutor-table .tutor-places {
+  margin: 0.15rem 0 0.45rem;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+.tutor-table li + li {
+  margin-top: 0;
+}
+.tutor-table .tutor-how {
+  margin: 0.55rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.tutor-moves {
+  min-width: 14rem;
+}
+.tutor-moves ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tutor-moves li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.tutor-moves li a,
+.tutor-moves small {
+  white-space: nowrap;
+}
+.tutor-moves .type-badge {
+  flex: none;
+}
+.tutor-moves .tutor-for {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+.tutor-moves li + .tutor-for {
+  margin-top: 0.4rem;
+}
+.tutor-moves small {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+.tutor-index .tm-where {
+  min-width: 18rem;
+}
+.move-where {
+  white-space: nowrap;
+}
+.move-where a + a {
+  margin-left: 0.6rem;
+}
 .berry-table .berry-desc {
   max-width: 16rem;
   color: var(--muted);
@@ -4095,6 +4180,10 @@ a.type-badge:hover {
   }
   .stone-table .stone-spot:empty {
     display: none;
+  }
+  .tutor-table .tutor-moves {
+    grid-column: 1 / -1;
+    min-width: 0;
   }
   .stone-spot .spot-thumb img {
     max-width: 100%;

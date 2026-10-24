@@ -18,6 +18,8 @@ import TotemList from '../../components/TotemList.astro';
 import ItemPlaceList from '../../components/ItemPlaceList.astro';
 import JournalList from '../../components/JournalList.astro';
 import SideContent from '../../components/SideContent.astro';
+import TutorList from '../../components/TutorList.astro';
+import TutorMoveIndex from '../../components/TutorMoveIndex.astro';
 import { allGuides, guideHref, guidePoster, type Guide } from '../../lib/guides';
 import { url, showcase } from '../../lib/url';
 import { clip } from '../../lib/media';
@@ -143,6 +145,8 @@ const crumbs = [{ name: 'Guides', href: '/guides/' }, { name: d.title }];
               ItemPlaceList,
               JournalList,
               SideContent,
+              TutorList,
+              TutorMoveIndex,
             }}
           />
         </div>

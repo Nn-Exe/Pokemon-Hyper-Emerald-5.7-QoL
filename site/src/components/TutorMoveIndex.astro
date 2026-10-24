@@ -1,0 +1,70 @@
+---
+// Every move on the game's tutor list and who teaches it (src/data/tutors.json); the moves nobody teaches last.
+import { move, moveHref, typeClass, tutorsOf, tutorHref, payText, TUTOR_MOVES } from '../lib/pokedex';
+import { url } from '../lib/url';
+
+const listed = TUTOR_MOVES.map((id) => {
+  const m = move(id);
+  if (!m) throw new Error(`TutorMoveIndex: tutor move ${id} is not in moves.json`);
+  return m;
+});
+const taught = listed.filter((m) => tutorsOf(m.id).length).sort((a, b) => a.name.localeCompare(b.name));
+const nobody = listed.filter((m) => !tutorsOf(m.id).length);
+---
+
+<div class="table-shell" tabindex="0" role="region" aria-label="Tutor moves and who teaches them">
+  <table class="move-table stack-table stone-table tutor-index">
+    <thead>
+      <tr>
+        <th scope="col">Move</th>
+        <th scope="col">Type</th>
+        <th scope="col">Category</th>
+        <th scope="col">Taught by</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        taught.map((m) => (
+          <tr id={`move-${m.slug}`}>
+            <th scope="row">
+              <a href={url(moveHref(m))}>{m.name}</a>
+            </th>
+            <td data-label="Type">
+              <span class:list={['type-badge', typeClass(m.type)]}>{m.type}</span>
+            </td>
+            <td data-label="Category" class:list={['move-cat', 'c-' + m.cat.toLowerCase()]}>
+              {m.cat}
+            </td>
+            <td class="tm-where">
+              <ul>
+                {tutorsOf(m.id).map((t) => (
+                  <li>
+                    <span class:list={['chip', `k-${t.pay.kind}`]}>{payText(t.pay, true)}</span>
+                    <span>
+                      <a href={url(tutorHref(t))}>{t.who}</a>
+                      <small>: {t.places.map((p) => p.place).join(' and ')}</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+{
+  nobody.length > 0 && (
+    <p class="dex-note">
+      On the list but taught by nobody in the game ({nobody.length}):
+      {nobody.map((m, i) => (
+        <>
+          <a href={url(moveHref(m))}>{m.name}</a>
+          {i < nobody.length - 1 ? ', ' : '.'}
+        </>
+      ))}
+    </p>
+  )
+}

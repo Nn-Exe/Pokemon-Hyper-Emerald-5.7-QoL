@@ -11,6 +11,11 @@ import {
   speciesBySid,
   TMS,
   machineHref,
+  TUTOR_MOVES,
+  tutorsOf,
+  cheapestTutor,
+  payText,
+  tutorMoveHref,
   stoneFor,
   megaStoneHref,
   STAT_LABELS,
@@ -84,6 +89,14 @@ const levelUp = learner.levelUp.map(([lv, m]) => ({ lead: lv === 0 ? 'Evolve' : 
 const machines = learner.tm
   .map((i) => ({ lead: TMS[i].label, leadHref: machineHref(TMS[i].label), move: TMS[i].move }))
   .filter((r) => move(r.move));
+// tutor moves: the cheapest tutor in the first column, linked to the guide's row for the move; a move on the
+// species' list that nobody in the game teaches is named below the table instead
+const tutorList = learner.tutor.map((n) => move(TUTOR_MOVES[n])!).filter(Boolean);
+const tutored = tutorList
+  .filter((m) => tutorsOf(m.id).length)
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((m) => ({ lead: payText(cheapestTutor(m.id)!.pay, true), leadHref: tutorMoveHref(m), move: m.id }));
+const untaught = tutorList.filter((m) => !tutorsOf(m.id).length);
 const root = speciesBySid(familyRoot(s.sid));
 const eggFrom = learner.egg.length ? learner : root && root.egg.length ? root : undefined;
 const eggs = (eggFrom?.egg ?? []).map((m) => ({ move: m }));
@@ -460,6 +473,7 @@ const sections = [
       <nav class="dex-jump is-inline" aria-label="Learnsets">
         <a href="#level-up">Level up <small>{levelUp.length}</small></a>
         <a href="#machines">TM / HM <small>{machines.length}</small></a>
+        <a href="#tutor-moves">Tutor <small>{tutored.length}</small></a>
         <a href="#egg-moves">Egg <small>{eggs.length}</small></a>
       </nav>
 
@@ -489,6 +503,30 @@ const sections = [
             <p class="dex-note">{s.name} cannot use any TM or HM.</p>
           )
         }
+      </details>
+
+      <details class="learnset" id="tutor-moves" open>
+        <summary>
+          <span>Move tutors</span>
+          <small>{tutored.length} moves</small>
+        </summary>
+        {
+          tutored.length ? (
+            <MoveTable caption={`Moves tutors can teach ${s.name}`} lead="Cheapest" rows={tutored} />
+          ) : (
+            <p class="dex-note">No tutor teaches {s.name} anything.</p>
+          )
+        }
+        {untaught.length > 0 && (
+          <p class="dex-note">
+            Also on its tutor list, but taught by nobody in the game: {untaught.map((m) => m.name).join(', ')}.
+          </p>
+        )}
+        {tutored.length > 0 && (
+          <p class="dex-note">
+            Who teaches each move, where and for what: <a href={url('/guides/move-tutors/')}>Move Tutors</a>.
+          </p>
+        )}
       </details>
 
       <details class="learnset" id="egg-moves" open>

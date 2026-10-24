@@ -3,11 +3,11 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import WikiNav from '../../components/WikiNav.astro';
 import { url } from '../../lib/url';
-import { moves, machineHref, typeClass, TYPE_LIST } from '../../lib/pokedex';
+import { moves, machineHref, typeClass, TYPE_LIST, tutorsOf, tutorMoveHref } from '../../lib/pokedex';
 import { SITE_NAME } from '../../consts';
 
 const crumbs = [{ name: 'Wiki', href: '/wiki/' }, { name: 'Moves' }];
-const description = `The ${moves.length} moves Pokémon can learn in Hyper Emerald v5.7: type, category, power, accuracy, PP, what each one does, and which are TMs or HMs.`;
+const description = `The ${moves.length} moves Pokémon can learn in Hyper Emerald v5.7: type, category, power, accuracy, PP, what each one does, which are TMs or HMs and which a tutor teaches.`;
 const list = [...moves].sort((a, b) => a.name.localeCompare(b.name));
 // power 1 is the game's marker for "worked out in battle"; accuracy 0 never misses
 const dash = (n: number) => (n > 1 ? String(n) : '—');
@@ -39,6 +39,7 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
           <option value="Special">Special</option>
           <option value="Status">Status</option>
           <option value="tm">TMs and HMs only</option>
+          <option value="tutor">Taught by a tutor</option>
         </select>
       </label>
       <div class="wiki-filter-status">
@@ -59,7 +60,7 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
             <th scope="col" class="numeric">Power</th>
             <th scope="col" class="numeric">Acc.</th>
             <th scope="col" class="numeric">PP</th>
-            <th scope="col">TM</th>
+            <th scope="col">TM / Tutor</th>
             <th scope="col">Effect</th>
           </tr>
         </thead>
@@ -74,6 +75,7 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
                 data-type={m.type}
                 data-cat={m.cat}
                 data-tm={m.tm ? '1' : undefined}
+                data-tutor={tutorsOf(m.id).length ? '1' : undefined}
               >
                 <th scope="row">{m.name}</th>
                 <td data-label="Type">
@@ -85,7 +87,11 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
                 <td data-label="Power" class="numeric">{dash(m.power)}</td>
                 <td data-label="Accuracy" class="numeric">{dash(m.acc)}</td>
                 <td data-label="PP" class="numeric">{m.pp}</td>
-                <td data-label="Machine">{m.tm ? <a href={url(machineHref(m.tm))}>{m.tm}</a> : '—'}</td>
+                <td data-label="TM / Tutor" class="move-where">
+                  {m.tm && <a href={url(machineHref(m.tm))}>{m.tm}</a>}
+                  {tutorsOf(m.id).length > 0 && <a href={url(tutorMoveHref(m))}>Tutor</a>}
+                  {!m.tm && !tutorsOf(m.id).length && '—'}
+                </td>
                 <td class="move-desc">{m.desc}</td>
               </tr>
             ))
@@ -97,7 +103,8 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
     <p class="src">
       Read from the move table of v5.7 bugfix 2; only moves that some Pokémon can learn are listed. A dash under Power
       means the move does no direct damage or works its power out in battle; under Accuracy, that it cannot miss.
-      A TM or HM number links to <a href={url('/wiki/tms/')}>where that machine is found</a>.
+      A TM or HM number links to <a href={url('/wiki/tms/')}>where that machine is found</a>, and “Tutor” to
+      <a href={url('/guides/move-tutors/')}>the tutors who teach the move</a>.
     </p>
   </div>
 </Base>
@@ -119,7 +126,12 @@ const dash = (n: number) => (n > 1 ? String(n) : '—');
       const ok =
         (!term || row.dataset.name!.includes(term) || row.dataset.text!.includes(term)) &&
         (!type.value || row.dataset.type === type.value) &&
-        (!cat.value || (cat.value === 'tm' ? row.dataset.tm === '1' : row.dataset.cat === cat.value));
+        (!cat.value ||
+          (cat.value === 'tm'
+            ? row.dataset.tm === '1'
+            : cat.value === 'tutor'
+              ? row.dataset.tutor === '1'
+              : row.dataset.cat === cat.value));
       row.hidden = !ok;
       if (ok) shown++;
     }

@@ -24,7 +24,10 @@ finds each in the build it is given:
                                    learned on evolving (found from Bulbasaur's list; read by 0x0806930C...)
   TMs and HMs       0x09E0FE80     128 moves (TM01-TM120, HM01-HM08); who learns them: 0x08FCD8F4, 16 bytes a
                                    species, bit n = entry n (read by the hack's CanMonLearnTMHM, 0x08FD7D18)
-  egg moves         0x09D78128     the vanilla list: species + 20000, then its moves
+  tutor moves       0x08FD80B8     127 u16 moves, 0xFFFF after (the hack's GetTutorMove, 0x08FD7C08); who learns
+                                   them: tables.py "tutor bits", 16 bytes a species, bit n = tutor move n (the
+                                   hack's bit test, 0x08FD7C70). Who teaches each: tools/build_tutors.py.
+  egg moves        0x09D78128     the vanilla list: species + 20000, then its moves
   evolutions        0x08F387C0     40 bytes a species, five {method, parameter, target, extra}; Eevee's ten are
                                    at 0x09F0B4A0. The methods are read as patches/questlog/evolutions.py reads them.
   other forms       tools/romdata/forms.py: Mega Evolution, Gigantamax, held items, moves, abilities, Bag
@@ -68,6 +71,9 @@ N_MOVES = T.moves
 LEARNSETS = T.table["level-up pointers"]
 TM_MOVES, N_TMHM, N_TM = 0x01E0FE80, 128, 120
 TM_COMPAT = T.table["TM/HM bits"]
+# tutor moves: the hack's GetTutorMove (0x081B2360 -> 0x08FD7C08) reads u16 moves at 0x08FD80B8, 0xFFFF after;
+# who can learn tutor move n: bit n of the species' 16-byte row (the bit test 0x08FD7C70: word n / 32, bit n % 32)
+TUTOR_MOVES, TUTOR_COMPAT = 0x00FD80B8, T.table["tutor bits"]
 EGG_MOVES = T.egg_moves
 EVOS, EEVEE, EEVEE_EVOS = T.table["evolutions"], 133, 0x01F0B4A0
 DEX_ENTRIES = T.dex_entries
@@ -78,6 +84,7 @@ HISUIAN_PILL = 753
 assert rom[BASE_STATS + 28:BASE_STATS + 34] == bytes([45, 49, 49, 45, 65, 65]), "base stats moved"
 assert u16(u32(LEARNSETS + 4) - 0x08000000) == 33, "level-up table moved"       # Bulbasaur starts with Tackle
 assert u32(0x06B698) == 0x09D73A81, "the ability lookup is not hooked where it was"
+assert u32(0x1B2364) == 0x08FD7C09 and u32(0x00FD7C14) == 0x08FD8060, "the tutor list is not where it was"
 assert [u16(ABILITIES + 6 + 2 * k) for k in range(3)] == [65, 65, 34], "ability table moved"   # Bulbasaur
 
 TYPES = {0: "Normal", 1: "Fighting", 2: "Flying", 3: "Poison", 4: "Ground", 5: "Rock", 6: "Bug", 7: "Ghost",
@@ -241,6 +248,12 @@ tm_label = ["TM%02d" % (i + 1) if i < N_TM else "HM%02d" % (i - N_TM + 1) for i 
 for i, m in enumerate(tm_moves):
     if m in moves:
         moves[m].setdefault("tm", tm_label[i])
+tutor_moves = []
+while u16(TUTOR_MOVES + 2 * len(tutor_moves)) != 0xFFFF:
+    tutor_moves.append(u16(TUTOR_MOVES + 2 * len(tutor_moves)))
+for m in tutor_moves:
+    if m in moves:
+        moves[m]["tutor"] = True
 
 abilities = {}
 for a in range(1, N_ABILITIES):
@@ -388,12 +401,14 @@ for sid in range(1, N_SPECIES):
     bits = int.from_bytes(rom[TM_COMPAT + 16 * sid:TM_COMPAT + 16 * sid + 16], "little")
     entry["tm"] = [i for i in range(N_TMHM) if bits >> i & 1 and tm_moves[i] in moves]
     entry["egg"] = [m for m in egg.get(sid, []) if m in moves]
+    bits = int.from_bytes(rom[TUTOR_COMPAT + 16 * sid:TUTOR_COMPAT + 16 * sid + 16], "little")
+    entry["tutor"] = [n for n in range(len(tutor_moves)) if bits >> n & 1 and tutor_moves[n] in moves]
     species.append(entry)
 
 RANK = {"Standard": 0, "Regional": 1, "Form": 1, "Mega": 2, "Gigantamax": 3}
 species.sort(key=lambda s: (s["dex"] or 9999, RANK[s["form"]], s["sid"]))
 learned = {m for s in species for _, m in s["levelUp"]} | {tm_moves[i] for s in species for i in s["tm"]} \
-    | {m for s in species for m in s["egg"]}
+    | {m for s in species for m in s["egg"]} | {tutor_moves[n] for s in species for n in s["tutor"]}
 used_abilities = {a for s in species for a in s["abilities"] + [s["hidden"]] if a}
 
 os.makedirs(OUT, exist_ok=True)
@@ -403,7 +418,8 @@ def dump(name, obj):
     json.dump(obj, open(os.path.join(OUT, name), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 
 
-dump("pokedex.json", {"tm": [{"label": tm_label[i], "move": tm_moves[i]} for i in range(N_TMHM)], "species": species})
+dump("pokedex.json", {"tm": [{"label": tm_label[i], "move": tm_moves[i]} for i in range(N_TMHM)],
+                      "tutor": tutor_moves, "species": species})
 dump("moves.json", [moves[m] for m in sorted(moves) if m in learned])
 dump("abilities.json", [abilities[a] for a in sorted(abilities) if a in used_abilities])
 print("species and forms: %d (%d standard) | moves learned by something: %d of %d | abilities in use: %d" % (

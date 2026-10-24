@@ -1,0 +1,88 @@
+---
+title: Move Tutors
+category: Moves
+description: All 41 move tutors, read from their scripts. Where each one stands, the moves they teach, what they charge and the favour some want first, then every tutor move with who teaches it, and the Move Relearner.
+group: reference
+order: 5
+clip: move-relearner
+heroAlt: The party menu's Moves option opening the Move Relearner
+wide: true
+related: [mega-stones-key-items, side-content, mechanics]
+---
+
+The game has a list of 127 tutor moves, and **41 tutors** teach every one of them. Some teach for free, as often
+as you like. Sixteen want ¥5,000 a move once you have done them a favour, four take coloured Shards, and two in
+the Battle Frontier price their moves in Battle Points. Eight more belong to the story or to one Pokémon.
+
+<Callout type="info" title="Where this list comes from">
+  Each tutor was found and followed through the scripts of the v2.0 game: the moves come from the list the script
+  hands to the game, the price from what it takes, and the favour from the checks it makes before the menu opens.
+  Chase's partner moves are taught another way, by a routine of the hack's own, and were read from it.
+  Each picture shows the map around the tutor, with their tile framed. Click a picture to enlarge it.
+</Callout>
+
+A Pokémon can learn a tutor move only if the move is on that species' own list. The party screen a tutor opens
+marks each Pokémon as able to learn it or not, and every [Pokédex](/wiki/pokedex/) page now lists the tutor moves
+that species can learn, with the cheapest way to get each one. To look a move up, go to
+[Who teaches each move](#who-teaches-each-move).
+
+## Free tutors
+
+Most of these teach a single move and never run out. The two menus (Ever Grande City and Champion
+Island) are free too.
+
+<TutorList group="free" />
+
+## Tutors who ask a favour first
+
+Each of these wants something first: an item, a delivery or a task. After that they teach for ¥5,000 a move.
+You need ¥5,000 on you to open the menu, and the money is taken only once a Pokémon has learned the move:
+change your mind on the party screen and you keep it.
+
+<TutorList group="favour" />
+
+## Shard tutors
+
+Each Shard tutor stands in two places with the same moves. The Shards are taken **before** the menu opens, so
+cancelling after that loses them.
+
+<TutorList group="shards" />
+
+## Battle Frontier tutors
+
+The old Beauty and the old Swimmer sit side by side in the Battle Frontier's Lounge 7, ten moves each.
+
+<Callout type="warn" title="The Battle Points are never taken">
+  Each move shows a Battle Point price, and you need that many Battle Points to choose it, but they stay in your
+  pocket: the step that should take them lost the line that does it in the hack's own script (the unpatched
+  hack has the same bytes). Tested in the v2.0 game: 100 Battle Points before a lesson, 100 after.
+  The same slip sends you back to the wrong menu: after a lesson the menu that comes back is always the
+  Swimmer's, so talk to the Beauty again for hers.
+</Callout>
+
+<TutorList group="frontier" />
+
+## Story tutors and signature moves
+
+Free, but each one waits for a point in the story or teaches a move only one Pokémon can learn.
+
+<TutorList group="story" />
+
+## Who teaches each move
+
+Every tutor move someone in the game teaches, with each tutor who has it and what they charge. A name jumps to
+that tutor above.
+
+<TutorMoveIndex />
+
+The partner moves belong to <Mon name="Let's Go Pikachu" /> and <Mon name="Let's Go Eevee" />, the partners
+Professor Oak offers in Petalburg Woods. Chase teaches them without the party screen's able / not able marks:
+he checks the species only after you have picked the Pokémon and the move it forgets, and any other Pokémon is
+"not compatible".
+
+## The Move Relearner
+
+The patch adds **Moves** to the party menu: pick a Pokémon, choose Moves, and it can relearn a move for free,
+anywhere. The list holds the level-up moves up to its current level and, since v2.0, its egg moves too. The
+game's own Move Relearners, in Fallarbor Town and in Pastoria City, open the same screen for a Heart Scale.
+Tutor moves are not on that list: a Pokémon that forgets one has to go back to a tutor.

@@ -1,0 +1,2648 @@
+{
+ "tutors": [
+  {
+   "id": 0,
+   "who": "A man who lost his Gold Bottle Cap",
+   "how": "Bring him his own Gold Bottle Cap: the item ball in the Timeless Woods (another Gold Bottle Cap will not do; he keeps it). Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Petalburg City",
+     "spot": "0-0-3-29"
+    }
+   ],
+   "moves": [
+    {
+     "n": 52,
+     "move": 360,
+     "name": "Gyro Ball"
+    },
+    {
+     "n": 79,
+     "move": 484,
+     "name": "Heavy Slam"
+    },
+    {
+     "n": 40,
+     "move": 285,
+     "name": "Skill Swap"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 1,
+   "who": "An old man watching the moon",
+   "how": "Give him a “red envelope” of ¥10,000 ten times without leaving Slateport City (he counts them in a temporary variable, which leaving the city clears). Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Slateport City",
+     "spot": "0-1-37-13"
+    }
+   ],
+   "moves": [
+    {
+     "n": 27,
+     "move": 214,
+     "name": "Sleep Talk"
+    },
+    {
+     "n": 26,
+     "move": 203,
+     "name": "Endure"
+    },
+    {
+     "n": 30,
+     "move": 227,
+     "name": "Encore"
+    },
+    {
+     "n": 37,
+     "move": 269,
+     "name": "Taunt"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 2,
+   "who": "A girl who loves tricks",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Mauville City",
+     "spot": "0-2-12-7"
+    }
+   ],
+   "moves": [
+    {
+     "n": 38,
+     "move": 271,
+     "name": "Trick"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 3,
+   "who": "A man watching the sea",
+   "how": "Three tasks: all eight Hoenn Badges, every Trick House puzzle, and the ten red envelopes for his brother, the old man watching the moon in Slateport City. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Route 110",
+     "spot": "0-25-12-62"
+    }
+   ],
+   "moves": [
+    {
+     "n": 11,
+     "move": 94,
+     "name": "Psychic"
+    },
+    {
+     "n": 22,
+     "move": 188,
+     "name": "Sludge Bomb"
+    },
+    {
+     "n": 33,
+     "move": 247,
+     "name": "Shadow Ball"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 4,
+   "who": "A boy who lost his Net Ball",
+   "how": "Bring him a Net Ball. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Route 119",
+     "spot": "0-34-36-117"
+    }
+   ],
+   "moves": [
+    {
+     "n": 18,
+     "move": 141,
+     "name": "Leech Life"
+    },
+    {
+     "n": 60,
+     "move": 404,
+     "name": "X-Scissor"
+    },
+    {
+     "n": 61,
+     "move": 405,
+     "name": "Bug Buzz"
+    },
+    {
+     "n": 96,
+     "move": 639,
+     "name": "Pollen Puff"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 5,
+   "who": "Chase, from Kanto",
+   "how": "Free, as often as you like, but only for the partner Pokémon: the first four moves for Let’s Go Pikachu, the other nine for Let’s Go Eevee. You pick the Pokémon and the move it forgets. Once you have beaten Elaine on Route 104, he battles you first.",
+   "places": [
+    {
+     "place": "Fortree City",
+     "spot": "0-4-19-4"
+    }
+   ],
+   "moves": [
+    {
+     "n": 98,
+     "move": 730,
+     "name": "Zippy Zap",
+     "only": 1094
+    },
+    {
+     "n": 100,
+     "move": 731,
+     "name": "Splishy Splash",
+     "only": 1094
+    },
+    {
+     "n": 99,
+     "move": 732,
+     "name": "Floaty Fall",
+     "only": 1094
+    },
+    {
+     "n": 118,
+     "move": 733,
+     "name": "Pika Papow",
+     "only": 1094
+    },
+    {
+     "n": 101,
+     "move": 734,
+     "name": "Bouncy Bubble",
+     "only": 1095
+    },
+    {
+     "n": 102,
+     "move": 735,
+     "name": "Buzzy Buzz",
+     "only": 1095
+    },
+    {
+     "n": 103,
+     "move": 736,
+     "name": "Sizzly Slide",
+     "only": 1095
+    },
+    {
+     "n": 104,
+     "move": 737,
+     "name": "Glitzy Glow",
+     "only": 1095
+    },
+    {
+     "n": 105,
+     "move": 738,
+     "name": "Baddy Bad",
+     "only": 1095
+    },
+    {
+     "n": 106,
+     "move": 739,
+     "name": "Sappy Seed",
+     "only": 1095
+    },
+    {
+     "n": 107,
+     "move": 740,
+     "name": "Freezy Frost",
+     "only": 1095
+    },
+    {
+     "n": 108,
+     "move": 741,
+     "name": "Sparkly Swirl",
+     "only": 1095
+    },
+    {
+     "n": 120,
+     "move": 742,
+     "name": "Veevee Volley",
+     "only": 1095
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 6,
+   "who": "A man enjoying the sea breeze",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Lilycove City",
+     "spot": "0-5-61-35"
+    }
+   ],
+   "moves": [
+    {
+     "n": 117,
+     "move": 308,
+     "name": "Hydro Cannon"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 7,
+   "who": "A Fighting-type Trainer who cannot beat the Mossdeep Gym",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Mossdeep City",
+     "spot": "0-6-20-24"
+    }
+   ],
+   "moves": [
+    {
+     "n": 7,
+     "move": 67,
+     "name": "Low Kick"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 8,
+   "who": "A reward for Trainers who came through Victory Road",
+   "how": "Free.",
+   "places": [
+    {
+     "place": "Ever Grande City",
+     "spot": "0-8-27-11"
+    }
+   ],
+   "moves": [
+    {
+     "n": 12,
+     "move": 97,
+     "name": "Agility"
+    },
+    {
+     "n": 35,
+     "move": 253,
+     "name": "Uproar"
+    },
+    {
+     "n": 59,
+     "move": 402,
+     "name": "Seed Bomb"
+    },
+    {
+     "n": 93,
+     "move": 626,
+     "name": "Dark Lariat"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 9,
+   "who": "A man who dreamed of an odd purple rock",
+   "how": "Bring him the rock: an Eviolite. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Rustboro City · House 1",
+     "spot": "11-10-9-2"
+    }
+   ],
+   "moves": [
+    {
+     "n": 65,
+     "move": 412,
+     "name": "Energy Ball"
+    },
+    {
+     "n": 67,
+     "move": 414,
+     "name": "Earth Power"
+    },
+    {
+     "n": 70,
+     "move": 430,
+     "name": "Flash Cannon"
+    },
+    {
+     "n": 92,
+     "move": 605,
+     "name": "Dazzling Gleam"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 10,
+   "who": "The husband of the coin-trick woman",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Fortree City · House 2",
+     "spot": "12-5-6-3"
+    }
+   ],
+   "moves": [
+    {
+     "n": 34,
+     "move": 248,
+     "name": "Future Sight"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 11,
+   "who": "A man who knows a move that makes every battle random",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Lilycove City · Department Store Rooftop",
+     "spot": "13-21-15-5"
+    }
+   ],
+   "moves": [
+    {
+     "n": 14,
+     "move": 118,
+     "name": "Metronome"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 12,
+   "who": "A sailor whose Machoke died at work",
+   "how": "Take Machoke’s urn to its tombstone on Mt. Pyre, 5F. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Abandoned Ship · Rooms B1F",
+     "spot": "24-58-1-6"
+    }
+   ],
+   "moves": [
+    {
+     "n": 1,
+     "move": 34,
+     "name": "Body Slam"
+    },
+    {
+     "n": 19,
+     "move": 161,
+     "name": "Tri Attack"
+    },
+    {
+     "n": 77,
+     "move": 447,
+     "name": "Grass Knot"
+    },
+    {
+     "n": 97,
+     "move": 660,
+     "name": "Psychic Fangs"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 13,
+   "who": "An explorer who fell through the floor",
+   "how": "Bring him 15 Escape Ropes. Then ¥5,000 a move (“a discount”).",
+   "places": [
+    {
+     "place": "Granite Cave · B2F",
+     "spot": "24-9-23-2"
+    }
+   ],
+   "moves": [
+    {
+     "n": 80,
+     "move": 486,
+     "name": "Electro Ball"
+    },
+    {
+     "n": 82,
+     "move": 500,
+     "name": "Stored Power"
+    },
+    {
+     "n": 88,
+     "move": 535,
+     "name": "Heat Crash"
+    },
+    {
+     "n": 91,
+     "move": 599,
+     "name": "Venom Drench"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 14,
+   "who": "Yanshan, the strongest man in Team Magma",
+   "how": "He waits here once you have beaten Maxie in Terra Cave (or Yanshan himself on Steven’s Island). Beat him and he teaches V-Create, free, then leaves. After Maxie he is back each time you come into the room, for another battle and another lesson.",
+   "places": [
+    {
+     "place": "Magma Hideout · 3F 3R",
+     "spot": "24-92-16-7"
+    }
+   ],
+   "moves": [
+    {
+     "n": 119,
+     "move": 557,
+     "name": "V-Create"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 15,
+   "who": "The old Beauty",
+   "how": "You need the Battle Points shown beside a move to choose it, but they are not taken (the original hack’s script lost that line), and after a lesson the Swimmer’s menu comes back.",
+   "places": [
+    {
+     "place": "Battle Frontier · Lounge 7",
+     "spot": "26-49-2-5"
+    }
+   ],
+   "moves": [
+    {
+     "n": 28,
+     "move": 224,
+     "name": "Megahorn",
+     "bp": 5
+    },
+    {
+     "n": 29,
+     "move": 226,
+     "name": "Baton Pass",
+     "bp": 10
+    },
+    {
+     "n": 95,
+     "move": 638,
+     "name": "Throat Chop",
+     "bp": 10
+    },
+    {
+     "n": 42,
+     "move": 304,
+     "name": "Hyper Voice",
+     "bp": 10
+    },
+    {
+     "n": 68,
+     "move": 417,
+     "name": "Nasty Plot",
+     "bp": 15
+    },
+    {
+     "n": 2,
+     "move": 53,
+     "name": "Flamethrower",
+     "bp": 15
+    },
+    {
+     "n": 71,
+     "move": 437,
+     "name": "Leaf Storm",
+     "bp": 15
+    },
+    {
+     "n": 84,
+     "move": 503,
+     "name": "Scald",
+     "bp": 15
+    },
+    {
+     "n": 36,
+     "move": 257,
+     "name": "Heat Wave",
+     "bp": 15
+    },
+    {
+     "n": 8,
+     "move": 85,
+     "name": "Thunderbolt",
+     "bp": 15
+    }
+   ],
+   "pay": {
+    "kind": "bp"
+   },
+   "group": "frontier"
+  },
+  {
+   "id": 16,
+   "who": "The old Swimmer",
+   "how": "You need the Battle Points shown beside a move to choose it, but they are not taken (the original hack’s script lost that line), and after a lesson the Swimmer’s menu comes back.",
+   "places": [
+    {
+     "place": "Battle Frontier · Lounge 7",
+     "spot": "26-49-6-5"
+    }
+   ],
+   "moves": [
+    {
+     "n": 20,
+     "move": 164,
+     "name": "Substitute",
+     "bp": 5
+    },
+    {
+     "n": 24,
+     "move": 200,
+     "name": "Outrage",
+     "bp": 10
+    },
+    {
+     "n": 78,
+     "move": 482,
+     "name": "Sludge Wave",
+     "bp": 10
+    },
+    {
+     "n": 25,
+     "move": 473,
+     "name": "Psyshock",
+     "bp": 10
+    },
+    {
+     "n": 0,
+     "move": 14,
+     "name": "Swords Dance",
+     "bp": 15
+    },
+    {
+     "n": 51,
+     "move": 349,
+     "name": "Dragon Dance",
+     "bp": 15
+    },
+    {
+     "n": 94,
+     "move": 630,
+     "name": "High Horsepower",
+     "bp": 15
+    },
+    {
+     "n": 10,
+     "move": 89,
+     "name": "Earthquake",
+     "bp": 15
+    },
+    {
+     "n": 43,
+     "move": 315,
+     "name": "Overheat",
+     "bp": 15
+    },
+    {
+     "n": 5,
+     "move": 58,
+     "name": "Ice Beam",
+     "bp": 15
+    }
+   ],
+   "pay": {
+    "kind": "bp"
+   },
+   "group": "frontier"
+  },
+  {
+   "id": 17,
+   "who": "A Trainer whose Bag was stolen",
+   "how": "Get the Bag back from the thief resting under a tree in the Battle Frontier’s eastern part. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Battle Frontier · Lounge 9",
+     "spot": "26-52-0-6"
+    }
+   ],
+   "moves": [
+    {
+     "n": 44,
+     "move": 322,
+     "name": "Cosmic Power"
+    },
+    {
+     "n": 48,
+     "move": 339,
+     "name": "Bulk Up"
+    },
+    {
+     "n": 49,
+     "move": 347,
+     "name": "Calm Mind"
+    },
+    {
+     "n": 85,
+     "move": 526,
+     "name": "Work Up"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 18,
+   "who": "Zinnia’s grandmother",
+   "how": "After the Delta Episode, once you and Rayquaza have saved Hoenn from the meteor, she reteaches Dragon Ascent (to Rayquaza). Free.",
+   "places": [
+    {
+     "place": "Meteor Temple",
+     "spot": "34-17-1-5"
+    }
+   ],
+   "moves": [
+    {
+     "n": 112,
+     "move": 620,
+     "name": "Dragon Ascent"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 19,
+   "who": "Keldeo’s teacher",
+   "how": "Free, for Keldeo; Secret Sword changes its form.",
+   "places": [
+    {
+     "place": "Meteor Temple",
+     "spot": "34-17-5-3"
+    }
+   ],
+   "moves": [
+    {
+     "n": 114,
+     "move": 548,
+     "name": "Secret Sword"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 20,
+   "who": "A keeper of ancient moves",
+   "how": "Free, for Meloetta.",
+   "places": [
+    {
+     "place": "Meteor Temple",
+     "spot": "34-17-9-5"
+    }
+   ],
+   "moves": [
+    {
+     "n": 113,
+     "move": 547,
+     "name": "Relic Song"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 21,
+   "who": "A Green Shard lover",
+   "how": "9 Green Shards a move, paid before you choose (no refund if you quit).",
+   "places": [
+    {
+     "place": "Couriway Town",
+     "spot": "34-62-3-16"
+    },
+    {
+     "place": "Route 221 · house",
+     "spot": "37-94-4-39"
+    }
+   ],
+   "moves": [
+    {
+     "n": 10,
+     "move": 89,
+     "name": "Earthquake"
+    },
+    {
+     "n": 72,
+     "move": 438,
+     "name": "Power Whip"
+    },
+    {
+     "n": 73,
+     "move": 441,
+     "name": "Gunk Shot"
+    },
+    {
+     "n": 75,
+     "move": 444,
+     "name": "Stone Edge"
+    }
+   ],
+   "pay": {
+    "kind": "items",
+    "item": 51,
+    "itemName": "Green Shard",
+    "amount": 9
+   },
+   "group": "shards"
+  },
+  {
+   "id": 22,
+   "who": "A Yellow Shard collector",
+   "how": "9 Yellow Shards a move, paid before you choose (no refund if you quit).",
+   "places": [
+    {
+     "place": "Couriway Town",
+     "spot": "34-63-35-15"
+    },
+    {
+     "place": "Snowpoint City",
+     "spot": "37-43-1-2"
+    }
+   ],
+   "moves": [
+    {
+     "n": 39,
+     "move": 276,
+     "name": "Superpower"
+    },
+    {
+     "n": 53,
+     "move": 370,
+     "name": "Close Combat"
+    },
+    {
+     "n": 55,
+     "move": 394,
+     "name": "Flare Blitz"
+    },
+    {
+     "n": 66,
+     "move": 413,
+     "name": "Brave Bird"
+    },
+    {
+     "n": 86,
+     "move": 528,
+     "name": "Wild Charge"
+    }
+   ],
+   "pay": {
+    "kind": "items",
+    "item": 50,
+    "itemName": "Yellow Shard",
+    "amount": 9
+   },
+   "group": "shards"
+  },
+  {
+   "id": 23,
+   "who": "Prof. Birch’s assistant, researching Mega energy",
+   "how": "Talk to her once to hear what she is doing. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Granite Cave · the cave west of Dewford Town",
+     "spot": "34-69-10-10"
+    }
+   ],
+   "moves": [
+    {
+     "n": 109,
+     "move": 520,
+     "name": "Grass Pledge"
+    },
+    {
+     "n": 110,
+     "move": 519,
+     "name": "Fire Pledge"
+    },
+    {
+     "n": 111,
+     "move": 518,
+     "name": "Water Pledge"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 24,
+   "who": "The Dragon Elder",
+   "how": "Have the Draco Plate with you (the “proof of the Dragon God’s approval”). Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Icirrus Town",
+     "spot": "35-17-3-4"
+    }
+   ],
+   "moves": [
+    {
+     "n": 42,
+     "move": 304,
+     "name": "Hyper Voice"
+    },
+    {
+     "n": 43,
+     "move": 315,
+     "name": "Overheat"
+    },
+    {
+     "n": 71,
+     "move": 437,
+     "name": "Leaf Storm"
+    },
+    {
+     "n": 78,
+     "move": 482,
+     "name": "Sludge Wave"
+    },
+    {
+     "n": 24,
+     "move": 200,
+     "name": "Outrage"
+    },
+    {
+     "n": 51,
+     "move": 349,
+     "name": "Dragon Dance"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 25,
+   "who": "A Red Shard fan",
+   "how": "6 Red Shards a move, paid before you choose (no refund if you quit).",
+   "places": [
+    {
+     "place": "Icirrus Town",
+     "spot": "35-19-27-10"
+    },
+    {
+     "place": "Ravaged Path",
+     "spot": "36-63-28-4"
+    }
+   ],
+   "moves": [
+    {
+     "n": 4,
+     "move": 664,
+     "name": "Liquidation"
+    },
+    {
+     "n": 32,
+     "move": 242,
+     "name": "Crunch"
+    },
+    {
+     "n": 41,
+     "move": 299,
+     "name": "Blaze Kick"
+    },
+    {
+     "n": 57,
+     "move": 398,
+     "name": "Poison Jab"
+    },
+    {
+     "n": 74,
+     "move": 442,
+     "name": "Iron Head"
+    },
+    {
+     "n": 90,
+     "move": 583,
+     "name": "Play Rough"
+    }
+   ],
+   "pay": {
+    "kind": "items",
+    "item": 48,
+    "itemName": "Red Shard",
+    "amount": 6
+   },
+   "group": "shards"
+  },
+  {
+   "id": 26,
+   "who": "A Blue Shard collector",
+   "how": "6 Blue Shards a move, paid before you choose (no refund if you quit).",
+   "places": [
+    {
+     "place": "Icirrus Town",
+     "spot": "35-19-50-3"
+    },
+    {
+     "place": "Route 212 · house",
+     "spot": "37-94-4-16"
+    }
+   ],
+   "moves": [
+    {
+     "n": 3,
+     "move": 56,
+     "name": "Hydro Pump"
+    },
+    {
+     "n": 6,
+     "move": 59,
+     "name": "Blizzard"
+    },
+    {
+     "n": 9,
+     "move": 87,
+     "name": "Thunder"
+    },
+    {
+     "n": 15,
+     "move": 126,
+     "name": "Fire Blast"
+    },
+    {
+     "n": 64,
+     "move": 411,
+     "name": "Focus Blast"
+    },
+    {
+     "n": 89,
+     "move": 542,
+     "name": "Hurricane"
+    }
+   ],
+   "pay": {
+    "kind": "items",
+    "item": 49,
+    "itemName": "Blue Shard",
+    "amount": 6
+   },
+   "group": "shards"
+  },
+  {
+   "id": 27,
+   "who": "Cogita",
+   "how": "She is here once Volo is beaten and you have heard Rei and Cogita’s news at base camp in Hisui. She teaches these, free, once Team Rainbow Rocket is beaten, but only until you have battled Enamorus with her on Firespit Island: after that she talks and leaves, and the Cogita on Firespit Island teaches the same moves.",
+   "places": [
+    {
+     "place": "Champion Island",
+     "spot": "35-28-2-17"
+    }
+   ],
+   "moves": [
+    {
+     "n": 121,
+     "move": 911,
+     "name": "Mystical Power"
+    },
+    {
+     "n": 122,
+     "move": 924,
+     "name": "Bleakwind Storm"
+    },
+    {
+     "n": 123,
+     "move": 925,
+     "name": "Wildbolt Storm"
+    },
+    {
+     "n": 124,
+     "move": 926,
+     "name": "Sandsear Storm"
+    },
+    {
+     "n": 125,
+     "move": 927,
+     "name": "Lunar Blessing"
+    },
+    {
+     "n": 126,
+     "move": 928,
+     "name": "Take Heart"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 28,
+   "who": "A helper for the World Championship",
+   "how": "Free.",
+   "places": [
+    {
+     "place": "Champion Island",
+     "spot": "35-6-6-22"
+    }
+   ],
+   "moves": [
+    {
+     "n": 10,
+     "move": 89,
+     "name": "Earthquake"
+    },
+    {
+     "n": 72,
+     "move": 438,
+     "name": "Power Whip"
+    },
+    {
+     "n": 73,
+     "move": 441,
+     "name": "Gunk Shot"
+    },
+    {
+     "n": 75,
+     "move": 444,
+     "name": "Stone Edge"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 29,
+   "who": "Cogita",
+   "how": "After Volo, come with Tornadus, Thundurus and Landorus in your party (either form): she calls Enamorus and you battle it (Lv 50). Once that battle is over, caught or knocked out (not if you run), she teaches these, free, as often as you like. Rei (Mingyao) at the Deertrack Heights base camp flies you here.",
+   "places": [
+    {
+     "place": "Hisui · Firespit Island",
+     "spot": "37-105-46-19"
+    }
+   ],
+   "moves": [
+    {
+     "n": 121,
+     "move": 911,
+     "name": "Mystical Power"
+    },
+    {
+     "n": 122,
+     "move": 924,
+     "name": "Bleakwind Storm"
+    },
+    {
+     "n": 123,
+     "move": 925,
+     "name": "Wildbolt Storm"
+    },
+    {
+     "n": 124,
+     "move": 926,
+     "name": "Sandsear Storm"
+    },
+    {
+     "n": 125,
+     "move": 927,
+     "name": "Lunar Blessing"
+    },
+    {
+     "n": 126,
+     "move": 928,
+     "name": "Take Heart"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 30,
+   "who": "Chase again, with Elaine",
+   "how": "The house’s door is locked until you have battled Chase in Fortree City (he battles you once you have beaten Elaine on Route 104). Then the same partner moves, free, as often as you like.",
+   "places": [
+    {
+     "place": "Oreburgh City · house",
+     "spot": "37-116-8-6"
+    }
+   ],
+   "moves": [
+    {
+     "n": 98,
+     "move": 730,
+     "name": "Zippy Zap",
+     "only": 1094
+    },
+    {
+     "n": 100,
+     "move": 731,
+     "name": "Splishy Splash",
+     "only": 1094
+    },
+    {
+     "n": 99,
+     "move": 732,
+     "name": "Floaty Fall",
+     "only": 1094
+    },
+    {
+     "n": 118,
+     "move": 733,
+     "name": "Pika Papow",
+     "only": 1094
+    },
+    {
+     "n": 101,
+     "move": 734,
+     "name": "Bouncy Bubble",
+     "only": 1095
+    },
+    {
+     "n": 102,
+     "move": 735,
+     "name": "Buzzy Buzz",
+     "only": 1095
+    },
+    {
+     "n": 103,
+     "move": 736,
+     "name": "Sizzly Slide",
+     "only": 1095
+    },
+    {
+     "n": 104,
+     "move": 737,
+     "name": "Glitzy Glow",
+     "only": 1095
+    },
+    {
+     "n": 105,
+     "move": 738,
+     "name": "Baddy Bad",
+     "only": 1095
+    },
+    {
+     "n": 106,
+     "move": 739,
+     "name": "Sappy Seed",
+     "only": 1095
+    },
+    {
+     "n": 107,
+     "move": 740,
+     "name": "Freezy Frost",
+     "only": 1095
+    },
+    {
+     "n": 108,
+     "move": 741,
+     "name": "Sparkly Swirl",
+     "only": 1095
+    },
+    {
+     "n": 120,
+     "move": 742,
+     "name": "Veevee Volley",
+     "only": 1095
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "story"
+  },
+  {
+   "id": 31,
+   "who": "A lover of glasswork",
+   "how": "Bring her the five glass flutes: Blue, Yellow, Red, Black and White Flute. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Route 213 · house",
+     "spot": "37-95-4-41"
+    }
+   ],
+   "moves": [
+    {
+     "n": 2,
+     "move": 53,
+     "name": "Flamethrower"
+    },
+    {
+     "n": 5,
+     "move": 58,
+     "name": "Ice Beam"
+    },
+    {
+     "n": 8,
+     "move": 85,
+     "name": "Thunderbolt"
+    },
+    {
+     "n": 25,
+     "move": 473,
+     "name": "Psyshock"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 32,
+   "who": "A fan of a hero in a Tonkatsu film",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Lavaridge Town · House",
+     "spot": "4-3-8-4"
+    }
+   ],
+   "moves": [
+    {
+     "n": 116,
+     "move": 307,
+     "name": "Blast Burn"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 33,
+   "who": "A man in the hot spring",
+   "how": "Bring him 20 Soda Pops and 5 Lemonades. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Lavaridge Town · Pokémon Center 2F",
+     "spot": "4-6-7-9"
+    }
+   ],
+   "moves": [
+    {
+     "n": 46,
+     "move": 334,
+     "name": "Iron Defense"
+    },
+    {
+     "n": 54,
+     "move": 390,
+     "name": "Toxic Spikes"
+    },
+    {
+     "n": 76,
+     "move": 446,
+     "name": "Stealth Rock"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 34,
+   "who": "A student who read a botany book",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Fallarbor Town · Mart",
+     "spot": "5-0-7-2"
+    }
+   ],
+   "moves": [
+    {
+     "n": 115,
+     "move": 338,
+     "name": "Frenzy Plant"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 35,
+   "who": "A fan of deceiving opponents",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Verdanturf Town · Pokémon Center 1F",
+     "spot": "6-4-10-6"
+    }
+   ],
+   "moves": [
+    {
+     "n": 83,
+     "move": 502,
+     "name": "Ally Switch"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  },
+  {
+   "id": 36,
+   "who": "A girl whose boyfriend is challenging the League",
+   "how": "Take her letter to her boyfriend in the Pokémon League’s lobby at Ever Grande City. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Verdanturf Town · House",
+     "spot": "6-8-2-4"
+    }
+   ],
+   "moves": [
+    {
+     "n": 47,
+     "move": 337,
+     "name": "Dragon Claw"
+    },
+    {
+     "n": 50,
+     "move": 348,
+     "name": "Leaf Blade"
+    },
+    {
+     "n": 81,
+     "move": 492,
+     "name": "Foul Play"
+    },
+    {
+     "n": 87,
+     "move": 529,
+     "name": "Drill Run"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 37,
+   "who": "A boy who wants to start a fashion trend",
+   "how": "Bring him the six scarves: Silk, Red, Blue, Pink, Green and Yellow Scarf. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Pacifidlog Town · Pokémon Center 1F",
+     "spot": "7-0-12-8"
+    }
+   ],
+   "moves": [
+    {
+     "n": 56,
+     "move": 396,
+     "name": "Aura Sphere"
+    },
+    {
+     "n": 58,
+     "move": 399,
+     "name": "Dark Pulse"
+    },
+    {
+     "n": 62,
+     "move": 406,
+     "name": "Dragon Pulse"
+    },
+    {
+     "n": 63,
+     "move": 408,
+     "name": "Power Gem"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 38,
+   "who": "An old traveller who never found a Moon Stone",
+   "how": "Bring him a Moon Stone. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Petalburg City · House 1",
+     "spot": "8-2-5-4"
+    }
+   ],
+   "moves": [
+    {
+     "n": 13,
+     "move": 116,
+     "name": "Focus Energy"
+    },
+    {
+     "n": 21,
+     "move": 179,
+     "name": "Reversal"
+    },
+    {
+     "n": 23,
+     "move": 191,
+     "name": "Spikes"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 39,
+   "who": "A shipbuilder who cannot focus",
+   "how": "Ask his friend in the Mossdeep Space Center how the rocket is coming along, and tell him. Then ¥5,000 a move.",
+   "places": [
+    {
+     "place": "Slateport City · Sterns Shipyard 2F",
+     "spot": "9-1-15-3"
+    }
+   ],
+   "moves": [
+    {
+     "n": 16,
+     "move": 759,
+     "name": "Body Press"
+    },
+    {
+     "n": 31,
+     "move": 231,
+     "name": "Iron Tail"
+    },
+    {
+     "n": 45,
+     "move": 330,
+     "name": "Muddy Water"
+    },
+    {
+     "n": 69,
+     "move": 428,
+     "name": "Zen Headbutt"
+    }
+   ],
+   "pay": {
+    "kind": "money",
+    "amount": 5000
+   },
+   "group": "favour"
+  },
+  {
+   "id": 40,
+   "who": "A Trainer who forgot something important",
+   "how": "Free, as often as you like.",
+   "places": [
+    {
+     "place": "Slateport City · Pokémon Fan Club",
+     "spot": "9-6-11-8"
+    }
+   ],
+   "moves": [
+    {
+     "n": 17,
+     "move": 133,
+     "name": "Amnesia"
+    }
+   ],
+   "pay": {
+    "kind": "free"
+   },
+   "group": "free"
+  }
+ ],
+ "moves": [
+  {
+   "n": 0,
+   "move": 14,
+   "name": "Swords Dance",
+   "tutors": [
+    16
+   ]
+  },
+  {
+   "n": 1,
+   "move": 34,
+   "name": "Body Slam",
+   "tutors": [
+    12
+   ]
+  },
+  {
+   "n": 2,
+   "move": 53,
+   "name": "Flamethrower",
+   "tutors": [
+    15,
+    31
+   ]
+  },
+  {
+   "n": 3,
+   "move": 56,
+   "name": "Hydro Pump",
+   "tutors": [
+    26
+   ]
+  },
+  {
+   "n": 4,
+   "move": 664,
+   "name": "Liquidation",
+   "tutors": [
+    25
+   ]
+  },
+  {
+   "n": 5,
+   "move": 58,
+   "name": "Ice Beam",
+   "tutors": [
+    16,
+    31
+   ]
+  },
+  {
+   "n": 6,
+   "move": 59,
+   "name": "Blizzard",
+   "tutors": [
+    26
+   ]
+  },
+  {
+   "n": 7,
+   "move": 67,
+   "name": "Low Kick",
+   "tutors": [
+    7
+   ]
+  },
+  {
+   "n": 8,
+   "move": 85,
+   "name": "Thunderbolt",
+   "tutors": [
+    15,
+    31
+   ]
+  },
+  {
+   "n": 9,
+   "move": 87,
+   "name": "Thunder",
+   "tutors": [
+    26
+   ]
+  },
+  {
+   "n": 10,
+   "move": 89,
+   "name": "Earthquake",
+   "tutors": [
+    16,
+    21,
+    28
+   ]
+  },
+  {
+   "n": 11,
+   "move": 94,
+   "name": "Psychic",
+   "tutors": [
+    3
+   ]
+  },
+  {
+   "n": 12,
+   "move": 97,
+   "name": "Agility",
+   "tutors": [
+    8
+   ]
+  },
+  {
+   "n": 13,
+   "move": 116,
+   "name": "Focus Energy",
+   "tutors": [
+    38
+   ]
+  },
+  {
+   "n": 14,
+   "move": 118,
+   "name": "Metronome",
+   "tutors": [
+    11
+   ]
+  },
+  {
+   "n": 15,
+   "move": 126,
+   "name": "Fire Blast",
+   "tutors": [
+    26
+   ]
+  },
+  {
+   "n": 16,
+   "move": 759,
+   "name": "Body Press",
+   "tutors": [
+    39
+   ]
+  },
+  {
+   "n": 17,
+   "move": 133,
+   "name": "Amnesia",
+   "tutors": [
+    40
+   ]
+  },
+  {
+   "n": 18,
+   "move": 141,
+   "name": "Leech Life",
+   "tutors": [
+    4
+   ]
+  },
+  {
+   "n": 19,
+   "move": 161,
+   "name": "Tri Attack",
+   "tutors": [
+    12
+   ]
+  },
+  {
+   "n": 20,
+   "move": 164,
+   "name": "Substitute",
+   "tutors": [
+    16
+   ]
+  },
+  {
+   "n": 21,
+   "move": 179,
+   "name": "Reversal",
+   "tutors": [
+    38
+   ]
+  },
+  {
+   "n": 22,
+   "move": 188,
+   "name": "Sludge Bomb",
+   "tutors": [
+    3
+   ]
+  },
+  {
+   "n": 23,
+   "move": 191,
+   "name": "Spikes",
+   "tutors": [
+    38
+   ]
+  },
+  {
+   "n": 24,
+   "move": 200,
+   "name": "Outrage",
+   "tutors": [
+    16,
+    24
+   ]
+  },
+  {
+   "n": 25,
+   "move": 473,
+   "name": "Psyshock",
+   "tutors": [
+    16,
+    31
+   ]
+  },
+  {
+   "n": 26,
+   "move": 203,
+   "name": "Endure",
+   "tutors": [
+    1
+   ]
+  },
+  {
+   "n": 27,
+   "move": 214,
+   "name": "Sleep Talk",
+   "tutors": [
+    1
+   ]
+  },
+  {
+   "n": 28,
+   "move": 224,
+   "name": "Megahorn",
+   "tutors": [
+    15
+   ]
+  },
+  {
+   "n": 29,
+   "move": 226,
+   "name": "Baton Pass",
+   "tutors": [
+    15
+   ]
+  },
+  {
+   "n": 30,
+   "move": 227,
+   "name": "Encore",
+   "tutors": [
+    1
+   ]
+  },
+  {
+   "n": 31,
+   "move": 231,
+   "name": "Iron Tail",
+   "tutors": [
+    39
+   ]
+  },
+  {
+   "n": 32,
+   "move": 242,
+   "name": "Crunch",
+   "tutors": [
+    25
+   ]
+  },
+  {
+   "n": 33,
+   "move": 247,
+   "name": "Shadow Ball",
+   "tutors": [
+    3
+   ]
+  },
+  {
+   "n": 34,
+   "move": 248,
+   "name": "Future Sight",
+   "tutors": [
+    10
+   ]
+  },
+  {
+   "n": 35,
+   "move": 253,
+   "name": "Uproar",
+   "tutors": [
+    8
+   ]
+  },
+  {
+   "n": 36,
+   "move": 257,
+   "name": "Heat Wave",
+   "tutors": [
+    15
+   ]
+  },
+  {
+   "n": 37,
+   "move": 269,
+   "name": "Taunt",
+   "tutors": [
+    1
+   ]
+  },
+  {
+   "n": 38,
+   "move": 271,
+   "name": "Trick",
+   "tutors": [
+    2
+   ]
+  },
+  {
+   "n": 39,
+   "move": 276,
+   "name": "Superpower",
+   "tutors": [
+    22
+   ]
+  },
+  {
+   "n": 40,
+   "move": 285,
+   "name": "Skill Swap",
+   "tutors": [
+    0
+   ]
+  },
+  {
+   "n": 41,
+   "move": 299,
+   "name": "Blaze Kick",
+   "tutors": [
+    25
+   ]
+  },
+  {
+   "n": 42,
+   "move": 304,
+   "name": "Hyper Voice",
+   "tutors": [
+    15,
+    24
+   ]
+  },
+  {
+   "n": 43,
+   "move": 315,
+   "name": "Overheat",
+   "tutors": [
+    16,
+    24
+   ]
+  },
+  {
+   "n": 44,
+   "move": 322,
+   "name": "Cosmic Power",
+   "tutors": [
+    17
+   ]
+  },
+  {
+   "n": 45,
+   "move": 330,
+   "name": "Muddy Water",
+   "tutors": [
+    39
+   ]
+  },
+  {
+   "n": 46,
+   "move": 334,
+   "name": "Iron Defense",
+   "tutors": [
+    33
+   ]
+  },
+  {
+   "n": 47,
+   "move": 337,
+   "name": "Dragon Claw",
+   "tutors": [
+    36
+   ]
+  },
+  {
+   "n": 48,
+   "move": 339,
+   "name": "Bulk Up",
+   "tutors": [
+    17
+   ]
+  },
+  {
+   "n": 49,
+   "move": 347,
+   "name": "Calm Mind",
+   "tutors": [
+    17
+   ]
+  },
+  {
+   "n": 50,
+   "move": 348,
+   "name": "Leaf Blade",
+   "tutors": [
+    36
+   ]
+  },
+  {
+   "n": 51,
+   "move": 349,
+   "name": "Dragon Dance",
+   "tutors": [
+    16,
+    24
+   ]
+  },
+  {
+   "n": 52,
+   "move": 360,
+   "name": "Gyro Ball",
+   "tutors": [
+    0
+   ]
+  },
+  {
+   "n": 53,
+   "move": 370,
+   "name": "Close Combat",
+   "tutors": [
+    22
+   ]
+  },
+  {
+   "n": 54,
+   "move": 390,
+   "name": "Toxic Spikes",
+   "tutors": [
+    33
+   ]
+  },
+  {
+   "n": 55,
+   "move": 394,
+   "name": "Flare Blitz",
+   "tutors": [
+    22
+   ]
+  },
+  {
+   "n": 56,
+   "move": 396,
+   "name": "Aura Sphere",
+   "tutors": [
+    37
+   ]
+  },
+  {
+   "n": 57,
+   "move": 398,
+   "name": "Poison Jab",
+   "tutors": [
+    25
+   ]
+  },
+  {
+   "n": 58,
+   "move": 399,
+   "name": "Dark Pulse",
+   "tutors": [
+    37
+   ]
+  },
+  {
+   "n": 59,
+   "move": 402,
+   "name": "Seed Bomb",
+   "tutors": [
+    8
+   ]
+  },
+  {
+   "n": 60,
+   "move": 404,
+   "name": "X-Scissor",
+   "tutors": [
+    4
+   ]
+  },
+  {
+   "n": 61,
+   "move": 405,
+   "name": "Bug Buzz",
+   "tutors": [
+    4
+   ]
+  },
+  {
+   "n": 62,
+   "move": 406,
+   "name": "Dragon Pulse",
+   "tutors": [
+    37
+   ]
+  },
+  {
+   "n": 63,
+   "move": 408,
+   "name": "Power Gem",
+   "tutors": [
+    37
+   ]
+  },
+  {
+   "n": 64,
+   "move": 411,
+   "name": "Focus Blast",
+   "tutors": [
+    26
+   ]
+  },
+  {
+   "n": 65,
+   "move": 412,
+   "name": "Energy Ball",
+   "tutors": [
+    9
+   ]
+  },
+  {
+   "n": 66,
+   "move": 413,
+   "name": "Brave Bird",
+   "tutors": [
+    22
+   ]
+  },
+  {
+   "n": 67,
+   "move": 414,
+   "name": "Earth Power",
+   "tutors": [
+    9
+   ]
+  },
+  {
+   "n": 68,
+   "move": 417,
+   "name": "Nasty Plot",
+   "tutors": [
+    15
+   ]
+  },
+  {
+   "n": 69,
+   "move": 428,
+   "name": "Zen Headbutt",
+   "tutors": [
+    39
+   ]
+  },
+  {
+   "n": 70,
+   "move": 430,
+   "name": "Flash Cannon",
+   "tutors": [
+    9
+   ]
+  },
+  {
+   "n": 71,
+   "move": 437,
+   "name": "Leaf Storm",
+   "tutors": [
+    15,
+    24
+   ]
+  },
+  {
+   "n": 72,
+   "move": 438,
+   "name": "Power Whip",
+   "tutors": [
+    21,
+    28
+   ]
+  },
+  {
+   "n": 73,
+   "move": 441,
+   "name": "Gunk Shot",
+   "tutors": [
+    21,
+    28
+   ]
+  },
+  {
+   "n": 74,
+   "move": 442,
+   "name": "Iron Head",
+   "tutors": [
+    25
+   ]
+  },
+  {
+   "n": 75,
+   "move": 444,
+   "name": "Stone Edge",
+   "tutors": [
+    21,
+    28
+   ]
+  },
+  {
+   "n": 76,
+   "move": 446,
+   "name": "Stealth Rock",
+   "tutors": [
+    33
+   ]
+  },
+  {
+   "n": 77,
+   "move": 447,
+   "name": "Grass Knot",
+   "tutors": [
+    12
+   ]
+  },
+  {
+   "n": 78,
+   "move": 482,
+   "name": "Sludge Wave",
+   "tutors": [
+    16,
+    24
+   ]
+  },
+  {
+   "n": 79,
+   "move": 484,
+   "name": "Heavy Slam",
+   "tutors": [
+    0
+   ]
+  },
+  {
+   "n": 80,
+   "move": 486,
+   "name": "Electro Ball",
+   "tutors": [
+    13
+   ]
+  },
+  {
+   "n": 81,
+   "move": 492,
+   "name": "Foul Play",
+   "tutors": [
+    36
+   ]
+  },
+  {
+   "n": 82,
+   "move": 500,
+   "name": "Stored Power",
+   "tutors": [
+    13
+   ]
+  },
+  {
+   "n": 83,
+   "move": 502,
+   "name": "Ally Switch",
+   "tutors": [
+    35
+   ]
+  },
+  {
+   "n": 84,
+   "move": 503,
+   "name": "Scald",
+   "tutors": [
+    15
+   ]
+  },
+  {
+   "n": 85,
+   "move": 526,
+   "name": "Work Up",
+   "tutors": [
+    17
+   ]
+  },
+  {
+   "n": 86,
+   "move": 528,
+   "name": "Wild Charge",
+   "tutors": [
+    22
+   ]
+  },
+  {
+   "n": 87,
+   "move": 529,
+   "name": "Drill Run",
+   "tutors": [
+    36
+   ]
+  },
+  {
+   "n": 88,
+   "move": 535,
+   "name": "Heat Crash",
+   "tutors": [
+    13
+   ]
+  },
+  {
+   "n": 89,
+   "move": 542,
+   "name": "Hurricane",
+   "tutors": [
+    26
+   ]
+  },
+  {
+   "n": 90,
+   "move": 583,
+   "name": "Play Rough",
+   "tutors": [
+    25
+   ]
+  },
+  {
+   "n": 91,
+   "move": 599,
+   "name": "Venom Drench",
+   "tutors": [
+    13
+   ]
+  },
+  {
+   "n": 92,
+   "move": 605,
+   "name": "Dazzling Gleam",
+   "tutors": [
+    9
+   ]
+  },
+  {
+   "n": 93,
+   "move": 626,
+   "name": "Dark Lariat",
+   "tutors": [
+    8
+   ]
+  },
+  {
+   "n": 94,
+   "move": 630,
+   "name": "High Horsepower",
+   "tutors": [
+    16
+   ]
+  },
+  {
+   "n": 95,
+   "move": 638,
+   "name": "Throat Chop",
+   "tutors": [
+    15
+   ]
+  },
+  {
+   "n": 96,
+   "move": 639,
+   "name": "Pollen Puff",
+   "tutors": [
+    4
+   ]
+  },
+  {
+   "n": 97,
+   "move": 660,
+   "name": "Psychic Fangs",
+   "tutors": [
+    12
+   ]
+  },
+  {
+   "n": 98,
+   "move": 730,
+   "name": "Zippy Zap",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 99,
+   "move": 732,
+   "name": "Floaty Fall",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 100,
+   "move": 731,
+   "name": "Splishy Splash",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 101,
+   "move": 734,
+   "name": "Bouncy Bubble",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 102,
+   "move": 735,
+   "name": "Buzzy Buzz",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 103,
+   "move": 736,
+   "name": "Sizzly Slide",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 104,
+   "move": 737,
+   "name": "Glitzy Glow",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 105,
+   "move": 738,
+   "name": "Baddy Bad",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 106,
+   "move": 739,
+   "name": "Sappy Seed",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 107,
+   "move": 740,
+   "name": "Freezy Frost",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 108,
+   "move": 741,
+   "name": "Sparkly Swirl",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 109,
+   "move": 520,
+   "name": "Grass Pledge",
+   "tutors": [
+    23
+   ]
+  },
+  {
+   "n": 110,
+   "move": 519,
+   "name": "Fire Pledge",
+   "tutors": [
+    23
+   ]
+  },
+  {
+   "n": 111,
+   "move": 518,
+   "name": "Water Pledge",
+   "tutors": [
+    23
+   ]
+  },
+  {
+   "n": 112,
+   "move": 620,
+   "name": "Dragon Ascent",
+   "tutors": [
+    18
+   ]
+  },
+  {
+   "n": 113,
+   "move": 547,
+   "name": "Relic Song",
+   "tutors": [
+    20
+   ]
+  },
+  {
+   "n": 114,
+   "move": 548,
+   "name": "Secret Sword",
+   "tutors": [
+    19
+   ]
+  },
+  {
+   "n": 115,
+   "move": 338,
+   "name": "Frenzy Plant",
+   "tutors": [
+    34
+   ]
+  },
+  {
+   "n": 116,
+   "move": 307,
+   "name": "Blast Burn",
+   "tutors": [
+    32
+   ]
+  },
+  {
+   "n": 117,
+   "move": 308,
+   "name": "Hydro Cannon",
+   "tutors": [
+    6
+   ]
+  },
+  {
+   "n": 118,
+   "move": 733,
+   "name": "Pika Papow",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 119,
+   "move": 557,
+   "name": "V-Create",
+   "tutors": [
+    14
+   ]
+  },
+  {
+   "n": 120,
+   "move": 742,
+   "name": "Veevee Volley",
+   "tutors": [
+    5,
+    30
+   ]
+  },
+  {
+   "n": 121,
+   "move": 911,
+   "name": "Mystical Power",
+   "tutors": [
+    27,
+    29
+   ]
+  },
+  {
+   "n": 122,
+   "move": 924,
+   "name": "Bleakwind Storm",
+   "tutors": [
+    27,
+    29
+   ]
+  },
+  {
+   "n": 123,
+   "move": 925,
+   "name": "Wildbolt Storm",
+   "tutors": [
+    27,
+    29
+   ]
+  },
+  {
+   "n": 124,
+   "move": 926,
+   "name": "Sandsear Storm",
+   "tutors": [
+    27,
+    29
+   ]
+  },
+  {
+   "n": 125,
+   "move": 927,
+   "name": "Lunar Blessing",
+   "tutors": [
+    27,
+    29
+   ]
+  },
+  {
+   "n": 126,
+   "move": 928,
+   "name": "Take Heart",
+   "tutors": [
+    27,
+    29
+   ]
+  }
+ ]
+}
