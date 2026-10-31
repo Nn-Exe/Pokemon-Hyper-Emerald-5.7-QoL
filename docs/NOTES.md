@@ -6249,6 +6249,29 @@ share one, the three Raging Bulls one).
   Old text fixed: mechanics, the Hoenn walkthrough (Chase is on the walkway above Fortree's Gym), the post-game
   table, the Key Items guide's tutor rows.
 
+
+## THE Z-POWER RING AND THE KEY ITEMS TABLE, READ FROM THE GAME - 2026-10-31
+- Asked (a player's report): "Do i need to finish up the 8th gym before getting the Z ring? ... the trainer should be
+  behind the Poke center in Fortree city but I can't find it." The guide's line came from community lists, and three
+  pages repeated it. Read from v2.0 (`_testrun/rel20/hyper20.gba`, fb949e02); the Quest Log's `keyitems.py` had it right.
+- Item 622 is given in one live place: Nanu, Strange Island (35/43), object 2 (0x098354DF) or the trigger at 15,10
+  (0x098358C6). His object on Steven's Island (34/42, 2,31, 0x098B84CF) is hidden by 0x41B0, which Anabel's report on the
+  Pacifidlog wormhole clears (35/40, 0x09833C3E; the same report sets 0x419D and clears 0x3C0, Gladion). The boat warps
+  to 35/43. There: Nanu's battle (trainer 978, sets 0x41A5), then Tapu Bulu Lv 50 at 15,7 (0x0983590D): a run (special
+  0xB7 == 4) clears 0x406D again, anything else leaves it set, and 0x406D gives the ring (sets 0x4090). The Ever Grande
+  guard (0/8, 8,7, 0x0983CD07) checks 0x864 (game clear). Waterfall needs 0x86E in code (0x0809C832).
+- Fortree City's nine objects: nobody near the Pokemon Center battles; Chase (19,4) gives item 113, a Diamond.
+- A dead ring script: 0x094A2479 (`02 5a ...`, the first byte is `end`, then trainer 881 "Shellder" and the ring), its only
+  pointer in an old copy of Mossdeep's object list at 0x089E8040 whose events struct 0x089E8420 nothing points to. The same
+  in the original hack; our patches dropped nothing from Mossdeep (the live list only gained six objects). The Beast
+  Ball NPC in EV Training Cave (34/24, 4,0, 0x0980709C) starts with the same `end` byte: that was the guide's "handed to
+  you inside a wormhole". Live Beast Ball source: 35/41, 15,9.
+- Travel Suit (696): EV Training Cave 35/49, 22,31 (0x098BF3EC), by the warp to Rainbow Castle; the Ultimate Investigator
+  (35/41, 1,10, 0x098BFA02) if you have none once 0x41D5 is set. Wormholes check it after 0x41DD (0x098BF2DB). The lines
+  say "Ultra Suit" and "Ultra Book"; the items are Travel Suit and Ultimate Book. The book: his first talk (0x40C9); with
+  the suit after 0x41D5 he opens list 0x8A of the multichoice table, 14 places.
+- Meteorite (280): the Mt. Chimney machine (24/12, 15,6); Cozmo and Tatara check it. No script gives a "memento" one.
+
 ## AREA ZERO'S PEOPLE, AFTER THE REFERENCES — 2026-10-22 — `patches/azpeople/`
 
 - The user sent phone screenshots of Pokemon Essentials art of Paldea's people ("I found these accurate reference

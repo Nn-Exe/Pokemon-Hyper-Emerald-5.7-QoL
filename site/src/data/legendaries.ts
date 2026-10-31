@@ -103,7 +103,7 @@ export const LEGEND_GROUPS: LegendGroup[] = [
         mons: ['Cosmog', 'Solgaleo', 'Lunala'],
         level: '15',
         where:
-          'Meteor Falls Draconid cave after the Delta Episode; a second from Ghetsis’s Giant Chasm. Evolves at 65: by day for Solgaleo, by night for Lunala. Needed for the Ultra gates until you get the Ultra Suit.',
+          'Meteor Falls Draconid cave after the Delta Episode; a second from Ghetsis’s Giant Chasm. Evolves at 65: by day for Solgaleo, by night for Lunala. Needed for the Ultra gates until you get the Travel Suit.',
         source: 'rom',
       },
       {
